@@ -1,0 +1,330 @@
+###############################################################################
+# Copyright (c) IBM Corporation 2020
+###############################################################################
+
+###############################################################################
+# This sample playbook demonstrates using various modules included in the
+# Red Hat Ansible Certified Content for IBM Z core and IBM Z CICS collection.
+#
+# Usage:
+#  ansible-playbook -i <inventory> <playbook>
+#
+# Example:
+#  ansible-playbook -i inventory cics-collection-sample-deploy-resource.yaml
+#
+# Notes:
+#  This sample demonstrates various ways to perform tasks using Ansible z/OS
+#  core modules. Each module has options available on how automation can be
+#  controlled. This sample does not demonstrate all options, refer to
+#  documentation or ansible-doc for those options.
+#
+#  When running this playbook, review the comments on how ths sample will
+#  interact with your target, ensure you have the required authority and
+#  permissions such as writing the the target directories or creating data sets.
+#
+#  Additional facts for this playbook can be configured to override the defaults
+#  by reviewing the "Fact setting" section of this playbook, for example,
+#  `destination`.
+#
+# Requirements:
+#   IBM z/OS core collection 1.1.0 or later
+#   IBM z/OS CICS collection 1.0.0 or later
+#   ZOAU 1.0.1 or later
+#
+# Configure:
+#   cmci_host - this is host system that host the your region.
+#   cmci_port - the CMCI port configured in your cics region.
+#   cmci_context - the CICS region's applid.
+#   temp_path: - the temp directory for holding files for PONG.cbl and PONG.jcl
+#   load_lib: - the load lib that save the compiled cobol module
+# Optional:
+#   destination_dataset - this is the data set name that will be created during
+#                         execution of this sample for hold the cobol program source code.
+#   load_lib - this is the data set name that will be created during
+#                         execution of this sample for hold the compiled cobol module.
+###############################################################################
+
+---
+- name:  CICS resources deployment
+  hosts: zos-workers
+  collections:
+   - ibm.ibm_zos_core
+   - ibm.ibm_zos_cics
+  gather_facts: false
+  vars:
+    cmci_host: "zoshost"
+    cmci_port: "1005"
+    cmci_context: "CICSA"
+    temp_path: "/tmp"
+
+  environment: "{{ environment_vars }}"
+
+  tasks:
+  - name: Setting fact `destination_dataset` for use by this sample
+    set_fact:
+      destination_dataset: "{{ ansible_user | upper }}.SOME.DATA.SET"
+
+  - name: Fact `destination` set with value
+    debug:
+      msg: "{{ destination_dataset }}"
+
+  - name: Setting fact `load_lib` for use by this sample
+    set_fact:
+      load_lib: "{{ ansible_user | upper }}.SOME.LOAD"
+
+  - name: Fact `load_lib` set with value
+    debug:
+      msg: "{{ load_lib }}"
+
+  - name: copy program to zos
+    zos_copy:
+      src: "{{ temp_path }}/files/{{app_name}}.cbl"
+      dest: {{ destination_dataset }}
+      encoding:
+        from: UTF-8
+        to: IBM-1047
+    register: result
+
+  - name: Response for check if program was successfully copied
+    debug:
+      msg: "{{ result }}"
+
+  - name: replace cobol source location in the source compile jcl 
+    replace:
+      path: "{{ temp_path }}/files/{{ app_name }}.jcl"
+      regexp: "<load_lib>"
+      replace: "{{ load_lib }}"
+
+  - name: replace cobol module name in the source compile jcl 
+    replace:
+      path: "{{ temp_path }}/files/{{ app_name }}.jcl"
+      regexp: "<app_name>"
+      replace: "{{ app_name }}"
+
+  - name: replace the source location in the source compile jcl 
+    replace:
+      path: "{{ temp_path }}/files/{{ app_name }}.jcl"
+      regexp: "<destination_dataset>"
+      replace: "{{ destination_dataset }}(app_name)"
+
+  - name: complile the program
+    zos_job_submit:
+      src: "{{ temp_path }}/files/{{ app_name }}.jcl"
+      location: LOCAL
+      wait: true
+      wait_time_s: 30
+    register: result
+
+  - name: Response for check if program was successfully compiled
+    debug:
+      msg: "{{ result }}"
+
+  - name: define a library in a CICS region
+    cics_cmci:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      context: '{{ cmci_context }}'
+      option: 'define'
+      resource: 
+        - type: CICSDefinitionLIBRARY
+          attributes: 
+             - name: {{ app_name }}
+               DSNAME01: {{ load_lib }}
+               csdgroup: TSTGRP
+          parameters:
+             - name: CSD
+    delegate_to: localhost
+    register: result
+
+  - name: Response for check if library was successfully defined
+    debug:
+      msg: "{{ result }}"
+
+  - name: install a library in a CICS region
+    cics_cmci:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      context: '{{ cmci_context }}'
+      option: 'install'
+      resource: 
+        - type: CICSDefinitionLIBRARY
+          location: CSD
+      filter: 
+           - criteria: NAME={{ app_name }}
+             parameter: CSDGROUP(TESTGRP)
+    delegate_to: localhost
+    register: result
+
+  - name: Response for check if library was successfully installed
+    debug:
+      msg: "{{ result }}"
+
+  - name: define a program in a CICS region
+    cics_cmci:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      context: '{{ cmci_context }}'
+      option: 'define'
+      resource: 
+        - type: CICSDefinitionProgram
+          attributes: 
+             - name: {{ app_name }}
+               csdgroup: TSTGRP
+          parameters:
+             - name: CSD
+      record_count: 1
+    delegate_to: localhost
+    register: result
+
+  - name: Response for check if program was successfully defined
+    debug:
+      msg: "{{ result }}"
+
+  - name: install a program in a CICS region
+    cics_cmci:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      context: '{{ cmci_context }}'
+      option: 'install'
+      resource: 
+        - type: CICSDefinitionProgram
+          location: CSD
+      filter: 
+           - criteria: NAME={{ app_name }}
+             parameter: CSDGROUP(TSTGRP)
+    delegate_to: localhost
+    register: result
+
+  - name: Response for check if program was successfully installed
+    debug:
+      msg: "{{ result }}"
+
+  - name: update a program definition in a CICS region
+    cics_cmci:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      context: '{{ cmci_context }}'
+      option: 'update'
+      resource: 
+        - type: CICSDefinitionProgram
+          attributes:
+            - description: 'add description'
+          parameters:
+            - name: CSD
+      filter: 
+          - criteria: NAME={{ app_name }}
+            parameter: CSDGROUP(TSTGRP)
+    delegate_to: localhost
+    register: result
+
+  - name: Response for check if program description was successfully updated
+    debug:
+      msg: "{{ result }}"
+
+  - name: disable a program in a CICS region
+    ibm.ibm_zos_cics.cics_cmci:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      context: '{{ cmci_context }}'
+      option: 'update'
+      resource: 
+        - type: CICSProgram
+          attributes:
+            - Enablestatus: disabled
+      filter: 
+          - criteria: NAME=PONG
+    delegate_to: localhost
+    register: result
+
+  - name: Response for check if program was successfully disabled
+    debug:
+      msg: "{{ result }}"
+
+  - name: delete a program in a CICS region
+    ibm.ibm_zos_cics.cics_cmci:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      context: '{{ cmci_context }}'
+      option: 'delete'
+      resource: 
+        - type: CICSProgram
+      filter: 
+        - criteria: NAME=PONG
+    delegate_to: localhost
+    register: result
+
+  - name: Response for check if program was successfully deleted
+    debug:
+      msg: "{{ result }}"
+
+  - name: delete a program definition in a CICS region
+    ibm.ibm_zos_cics.cics_cmci:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      context: '{{ cmci_context }}'
+      option: 'delete'
+      resource: 
+        - type: CICSDefinitionProgram
+      filter: 
+        - criteria: NAME=PONG
+          parameter: CSDGROUP(TSTGRP)
+    delegate_to: localhost
+    register: result
+
+  - name: Response for check if program definition was successfully deleted
+    debug:
+      msg: "{{ result }}"
+
+  - name: disable a library in a CICS region
+    ibm.ibm_zos_cics.cics_cmci:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      context: '{{ cmci_context }}'
+      option: 'update'
+      resource: 
+        - type: CICSLIBRARY
+          attributes:
+            - Enablestatus: disabled
+      filter: 
+          - criteria: NAME=PONG
+    delegate_to: localhost
+    register: result
+
+  - name: Response for check if library was successfully disabled
+    debug:
+      msg: "{{ result }}"
+
+  - name: delete a library in a CICS region
+    ibm.ibm_zos_cics.cics_cmci:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      context: '{{ cmci_context }}'
+      option: 'delete'
+      resource: 
+        - type: CICSLIBRARY
+      filter: 
+        - criteria: NAME=PONG
+    delegate_to: localhost
+    register: result
+
+  - name: Response for check if library was successfully deleted
+    debug:
+      msg: "{{ result }}"
+
+  - name: delete a library definition in a CICS region
+    ibm.ibm_zos_cics.cics_cmci:
+        cmci_host: '{{ cmci_host }}'
+        cmci_port: '{{ cmci_port }}'
+        context: '{{ cmci_context }}'
+        option: 'delete'
+        resource: 
+          - type: CICSDefinitionLIBRARY
+        filter: 
+          - criteria: NAME=PONG
+            parameter: CSDGROUP(TSTGRP)
+    delegate_to: localhost
+    register: result
+
+  - name: Response for check if library definition was successfully deleted
+    debug:
+      msg: "{{ result }}"
