@@ -2,7 +2,7 @@
 namespace: ibm
 
 # Red Hat Ansible Certified Content for IBM Z
-name: ansible_collections_ibm_zos_cics
+name: ibm_zos_cics
 
 # The collection version
 version: 1.0.0

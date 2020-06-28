@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-​
+# -*- coding: utf-8 -*-
 # Copyright (c) IBM Corporation 2019, 2020
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -15,7 +15,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = r"""
 ---
 module: cics_cmci
-short_description: Manage cics and CPSM resources
+short_description: Manage CICS and CPSM resources
 description:
   - The cics_cmci module could be used to  manage installed and definitional
     CICS and CICSPlex® SM resources on CICS regions.
