@@ -113,13 +113,13 @@ options:
       attributes:
         description:
           - The resource attributes,refer to the CICSPlex SM resource tables
-            in KC to find the possible attributes
+            in KC to find the possible attributes.
         type: list
         required: false
       parameters:
         description:
           - The resource parameters,refer to the CICSPlex SM resource tables
-            in KC to get the possible parameters
+            in KC to get the possible parameters.
         type: list
         required: false
       location:
