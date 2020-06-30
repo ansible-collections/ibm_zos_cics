@@ -13,7 +13,7 @@ import pytest
 # from mock import call
 
 # Used my some mock modules, should match import directly below
-IMPORT_NAME = 'ansible_collections_ibm_zos_cics.plugins.modules.cics_cmci'
+IMPORT_NAME = 'ibm_zos_cics.plugins.modules.cics_cmci'
 
 # * Tests for zos_operator
 
