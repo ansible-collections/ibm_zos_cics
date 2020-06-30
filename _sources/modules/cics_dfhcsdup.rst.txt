@@ -1,0 +1,311 @@
+
+:github_url: https://github.com/ansible-collections/ibm_zos_core/blob/dev/plugins/modules/cics_dfhcsdup.py
+
+.. _cics_dfhcsdup_module:
+
+
+cics_dfhcsdup -- Run CICS system definition utility program DFHCSDUP
+====================================================================
+
+
+
+.. contents::
+   :local:
+   :depth: 1
+
+
+Synopsis
+--------
+- Run CICS system definition utility program DFHCSDUP to read from and write to a CICS system definition (CSD) file.
+- Manage CICS resource definitions using commands supplied as part of DFHCSDUP.
+- ALL the commands supplied by DFHCSDUP can be invoked through this module, such as ADD, ALTER, COPY, DEFINE, DELETE, EXTRACT, etc. Refer to CICS Resource Definition Guide for command usage.
+
+
+
+
+
+Parameters
+----------
+
+
+     
+cmd_dsn
+  Specify the file used in which the command statements are stored.
+
+  Required if the parameter cmd_stmt is not specified.
+
+
+  | **required**: False
+  | **type**: str
+
+
+     
+cmd_stmt
+  Specify the command statements which would be invoked through the utility.
+
+  Required if the parameter cmd_file is not specified.
+
+
+  | **required**: False
+  | **type**: list
+
+
+     
+  command_type
+    Specify the command to be executed.
+
+
+    | **required**: False
+    | **type**: dict
+
+
+     
+    attr_list
+      The resource attributes.
+
+
+      | **required**: False
+      | **type**: dict
+
+
+     
+    group_name
+      The group name.
+
+
+      | **required**: False
+      | **type**: str
+
+
+     
+    list_name
+      The list name.
+
+
+      | **required**: False
+      | **type**: str
+
+
+     
+    resource_name
+      The resource name.
+
+
+      | **required**: False
+      | **type**: str
+
+
+     
+    resource_type
+      The resource type.
+
+
+      | **required**: False
+      | **type**: str
+
+
+
+
+     
+cmd_str
+  Specify the file used in which the command statements are stored.
+
+  Required if the parameter cmd_stmt is not specified.
+
+
+  | **required**: False
+  | **type**: list
+
+
+     
+dfhcsd
+  Specifies the CSD file which you read from or write to.
+
+
+  | **required**: True
+  | **type**: str
+
+
+     
+parms
+  The program arguments, e.g. -a='UPPERCASE'.
+
+
+  | **required**: False
+  | **type**: dict
+
+
+     
+  access_mode
+    Specifies whether you want read and write access or read-only access to the CSD.
+
+
+    | **required**: False
+    | **type**: str
+    | **default**: rw
+    | **choices**: rw, ro
+
+
+     
+  compat
+    Specifies whether the DFHCSDUP utility program is to run in compatibility mode.
+
+
+    | **required**: False
+    | **type**: bool
+
+
+     
+  page_size
+    Specifies the number of lines per page on output listings.
+
+    Values range from 4 to 9999.
+
+
+    | **required**: False
+    | **type**: int
+    | **default**: 60
+
+
+     
+  uppercase
+    Specifies that you want all output from DFHCSDUP to be in uppercase.
+
+
+    | **required**: False
+    | **type**: bool
+
+
+
+     
+seccsd
+  Specifies the CSD file which you read from or write to.
+
+  Required if you specify the FROMCSD parameter on an APPEND, COPY, or SERVICE command.
+
+
+  | **required**: False
+  | **type**: str
+
+
+     
+steplib
+  Specifies the library in which the utility is stored in.
+
+
+  | **required**: True
+  | **type**: str
+
+
+     
+userprog_dd
+  Specifies the dd names used by the user program.
+
+  Required if you specify the EXTRACT command and need to do some customized operations.
+
+
+  | **required**: False
+  | **type**: str
+
+
+     
+userprog_ds
+  Specifies the input data set that is used by the user program.
+
+  Required if you specify the EXTRACT command and need to do some customized operations.
+
+
+  | **required**: False
+  | **type**: str
+
+
+     
+userprog_lib
+  Specifies the library in which the utility is stored in.
+
+  Required if you specify the EXTRACT command and need to do some customized operations.
+
+
+  | **required**: False
+  | **type**: str
+
+
+
+
+Examples
+--------
+
+.. code-block:: yaml+jinja
+
+   
+     - name: Test case for cics_dfhcsdup
+       cics_dfhcsdup:
+         steplib: CTS540.CICS710.SDFHLOAD
+         dfhcsd: XXXXXX.ATEST.DFHCSD
+         cmd_stmt:
+           - add:
+               list_name: LST01
+               group_name: GRP01
+
+
+
+
+
+
+
+
+
+Return Values
+-------------
+
+
+   
+                              
+       ret_code
+        | The return code.
+      
+        | **returned**: always
+        | **type**: int
+      
+      
+                              
+       csd
+        | The CSD data set used.
+      
+        | **returned**: always
+        | **type**: str
+        | **sample**: XXXXXXX.TEST.DFHCSD
+
+            
+      
+      
+                              
+       cmds
+        | The CSD commands or command data set name.
+      
+        | **returned**: always
+        | **type**: str
+        | **sample**: ['ADD GROUP(GRP01) LIST(LST01)']
+
+            
+      
+      
+                              
+       content
+        | Holds additional information related to resource definition that may be useful to the user.
+      
+        | **returned**: if error
+        | **type**: str
+        | **sample**: XXXXXX.TEST.MSGPS
+
+            
+      
+      
+                              
+       changed
+        | Indicates if any changes were made during module operation.
+      
+        | **returned**: always
+        | **type**: bool
+      
+        

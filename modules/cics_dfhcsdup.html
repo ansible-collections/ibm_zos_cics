@@ -1,0 +1,464 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>cics_dfhcsdup – Run CICS system definition utility program DFHCSDUP &mdash; IBM Z CICS Collection 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="cics_dfhrmutl – CICS Recovery manager utility program" href="cics_dfhrmutl.html" />
+    <link rel="prev" title="cics_dfhccutl – Initialize CICS local catalog" href="cics_dfhccutl.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> IBM Z CICS Collection
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Modules</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../modules.html#module-reference">Module reference</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="cics_cmci.html">cics_cmci – Manage cics and CPSM resources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cics_dfhccutl.html">cics_dfhccutl – Initialize CICS local catalog</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">cics_dfhcsdup – Run CICS system definition utility program DFHCSDUP</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#return-values">Return Values</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cics_dfhrmutl.html">cics_dfhrmutl – CICS Recovery manager utility program</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../playbooks.html">Playbooks</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Community guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../community_guides.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community_guides.html#helpful-links">Helpful Links</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Requirements</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../requirements.html">Requirements</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Appendices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Releases</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">IBM Z CICS Collection</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../modules.html">Modules</a> &raquo;</li>
+        
+      <li>cics_dfhcsdup – Run CICS system definition utility program DFHCSDUP</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <!-- User defined GitHub URL -->
+              <a href="https://github.com/ansible-collections/ibm_zos_core/blob/dev/plugins/modules/cics_dfhcsdup.py" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cics-dfhcsdup-run-cics-system-definition-utility-program-dfhcsdup">
+<span id="cics-dfhcsdup-module"></span><h1>cics_dfhcsdup – Run CICS system definition utility program DFHCSDUP<a class="headerlink" href="#cics-dfhcsdup-run-cics-system-definition-utility-program-dfhcsdup" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id2">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#examples" id="id3">Examples</a></p></li>
+<li><p><a class="reference internal" href="#return-values" id="id4">Return Values</a></p></li>
+</ul>
+</div>
+<div class="section" id="synopsis">
+<h2><a class="toc-backref" href="#id1">Synopsis</a><a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Run CICS system definition utility program DFHCSDUP to read from and write to a CICS system definition (CSD) file.</p></li>
+<li><p>Manage CICS resource definitions using commands supplied as part of DFHCSDUP.</p></li>
+<li><p>ALL the commands supplied by DFHCSDUP can be invoked through this module, such as ADD, ALTER, COPY, DEFINE, DELETE, EXTRACT, etc. Refer to CICS Resource Definition Guide for command usage.</p></li>
+</ul>
+</div>
+<div class="section" id="parameters">
+<h2><a class="toc-backref" href="#id2">Parameters</a><a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<dl>
+<dt>cmd_dsn</dt><dd><p>Specify the file used in which the command statements are stored.</p>
+<p>Required if the parameter cmd_stmt is not specified.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>cmd_stmt</dt><dd><p>Specify the command statements which would be invoked through the utility.</p>
+<p>Required if the parameter cmd_file is not specified.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: list</div>
+</div>
+<dl>
+<dt>command_type</dt><dd><p>Specify the command to be executed.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>attr_list</dt><dd><p>The resource attributes.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+</dd>
+<dt>group_name</dt><dd><p>The group name.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>list_name</dt><dd><p>The list name.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>resource_name</dt><dd><p>The resource name.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>resource_type</dt><dd><p>The resource type.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt>cmd_str</dt><dd><p>Specify the file used in which the command statements are stored.</p>
+<p>Required if the parameter cmd_stmt is not specified.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: list</div>
+</div>
+</dd>
+<dt>dfhcsd</dt><dd><p>Specifies the CSD file which you read from or write to.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: True</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>parms</dt><dd><p>The program arguments, e.g. -a=’UPPERCASE’.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>access_mode</dt><dd><p>Specifies whether you want read and write access or read-only access to the CSD.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>default</strong>: rw</div>
+<div class="line"><strong>choices</strong>: rw, ro</div>
+</div>
+</dd>
+<dt>compat</dt><dd><p>Specifies whether the DFHCSDUP utility program is to run in compatibility mode.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+<dt>page_size</dt><dd><p>Specifies the number of lines per page on output listings.</p>
+<p>Values range from 4 to 9999.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+<div class="line"><strong>default</strong>: 60</div>
+</div>
+</dd>
+<dt>uppercase</dt><dd><p>Specifies that you want all output from DFHCSDUP to be in uppercase.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>seccsd</dt><dd><p>Specifies the CSD file which you read from or write to.</p>
+<p>Required if you specify the FROMCSD parameter on an APPEND, COPY, or SERVICE command.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>steplib</dt><dd><p>Specifies the library in which the utility is stored in.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: True</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>userprog_dd</dt><dd><p>Specifies the dd names used by the user program.</p>
+<p>Required if you specify the EXTRACT command and need to do some customized operations.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>userprog_ds</dt><dd><p>Specifies the input data set that is used by the user program.</p>
+<p>Required if you specify the EXTRACT command and need to do some customized operations.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>userprog_lib</dt><dd><p>Specifies the library in which the utility is stored in.</p>
+<p>Required if you specify the EXTRACT command and need to do some customized operations.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</div>
+<div class="section" id="examples">
+<h2><a class="toc-backref" href="#id3">Examples</a><a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Test case for cics_dfhcsdup</span>
+  <span class="nt">cics_dfhcsdup</span><span class="p">:</span>
+    <span class="nt">steplib</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">CTS540.CICS710.SDFHLOAD</span>
+    <span class="nt">dfhcsd</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">XXXXXX.ATEST.DFHCSD</span>
+    <span class="nt">cmd_stmt</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="nt">add</span><span class="p">:</span>
+          <span class="nt">list_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">LST01</span>
+          <span class="nt">group_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">GRP01</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="return-values">
+<h2><a class="toc-backref" href="#id4">Return Values</a><a class="headerlink" href="#return-values" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><dl>
+<dt>ret_code</dt><dd><div class="line-block">
+<div class="line">The return code.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: always</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>csd</dt><dd><div class="line-block">
+<div class="line">The CSD data set used.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: always</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>sample</strong>: XXXXXXX.TEST.DFHCSD</div>
+</div>
+</dd>
+<dt>cmds</dt><dd><div class="line-block">
+<div class="line">The CSD commands or command data set name.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: always</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>sample</strong>: [‘ADD GROUP(GRP01) LIST(LST01)’]</div>
+</div>
+</dd>
+<dt>content</dt><dd><div class="line-block">
+<div class="line">Holds additional information related to resource definition that may be useful to the user.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: if error</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>sample</strong>: XXXXXX.TEST.MSGPS</div>
+</div>
+</dd>
+<dt>changed</dt><dd><div class="line-block">
+<div class="line">Indicates if any changes were made during module operation.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: always</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+</dl>
+</div></blockquote>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cics_dfhrmutl.html" class="btn btn-neutral float-right" title="cics_dfhrmutl – CICS Recovery manager utility program" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cics_dfhccutl.html" class="btn btn-neutral float-left" title="cics_dfhccutl – Initialize CICS local catalog" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, IBM
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
