@@ -59,7 +59,7 @@ cmci_key
 
      
 cmci_password
-  The password of cmci_user to pass to the basic authentication
+  The password of the cmci_user. Used only for basic authentication.
 
 
   | **required**: False
@@ -88,7 +88,7 @@ cmci_user
 
      
 context
-  If CMCI is installed in a CICSPlex SM environment, context is the name. of the CICSplex or CMAS associated with the request; for example, PLEX1. See the relevant resource table in CICSPlex SM resource tables to determine whether to specify a CICSplex or CMAS.
+  If CMCI is installed in a CICSPlex SM environment, context is the name of the CICSplex or CMAS associated with the request; for example, PLEX1. See the relevant resource table in CICSPlex SM resource tables to determine whether to specify a CICSplex or CMAS.
 
   If CMCI is installed as a single server, context is the application ID of the CICS region associated with the request.
 
@@ -139,7 +139,7 @@ filter
 
      
 option
-  The definition or operation you want to perform on your CICS or CPSM resources
+  The operation you want to perform on your CICS or CPSM resources.
 
 
   | **required**: False
