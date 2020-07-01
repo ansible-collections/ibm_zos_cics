@@ -16,7 +16,7 @@ cics_cmci -- Manage cics and CPSM resources
 
 Synopsis
 --------
-- The cics_cmci module could be used to  manage installed and definitional CICS and CICSPlex® SM resources on CICS regions.
+- The cics_cmci module can be used to manage installed and definitional CICS and CICSPlex® SM resources on CICS regions.
 
 
 
@@ -28,9 +28,9 @@ Parameters
 
      
 cmci_cert
-  Location of the PEM-formatted certificate chain file to be used for HTTPS client authentication.
+  The location of the PEM-formatted certificate chain file to be used for HTTPS client authentication.
 
-  Required when security type is certificate.
+  Required when security type is 'certificate'.
 
 
   | **required**: False
@@ -62,7 +62,7 @@ cmci_password
   The password of cmci_user to pass to the basic authentication
 
 
-  | **required**: false
+  | **required**: False
   | **type**: str
 
 
@@ -82,7 +82,7 @@ cmci_user
   Required when security type is yes.
 
 
-  | **required**: false
+  | **required**: False
   | **type**: str
 
 
@@ -95,7 +95,7 @@ context
   The value of context must not contain spaces. Context is not case-sensitive.
 
 
-  | **required**: false
+  | **required**: False
   | **type**: str
 
 
@@ -108,7 +108,7 @@ filter
   The filter could work with option 'query','update','delete', otherwise it will be ignored
 
 
-  | **required**: false
+  | **required**: False
   | **type**: list
 
 
@@ -139,10 +139,10 @@ filter
 
      
 option
-  The definition or operation you want to perform with your CICS or CPSM resources
+  The definition or operation you want to perform on your CICS or CPSM resources
 
 
-  | **required**: false
+  | **required**: False
   | **type**: str
   | **default**: query
   | **choices**: define, delete, update, install, query
@@ -150,11 +150,12 @@ option
 
      
 record_count
-  Only work with 'query' option, otherwise it will be ignored
-
+  
   Identifies a subset of records in a results cache starting from the first record in the results cache or from the record specified by the index parameter.
 
-  A negative number indicates a count back from the last record; for example, -1 means the last record, -2 the last record but one, and so on
+  This field is only relevant when the 'query' option is used, otherwise it will be ignored
+
+  A negative number indicates a count back from the last record; for example, -1 means the last record, -2 the last record but one, and so on.
 
   Count must be an integer, a value of zero is not permitted.
 
@@ -165,7 +166,7 @@ record_count
 
      
 resource
-  The resource that you want to define or operate with
+  The resource to define or operate on.
 
 
   | **required**: True
@@ -174,7 +175,7 @@ resource
 
      
   attributes
-    The resource attributes,refer to the CICSPlex SM resource tables in KC to find the possible attributes
+    The resource attributes, refer to the CICSPlex SM resource tables in Knowledge Center to find the possible attributes.
 
 
     | **required**: False
@@ -183,9 +184,9 @@ resource
 
      
   location
-    The location that resource been installed to.
+    The location to which the resource will be installed.
 
-    This variable only work with option 'install'.
+    This field is relevant only when the 'option' field has a value of 'install'.
 
 
     | **required**: False
@@ -195,7 +196,7 @@ resource
 
      
   parameters
-    The resource parameters,refer to the CICSPlex SM resource tables in KC to get the possible parameters
+    The resource parameters. Refer to the CICSPlex SM resource tables in Knowledge Center to see the full list of possible parameters.
 
 
     | **required**: False
@@ -204,7 +205,7 @@ resource
 
      
   type
-    The resource type.
+    The type of the resource.
 
 
     | **required**: True
@@ -225,13 +226,13 @@ scope
   Scope is not case-sensitive
 
 
-  | **required**: false
+  | **required**: False
   | **type**: str
 
 
      
 security_type
-  the authenticate type that remote region requires
+  The authenticate type required to access the remote region.
 
 
   | **required**: True
@@ -288,8 +289,8 @@ Examples
          - type: CICSDefinitionBundle
            location: CSD
        filter:
-             - criteria: NAME=PONGALT
-               parameter: CSDGROUP(JVMGRP)
+         - criteria: NAME=PONGALT
+           parameter: CSDGROUP(JVMGRP)
 
    - name: update a bundle definition in a CICS region
      cics_cmci:
