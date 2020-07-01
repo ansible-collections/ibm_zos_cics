@@ -13,7 +13,7 @@ Notes
 
     * cics_csd_process, cics_local_catalog_initialization, cics_global_catalog_processing, cics_cmci
   * Documentation
-  * sample playbook
+  * Sample playbook
 
 Availability
   * Galaxy
