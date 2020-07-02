@@ -1,0 +1,152 @@
+###############################################################################
+# Copyright (c) IBM Corporation 2020
+###############################################################################
+
+###############################################################################
+# This sample playbook demonstrates using various modules included in the
+# Red Hat Ansible Certified Content for IBM Z core and IBM Z CICS collection.
+#
+# Usage:
+#  ansible-playbook -i <inventory> <playbook>
+#
+# Example:
+#  ansible-playbook -i inventory cics-collection-sample-copy-resource-revert.yaml
+#
+# Notes:
+#  This sample demonstrates various ways to perform tasks using Ansible z/OS
+#  core modules. Each module has options available on how automation can be
+#  controlled. This sample does not demonstrate all options, refer to
+#  documentation or ansible-doc for those options.
+#
+#  When running this playbook, review the comments on how ths sample will
+#  interact with your target, ensure you have the required authority and
+#  permissions such as writing the the target directories or creating data sets.
+#
+#  Additional facts for this playbook can be configured to override the defaults
+#  by reviewing the "Fact setting" section of this playbook, for example,
+#  `destination`.
+#
+# Requirements:
+#   IBM z/OS CICS collection 1.0.0 or later
+#   ZOAU 1.0.1 or later
+# Configure:
+#   cmci_host - this is host system that host the your region.
+#   cmci_port - the CMCI port configured in your cics region.
+#   cmci_context - the CICS region's applid.
+#   app_name - the app name for this deployment.
+###############################################################################
+
+---
+- name:  CICS resources copy and deploy between regions-revert
+  hosts: zos-workers
+  collections:
+   - ibm.ibm_zos_core
+  gather_facts: false
+  vars:
+    cmci_host: "ibmhost.com"
+    cmci_port: "1000"
+    cmci_context: "CICSA"
+    app_name: "PONG"
+  environment:
+    # environment variables for python
+    MANPATH: /usr/man/%L
+    FFI_LIB: /python/v361/python-2017-04-12-py36/python36/lib/ffi
+    RELEASE_NAME: python-2017-04-12
+    CURL_CA_BUNDLE: /python/v361/python-2017-04-12-py36/python36/etc/ssl/cacert.pem
+    RELEASE_DIR: /python/v361/python-2017-04-12-py36
+    RELEASE_TYPE: py36
+    LIBPATH: /python/v361/python-2017-04-12-py36/python36/lib:/lib:/usr/lib:/u/xiaopin/gitrepo/mvsutil/lib
+    NLSPATH: /usr/lib/nls/msg/%L/%N
+    PATH: /python/v361/python-2017-04-12-py36/python36/bin:/bin:/u/xiaopin/gitrepo/mvsutil/bin
+    MAIL: /usr/mail/OMVSADM
+    _: /bin/env
+    TERMINFO: /python/v361/python-2017-04-12-py36/python36/share/terminfo
+    PYTHON_ENV: python36
+    PKG_CONFIG_PATH: /python/v361/python-2017-04-12-py36/python36/lib/pkgconfig
+    PYTHON_HOME: /python/v361/python-2017-04-12-py36/python36
+    _TAG_REDIR_IN: txt
+    _TAG_REDIR_OUT: txt
+    _TAG_REDIR_ERR: txt
+    PYTHONPATH: /u/xiaopin/gitrepo/mvsutil/lib
+
+  tasks:
+  - name: disable a bundle in a CICS region
+    ibm.ibm_zos_cics.cics_cmci:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      context: '{{ cmci_context }}'
+      option: 'update'
+      resource: 
+        - type: CICSBundle
+          attributes:
+            - Enablestatus: disabled
+      filter: 
+          - criteria: NAME=PONG
+    delegate_to: localhost
+    register: result
+
+  - name: Response for check if bundle was successfully disabled
+    debug:
+      msg: "{{ result }}"
+
+  - name: disable a library in a CICS region
+    ibm.ibm_zos_cics.cics_cmci:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      context: '{{ cmci_context }}'
+      option: 'update'
+      resource: 
+        - type: CICSLIBRARY
+          attributes:
+            - Enablestatus: disabled
+      filter: 
+          - criteria: NAME=PONG
+    delegate_to: localhost
+    register: result
+
+  - name: Response for check if library was successfully disabled
+    debug:
+      msg: "{{ result }}"
+
+  - name: delete a library in a CICS region
+    ibm.ibm_zos_cics.cics_cmci:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      context: '{{ cmci_context }}'
+      option: 'delete'
+      resource: 
+        - type: CICSLIBRARY
+      filter: 
+        - criteria: NAME=PONG
+    delegate_to: localhost
+    register: result
+
+  - name: Response for check if library was successfully deleted
+    debug:
+      msg: "{{ result }}"
+
+  - name: delete a bundle in a CICS region
+    ibm.ibm_zos_cics.cics_cmci:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      context: '{{ cmci_context }}'
+      option: 'delete'
+      resource: 
+        - type: CICSBundle
+      filter: 
+        - criteria: NAME=PONG
+    delegate_to: localhost
+    register: result
+
+  - name: Delete list from the second CSD
+    cics_dfhcsdup:
+      steplib: CTS540.CICS710.SDFHLOAD
+      dfhcsd: XIAOPIN.IYK3Z0R0.RPEG.CSD
+      cmd_stmt:
+        - remove:
+            group_name: TSTGR
+            list_name: TSTLST
+    register: result
+  - name: Response for check if the list is been deleted
+    debug:
+      var=result
