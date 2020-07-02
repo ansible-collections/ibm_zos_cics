@@ -1,0 +1,177 @@
+
+:github_url: https://github.com/ansible-collections/ibm_zos_core/blob/dev/plugins/modules/cics_dfhrmutl.py
+
+.. _cics_dfhrmutl_module:
+
+
+cics_dfhrmutl -- CICS Recovery manager utility program
+======================================================
+
+
+
+.. contents::
+   :local:
+   :depth: 1
+
+
+Synopsis
+--------
+- You can use the recovery manager utility program to do the following work.
+- Examine the setting of the autostart override record on the global catalog.
+- Set or reset the recovery manager autostart override record on the global catalog.
+- Copy that part of the catalog needed for a cold start to a new global catalog.If a new catalog is built using DFHRMUTL, CICS is able to perform only a cold start or an initial start with the new catalog. The performance of these starts will, however, be better than that of a cold or initial start with a full catalog.
+
+
+
+
+
+Parameters
+----------
+
+
+     
+cold_copy
+  Specify whether make a reduced copy of DFHGCD in NEWGCD.
+
+  Create in NEWGCD a copy of only those records from DFHGCD that CICS needs to perform a cold start, and update NEWGCD with the autostart override record specified by the SET_AUTO_START parameter.
+
+  All changes caused by SET_AUTO_START are made to the NEWGCD data set, and DFHGCD is not changed.
+
+  COLD_COPY is incompatible with the AUTOASIS and AUTODIAG options of SET_AUTO_START. If you specify COLD_COPY and either of these values of SET_AUTO_START, it is an error.
+
+
+  | **required**: false
+  | **type**: list
+
+
+     
+  newgcd
+    Defines the output global catalog data set.
+
+    This option is not required unless the cold_copy option is specified.
+
+    If COLD_COPY is specified the NEWGCD data set is first cleared and then has DFHGCD records and an override record added to it. It must have been defined with the VSAM REUSE attribute.
+
+
+    | **required**: false
+    | **type**: str
+
+
+
+     
+dfhgcd
+  Specify the input global catalog data set.
+
+  If cold_copy option is specified, it is only read.
+
+  In other cases, it may be updated.
+
+
+  | **required**: True
+  | **type**: str
+
+
+     
+set_auto_start
+  The type of the next startup.
+
+  If set_auto_start is not specified, the module will examine the value of current dfhgcd set_auto_start.
+
+  AUTOASIS is perform the default startup, either warm or emergency.
+
+  AUTOCOLD is perform a cold start.
+
+  AUTODIAG is perform a diagnostic run.
+
+  AUTOINIT is perform an initial start.
+
+
+  | **required**: false
+  | **type**: str
+  | **choices**: AUTOASIS, AUTOCOLD, AUTODIAG, AUTOINIT, None
+
+
+     
+steplib
+  Defines a partioned data set containing DFHRMUTL.
+
+
+  | **required**: True
+  | **type**: str
+
+
+
+
+Examples
+--------
+
+.. code-block:: yaml+jinja
+
+   
+     - name: Examining the override record
+       cics_dfhrmutl:
+         steplib: CTS550.CICS720.SDFHLOAD
+         dfhgcd: BJMAXY.CICS.IYK3ZMX7.DFHGCD
+
+     - name: set auto start to autoinit to the dfhgcd. Setting an initial start without operator intervention
+       cics_dfhrmutl:
+         steplib: CTS550.CICS720.SDFHLOAD
+         dfhgcd: BJMAXY.CICS.IYK3ZMX7.DFHGCD
+         set_auto_start: AUTOINIT
+
+     - name: setting the global catalog for a cold start. COLD_COPY is used to improve performance.
+       cics_dfhrmutl:
+         steplib: CTS550.CICS720.SDFHLOAD
+         dfhgcd: BJMAXY.CICS.IYK3ZMX7.DFHGCD
+         set_auto_start: AUTOCOLD
+         cold_copy:
+           - newgcd: BJMAXY.CICS.IYK3ZMX7.NEWGCD
+
+
+
+
+
+
+
+
+
+Return Values
+-------------
+
+
+   
+                              
+       msg
+        | The execution result message.
+      
+        | **returned**: always
+        | **type**: str
+        | **sample**: The DFHRMUTL program executed successfully.
+
+            
+      
+      
+                              
+       rc
+        | The return code.
+      
+        | **returned**: always
+        | **type**: str
+      
+      
+                              
+       content
+        | the output data set for results, information and error messages.
+      
+        | **returned**: always
+        | **type**: str
+      
+      
+                              
+       changed
+        | Indicates if any changes were made during module operation.
+      
+        | **returned**: always
+        | **type**: bool
+      
+        
