@@ -1,0 +1,25 @@
+host: winmvs2c.hursley.ibm.com
+user: xiaopin
+python_path: /python/v361/python-2017-04-12-py36/python36/bin/python
+environment:
+    # environment variables for python
+  MANPATH: /usr/man/%L
+  FFI_LIB: /python/v361/python-2017-04-12-py36/python36/lib/ffi
+  RELEASE_NAME: python-2017-04-12
+  CURL_CA_BUNDLE: /python/v361/python-2017-04-12-py36/python36/etc/ssl/cacert.pem
+  RELEASE_DIR: /python/v361/python-2017-04-12-py36
+  RELEASE_TYPE: py36
+  LIBPATH: /python/v361/python-2017-04-12-py36/python36/lib:/lib:/usr/lib:/u/bjmaxy/mvsutil/lib
+  NLSPATH: /usr/lib/nls/msg/%L/%N
+  PATH: /python/v361/python-2017-04-12-py36/python36/bin:/bin:/u/bjmaxy/mvsutil/bin
+  MAIL: /usr/mail/OMVSADM
+  _: /bin/env
+  TERMINFO: /python/v361/python-2017-04-12-py36/python36/share/terminfo
+  PYTHONPATH: /u/bjmaxy/mvsutil/lib/
+  PYTHON_ENV: python36
+  PKG_CONFIG_PATH: /python/v361/python-2017-04-12-py36/python36/lib/pkgconfig
+  PYTHON_HOME: /python/v361/python-2017-04-12-py36/python36
+  _TAG_REDIR_IN: txt
+  _TAG_REDIR_OUT: txt
+  _TAG_REDIR_ERR: txt
+  JAVA_HOME: /usr/lpp/java/J8.0_64

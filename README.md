@@ -15,7 +15,7 @@ Red Hat Ansible Certified Content for IBM Z
 ===========================================
 
 **Red Hat® Ansible Certified Content for IBM Z** provides the ability to
-conect IBM Z® to clients\' wider enterprise automation strategy through
+connect IBM Z® to clients\' wider enterprise automation strategy through
 the Ansible Automation Platform ecosystem. This enables development and
 operations automation on Z through a seamless, unified workflow
 orchestration with configuration management, provisioning, and
@@ -45,4 +45,4 @@ License
 =======
 
 This collection is licensed under [Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0).
-n
+

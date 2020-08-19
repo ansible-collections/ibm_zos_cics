@@ -1,0 +1,6 @@
+environment_vars:
+  _BPXK_AUTOCVT: ON
+  PYTHONPATH: /u/bjmaxy/mvsutil/lib/
+  ZOAU_ROOT: /u/bjmaxy/mvsutil/
+  LIBPATH: /u/bjmaxy/mvsutil/lib/:/python/v361/python-2017-04-12-py36/python36/lib:/lib:/usr/lib:.
+  PATH: /u/bjmaxy/mvsutil/bin:/python/v361/python-2017-04-12-py36/python36/bin:/bin:.
