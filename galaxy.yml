@@ -1,0 +1,47 @@
+# IBM collection namespace
+namespace: ibm
+
+# Red Hat Ansible Certified Content for IBM Z
+name: ibm_zos_cics
+
+# The collection version
+version: 1.0.0
+
+# Collection README file
+readme: README.md
+
+# Contributors
+authors:
+  - Ping Xiao <xiaoping@cn.ibm.com>
+  - Xiao Yuan Ma <bjmaxy@cn.ibm.com>
+  - Lu Zhao <zlbjlu@cn.ibm.com>
+
+# Description
+description: The Red Hat Ansible Certified Content for IBM Z CICS collection includes connection plugins, action plugins, modules and sample playbooks to automate tasks for CICS
+
+# License
+license: L(Apache License, Version 2.0, https://spdx.org/licenses/Apache-2.0.html)
+
+# Tags
+tags: [ibm, z, zos, z_os, cics, red_hat_ansible_certified_cotent_for_ibm_z, cmci, todo...] 
+
+# Collections that this collection requires to be installed for it to be usable.
+# dependencies: {} # This collection depends on no other collections
+
+# The URL of the originating SCM repository
+repository: https://github.com/ansible-collections/ibm_zos_cics
+
+# The URL to any online docs
+documentation: https://github.com/ansible-collections/ibm_zos_cics/wiki 
+
+# The URL to the homepage of the collection/project
+# homepage: https://www.ibm.com/it-infrastructure/z/
+
+# The URL to the collection issue tracker
+issues: https://github.com/ansible-collections/ibm_zos_cics/issues
+
+# Ignore files and directories matching the following patterns
+build_ignore:
+  - Dockerfile
+  - Jenkinsfile
+  - yamllint.yaml
