@@ -1,0 +1,128 @@
+- name:  CMCI Integration Test
+  collections:
+   - ibm.ibm_zos_cics
+  hosts: 'all'
+  gather_facts: 'false'
+
+  module_defaults:
+    ibm.ibm_zos_cics.cics_cmci:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      context: '{{ context }}'
+      security_type: 'basic'
+
+
+  tasks:
+
+    - name: 'define'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cics_cmci:
+        option: 'define'
+        resource:
+          - type: 'CICSDefinitionBundle'
+            attributes:
+              - name: 'PONGALT'
+                bundledir: '/u/{{ cmci_user }}/bundle/pongbundle_1.0.0'
+                csdgroup: 'JVMGRP1'
+            parameters:
+              - name: 'CSD'
+      register: result
+    - debug:
+        msg: "{{ result }}"
+    - assert:
+        that:
+          - result is changed
+          - "result.api_response == 'OK'"
+
+
+    - name: 'update'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cics_cmci:
+        option: 'update'
+        resource:
+          - type: 'CICSDefinitionBundle'
+            attributes:
+              - description: 'forget description'
+        filter:
+          - criteria: 'NAME=PONGALT'
+            parameter: 'CSDGROUP(JVMGRP1)'
+      register: result
+    - debug:
+        msg: "{{ result }}"
+    - assert:
+        that:
+          - result is changed
+          - "result.api_response == 'OK'"
+
+
+    - name: 'install'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cics_cmci:
+        option: 'install'
+        resource:
+          - type: 'CICSDefinitionBundle'
+            location: 'CSD'
+        filter:
+          - criteria: 'NAME=PONGALT'
+            parameter: 'CSDGROUP(JVMGRP1)'
+      register: result
+    - debug:
+        msg: "{{ result }}"
+    - assert:
+        that:
+          - result is changed
+          - "result.api_response == 'OK'"
+
+
+    - name: 'disable bundle'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cics_cmci:
+        option: 'update'
+        resource:
+          - type: 'CICSBundle'
+            attributes:
+              - enablestatus: 'disabled'
+        filter:
+          - criteria: 'NAME=PONGALT'
+      register: result
+    - debug:
+        msg: "{{ result }}"
+    - assert:
+        that:
+          - result is changed
+          - "result.api_response == 'OK'"
+
+
+    - name: 'discard bundle'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cics_cmci:
+        option: 'delete'
+        resource:
+          - type: 'CICSBundle'
+        filter:
+          - criteria: 'NAME=PONGALT'
+      register: result
+    - debug:
+        msg: "{{ result }}"
+    - assert:
+        that:
+          - result is changed
+          - "result.api_response == 'OK'"
+
+
+    - name: 'Delete bunddef'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cics_cmci:
+        option: 'delete'
+        resource:
+          - type: 'CICSBundleDefinition'
+        filter:
+          - criteria: 'NAME=PONGALT'
+            parameter: 'CSDGROUP=(JVMGRP1)'
+      register: result
+    - debug:
+        msg: "{{ result }}"
+    - assert:
+        that:
+          - result is changed
+          - "result.api_response == 'OK'"

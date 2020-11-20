@@ -1,6 +1,6 @@
-zsystem:
+pytestzsystem:
   hosts:
     zvm:
-      ansible_host: zos_target_address
-      ansible_user: zos_target_username
-      ansible_python_interpreter: path_to_python_interpreter_binary_on_zos_target
+      ansible_host: winmvs2c.hursley.ibm.com
+      ansible_user: stewf
+      ansible_python_interpreter: /python/v361/python-2017-04-12-py36/python36/bin/python
