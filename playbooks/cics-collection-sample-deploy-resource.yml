@@ -111,7 +111,7 @@
       replace: "{{ destination_dataset }}(app_name)"
     delegate_to: localhost
 
-  - name: complile the program
+  - name: compile the program
     zos_job_submit:
       src: "{{ temp_path }}/files/{{ app_name }}.jcl"
       location: LOCAL
@@ -173,7 +173,7 @@
           location: CSD
       filter: 
            - criteria: NAME={{ app_name }}
-             parameter: CSDGROUP(TSTGRP)
+      parameter: CSDGROUP(TSTGRP)
     delegate_to: localhost
     register: result
 
@@ -182,7 +182,7 @@
       msg: "{{ result }}"
 
   - name: define a bundle in a CICS region
-    ibm.ibm_zos_cics.cics_cmci:
+    cics_cmci:
       cmci_host: '{{ cmci_host }}'
       cmci_port: '{{ cmci_port }}'
       context: '{{ cmci_context }}'

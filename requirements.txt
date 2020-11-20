@@ -1,8 +1,13 @@
-certifi==2020.6.20
-chardet==3.0.4
-Encoder==1.1
-from==0.1.0
-idna==2.10
-requests==2.24.0
-urllib3==1.25.11
-XML2Dict==0.2.2
+# Copyright (c) IBM Corporation 2019, 2020
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+oyaml==0.9
+pytest-ansible==2.2.3
+pytest==6.1.2
+pytest_mock==1.12.1
+mock==3.0.5
+ansible==2.9.6
+requests==2.23.0
+requests_mock==1.8.0
+xmltodict==0.12.0
+# Need this to work around a problem running ansible-test
+pytest-xdist==2.1.0

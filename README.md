@@ -46,3 +46,26 @@ License
 
 This collection is licensed under [Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0).
 
+```
+# Create a new venv called env
+python3 -m venv env
+
+# Activate env
+source env/bin/activate
+
+# Install requirements
+pip install -r requirements.txt`
+```
+
+```
+# Run unit tests
+pytest tests/unit
+```
+
+```
+Integration tests
+You have to clone into {...}/ansible_collections/ibm/ibm_zos_cics to be able to run the test using ansible-test
+See this issue: https://github.com/ansible/ansible/issues/60215
+
+ansible-test integration cics_cmci --python=3.8
+```

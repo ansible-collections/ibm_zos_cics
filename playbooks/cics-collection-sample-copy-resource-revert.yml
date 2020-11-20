@@ -150,3 +150,12 @@
   - name: Response for check if the list is been deleted
     debug:
       var=result
+
+      - name: Add a group to a list
+        cics_dfhcsdup:
+          steplib: CTS540.CICS710.SDFHLOAD
+          dfhcsd: STEWF.ATEST.DFHCSD
+          cmd_stmt:
+            - add:
+                list_name: LST01
+                group_name: GRP01
