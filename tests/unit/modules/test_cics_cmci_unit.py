@@ -52,63 +52,78 @@ def fail_json(*args, **kwargs):
     raise AnsibleFailJson(kwargs)
 
 
-def stub_request(*args, **kwargs):
-    return args, kwargs
+class CMCITestHelper:
+    def __init__(self, requests_mock):
+        self.requests_mock = requests_mock
+        self.expected = {}
 
+    def stub_request(self, *args, **kwargs):
+        self.requests_mock.request(*args, **kwargs)
 
-def stub_get_records(resource_type: str, records: [{}], host=HOST, port=PORT, context=CONTEXT, scope='', parameters=''):
-    document = {
-        'response': {
-            '@xmlns': 'http://www.ibm.com/xmlns/prod/CICS/smw2int',
-            '@xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-            '@xsi:schemaLocation': 'http://www.ibm.com/xmlns/prod/CICS/smw2int '
-                                   'http://winmvs28.hursley.ibm.com:28953/CICSSystemManagement/schema/'
-                                   'CICSSystemManagement.xsd',
-            '@version': '3.0',
-            '@connect_version': '0560',
-            'resultsummary': {
-                '@api_response1': '1024',
-                '@api_response2': '0',
-                '@api_response_alt': 'OK',
-                '@api_response2_alt': '',
-                '@recordcount': len(records),
-                '@displayed_recordcount': len(records)
-            },
-            'records': {
-                # Translate records to use attributes in the rendered xml
-                resource_type.lower(): [{'@'+key: value for key, value in record.items()} for record in records]
+    def stub_get_records(self, resource_type: str, records: [{}], host=HOST,
+                         port=PORT, context=CONTEXT, scope='', parameters=''):
+        document = {
+            'response': {
+                '@xmlns': 'http://www.ibm.com/xmlns/prod/CICS/smw2int',
+                '@xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+                '@xsi:schemaLocation': 'http://www.ibm.com/xmlns/prod/CICS/smw2int '
+                                       'http://winmvs28.hursley.ibm.com:28953/CICSSystemManagement/schema/'
+                                       'CICSSystemManagement.xsd',
+                '@version': '3.0',
+                '@connect_version': '0560',
+                'resultsummary': {
+                    '@api_response1': '1024',
+                    '@api_response2': '0',
+                    '@api_response_alt': 'OK',
+                    '@api_response2_alt': '',
+                    '@recordcount': len(records),
+                    '@displayed_recordcount': len(records)
+                },
+                'records': {
+                    # Translate records to use attributes in the rendered xml
+                    resource_type.lower(): [{'@' + key: value for key, value in record.items()} for record in records]
+                }
             }
         }
-    }
 
-    return stub_request(
-        'GET',
-        'http://{0}:{1}/CICSSystemManagement/{2}/{3}{4}{5}'
-        .format(host, port, resource_type, context, '/'+scope if scope else '', parameters),
-        status_code=200,
-        reason='OK',
-        headers={
-            'CONTENT-TYPE': 'application/xml'
-        },
-        text=xmltodict.unparse(document)
-    )
+        return self.stub_request(
+            'GET',
+            'http://{0}:{1}/CICSSystemManagement/{2}/{3}{4}{5}'
+                .format(host, port, resource_type, context, '/' + scope if scope else '', parameters),
+            status_code=200,
+            reason='OK',
+            headers={
+                'CONTENT-TYPE': 'application/xml'
+            },
+            text=xmltodict.unparse(document)
+        )
+
+    def expect(self, expected):
+        self.expected = expected
+
+    def run(self, config):
+        set_module_args(config)
+
+        with pytest.raises(AnsibleFailJson if self.expected.get('failed') else AnsibleExitJson) as exc_info:
+            cics_cmci.main()
+
+        result = exc_info.value.args[0]
+
+        case = unittest.TestCase()
+        case.maxDiff = None
+        case.assertDictEqual(result, self.expected)
 
 
-test_401_fails = (
-    # Module config
-    {
-        'cmci_host': 'winmvs2c.hursley.ibm.com',
-        'cmci_port': '26040',
-        'context': 'CICPY012',
-        'option': 'query',
-        'security_type': 'none',
-        'resource': [{
-            'type': 'CICSDefinitionBundle'
-        }]
-    },
+@pytest.fixture
+def cmci_module(requests_mock, monkeypatch):
+    monkeypatch.setattr(basic.AnsibleModule, "exit_json", exit_json)
+    monkeypatch.setattr(basic.AnsibleModule, "fail_json", fail_json)
 
-    # Request stubbing
-    stub_request(
+    yield CMCITestHelper(requests_mock)
+
+
+def test_401_fails(cmci_module):
+    cmci_module.stub_request(
         'GET',
         'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/CICSDefinitionBundle/CICPY012/',
         status_code=401,
@@ -124,11 +139,9 @@ test_401_fails = (
              '</html>',
         headers={
             'CONTENT-TYPE': 'text/html'
-        }
-    ),
+        })
 
-    # Expected result
-    {
+    cmci_module.expect({
         'msg': 'CMCI request returned non-OK status: Not authorized',
         'changed': False,
         'failed': True,
@@ -139,12 +152,29 @@ test_401_fails = (
             'body': None
         },
         'response': {'reason': 'Not authorized', 'status_code': 401}
-    }
-)
+    })
 
-test_invalid_host = (
     # Module config
-    {
+    cmci_module.run({
+        'cmci_host': 'winmvs2c.hursley.ibm.com',
+        'cmci_port': '26040',
+        'context': 'CICPY012',
+        'option': 'query',
+        'security_type': 'none',
+        'resource': [{
+            'type': 'CICSDefinitionBundle'
+        }]
+    })
+
+
+def test_invalid_host(cmci_module):
+    cmci_module.expect({
+        'msg': 'Parameter "cmci_host" with value "^*.99.99.199 was not valid.  Expected an IP address or host name.',
+        'changed': False,
+        'failed': True
+    })
+
+    cmci_module.run({
         'cmci_host': '^*.99.99.199',
         'cmci_port': '10080',
         'context': 'iyk3z0r9',
@@ -152,34 +182,20 @@ test_invalid_host = (
         'resource': [{
             'type': 'cicslocalfile'
         }]
-    },
-    None,
-    # Expected result
-    {
-        'msg': 'Parameter "cmci_host" with value "^*.99.99.199 was not valid.  Expected an IP address or host name.',
-        'changed': False,
-        'failed': True
-    }
-)
+    })
 
-test_ok_context_scope = (
-    {
-        'cmci_host': HOST,
-        'cmci_port': PORT,
-        'context': CONTEXT,
-        'scope': 'IYCWEMW2',
-        'resource': [{'type': 'cicslocalfile'}],
-    },
-    stub_get_records(
+
+def test_ok_context_scope(cmci_module):
+    cmci_module.stub_get_records(
         'cicslocalfile',
         [
             {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'},
             {'name': 'bing', 'dsname': 'STEWF.BAT.BAZ'}
         ],
         scope=SCOPE
-    ),
-    # Expected result
-    {
+    )
+
+    cmci_module.expect({
         'changed': False,
         'request': {
             'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
@@ -224,16 +240,16 @@ test_ok_context_scope = (
             'reason': 'OK',
             'status_code': 200,
         }
-    }
-)
+    })
 
-OrderedDict()
+    cmci_module.run({
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'resource': [{'type': 'cicslocalfile'}],
+    })
 
-test_scenarios = [
-    test_401_fails,
-    test_ok_context_scope,
-    test_invalid_host
-]
 
 dummy_dict2_invalid_host = {
     'cmci_host': '^*.99.99.199',
@@ -295,26 +311,6 @@ test_data = [
 ]
 
 
-@pytest.mark.parametrize("module_params,request_mock_config,expected_result", test_scenarios)
-def test_cics_cmci(module_params, request_mock_config, expected_result, monkeypatch, requests_mock):
-    monkeypatch.setattr(basic.AnsibleModule, "exit_json", exit_json)
-    monkeypatch.setattr(basic.AnsibleModule, "fail_json", fail_json)
-
-    set_module_args(module_params)
-
-    if request_mock_config:
-        requests_mock.request(*request_mock_config[0], **request_mock_config[1])
-
-    with pytest.raises(AnsibleFailJson if expected_result.get('failed') else AnsibleExitJson) as exc_info:
-        cics_cmci.main()
-
-    result = exc_info.value.args[0]
-
-    case = unittest.TestCase()
-    case.maxDiff = None
-    case.assertDictEqual(result, expected_result)
-
-
 def test_unknown_host(monkeypatch):
     monkeypatch.setattr(basic.AnsibleModule, "exit_json", exit_json)
     monkeypatch.setattr(basic.AnsibleModule, "fail_json", fail_json)
@@ -341,7 +337,3 @@ def test_unknown_host(monkeypatch):
         'Error performing CMCI request: <[^>]*>: Failed to establish a new connection: '\
         '\\[Errno 8\\] nodename nor servname provided, or not known'
     assert re.match(exp, exc_info.value.args[0]['msg'])
-
-
-def test_default_option():
-    print()
