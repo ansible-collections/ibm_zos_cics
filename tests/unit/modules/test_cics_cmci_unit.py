@@ -142,6 +142,26 @@ test_401_fails = (
     }
 )
 
+test_invalid_host = (
+    # Module config
+    {
+        'cmci_host': '^*.99.99.199',
+        'cmci_port': '10080',
+        'context': 'iyk3z0r9',
+        'scope': 'iyk3z0r8',
+        'resource': [{
+            'type': 'cicslocalfile'
+        }]
+    },
+    None,
+    # Expected result
+    {
+        'msg': 'Parameter "cmci_host" with value "^*.99.99.199 was not valid.  Expected an IP address or host name.',
+        'changed': False,
+        'failed': True
+    }
+)
+
 test_ok_context_scope = (
     {
         'cmci_host': HOST,
@@ -211,7 +231,8 @@ OrderedDict()
 
 test_scenarios = [
     test_401_fails,
-    test_ok_context_scope
+    test_ok_context_scope,
+    test_invalid_host
 ]
 
 dummy_dict2_invalid_host = {
@@ -281,7 +302,8 @@ def test_cics_cmci(module_params, request_mock_config, expected_result, monkeypa
 
     set_module_args(module_params)
 
-    requests_mock.request(*request_mock_config[0], **request_mock_config[1])
+    if request_mock_config:
+        requests_mock.request(*request_mock_config[0], **request_mock_config[1])
 
     with pytest.raises(AnsibleFailJson if expected_result.get('failed') else AnsibleExitJson) as exc_info:
         cics_cmci.main()
