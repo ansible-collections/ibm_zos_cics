@@ -6,4 +6,4 @@
 #                https://docs.ansible.com/ansible-tower/latest/html/userguide/projects.html#collections-support
 ---
 collections:
-  - ibm.ibm_zos_cics
+  - ibm.ibm_zos_core
