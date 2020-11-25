@@ -185,6 +185,79 @@ def test_invalid_host(cmci_module):
     })
 
 
+def test_invalid_port(cmci_module):
+    cmci_module.expect({
+        'msg': 'Parameter "cmci_port" with value "^%^080 was not valid.  Expected a port number 0-65535.',
+        'changed': False,
+        'failed': True
+    })
+
+    cmci_module.run({
+        'cmci_host': '100.99.99.199',
+        'cmci_port': '^%^080',
+        'context': 'iyk3z0r9',
+        'scope': 'iyk3z0r8',
+        'resource': [{
+            'type': 'cicslocalfile'
+        }],
+    })
+
+
+def test_invalid_context(cmci_module):
+    cmci_module.expect({
+        'msg': 'Parameter "context" with value "^&iyk3z0r9 was not valid.  Expected a CPSM context name.  CPSM '
+               'context names are max 8 characters.  Valid characters are A-Z a-z 0-9.',
+        'changed': False,
+        'failed': True
+    })
+
+    cmci_module.run({
+        'cmci_host': '100.99.99.199',
+        'cmci_port': '10080',
+        'context': '^&iyk3z0r9',
+        'scope': 'iyk3z0r8',
+        'resource': [{
+            'type': 'cicslocalfile'
+        }],
+    })
+
+
+def test_invalid_scope(cmci_module):
+    cmci_module.expect({
+        'msg': 'Parameter "scope" with value "&^iyk3z0r8 was not valid.  Expected a CPSM scope name.  CPSM scope '
+               'names are max 8 characters.  Valid characters are A-Z a-z 0-9.',
+        'changed': False,
+        'failed': True
+    })
+    cmci_module.run({
+        'cmci_host': '100.99.99.199',
+        'cmci_port': '10080',
+        'context': 'iyk3z0r9',
+        'scope': '&^iyk3z0r8',
+        'resource': [{
+            'type': 'cicslocalfile'
+        }],
+    })
+
+
+def test_invalid_security(cmci_module):
+    cmci_module.expect({
+        'msg': 'value of security_type must be one of: none, basic, certificate, got: yes',
+        'failed': True
+    })
+
+    cmci_module.run({
+        'cmci_host': '100.99.99.199',
+        'cmci_port': '10080',
+        'context': 'iyk3z0r9',
+        'scope': 'iyk3z0r8',
+        'security_type': 'yes',
+        'resource': [{
+            'type': 'cicslocalfile'
+        }],
+    })
+
+
 def test_ok_context_scope(cmci_module):
     cmci_module.stub_get_records(
         'cicslocalfile',
@@ -249,66 +322,6 @@ def test_ok_context_scope(cmci_module):
         'scope': 'IYCWEMW2',
         'resource': [{'type': 'cicslocalfile'}],
     })
-
-
-dummy_dict2_invalid_host = {
-    'cmci_host': '^*.99.99.199',
-    'cmci_port': '10080',
-    'context': 'iyk3z0r9',
-    'scope': 'iyk3z0r8',
-    'resource': [{'type': 'cicslocalfile'}],
-}
-
-dummy_dict3_invalid_port = {
-    'cmci_host': '100.99.99.199',
-    'cmci_port': '^%^080',
-    'context': 'iyk3z0r9',
-    'scope': 'iyk3z0r8',
-    'resource': [{'type': 'cicslocalfile'}],
-}
-
-dummy_dict4_invalid_context = {
-    'cmci_host': '100.99.99.199',
-    'cmci_port': '10080',
-    'context': '^&iyk3z0r9',
-    'scope': 'iyk3z0r8',
-    'resource': [{'type': 'cicslocalfile'}],
-}
-
-dummy_dict5_invalid_scope = {
-    'cmci_host': '100.99.99.199',
-    'cmci_port': '10080',
-    'context': 'iyk3z0r9',
-    'scope': '&^iyk3z0r8',
-    'resource': [{'type': 'cicslocalfile'}],
-}
-
-dummy_dict6_invalid_security = {
-    'cmci_host': '100.99.99.199',
-    'cmci_port': '10080',
-    'context': 'iyk3z0r9',
-    'scope': '&^iyk3z0r8',
-    'security_type': 'yes',
-    'resource': [{'type': 'cicslocalfile'}],
-}
-
-dummy_dict7_invalid_security = {
-    'cmci_host': '100.99.99.199',
-    'cmci_port': '10080',
-    'context': 'iyk3z0r9',
-    'scope': '&^iyk3z0r8',
-    'security_type': 'certificate',
-    'resource': [{'type': 'cicslocalfile'}],
-}
-
-test_data = [
-    (dummy_dict2_invalid_host, False),
-    (dummy_dict3_invalid_port, False),
-    (dummy_dict4_invalid_context, False),
-    (dummy_dict5_invalid_scope, False),
-    (dummy_dict6_invalid_security, False),
-    (dummy_dict7_invalid_security, False)
-]
 
 
 def test_unknown_host(monkeypatch):
