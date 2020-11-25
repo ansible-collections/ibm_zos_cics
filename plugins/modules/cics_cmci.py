@@ -409,14 +409,18 @@ def _append_parameters(element, params):
     # Parameters are <parameters><parameter name="pname" value="pvalue" /></parameters>
     action_parameters = params.get('parameters')
     if action_parameters:
-        element['parameter'] = [{'@name': key, '@value': value} for key, value in action_parameters.items()]
+        # TODO: make this not a list
+        for p in action_parameters:
+            element['parameter'] = [{'@name': key, '@value': value} for key, value in p.items()]
 
 
 def _append_attributes(element, params):
     # Attributes are <attributes name="value" name2="value2"/>
     action_attributes = params.get('attributes')
     if action_attributes:
-        element['attributes'] = {'@' + key: value for key, value in action_attributes.items()}
+        # TODO: make this not a list
+        for a in action_attributes:
+            element['attributes'] = {'@' + key: value for key, value in a.items()}
 
 
 def _validate_module_params(module, result, params):
