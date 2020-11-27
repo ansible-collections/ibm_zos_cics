@@ -5,7 +5,7 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-from ansible.module_utils.basic import AnsibleModule, missing_required_lib
+from ansible.module_utils.basic import AnsibleModule, missing_required_lib, env_fallback
 
 import re
 import traceback
@@ -400,8 +400,8 @@ def _create_body(params):
         create = {}
         _append_parameters(create, params)
         _append_attributes(create, params)
+        request['create'] = create
     document = {"request": request}
-
     return document
 
 
@@ -411,7 +411,7 @@ def _append_parameters(element, params):
     if action_parameters:
         # TODO: make this not a list
         for p in action_parameters:
-            element['parameter'] = [{'@name': key, '@value': value} for key, value in p.items()]
+            element['parameter'] = {'@' + key: value for key, value in p.items()}
 
 
 def _append_attributes(element, params):
@@ -474,7 +474,7 @@ def _handle_module_params(module):
                     parameters[k] = v
         else:
             parameters[key] = value
-    method_action_pair = {'define': 'post', 'install': 'put', 'update': 'put', 'delete': 'delete', 'query': 'get'}
+    method_action_pair = {'define': 'POST', 'install': 'PUT', 'update': 'PUT', 'delete': 'DELETE', 'query': 'GET'}
     for key, value in method_action_pair.items():
         if module.params.get('option') == key:
             parameters['method'] = value
@@ -493,10 +493,10 @@ def main():
         argument_spec=dict(
             cmci_host=dict(required=True, type='str'),
             cmci_port=dict(required=True, type='str'),
-            cmci_user=dict(type='str', no_log=True),
-            cmci_password=dict(type='str', no_log=True),
-            cmci_cert=dict(type='str', no_log=True),
-            cmci_key=dict(type='str', no_log=True),
+            cmci_user=dict(type='str', fallback=(env_fallback, ['CMCI_USER'])),
+            cmci_password=dict(type='str', no_log=True, fallback=(env_fallback, ['CMCI_PASSWORD'])),
+            cmci_cert=dict(type='str', no_log=True, fallback=(env_fallback, ['CMCI_CERT'])),
+            cmci_key=dict(type='str', no_log=True, fallback=(env_fallback, ['CMCI_HOST'])),
             security_type=dict(
                 type='str',
                 default='none',
@@ -543,9 +543,9 @@ def main():
     if not xmltodict:
         fail_e(module, result, missing_required_lib('encoder'), exception=XMLTODICT_IMP_ERR)
 
-    session, request = _handle_params(module, result)
-    response = _do_request(module, result, session, request)
-    _handle_response(module, result, response, request.method)
+    session, method, url, body_xml = _handle_params(module, result)
+    response = _do_request(module, result, session, method, url, body_xml)
+    _handle_response(module, result, response, method)
     module.exit_json(**result)
 
 
@@ -557,21 +557,23 @@ def _handle_params(module, result):
     url = _get_url(params)
     body = _create_body(params)
     # TODO: can this fail?
-    body_xml = xmltodict.unparse(body) if body else None
-    request = requests.Request(method=params.get('method'), url=url, data=body_xml).prepare()
-
+    # full_document=False suppresses the xml prolog, which CMCI doesn't like
+    body_xml = xmltodict.unparse(body, full_document=False) if body else None
+    method = params.get('method')
     result['request'] = {
-        'url': request.url,
-        'method': request.method,
-        'body': request.body
+        'url': url,
+        'method': method,
+        'body': body_xml
     }
 
-    return session, request
+    return session, method, url, body_xml
 
 
 def _handle_response(module, result, response, method):
     # Try and parse the XML response body into a dict
     content_type = response.headers.get('content-type')
+    # Content type header may include the encoding.  Just look at the first segment if so
+    content_type = content_type.split(';')[0]
     if content_type != 'application/xml':
         fail(module, result, 'CMCI request returned a non application/xml content type: {0}'.format(content_type))
 
@@ -598,8 +600,8 @@ def _handle_response(module, result, response, method):
             # Non-OK queries fail the module, except if we get NODATA on a query, when there are no records
             if cpsm_response != '1024' and not (method == 'query' and cpsm_response == '1027'):
                 cpsm_response_alt = result_summary['@api_response1_alt']
-                cpsm_reason = result_summary['@api_response2']
-                fail(module, result, 'CMCI request failed with response "{0}", reason: "{1}"'
+                cpsm_reason = result_summary['@api_response2_alt']
+                fail(module, result, 'CMCI request failed with response "{0}" reason "{1}"'
                      .format(cpsm_response_alt, cpsm_reason))
 
             if method != 'GET':
@@ -652,7 +654,7 @@ def _get_url(params):  # kwargs to allow us to destructure params when calling
     return url
 
 
-def _create_session(module, result, security_type='none', crt=None, key=None, user=None, pw=None, **kwargs):
+def _create_session(module, result, security_type='none', crt=None, key=None, cmci_user=None, cmci_password=None, **kwargs):
     session = requests.Session()
     if security_type == 'certificate':
         if (crt is not None and crt.strip() != '') and (key is not None and key.strip() != ''):
@@ -661,19 +663,23 @@ def _create_session(module, result, security_type='none', crt=None, key=None, us
             fail(module, result, 'HTTP setup error: cmci_cert/cmci_key are required ')
     # TODO: there's no clear distinction between unauthenticated HTTPS and authenticated HTTP
     if security_type == 'basic':
-        if (user is not None and user.strip() != '') and (pw is not None and pw.strip() != ''):
-            session.auth = (user.strip(), pw.strip())
+        if (cmci_user is not None and cmci_user.strip() != '') and (cmci_password is not None and cmci_password.strip() != ''):
+            session.auth = (cmci_user.strip(), cmci_password.strip())
         else:
             fail(module, result, 'HTTP setup error: cmci_user/cmci_password are required')
     return session
 
 
-def _do_request(module, result, session, request):
+def _do_request(module, result, session, method, url, data=None):
     try:
-        response = session.send(request, timeout=30, verify=False)
+        response = session.request(method, url, verify=False, timeout=30, data=data)
         reason = response.reason if response.reason else response.status_code
+
         result['response'] = {'status_code': response.status_code, 'reason': reason}
 
+        # TODO: in non-OK responses CPSM returns a body with error information
+        # Can recreate this by supplying a malformed body with a create request.
+        # We should surface this error information somehow.  Not sure what content type we get.
         if response.status_code != 200:
             fail(module, result, 'CMCI request returned non-OK status: {0}'.format(reason))
 

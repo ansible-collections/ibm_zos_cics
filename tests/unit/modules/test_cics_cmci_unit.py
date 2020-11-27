@@ -60,8 +60,9 @@ class CMCITestHelper:
     def stub_request(self, *args, **kwargs):
         self.requests_mock.request(*args, **kwargs)
 
-    def stub_get_records(self, resource_type: str, records: [{}], host=HOST,
-                         port=PORT, context=CONTEXT, scope='', parameters=''):
+    def stub_get_records(self, resource_type: str, records: [{}], host=HOST, https=False, port=PORT,
+                         context=CONTEXT, scope='', parameters='', request_headers={},
+                         headers={'CONTENT-TYPE': 'application/xml'}):
         document = {
             'response': {
                 '@xmlns': 'http://www.ibm.com/xmlns/prod/CICS/smw2int',
@@ -86,16 +87,17 @@ class CMCITestHelper:
             }
         }
 
+        scheme = 'https' if https else 'http'
+
         return self.stub_request(
             'GET',
-            'http://{0}:{1}/CICSSystemManagement/{2}/{3}{4}{5}'
-                .format(host, port, resource_type, context, '/' + scope if scope else '', parameters),
+            '{0}://{1}:{2}/CICSSystemManagement/{3}/{4}{5}{6}'
+                .format(scheme, host, port, resource_type, context, '/' + scope if scope else '', parameters),
             status_code=200,
             reason='OK',
-            headers={
-                'CONTENT-TYPE': 'application/xml'
-            },
-            text=xmltodict.unparse(document)
+            headers=headers,
+            text=xmltodict.unparse(document),
+            request_headers=request_headers
         )
 
     def expect(self, expected):
@@ -258,6 +260,79 @@ def test_invalid_security(cmci_module):
     })
 
 
+def test_auth(cmci_module):
+    cmci_module.stub_get_records(
+        'cicslocalfile',
+        [
+            {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'},
+            {'name': 'bing', 'dsname': 'STEWF.BAT.BAZ'}
+        ],
+        scope=SCOPE,
+        request_headers={
+            'authorization': 'Basic Zm9vOmJhcg=='
+        },
+        https=True
+    )
+
+    cmci_module.expect({
+        'changed': False,
+        'request': {
+            'url': 'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+                   'cicslocalfile/CICSEX56/IYCWEMW2',
+            'method': 'GET',
+            'body': None
+        },
+        'response': {
+            'body': OrderedDict([
+                ('response', OrderedDict([
+                    ('@schemaLocation', 'http://www.ibm.com/xmlns/prod/CICS/smw2int '
+                                        'http://winmvs28.hursley.ibm.com:28953/CICSSystemManagement/schema/'
+                                        'CICSSystemManagement.xsd'),
+                    ('@version', '3.0'),
+                    ('@connect_version', '0560'),
+                    ('@xmlns', OrderedDict([
+                        ('', 'http://www.ibm.com/xmlns/prod/CICS/smw2int'),
+                        ('xsi', 'http://www.w3.org/2001/XMLSchema-instance')
+                    ])),
+                    ('resultsummary', OrderedDict([
+                        ('@api_response1', '1024'),
+                        ('@api_response2', '0'),
+                        ('@api_response_alt', 'OK'),
+                        ('@api_response2_alt', ''),
+                        ('@recordcount', '2'),
+                        ('@displayed_recordcount', '2')
+                    ])),
+                    ('records', OrderedDict([
+                        ('cicslocalfile', [
+                            OrderedDict([
+                                ('@name', 'bat'),
+                                ('@dsname', 'STEWF.BLOP.BLIP')
+                            ]),
+                            OrderedDict([
+                                ('@name', 'bing'),
+                                ('@dsname', 'STEWF.BAT.BAZ')
+                            ])
+                        ])
+                    ]))
+                ]))
+            ]),
+            'reason': 'OK',
+            'status_code': 200,
+        }
+    })
+
+    cmci_module.run({
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'cmci_user': 'foo',
+        'cmci_password': 'bar',
+        'security_type': 'basic',
+        'context': CONTEXT,
+        'scope': SCOPE,
+        'resource': [{'type': 'cicslocalfile'}],
+    })
+
+
 def test_ok_context_scope(cmci_module):
     cmci_module.stub_get_records(
         'cicslocalfile',
@@ -266,6 +341,76 @@ def test_ok_context_scope(cmci_module):
             {'name': 'bing', 'dsname': 'STEWF.BAT.BAZ'}
         ],
         scope=SCOPE
+    )
+
+    cmci_module.expect({
+        'changed': False,
+        'request': {
+            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+                   'cicslocalfile/CICSEX56/IYCWEMW2',
+            'method': 'GET',
+            'body': None
+        },
+        'response': {
+            'body': OrderedDict([
+                ('response', OrderedDict([
+                    ('@schemaLocation', 'http://www.ibm.com/xmlns/prod/CICS/smw2int '
+                                        'http://winmvs28.hursley.ibm.com:28953/CICSSystemManagement/schema/'
+                                        'CICSSystemManagement.xsd'),
+                    ('@version', '3.0'),
+                    ('@connect_version', '0560'),
+                    ('@xmlns', OrderedDict([
+                        ('', 'http://www.ibm.com/xmlns/prod/CICS/smw2int'),
+                        ('xsi', 'http://www.w3.org/2001/XMLSchema-instance')
+                    ])),
+                    ('resultsummary', OrderedDict([
+                        ('@api_response1', '1024'),
+                        ('@api_response2', '0'),
+                        ('@api_response_alt', 'OK'),
+                        ('@api_response2_alt', ''),
+                        ('@recordcount', '2'),
+                        ('@displayed_recordcount', '2')
+                    ])),
+                    ('records', OrderedDict([
+                        ('cicslocalfile', [
+                            OrderedDict([
+                                ('@name', 'bat'),
+                                ('@dsname', 'STEWF.BLOP.BLIP')
+                            ]),
+                            OrderedDict([
+                                ('@name', 'bing'),
+                                ('@dsname', 'STEWF.BAT.BAZ')
+                            ])
+                        ])
+                    ]))
+                ]))
+            ]),
+            'reason': 'OK',
+            'status_code': 200,
+        }
+    })
+
+    cmci_module.run({
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'resource': [{'type': 'cicslocalfile'}],
+    })
+
+
+def test_ok_context_scope_jvmserver_header(cmci_module):
+    cmci_module.stub_get_records(
+        'cicslocalfile',
+        [
+            {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'},
+            {'name': 'bing', 'dsname': 'STEWF.BAT.BAZ'}
+        ],
+        scope=SCOPE,
+        headers={
+            # JVM server returns a content type with the charset embedded
+            'Content-Type': 'application/xml;charset=UTF-8'
+        }
     )
 
     cmci_module.expect({

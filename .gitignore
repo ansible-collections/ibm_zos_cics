@@ -6,3 +6,5 @@ env
 tests/output
 
 ibm-ibm_zos_cics-1.0.0.tar.gz
+
+tests/integration/targets/cics_cmci/cmci-variables.yml
