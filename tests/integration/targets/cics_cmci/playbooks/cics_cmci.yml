@@ -1,19 +1,20 @@
 - name:  CMCI Integration Test
   collections:
    - ibm.ibm_zos_cics
-  hosts: 'all'
+  hosts: 'localhost'
   gather_facts: 'false'
 
   module_defaults:
     ibm.ibm_zos_cics.cics_cmci:
       cmci_host: '{{ cmci_host }}'
       cmci_port: '{{ cmci_port }}'
+      cmci_user: '{{ cmci_user }}'
+      cmci_password: '{{ cmci_password }}'
       context: '{{ context }}'
+      scope: '{{ scope }}'
       security_type: 'basic'
 
-
   tasks:
-
     - name: 'define'
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cics_cmci:
@@ -22,17 +23,18 @@
           - type: 'CICSDefinitionBundle'
             attributes:
               - name: 'PONGALT'
-                bundledir: '/u/{{ cmci_user }}/bundle/pongbundle_1.0.0'
+                bundledir: "/u/{{ cmci_user }}/bundle/pongbundle_1.0.0"
                 csdgroup: 'JVMGRP1'
             parameters:
               - name: 'CSD'
       register: result
+
     - debug:
         msg: "{{ result }}"
     - assert:
         that:
           - result is changed
-          - "result.api_response == 'OK'"
+          - "result.response.reason == 'OK'"
 
 
     - name: 'update'
@@ -52,8 +54,7 @@
     - assert:
         that:
           - result is changed
-          - "result.api_response == 'OK'"
-
+          - "result.response.reason == 'OK'"
 
     - name: 'install'
       delegate_to: 'localhost'
@@ -71,7 +72,7 @@
     - assert:
         that:
           - result is changed
-          - "result.api_response == 'OK'"
+          - "result.response.reason == 'OK'"
 
 
     - name: 'disable bundle'

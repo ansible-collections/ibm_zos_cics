@@ -31,7 +31,7 @@ cmci_cert
   Location of the PEM-formatted certificate chain file to be used for HTTPS client authentication.
 
   Required when security type is certificate.
-
+  Can also be specified using the environment variable ``CMCI_CERT``
 
   | **required**: False
   | **type**: str
@@ -51,7 +51,7 @@ cmci_key
   Location of the PEM-formatted file with your private key to be used for HTTPS client authentication.
 
   Required when security type is certificate.
-
+  Can also be specified using the environment variable ``CMCI_KEY``
 
   | **required**: False
   | **type**: str
@@ -60,7 +60,7 @@ cmci_key
      
 cmci_password
   The password of ``cmci_user`` to pass to the basic authentication.
-
+  Can also be specified using the environment variable ``CMCI_PASSWORD``
 
   | **required**: false
   | **type**: str
@@ -80,6 +80,7 @@ cmci_user
   The user ID to run the CMCI request with.
 
   Required when security type is yes.
+  Can also be supplied using the environment variable ``CMCI_USER``
 
 
   | **required**: false

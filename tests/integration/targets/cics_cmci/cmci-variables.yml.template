@@ -1,0 +1,5 @@
+cmci_host: winmvs2c.hursley.ibm.com
+cmci_port: 26040
+cmci_user: youruser
+cmci_password: yourpass
+context: CICPY012
