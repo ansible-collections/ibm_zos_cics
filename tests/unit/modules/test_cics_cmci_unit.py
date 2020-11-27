@@ -53,12 +53,15 @@ def fail_json(*args, **kwargs):
 
 
 class CMCITestHelper:
-    def __init__(self, requests_mock):
+    def __init__(self, requests_mock=None):
         self.requests_mock = requests_mock
         self.expected = {}
 
     def stub_request(self, *args, **kwargs):
-        self.requests_mock.request(*args, **kwargs)
+        if self.requests_mock:
+            self.requests_mock.request(*args, **kwargs)
+        else:
+            raise Exception("No requests_mock for this test")
 
     def stub_get_records(self, resource_type: str, records: [{}], host=HOST, https=False, port=PORT,
                          context=CONTEXT, scope='', parameters='', request_headers={},
@@ -122,6 +125,14 @@ def cmci_module(requests_mock, monkeypatch):
     monkeypatch.setattr(basic.AnsibleModule, "fail_json", fail_json)
 
     yield CMCITestHelper(requests_mock)
+
+
+@pytest.fixture
+def cmci_module_http(monkeypatch):
+    monkeypatch.setattr(basic.AnsibleModule, "exit_json", exit_json)
+    monkeypatch.setattr(basic.AnsibleModule, "fail_json", fail_json)
+
+    yield CMCITestHelper()
 
 
 def test_401_fails(cmci_module):
@@ -330,6 +341,34 @@ def test_auth(cmci_module):
         'context': CONTEXT,
         'scope': SCOPE,
         'resource': [{'type': 'cicslocalfile'}],
+    })
+
+
+def test_update(cmci_module_http):
+    cmci_module_http.expect({
+
+    })
+
+    cmci_module_http.run({
+        'cmci_host': 'cicsex56.hursley.ibm.com',
+        'cmci_port': '28953',
+        'context': 'CICSEX56',
+        'option': 'update',
+        'scope': 'IYCWEMM1',
+        'security_type': 'none',
+        'resource': [{
+            'type': 'CICSDefinitionProgram',
+            'attributes': [{
+                'Description': 'new description'
+            }],
+            'parameters': [{
+                'name': 'CSD'
+            }]
+        }],
+        'filter': [{
+            'criteria': 'NAME=DUMMY',
+            'parameter': 'CSDGROUP(DUMMY)'
+        }]
     })
 
 

@@ -414,8 +414,9 @@ def _append_parameters(element, params):
     action_parameters = params.get('parameters')
     if action_parameters:
         # TODO: make this not a list
+        element['parameter'] = []
         for p in action_parameters:
-            element['parameter'] = {'@' + key: value for key, value in p.items()}
+            element['parameter'].append({'@' + key: value for key, value in p.items()})
 
 
 def _append_attributes(element, params):
