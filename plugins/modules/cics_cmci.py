@@ -50,16 +50,19 @@ options:
     description:
       - The user id to run the CMCI request with.
       - Required when security type is yes.
+      - Can also be specified using the environment variable CMCI_USER
     type: str
   cmci_password:
     description:
       - The password of cmci_user to pass to the basic authentication
+      - Can also be specified using the environment variable CMCI_PASSWORD
     type: str
   cmci_cert:
     description:
       - Location of the PEM-formatted certificate chain file to be used for
         HTTPS client authentication.
       - Required when security type is certificate.
+      - Can also be specified using the environment variable CMCI_CERT
     required: false
     type: str
   cmci_key:
@@ -67,6 +70,7 @@ options:
       - Location of the PEM-formatted file with your private key to be used
         for HTTPS client authentication.
       - Required when security type is certificate.
+      - Can also be specified using the environment variable CMCI_KEY
     required: false
     type: str
   security_type:
@@ -496,7 +500,7 @@ def main():
             cmci_user=dict(type='str', fallback=(env_fallback, ['CMCI_USER'])),
             cmci_password=dict(type='str', no_log=True, fallback=(env_fallback, ['CMCI_PASSWORD'])),
             cmci_cert=dict(type='str', no_log=True, fallback=(env_fallback, ['CMCI_CERT'])),
-            cmci_key=dict(type='str', no_log=True, fallback=(env_fallback, ['CMCI_HOST'])),
+            cmci_key=dict(type='str', no_log=True, fallback=(env_fallback, ['CMCI_KEY'])),
             security_type=dict(
                 type='str',
                 default='none',
