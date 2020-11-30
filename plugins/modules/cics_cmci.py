@@ -547,9 +547,9 @@ def main():
     if not xmltodict:
         fail_e(module, result, missing_required_lib('encoder'), exception=XMLTODICT_IMP_ERR)
 
-    session, method, url, body_xml = _handle_params(module, result)
+    session, method, url, body_xml, resource = _handle_params(module, result)
     response = _do_request(module, result, session, method, url, body_xml)
-    _handle_response(module, result, response, method)
+    _handle_response(module, result, response, method, resource)
     module.exit_json(**result)
 
 
@@ -558,7 +558,7 @@ def _handle_params(module, result):
     params = _handle_module_params(module)
     _validate_module_params(module, result, params)
     session = _create_session(module, result, **params)
-    url = _get_url(params)
+    url, resource = _get_url(params)
     body = _create_body(params)
     # TODO: can this fail?
     # full_document=False suppresses the xml prolog, which CMCI doesn't like
@@ -570,10 +570,10 @@ def _handle_params(module, result):
         'body': body_xml
     }
 
-    return session, method, url, body_xml
+    return session, method, url, body_xml, resource
 
 
-def _handle_response(module, result, response, method):
+def _handle_response(module, result, response, method, resource):
     # Try and parse the XML response body into a dict
     content_type = response.headers.get('content-type')
     # Content type header may include the encoding.  Just look at the first segment if so
@@ -592,7 +592,13 @@ def _handle_response(module, result, response, method):
             'http://www.ibm.com/xmlns/prod/CICS/smw2int': None,
             'http://www.w3.org/2001/XMLSchema-instance': None
         }  # namespace information
-        response_dict = xmltodict.parse(response.content, process_namespaces=True, namespaces=namespaces)
+
+        response_dict = xmltodict.parse(
+            response.content,
+            process_namespaces=True,
+            namespaces=namespaces,
+            force_list=(resource,)  # Make sure we always return a list for the resource node
+        )
 
         # Attached parsed xml to response
         result['response']['body'] = response_dict
@@ -655,7 +661,7 @@ def _get_url(params):  # kwargs to allow us to destructure params when calling
                         if see_criteria:
                             url = url + '&'
                         url = url + 'PARAMETER=' + value
-    return url
+    return url, t
 
 
 def _create_session(module, result, security_type='none', crt=None, key=None, cmci_user=None, cmci_password=None, **kwargs):
