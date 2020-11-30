@@ -399,6 +399,67 @@ def test_ok_context_scope(cmci_module):
     })
 
 
+def test_ok_context_scope_single_record(cmci_module):
+    cmci_module.stub_get_records(
+        'cicslocalfile',
+        [
+            {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}
+        ],
+        scope=SCOPE
+    )
+
+    cmci_module.expect({
+        'changed': False,
+        'request': {
+            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+                   'cicslocalfile/CICSEX56/IYCWEMW2',
+            'method': 'GET',
+            'body': None
+        },
+        'response': {
+            'body': OrderedDict([
+                ('response', OrderedDict([
+                    ('@schemaLocation', 'http://www.ibm.com/xmlns/prod/CICS/smw2int '
+                                        'http://winmvs28.hursley.ibm.com:28953/CICSSystemManagement/schema/'
+                                        'CICSSystemManagement.xsd'),
+                    ('@version', '3.0'),
+                    ('@connect_version', '0560'),
+                    ('@xmlns', OrderedDict([
+                        ('', 'http://www.ibm.com/xmlns/prod/CICS/smw2int'),
+                        ('xsi', 'http://www.w3.org/2001/XMLSchema-instance')
+                    ])),
+                    ('resultsummary', OrderedDict([
+                        ('@api_response1', '1024'),
+                        ('@api_response2', '0'),
+                        ('@api_response_alt', 'OK'),
+                        ('@api_response2_alt', ''),
+                        ('@recordcount', '1'),
+                        ('@displayed_recordcount', '1')
+                    ])),
+                    ('records', OrderedDict([
+                        ('cicslocalfile', [
+                            OrderedDict([
+                                ('@name', 'bat'),
+                                ('@dsname', 'STEWF.BLOP.BLIP')
+                            ])
+                        ])
+                    ]))
+                ]))
+            ]),
+            'reason': 'OK',
+            'status_code': 200,
+        }
+    })
+
+    cmci_module.run({
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'resource': [{'type': 'cicslocalfile'}],
+    })
+
+
 def test_ok_context_scope_jvmserver_header(cmci_module):
     cmci_module.stub_get_records(
         'cicslocalfile',
