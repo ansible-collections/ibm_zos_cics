@@ -20,9 +20,9 @@
       ibm.ibm_zos_cics.cics_cmci:
         option: 'define'
         resource:
-          - type: 'CICSDefinitionBundle'
+            type: 'CICSDefinitionBundle'
             attributes:
-              - name: 'PONGALT'
+                name: 'PONGALT'
                 bundledir: "/u/{{ cmci_user }}/bundle/pongbundle_1.0.0"
                 csdgroup: 'JVMGRP1'
             parameters:
@@ -42,9 +42,9 @@
       ibm.ibm_zos_cics.cics_cmci:
         option: 'update'
         resource:
-          - type: 'CICSDefinitionBundle'
+            type: 'CICSDefinitionBundle'
             attributes:
-              - description: 'forget description'
+                description: 'forget description'
         filter:
           - criteria: 'NAME=PONGALT'
             parameter: 'CSDGROUP(JVMGRP1)'
@@ -61,7 +61,7 @@
       ibm.ibm_zos_cics.cics_cmci:
         option: 'install'
         resource:
-          - type: 'CICSDefinitionBundle'
+            type: 'CICSDefinitionBundle'
             location: 'CSD'
         filter:
           - criteria: 'NAME=PONGALT'
@@ -99,7 +99,7 @@
       ibm.ibm_zos_cics.cics_cmci:
         option: 'delete'
         resource:
-          - type: 'CICSBundle'
+          type: 'CICSBundle'
         filter:
           - criteria: 'NAME=PONGALT'
       register: result
@@ -116,7 +116,7 @@
       ibm.ibm_zos_cics.cics_cmci:
         option: 'delete'
         resource:
-          - type: 'CICSBundleDefinition'
+          type: 'CICSBundleDefinition'
         filter:
           - criteria: 'NAME=PONGALT'
             parameter: 'CSDGROUP=(JVMGRP1)'

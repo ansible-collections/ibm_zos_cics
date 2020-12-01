@@ -170,7 +170,7 @@ resource
 
 
   | **required**: True
-  | **type**: list
+  | **type**: dict
 
 
      
@@ -179,7 +179,7 @@ resource
 
 
     | **required**: False
-    | **type**: list
+    | **type**: dict
 
 
      
@@ -202,6 +202,18 @@ resource
     | **required**: False
     | **type**: list
 
+
+    name
+      The parameter name.
+
+      | **required**: True
+      | **type**: str
+
+    value
+      The parameter value.
+
+      | **required**: False
+      | **type**: str
 
      
   type
