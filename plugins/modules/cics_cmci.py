@@ -384,10 +384,126 @@ response:
 """
 
 
+def main():
+    module = AnsibleModule(
+        argument_spec=dict(
+            cmci_host=dict(
+                required=True,
+                type='str'
+            ),
+            cmci_port=dict(
+                required=True,
+                type='str'
+            ),
+            cmci_user=dict(
+                type='str',
+                fallback=(env_fallback, ['CMCI_USER'])
+            ),
+            cmci_password=dict(
+                type='str',
+                # no_log=True,
+                fallback=(env_fallback, ['CMCI_PASSWORD'])
+            ),
+            cmci_cert=dict(
+                type='str',
+                # no_log=True,
+                fallback=(env_fallback, ['CMCI_CERT'])
+            ),
+            cmci_key=dict(
+                type='str',
+                # no_log=True,
+                fallback=(env_fallback, ['CMCI_KEY'])
+            ),
+            security_type=dict(
+                type='str',
+                default='none',
+                choices=['none', 'basic', 'certificate']
+            ),
+            context=dict(
+                required=True,
+                type='str'
+            ),
+            scope=dict(
+                type='str'
+            ),
+            option=dict(
+                type='str',
+                default='query',
+                choices=['define', 'delete', 'update', 'install', 'query']
+            ),
+            filter=dict(
+                type='list',
+                options=dict(
+                    criteria=dict(
+                        type='str',
+                        required=False
+                    ),
+                    parameter=dict(
+                        type='str',
+                        required=False
+                    )
+                ),
+                elements='dict'
+            ),
+            record_count=dict(type='int'),
+            resource=dict(
+                type='dict',
+                required=True,
+                options=dict(
+                    type=dict(
+                        type='str',
+                        required=True
+                    ),
+                    attributes=dict(
+                        type='dict',
+                        required=False
+                    ),
+                    parameters=dict(
+                        type='list',
+                        required=False,
+                        elements='dict',
+                        options=dict(
+                            name=dict(
+                                type='str',
+                                required=True
+                            ),
+                            # Value is not required for flag-type parameters like CSD
+                            value=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    location=dict(
+                        type='str',
+                        required=False,
+                        choices=['BAS', 'CSD']
+                    )
+                )
+            ),
+        )
+    )
+    result = dict(changed=False)
+
+    if not requests:
+        fail_e(module, result, missing_required_lib('requests'), exception=REQUESTS_IMP_ERR)
+
+    if not xmltodict:
+        fail_e(module, result, missing_required_lib('encoder'), exception=XMLTODICT_IMP_ERR)
+
+    session, method, url, body_xml, resource = _handle_params(module, result)
+    response = _do_request(module, result, session, method, url, body_xml)
+    _handle_response(module, result, response, method, resource)
+    module.exit_json(**result)
+
+
 def _create_body(params):
     action = params.get('option')
     if action not in ['install', 'update', 'define']:
         return None
+
+    resource = params.get('resource')
+    parameters = resource.get('parameters', None)
+    attributes = resource.get('attributes', None)
 
     request = {}
     if action == 'install':
@@ -397,35 +513,36 @@ def _create_body(params):
         request['action'] = {'@name': 'INSTALL' if location == 'BAS' else 'CSDINSTALL'}
     elif action == 'update':
         update = {}
-        _append_parameters(update, params)
-        _append_attributes(update, params)
+        _append_parameters(update, parameters)
+        _append_attributes(update, attributes)
         request['update'] = update
     elif action == 'define':
         create = {}
-        _append_parameters(create, params)
-        _append_attributes(create, params)
+        _append_parameters(create, parameters)
+        _append_attributes(create, attributes)
         request['create'] = create
     document = {"request": request}
     return document
 
 
-def _append_parameters(element, params):
-    # Parameters are <parameters><parameter name="pname" value="pvalue" /></parameters>
-    action_parameters = params.get('parameters')
-    if action_parameters:
-        # TODO: make this not a list
-        element['parameter'] = []
-        for p in action_parameters:
-            element['parameter'].append({'@' + key: value for key, value in p.items()})
+def _append_parameters(element, parameters):
+    # Parameters are <parameter name="pname" value="pvalue" />
+    if parameters:
+        ps = []
+        for p in parameters:
+            np = {'@name': p.get('name')}
+            value = p.get('value')
+            if value:
+                np['@value'] = value
+            ps.append(np)
+        element['parameter'] = ps
 
 
-def _append_attributes(element, params):
+def _append_attributes(element, attributes):
     # Attributes are <attributes name="value" name2="value2"/>
-    action_attributes = params.get('attributes')
-    if action_attributes:
-        # TODO: make this not a list
-        for a in action_attributes:
-            element['attributes'] = {'@' + key: value for key, value in a.items()}
+    if attributes:
+        # TODO: validate types?
+        element['attributes'] = {'@' + key: value for key, value in attributes.items()}
 
 
 def _validate_module_params(module, result, params):
@@ -467,18 +584,10 @@ def _validate_module_params(module, result, params):
 
 def _handle_module_params(module):
     parameters = {}
-    # TODO: This bit that flattens the params is relied on in the action bit, it's how the parameters get there.
-    #  Don't know why it's necessary though, I should fix it!
-    #  Is also relied on by the get_url function, which uses 'type' at the top level.  There's nothing that makes
-    #  resource mandatory at the moment.
+    # TODO: Don't know why this is necessary, should remove!
+    #  I think this copies everything because it wants to set values like 'method' but module.params is immutable!
     for key, value in module.params.items():
-        if key == 'resource':
-            resource = module.params.get('resource')
-            for i in resource:
-                for k, v in i.items():
-                    parameters[k] = v
-        else:
-            parameters[key] = value
+        parameters[key] = value
     method_action_pair = {'define': 'POST', 'install': 'PUT', 'update': 'PUT', 'delete': 'DELETE', 'query': 'GET'}
     for key, value in method_action_pair.items():
         if module.params.get('option') == key:
@@ -486,80 +595,11 @@ def _handle_module_params(module):
     return parameters
 
 
-def main():
-    resource_rule_spec = dict(
-        type=dict(type='str', required=True),
-        attributes=dict(type='list', elements='dict', required=False),
-        parameters=dict(type='list', elements='dict', required=False),
-        location=dict(type='str', required=False, choices=['BAS', 'CSD'])
-    )
-
-    module = AnsibleModule(
-        argument_spec=dict(
-            cmci_host=dict(required=True, type='str'),
-            cmci_port=dict(required=True, type='str'),
-            cmci_user=dict(type='str', fallback=(env_fallback, ['CMCI_USER'])),
-            cmci_password=dict(type='str', no_log=True, fallback=(env_fallback, ['CMCI_PASSWORD'])),
-            cmci_cert=dict(type='str', no_log=True, fallback=(env_fallback, ['CMCI_CERT'])),
-            cmci_key=dict(type='str', no_log=True, fallback=(env_fallback, ['CMCI_KEY'])),
-            security_type=dict(
-                type='str',
-                default='none',
-                choices=[
-                    'none',
-                    'basic',
-                    'certificate'
-                ]
-            ),
-            context=dict(required=True, type='str'),
-            scope=dict(type='str'),
-            option=dict(
-                type='str',
-                default='query',
-                choices=[
-                        'define',
-                        'delete',
-                        'update',
-                        'install',
-                        'query'
-                ]
-            ),
-            filter=dict(
-                type='list',
-                options=dict(
-                    criteria=dict(type='str', required=False),
-                    parameter=dict(type='str', required=False)
-                ),
-                elements='dict'
-            ),
-            record_count=dict(type='int'),
-            resource=dict(
-                type='list',
-                options=resource_rule_spec,
-                elements='dict'
-            ),
-        )
-    )
-    result = dict(changed=False)
-
-    if not requests:
-        fail_e(module, result, missing_required_lib('requests'), exception=REQUESTS_IMP_ERR)
-
-    if not xmltodict:
-        fail_e(module, result, missing_required_lib('encoder'), exception=XMLTODICT_IMP_ERR)
-
-    session, method, url, body_xml = _handle_params(module, result)
-    response = _do_request(module, result, session, method, url, body_xml)
-    _handle_response(module, result, response, method)
-    module.exit_json(**result)
-
-
 def _handle_params(module, result):
-    # TODO: this flattens the params a bit, and sets 'method' amongst other things, get rid of this!
     params = _handle_module_params(module)
     _validate_module_params(module, result, params)
     session = _create_session(module, result, **params)
-    url = _get_url(params)
+    url, resource = _get_url(params)
     body = _create_body(params)
     # TODO: can this fail?
     # full_document=False suppresses the xml prolog, which CMCI doesn't like
@@ -571,10 +611,10 @@ def _handle_params(module, result):
         'body': body_xml
     }
 
-    return session, method, url, body_xml
+    return session, method, url, body_xml, resource
 
 
-def _handle_response(module, result, response, method):
+def _handle_response(module, result, response, method, resource):
     # Try and parse the XML response body into a dict
     content_type = response.headers.get('content-type')
     # Content type header may include the encoding.  Just look at the first segment if so
@@ -593,7 +633,13 @@ def _handle_response(module, result, response, method):
             'http://www.ibm.com/xmlns/prod/CICS/smw2int': None,
             'http://www.w3.org/2001/XMLSchema-instance': None
         }  # namespace information
-        response_dict = xmltodict.parse(response.content, process_namespaces=True, namespaces=namespaces)
+
+        response_dict = xmltodict.parse(
+            response.content,
+            process_namespaces=True,
+            namespaces=namespaces,
+            force_list=(resource,)  # Make sure we always return a list for the resource node
+        )
 
         # Attached parsed xml to response
         result['response']['body'] = response_dict
@@ -621,14 +667,15 @@ def _handle_response(module, result, response, method):
         fail_e(module, result, 'CMCI response XML document could not be successfully parsed: {0}'.format(e), e)
 
 
-def _get_url(params):  # kwargs to allow us to destructure params when calling
+def _get_url(params):
     cmci_host = params.get('cmci_host')
     cmci_port = params.get('cmci_port')
-    t = params.get('type')
+    resource = params.get('resource')
+    t = resource.get('type')
     context = params.get('context')
+    scope = params.get('scope')
     option = params.get('option')
     security_type = params.get('security_type', 'none')
-    scope = params.get('scope')
     record_count = params.get('record_count')
     fltr = params.get('filter')
 
@@ -656,7 +703,7 @@ def _get_url(params):  # kwargs to allow us to destructure params when calling
                         if see_criteria:
                             url = url + '&'
                         url = url + 'PARAMETER=' + value
-    return url
+    return url, t
 
 
 def _create_session(module, result, security_type='none', crt=None, key=None, cmci_user=None, cmci_password=None, **kwargs):
