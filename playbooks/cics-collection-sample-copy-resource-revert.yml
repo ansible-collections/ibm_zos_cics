@@ -132,9 +132,8 @@
       context: '{{ cmci_context }}'
       option: 'delete'
       resource: 
-          type: CICSBundle
-      filter: 
-        - criteria: NAME=PONG
+        type: CICSBundle
+      criteria: 'NAME=PONG'
     delegate_to: localhost
     register: result
 
