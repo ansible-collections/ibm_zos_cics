@@ -58,8 +58,8 @@ class CMCITestHelper:
         self.requests_mock = requests_mock
         self.expected = {}
 
-    def stub_request(self, *args, **kwargs):
-        self.requests_mock.request(*args, **kwargs)
+    def stub_request(self, *args, complete_qs=True, **kwargs):
+        self.requests_mock.request(*args, complete_qs=complete_qs, **kwargs)
 
     def stub_get_records(self, resource_type, records, *args, **kwargs):
         return self.stub_cmci('GET', resource_type, *args, records=records, **kwargs)
@@ -98,7 +98,7 @@ class CMCITestHelper:
 
         case = unittest.TestCase()
         case.maxDiff = None
-        case.assertDictEqual(result, self.expected)
+        case.assertDictEqual(self.expected, result)
 
 
 def create_records_response(resource_type, records):
@@ -492,11 +492,7 @@ def test_unknown_host(monkeypatch):
         'security_type': 'none',
         'resource': {
             'type': 'CICSDefinitionBundle'
-        },
-        'filter': [{
-            'criteria': 'NAME=PONGALT',
-            'parameter': 'CSDGROUP(JVMGRP1)'
-        }]
+        }
     })
 
     with pytest.raises(AnsibleFailJson) as exc_info:
@@ -578,3 +574,136 @@ def test_csd_create(cmci_module):
             )
         )
     ))
+
+
+def test_query_criteria(cmci_module):
+    cmci_module.stub_get_records(
+        'cicslocalfile',
+        [
+            {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}
+        ],
+        scope=SCOPE,
+        parameters='?CRITERIA=FOO%3DBAR'
+    )
+
+    cmci_module.expect({
+        'changed': False,
+        'request': {
+            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+                   'cicslocalfile/CICSEX56/IYCWEMW2',
+            'method': 'GET',
+            'body': None,
+            'params': {'CRITERIA': 'FOO=BAR'}
+        },
+        'response': {
+            'body': create_records_response(
+                'cicslocalfile', [
+                    od(
+                        ('@name', 'bat'),
+                        ('@dsname', 'STEWF.BLOP.BLIP')
+                    )
+                ]
+            ),
+            'reason': 'OK',
+            'status_code': 200,
+        }
+    })
+
+    cmci_module.run({
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'resource': {'type': 'cicslocalfile'},
+        'criteria': 'FOO=BAR'
+    })
+
+
+def test_query_parameter(cmci_module):
+    cmci_module.stub_get_records(
+        'cicsdefinitionfile',
+        [
+            {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}
+        ],
+        scope=SCOPE,
+        parameters='?PARAMETER=CSDGROUP%28%2A%29'
+    )
+
+    cmci_module.expect({
+        'changed': False,
+        'request': {
+            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+                   'cicsdefinitionfile/CICSEX56/IYCWEMW2',
+            'method': 'GET',
+            'body': None,
+            'params': {'PARAMETER': 'CSDGROUP(*)'}
+        },
+        'response': {
+            'body': create_records_response(
+                'cicsdefinitionfile', [
+                    od(
+                        ('@name', 'bat'),
+                        ('@dsname', 'STEWF.BLOP.BLIP')
+                    )
+                ]
+            ),
+            'reason': 'OK',
+            'status_code': 200,
+        }
+    })
+
+    cmci_module.run({
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'resource': {'type': 'cicsdefinitionfile'},
+        'parameter': 'CSDGROUP(*)'
+    })
+
+
+def test_query_parameter_criteria(cmci_module):
+    cmci_module.stub_get_records(
+        'cicsdefinitionfile',
+        [
+            {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}
+        ],
+        scope=SCOPE,
+        parameters='?CRITERIA=FOO%3DBAR&PARAMETER=CSDGROUP%28%2A%29'
+    )
+
+    cmci_module.expect({
+        'changed': False,
+        'request': {
+            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+                   'cicsdefinitionfile/CICSEX56/IYCWEMW2',
+            'method': 'GET',
+            'body': None,
+            'params': {
+                'PARAMETER': 'CSDGROUP(*)',
+                'CRITERIA': 'FOO=BAR'
+            }
+        },
+        'response': {
+            'body': create_records_response(
+                'cicsdefinitionfile', [
+                    od(
+                        ('@name', 'bat'),
+                        ('@dsname', 'STEWF.BLOP.BLIP')
+                    )
+                ]
+            ),
+            'reason': 'OK',
+            'status_code': 200,
+        }
+    })
+
+    cmci_module.run({
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'resource': {'type': 'cicsdefinitionfile'},
+        'parameter': 'CSDGROUP(*)',
+        'criteria': 'FOO=BAR'
+    })
