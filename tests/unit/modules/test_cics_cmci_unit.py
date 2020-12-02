@@ -70,6 +70,9 @@ class CMCITestHelper:
     def stub_create_record(self, resource_type, record, **kwargs):
         return self.stub_cmci('POST', resource_type, records=[record], **kwargs)
 
+    def stub_update_record(self, resource_type, record, **kwargs):
+        return self.stub_cmci('PUT', resource_type, records=[record], **kwargs)
+
     def stub_cmci(self, method, resource_type, scheme='http', host=HOST, port=PORT,
                   context=CONTEXT, scope=None, parameters='', records=None,
                   headers={'CONTENT-TYPE': 'application/xml'}, status_code=200, reason='OK', **kwargs):
@@ -108,7 +111,7 @@ def create_records_response(resource_type, records):
     return od(
         ('response', od(
             ('@schemaLocation', 'http://www.ibm.com/xmlns/prod/CICS/smw2int '
-                                'http://winmvs28.hursley.ibm.com:28953/CICSSystemManagement/schema/'
+                                'http://winmvs28.hursley.ibm.com:26040/CICSSystemManagement/schema/'
                                 'CICSSystemManagement.xsd'),
             ('@version', '3.0'),
             ('@connect_version', '0560'),
@@ -356,32 +359,146 @@ def test_auth(cmci_module):
     })
 
 
-def test_update(cmci_module_http):
-    cmci_module_http.expect({
+def test_update(cmci_module):
+    cmci_module.stub_update_record(
+        'cicsdefinitionprogram',
+        dict(
+            _keydata='C4E4D4D4E840404000C4E4D4D4E8404040',
+            api='CICSAPI',
+            cedf='YES',
+            changeagent='CSDAPI',
+            changeagrel='0730',
+            changetime='2020-11-30T10:26:57.000000+00:00',
+            changeusrid='CICSUSER',
+            concurrency='QUASIRENT',
+            createtime='2020-06-15T17:33:02.000000+00:00',
+            csdgroup='DUMMY',
+            datalocation='ANY',
+            defver='0',
+            desccodepage='0',
+            description='new description',
+            dynamic='NO',
+            execkey='USER',
+            executionset='FULLAPI',
+            hotpool='NO',
+            jvm='NO',
+            jvmclass='',
+            jvmprofile='',
+            jvmserver='',
+            language='N_A',
+            name='DUMMY',
+            reload='NO',
+            remotename='',
+            remotesystem='',
+            resident='NO',
+            rsl='       0',
+            status='ENABLED',
+            transid='',
+            usage='NORMAL',
+            uselpacopy='NO',
+            userdata1='',
+            userdata2='',
+            userdata3=''
+        ),
+        scope=SCOPE,
+        parameters='?CRITERIA=NAME%3DDUMMY&PARAMETER=CSDGROUP%28DUMMY%29',
+        additional_matcher=body_matcher(od(
+            ('request', od(
+                ('update', od(
+                    ('parameter', od(
+                        ('@name', 'CSD')
+                    )),
+                    ('attributes', od(
+                        ('@description', 'new description')
 
+                    ))
+                ))
+            ))
+        ))
+    )
+
+    cmci_module.expect({
+        'changed': True,
+        'request': {
+            'body':
+                '<request><update>'
+                '<parameter name="CSD"></parameter>'
+                '<attributes description="new description"></attributes>'
+                '</update></request>',
+            'method': 'PUT',
+            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram/CICSEX56/IYCWEMW2',
+            'params': {
+                'PARAMETER': 'CSDGROUP(DUMMY)',
+                'CRITERIA': 'NAME=DUMMY'
+            }
+        },
+        'response': {
+            'body': create_records_response(
+                'cicsdefinitionprogram',
+                [
+                    od(
+                        ('@_keydata', 'C4E4D4D4E840404000C4E4D4D4E8404040'),
+                        ('@api', 'CICSAPI'),
+                        ('@cedf', 'YES'),
+                        ('@changeagent', 'CSDAPI'),
+                        ('@changeagrel', '0730'),
+                        ('@changetime', '2020-11-30T10:26:57.000000+00:00'),
+                        ('@changeusrid', 'CICSUSER'),
+                        ('@concurrency', 'QUASIRENT'),
+                        ('@createtime', '2020-06-15T17:33:02.000000+00:00'),
+                        ('@csdgroup', 'DUMMY'),
+                        ('@datalocation','ANY'),
+                        ('@defver', '0'),
+                        ('@desccodepage', '0'),
+                        ('@description', 'new description'),
+                        ('@dynamic', 'NO'),
+                        ('@execkey', 'USER'),
+                        ('@executionset', 'FULLAPI'),
+                        ('@hotpool', 'NO'),
+                        ('@jvm', 'NO'),
+                        ('@jvmclass', ''),
+                        ('@jvmprofile', ''),
+                        ('@jvmserver', ''),
+                        ('@language', 'N_A'),
+                        ('@name', 'DUMMY'),
+                        ('@reload', 'NO'),
+                        ('@remotename', ''),
+                        ('@remotesystem', ''),
+                        ('@resident', 'NO'),
+                        ('@rsl', '       0'),
+                        ('@status', 'ENABLED'),
+                        ('@transid', ''),
+                        ('@usage', 'NORMAL'),
+                        ('@uselpacopy', 'NO'),
+                        ('@userdata1', ''),
+                        ('@userdata2', ''),
+                        ('@userdata3', '')
+                    )
+                ]
+            ),
+            'reason': 'OK',
+            'status_code': 200}
     })
 
-    cmci_module_http.run({
-        'cmci_host': 'cicsex56.hursley.ibm.com',
-        'cmci_port': '28953',
-        'context': 'CICSEX56',
-        'option': 'update',
-        'scope': 'IYCWEMM1',
-        'security_type': 'none',
-        'resource': [{
-            'type': 'CICSDefinitionProgram',
-            'attributes': [{
-                'Description': 'new description'
-            }],
-            'parameters': [{
-                'name': 'CSD'
-            }]
-        }],
-        'filter': [{
-            'criteria': 'NAME=DUMMY',
-            'parameter': 'CSDGROUP(DUMMY)'
-        }]
-    })
+    cmci_module.run(dict(
+        cmci_host=HOST,
+        cmci_port=PORT,
+        context=CONTEXT,
+        scope=SCOPE,
+        option='update',
+        security_type='none',
+        resource=dict(
+            type='cicsdefinitionprogram',
+            parameters=[dict(
+                name='CSD'
+            )],
+            attributes=dict(
+                description='new description'
+            )
+        ),
+        criteria='NAME=DUMMY',
+        parameter='CSDGROUP(DUMMY)'
+    ))
 
 
 def test_ok_context_scope(cmci_module):
@@ -574,10 +691,10 @@ def test_csd_create(cmci_module):
             'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
                    'cicsdefinitionbundle/CICSEX56/IYCWEMW2',
             'method': 'POST',
-            'body': '<request><create><parameter '
-                    'name="CSD"></parameter><attributes name="bar" '
-                    'bundledir="/u/bundles/bloop" '
-                    'csdgroup="bat"></attributes></create></request>'
+            'body': '<request><create>'
+                    '<parameter name="CSD"></parameter>'
+                    '<attributes name="bar" bundledir="/u/bundles/bloop" csdgroup="bat"></attributes>'
+                    '</create></request>'
         },
         'response': {
             'body': create_records_response(
