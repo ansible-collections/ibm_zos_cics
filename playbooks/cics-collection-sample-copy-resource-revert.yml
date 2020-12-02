@@ -77,7 +77,7 @@
       context: '{{ cmci_context }}'
       option: 'update'
       resource: 
-        - type: CICSBundle
+          type: CICSBundle
           attributes:
             - Enablestatus: disabled
       filter: 
@@ -115,7 +115,7 @@
       context: '{{ cmci_context }}'
       option: 'delete'
       resource: 
-        - type: CICSLIBRARY
+          type: CICSLIBRARY
       filter: 
         - criteria: NAME=PONG
     delegate_to: localhost
@@ -132,9 +132,8 @@
       context: '{{ cmci_context }}'
       option: 'delete'
       resource: 
-        - type: CICSBundle
-      filter: 
-        - criteria: NAME=PONG
+        type: CICSBundle
+      criteria: 'NAME=PONG'
     delegate_to: localhost
     register: result
 

@@ -123,10 +123,9 @@
       context: '{{ cmci_context }}'
       option: 'install'
       resource:
-        - type: CICSCSDGroup
+          type: CICSCSDGroup
           location: CSD
-      filter:
-        - criteria: NAME=TSTGRP
+      criteria: NAME=TSTGRP
     delegate_to: localhost
     register: result
 
