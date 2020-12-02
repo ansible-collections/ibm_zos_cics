@@ -125,8 +125,7 @@
       resource:
           type: CICSCSDGroup
           location: CSD
-      filter:
-        - criteria: NAME=TSTGRP
+      criteria: NAME=TSTGRP
     delegate_to: localhost
     register: result
 

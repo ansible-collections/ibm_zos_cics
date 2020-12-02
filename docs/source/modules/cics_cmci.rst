@@ -100,41 +100,28 @@ context
   | **type**: str
 
 
-     
-filter
-  Refines the scope and nature of the request. The constituent parts of the query section can occur in any order, but each can occur only once in a URI.
+criteria
+  A string containing logical expressions that filters the data returned on the request.
 
+  The string on the ``criteria`` parameter follows the same rule as the filter expression in the CICSPlex SM application programming interface (API).
   Although query parameter values are not case-sensitive, certain attribute values must have correct capitalization because some attributes such as TRANID and DESC can hold mixed-case values.
-
   The filter can work with options ``query``, ``update``, ``delete``; otherwise it will be ignored.
+  For more guidance about specifying filter expressions using the CICSPlex SM API, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.4.0/system-programming/cpsm/eyup1a0.html
 
 
-  | **required**: false
-  | **type**: list
+  | **required**: False
+  | **type**: str
 
 
-     
-  criteria
-    A string containing logical expressions that filters the data returned on the request.
 
-    The string on the ``criteria`` parameter follows the same rule as the filter expression in the CICSPlex SM application programming interface (API).
+parameter
+  A string of one or more parameters and values in the form of `parameter_name(data_value)` that refines the request. The rule for specifying these parameters is the same as in the CICSPlex SM API.
 
-    For more guidance about specifying filter expressions using the CICSPlex SM API, see (https://www.ibm.com/support/knowledgecenter /SSGMCP_5.4.0/system-programming/cpsm/eyup1a0.html).
+  For more guidance about specifying parameter expressions using the CICSPlex SM API, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.4.0/system-programming/cpsm/eyup1bg.html
 
 
-    | **required**: False
-    | **type**: str
-
-
-     
-  parameter
-    A string of one or more parameters and values in the form of `parameter_name(data_value)` that refines the request. The rule for specifying these parameters is the same as in the CICSPlex SM API.
-
-    For more guidance about specifying parameter expressions using the CICSPlex SM API, see (https://www.ibm.com/support/knowledgecenter /SSGMCP_5.4.0/system-programming/cpsm/eyup1bg.html)
-
-
-    | **required**: False
-    | **type**: str
+  | **required**: False
+  | **type**: str
 
 
 

@@ -188,13 +188,13 @@
       context: '{{ cmci_context }}'
       option: 'define'
       resource: 
-          type: CICSDefinitionBundle
-          attributes: 
-            name: "{{app}}"
-            BUNDLEDIR: '{{ BUNDLE_DIR }}pongbundle_1.0.0'
-            csdgroup: TSTGRP
-          parameters:
-             - name: CSD
+        type: CICSDefinitionBundle
+        attributes:
+          name: "{{app}}"
+          BUNDLEDIR: '{{ BUNDLE_DIR }}pongbundle_1.0.0'
+          csdgroup: TSTGRP
+        parameters:
+          - name: CSD
       record_count: 1
     delegate_to: localhost
     register: result
@@ -212,9 +212,8 @@
       resource: 
         type: CICSDefinitionBundle
         location: CSD
-      filter: 
-        - criteria: "NAME={{ app_name }}"
-          parameter: CSDGROUP(TSTGRP)
+      criteria: "NAME={{ app_name }}"
+      parameter: CSDGROUP(TSTGRP)
     delegate_to: localhost
     register: result
   - debug: var=result

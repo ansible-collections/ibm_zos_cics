@@ -62,11 +62,10 @@
       context: '{{ cmci_context }}'
       option: 'update'
       resource: 
-          type: CICSLIBRARY
-          attributes:
-            - Enablestatus: disabled
-      filter: 
-          - criteria: "NAME={{ app_name }}"
+        type: CICSLIBRARY
+        attributes:
+          Enablestatus: disabled
+      criteria: "NAME={{ app_name }}"
     delegate_to: localhost
     register: result
 
@@ -81,9 +80,8 @@
       context: '{{ cmci_context }}'
       option: 'delete'
       resource: 
-          type: CICSLIBRARY
-      filter: 
-        - criteria: "NAME={{ app_name }}"
+        type: CICSLIBRARY
+      criteria: "NAME={{ app_name }}"
     delegate_to: localhost
     register: result
 
@@ -93,15 +91,14 @@
 
   - name: delete a library definition in a CICS region
     ibm.ibm_zos_cics.cics_cmci:
-        cmci_host: '{{ cmci_host }}'
-        cmci_port: '{{ cmci_port }}'
-        context: '{{ cmci_context }}'
-        option: 'delete'
-        resource: 
-            type: CICSDefinitionLIBRARY
-        filter: 
-          - criteria: "NAME={{ app_name }}"
-            parameter: CSDGROUP(TSTGRP)
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      context: '{{ cmci_context }}'
+      option: 'delete'
+      resource:
+        type: CICSDefinitionLIBRARY
+      criteria: "NAME={{ app_name }}"
+      parameter: 'CSDGROUP(TSTGRP)'
     delegate_to: localhost
     register: result
 
@@ -116,11 +113,10 @@
       context: '{{ cmci_context }}'
       option: 'update'
       resource: 
-          type: CICSBundle
-          attributes:
-            - Enablestatus: disabled
-      filter: 
-          - criteria: "NAME={{ app_name }}"
+        type: CICSBundle
+        attributes:
+          Enablestatus: disabled
+      criteria: "NAME={{ app_name }}"
     delegate_to: localhost
     register: result
 
@@ -135,9 +131,8 @@
       context: '{{ cmci_context }}'
       option: 'delete'
       resource: 
-          type: CICSBundle
-      filter: 
-        - criteria: "NAME={{ app_name }}"
+        type: CICSBundle
+      criteria: "NAME={{ app_name }}"
     delegate_to: localhost
     register: result
 
@@ -149,10 +144,9 @@
       context: '{{ cmci_context }}'
       option: 'delete'
       resource: 
-          type: CICSDefinitionBundle
-      filter: 
-        - criteria: "NAME={{ app_name }}"
-          parameter: CSDGROUP(TSTGRP)
+        type: CICSDefinitionBundle
+      criteria: "NAME={{ app_name }}"
+      parameter: CSDGROUP(TSTGRP)
     delegate_to: localhost
     register: result
 
