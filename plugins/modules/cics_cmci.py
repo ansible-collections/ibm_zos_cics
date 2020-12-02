@@ -431,19 +431,13 @@ def main():
                 default='query',
                 choices=['define', 'delete', 'update', 'install', 'query']
             ),
-            filter=dict(
-                type='list',
-                options=dict(
-                    criteria=dict(
-                        type='str',
-                        required=False
-                    ),
-                    parameter=dict(
-                        type='str',
-                        required=False
-                    )
-                ),
-                elements='dict'
+            criteria=dict(
+                type='str',
+                required=False
+            ),
+            parameter=dict(
+                type='str',
+                required=False
             ),
             record_count=dict(type='int'),
             resource=dict(
@@ -490,8 +484,8 @@ def main():
     if not xmltodict:
         fail_e(module, result, missing_required_lib('encoder'), exception=XMLTODICT_IMP_ERR)
 
-    session, method, url, body_xml, resource = _handle_params(module, result)
-    response = _do_request(module, result, session, method, url, body_xml)
+    session, method, url, request_params, body_xml, resource = _handle_params(module, result)
+    response = _do_request(module, result, session, method, url, request_params, body_xml)
     _handle_response(module, result, response, method, resource)
     module.exit_json(**result)
 
@@ -599,19 +593,25 @@ def _handle_params(module, result):
     params = _handle_module_params(module)
     _validate_module_params(module, result, params)
     session = _create_session(module, result, **params)
-    url, resource = _get_url(params)
+    url, resource, request_params = _get_url(params)
     body = _create_body(params)
     # TODO: can this fail?
     # full_document=False suppresses the xml prolog, which CMCI doesn't like
     body_xml = xmltodict.unparse(body, full_document=False) if body else None
     method = params.get('method')
-    result['request'] = {
+
+    result_request = {
         'url': url,
         'method': method,
         'body': body_xml
     }
 
-    return session, method, url, body_xml, resource
+    if request_params:
+        result_request['params'] = request_params
+
+    result['request'] = result_request
+
+    return session, method, url, request_params, body_xml, resource
 
 
 def _handle_response(module, result, response, method, resource):
@@ -677,7 +677,8 @@ def _get_url(params):
     option = params.get('option')
     security_type = params.get('security_type', 'none')
     record_count = params.get('record_count')
-    fltr = params.get('filter')
+    criteria = params.get('criteria')
+    parameter = params.get('parameter')
 
     if security_type == 'none':
         scheme = 'http://'
@@ -691,19 +692,19 @@ def _get_url(params):
         if option == 'query':
             if record_count:
                 url = url + '//' + str(record_count)
-        if fltr:
-            url = url + '?'
-            see_criteria = False
-            for i in fltr:
-                for key, value in i.items():
-                    if value and key == 'criteria':
-                        url = url + 'CRITERIA=(' + value + ')'
-                        see_criteria = True
-                    if value and key == 'parameter':
-                        if see_criteria:
-                            url = url + '&'
-                        url = url + 'PARAMETER=' + value
-    return url, t
+
+    request_params = None
+    if criteria:
+        if not request_params:
+            request_params = {}
+        request_params['CRITERIA'] = criteria
+
+    if parameter:
+        if not request_params:
+            request_params = {}
+        request_params['PARAMETER'] = parameter
+
+    return url, t, request_params
 
 
 def _create_session(module, result, security_type='none', crt=None, key=None, cmci_user=None, cmci_password=None, **kwargs):
@@ -722,9 +723,9 @@ def _create_session(module, result, security_type='none', crt=None, key=None, cm
     return session
 
 
-def _do_request(module, result, session, method, url, data=None):
+def _do_request(module, result, session: requests.Session, method, url, params, data=None):
     try:
-        response = session.request(method, url, verify=False, timeout=30, data=data)
+        response = session.request(method, url, verify=False, timeout=30, data=data, params=params)
         reason = response.reason if response.reason else response.status_code
 
         result['response'] = {'status_code': response.status_code, 'reason': reason}
