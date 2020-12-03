@@ -54,7 +54,7 @@ def fail_json(*args, **kwargs):
 
 
 class CMCITestHelper:
-    def __init__(self, requests_mock):
+    def __init__(self, requests_mock=None):
         self.requests_mock = requests_mock
         self.expected = {}
 
@@ -66,6 +66,9 @@ class CMCITestHelper:
 
     def stub_create_record(self, resource_type, record, **kwargs):
         return self.stub_cmci('POST', resource_type, records=[record], **kwargs)
+
+    def stub_update_record(self, resource_type, record, **kwargs):
+        return self.stub_cmci('PUT', resource_type, records=[record], **kwargs)
 
     def stub_cmci(self, method, resource_type, scheme='http', host=HOST, port=PORT,
                   context=CONTEXT, scope=None, parameters='', records=None,
@@ -105,7 +108,7 @@ def create_records_response(resource_type, records):
     return od(
         ('response', od(
             ('@schemaLocation', 'http://www.ibm.com/xmlns/prod/CICS/smw2int '
-                                'http://winmvs28.hursley.ibm.com:28953/CICSSystemManagement/schema/'
+                                'http://winmvs28.hursley.ibm.com:26040/CICSSystemManagement/schema/'
                                 'CICSSystemManagement.xsd'),
             ('@version', '3.0'),
             ('@connect_version', '0560'),
@@ -144,6 +147,14 @@ def cmci_module(requests_mock, monkeypatch):
     monkeypatch.setattr(basic.AnsibleModule, "fail_json", fail_json)
 
     yield CMCITestHelper(requests_mock)
+
+
+@pytest.fixture
+def cmci_module_http(monkeypatch):
+    monkeypatch.setattr(basic.AnsibleModule, "exit_json", exit_json)
+    monkeypatch.setattr(basic.AnsibleModule, "fail_json", fail_json)
+
+    yield CMCITestHelper()
 
 
 def body_matcher(expected):
@@ -345,6 +356,85 @@ def test_auth(cmci_module):
     })
 
 
+def test_update(cmci_module):
+    cmci_module.stub_update_record(
+        'cicsdefinitionprogram',
+        dict(
+            changeagent='CSDAPI',
+            changeagrel='0730',
+            csdgroup='DUMMY',
+            description='new description',
+            name='DUMMY'
+        ),
+        scope=SCOPE,
+        parameters='?CRITERIA=NAME%3DDUMMY&PARAMETER=CSDGROUP%28DUMMY%29',
+        additional_matcher=body_matcher(od(
+            ('request', od(
+                ('update', od(
+                    ('parameter', od(
+                        ('@name', 'CSD')
+                    )),
+                    ('attributes', od(
+                        ('@description', 'new description')
+                    ))
+                ))
+            ))
+        ))
+    )
+
+    cmci_module.expect({
+        'changed': True,
+        'request': {
+            'body':
+                '<request><update>'
+                '<parameter name="CSD"></parameter>'
+                '<attributes description="new description"></attributes>'
+                '</update></request>',
+            'method': 'PUT',
+            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram/CICSEX56/IYCWEMW2',
+            'params': {
+                'PARAMETER': 'CSDGROUP(DUMMY)',
+                'CRITERIA': 'NAME=DUMMY'
+            }
+        },
+        'response': {
+            'body': create_records_response(
+                'cicsdefinitionprogram',
+                [
+                    od(
+                        ('@changeagent', 'CSDAPI'),
+                        ('@changeagrel', '0730'),
+                        ('@csdgroup', 'DUMMY'),
+                        ('@description', 'new description'),
+                        ('@name', 'DUMMY')
+                    )
+                ]
+            ),
+            'reason': 'OK',
+            'status_code': 200}
+    })
+
+    cmci_module.run(dict(
+        cmci_host=HOST,
+        cmci_port=PORT,
+        context=CONTEXT,
+        scope=SCOPE,
+        option='update',
+        security_type='none',
+        resource=dict(
+            type='cicsdefinitionprogram',
+            parameters=[dict(
+                name='CSD'
+            )],
+            attributes=dict(
+                description='new description'
+            )
+        ),
+        criteria='NAME=DUMMY',
+        parameter='CSDGROUP(DUMMY)'
+    ))
+
+
 def test_ok_context_scope(cmci_module):
     cmci_module.stub_get_records(
         'cicslocalfile',
@@ -535,10 +625,10 @@ def test_csd_create(cmci_module):
             'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
                    'cicsdefinitionbundle/CICSEX56/IYCWEMW2',
             'method': 'POST',
-            'body': '<request><create><parameter '
-                    'name="CSD"></parameter><attributes name="bar" '
-                    'bundledir="/u/bundles/bloop" '
-                    'csdgroup="bat"></attributes></create></request>'
+            'body': '<request><create>'
+                    '<parameter name="CSD"></parameter>'
+                    '<attributes name="bar" bundledir="/u/bundles/bloop" csdgroup="bat"></attributes>'
+                    '</create></request>'
         },
         'response': {
             'body': create_records_response(
