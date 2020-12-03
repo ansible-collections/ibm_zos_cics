@@ -59,10 +59,7 @@ class CMCITestHelper:
         self.expected = {}
 
     def stub_request(self, *args, complete_qs=True, **kwargs):
-        if self.requests_mock:
-            self.requests_mock.request(*args, complete_qs=complete_qs, **kwargs)
-        else:
-            raise Exception("No requests_mock for this test")
+        self.requests_mock.request(*args, complete_qs=complete_qs, **kwargs)
 
     def stub_get_records(self, resource_type, records, *args, **kwargs):
         return self.stub_cmci('GET', resource_type, *args, records=records, **kwargs)
@@ -363,42 +360,11 @@ def test_update(cmci_module):
     cmci_module.stub_update_record(
         'cicsdefinitionprogram',
         dict(
-            _keydata='C4E4D4D4E840404000C4E4D4D4E8404040',
-            api='CICSAPI',
-            cedf='YES',
             changeagent='CSDAPI',
             changeagrel='0730',
-            changetime='2020-11-30T10:26:57.000000+00:00',
-            changeusrid='CICSUSER',
-            concurrency='QUASIRENT',
-            createtime='2020-06-15T17:33:02.000000+00:00',
             csdgroup='DUMMY',
-            datalocation='ANY',
-            defver='0',
-            desccodepage='0',
             description='new description',
-            dynamic='NO',
-            execkey='USER',
-            executionset='FULLAPI',
-            hotpool='NO',
-            jvm='NO',
-            jvmclass='',
-            jvmprofile='',
-            jvmserver='',
-            language='N_A',
-            name='DUMMY',
-            reload='NO',
-            remotename='',
-            remotesystem='',
-            resident='NO',
-            rsl='       0',
-            status='ENABLED',
-            transid='',
-            usage='NORMAL',
-            uselpacopy='NO',
-            userdata1='',
-            userdata2='',
-            userdata3=''
+            name='DUMMY'
         ),
         scope=SCOPE,
         parameters='?CRITERIA=NAME%3DDUMMY&PARAMETER=CSDGROUP%28DUMMY%29',
@@ -410,7 +376,6 @@ def test_update(cmci_module):
                     )),
                     ('attributes', od(
                         ('@description', 'new description')
-
                     ))
                 ))
             ))
@@ -437,42 +402,11 @@ def test_update(cmci_module):
                 'cicsdefinitionprogram',
                 [
                     od(
-                        ('@_keydata', 'C4E4D4D4E840404000C4E4D4D4E8404040'),
-                        ('@api', 'CICSAPI'),
-                        ('@cedf', 'YES'),
                         ('@changeagent', 'CSDAPI'),
                         ('@changeagrel', '0730'),
-                        ('@changetime', '2020-11-30T10:26:57.000000+00:00'),
-                        ('@changeusrid', 'CICSUSER'),
-                        ('@concurrency', 'QUASIRENT'),
-                        ('@createtime', '2020-06-15T17:33:02.000000+00:00'),
                         ('@csdgroup', 'DUMMY'),
-                        ('@datalocation','ANY'),
-                        ('@defver', '0'),
-                        ('@desccodepage', '0'),
                         ('@description', 'new description'),
-                        ('@dynamic', 'NO'),
-                        ('@execkey', 'USER'),
-                        ('@executionset', 'FULLAPI'),
-                        ('@hotpool', 'NO'),
-                        ('@jvm', 'NO'),
-                        ('@jvmclass', ''),
-                        ('@jvmprofile', ''),
-                        ('@jvmserver', ''),
-                        ('@language', 'N_A'),
-                        ('@name', 'DUMMY'),
-                        ('@reload', 'NO'),
-                        ('@remotename', ''),
-                        ('@remotesystem', ''),
-                        ('@resident', 'NO'),
-                        ('@rsl', '       0'),
-                        ('@status', 'ENABLED'),
-                        ('@transid', ''),
-                        ('@usage', 'NORMAL'),
-                        ('@uselpacopy', 'NO'),
-                        ('@userdata1', ''),
-                        ('@userdata2', ''),
-                        ('@userdata3', '')
+                        ('@name', 'DUMMY')
                     )
                 ]
             ),
