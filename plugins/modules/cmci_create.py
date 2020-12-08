@@ -7,12 +7,12 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
-    cmci_main
+    AnsibleCMCIModule
 )
 
 
 def main():
-    cmci_main('define')
+    AnsibleCMCIModule('define').main()
 
 
 if __name__ == '__main__':
