@@ -148,40 +148,31 @@ options:
         choices:
           - BAS
           - CSD
-  filter:
+  criteria:
     description:
-      - Refine the scope and nature of the request. The constituent parts of
-        the query section can occur in any order, but each can occur only once
-        in a URI.
-      - Filter values can be case-sensitive, where the value of the target
-        attributes are case-sensitive (e.g. TRANID and DESC), though this
-        is not true for most attributes.
-      - Filter values are not applied when using option `define` 
-    type: list
-    suboptions:
-      criteria:
-        description:
-          - A string of logical expressions that filters the data returned on
-            the request.
-          - The string that makes up the value of the CRITERIA parameter
-            follows the same rules as the filter expressions in the CICSPlex
-            SM application programming interface.
-          - For more guidance about specifying filter expressions using the
-            CICSPlex SM API, see (https://www.ibm.com/support/knowledgecenter
-            /SSGMCP_5.4.0/system-programming/cpsm/eyup1a0.html).
-        type: str
-        required: false
-      parameter:
-        description:
-          - A string of one or more parameters and values of the form
-            parameter_name(data_value) that refines the request. The
-            rules for specifying these parameters are the same as in
-            the CICSPlex SM application programming interface.
-          - For more guidance about specifying parameter expressions using the
-            CICSPlex SM API, see (https://www.ibm.com/support/knowledgecenter
-            /SSGMCP_5.4.0/system-programming/cpsm/eyup1bg.html)
-        type: str
-        required: false
+      - A string containing logical expressions that filters the data 
+        returned on the request.
+      - The string that makes up the value of the CRITERIA parameter
+        follows the same rules as the filter expressions in the CICSPlex
+        SM application programming interface.
+      - The filter can work with options ``query``, ``update``, ``delete``; 
+        otherwise it will be ignored.
+      - For more guidance about specifying filter expressions using the
+        CICSPlex SM API, see (https://www.ibm.com/support/knowledgecenter
+        /SSGMCP_5.4.0/system-programming/cpsm/eyup1a0.html).
+    type: str
+    required: false
+  parameter:
+    description:
+      - A string of one or more parameters and values of the form
+        parameter_name(data_value) that refines the request. The
+        rules for specifying these parameters are the same as in
+        the CICSPlex SM application programming interface.
+      - For more guidance about specifying parameter expressions using the
+        CICSPlex SM API, see (https://www.ibm.com/support/knowledgecenter
+        /SSGMCP_5.4.0/system-programming/cpsm/eyup1bg.html)
+    type: str
+    required: false
   record_count:
     description:
       - Only work with 'query' option, otherwise it will be ignored
@@ -208,8 +199,7 @@ EXAMPLES = r"""
     resource:
       - type: CICSLocalFile
     record_count: 2
-    filter:
-      - criteria: dsname=XIAOPIN* and file=DFH*
+    criteria: 'dsname=XIAOPIN* and file=DFH*'
 
 - name: define a bundle in a CICS region
   cics_cmci:
@@ -236,9 +226,8 @@ EXAMPLES = r"""
     resource:
       - type: CICSDefinitionBundle
         location: CSD
-    filter:
-          - criteria: NAME=PONGALT
-            parameter: CSDGROUP(JVMGRP)
+    criteria: 'NAME=PONGALT'
+    parameter: 'CSDGROUP(JVMGRP)'
 
 - name: update a bundle definition in a CICS region
   cics_cmci:
@@ -252,9 +241,8 @@ EXAMPLES = r"""
           - description: 'forget description'
         parameters:
           - name: CSD
-    filter:
-        - criteria: NAME=PONGALT
-          parameter: CSDGROUP(JVMGRP)
+    criteria: 'NAME=PONGALT'
+    parameter: 'CSDGROUP(JVMGRP)'
 
 - name: install a bundle in a CICS region
   cics_cmci:
@@ -266,8 +254,7 @@ EXAMPLES = r"""
       - type: CICSBundle
         attributes:
           - Enablestatus: disabled
-    filter:
-        - criteria: NAME=PONGALT
+    criteria: 'NAME=PONGALT'
 
 - name: delete a bundle in a CICS region
   cics_cmci:
@@ -278,8 +265,7 @@ EXAMPLES = r"""
     option: 'delete'
     resource:
       - type: CICSBundle
-    filter:
-      - criteria: NAME=PONGALT
+    criteria: 'NAME=PONGALT'
 
 - name: delete a bundle definition in a CICS region
   cics_cmci:
@@ -289,9 +275,8 @@ EXAMPLES = r"""
     option: 'delete'
     resource:
       - type: CICSDefinitionBundle
-    filter:
-      - criteria: NAME=PONGALT
-        parameter: CSDGROUP(JVMGRP)
+    criteria: 'NAME=PONGALT'
+    parameter: 'CSDGROUP(JVMGRP)'
 
 - name: get a localfile in a CICS region
   cics_cmci:
@@ -305,10 +290,7 @@ EXAMPLES = r"""
     resource:
       - type: CICSLocalFile
     record_count: 1
-    filter:
-      - criteria:
-          - dsname=XIAOPIN*
-          - file=DFH*
+    criteria: 'dsname=XIAOPIN* AND file=DFH*'
 """
 
 RETURN = r"""
