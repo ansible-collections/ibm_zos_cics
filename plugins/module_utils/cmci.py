@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # Copyright (c) IBM Corporation 2019, 2020
-
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
@@ -384,7 +383,7 @@ response:
 """
 
 
-def main():
+def cmci_main(option):
     module = AnsibleModule(
         argument_spec=dict(
             cmci_host=dict(
@@ -425,11 +424,6 @@ def main():
             ),
             scope=dict(
                 type='str'
-            ),
-            option=dict(
-                type='str',
-                default='query',
-                choices=['define', 'delete', 'update', 'install', 'query']
             ),
             criteria=dict(
                 type='str',
@@ -484,15 +478,14 @@ def main():
     if not xmltodict:
         fail_e(module, result, missing_required_lib('encoder'), exception=XMLTODICT_IMP_ERR)
 
-    session, method, url, request_params, body_xml, resource = _handle_params(module, result)
+    session, method, url, request_params, body_xml, resource = _handle_params(module, result, option)
     response = _do_request(module, result, session, method, url, request_params, body_xml)
     _handle_response(module, result, response, method, resource)
     module.exit_json(**result)
 
 
-def _create_body(params):
-    action = params.get('option')
-    if action not in ['install', 'update', 'define']:
+def _create_body(params, option):
+    if option not in ['install', 'update', 'define']:
         return None
 
     resource = params.get('resource')
@@ -500,17 +493,17 @@ def _create_body(params):
     attributes = resource.get('attributes', None)
 
     request = {}
-    if action == 'install':
+    if option == 'install':
         # TODO: we don't currently validate location is mandatory, so possible it won't be specified,
         #  which we should validate against
         location = params.get('location')
         request['action'] = {'@name': 'INSTALL' if location == 'BAS' else 'CSDINSTALL'}
-    elif action == 'update':
+    elif option == 'update':
         update = {}
         _append_parameters(update, parameters)
         _append_attributes(update, attributes)
         request['update'] = update
-    elif action == 'define':
+    elif option == 'define':
         create = {}
         _append_parameters(create, parameters)
         _append_attributes(create, attributes)
@@ -576,7 +569,7 @@ def _validate_module_params(module, result, params):
             )
 
 
-def _handle_module_params(module):
+def _handle_module_params(module, option):
     parameters = {}
     # TODO: Don't know why this is necessary, should remove!
     #  I think this copies everything because it wants to set values like 'method' but module.params is immutable!
@@ -584,17 +577,17 @@ def _handle_module_params(module):
         parameters[key] = value
     method_action_pair = {'define': 'POST', 'install': 'PUT', 'update': 'PUT', 'delete': 'DELETE', 'query': 'GET'}
     for key, value in method_action_pair.items():
-        if module.params.get('option') == key:
+        if option == key:
             parameters['method'] = value
     return parameters
 
 
-def _handle_params(module, result):
-    params = _handle_module_params(module)
+def _handle_params(module, result, option):
+    params = _handle_module_params(module, option)
     _validate_module_params(module, result, params)
     session = _create_session(module, result, **params)
-    url, resource, request_params = _get_url(params)
-    body = _create_body(params)
+    url, resource, request_params = _get_url(params, option)
+    body = _create_body(params, option)
     # TODO: can this fail?
     # full_document=False suppresses the xml prolog, which CMCI doesn't like
     body_xml = xmltodict.unparse(body, full_document=False) if body else None
@@ -667,14 +660,13 @@ def _handle_response(module, result, response, method, resource):
         fail_e(module, result, 'CMCI response XML document could not be successfully parsed: {0}'.format(e), e)
 
 
-def _get_url(params):
+def _get_url(params, option):
     cmci_host = params.get('cmci_host')
     cmci_port = params.get('cmci_port')
     resource = params.get('resource')
     t = resource.get('type')
     context = params.get('context')
     scope = params.get('scope')
-    option = params.get('option')
     security_type = params.get('security_type', 'none')
     record_count = params.get('record_count')
     criteria = params.get('criteria')
@@ -752,7 +744,3 @@ def fail(module, result, msg):
 
 def fail_e(module, result, msg, exception):
     module.fail_json(msg=msg, exception=exception, **result)
-
-
-if __name__ == '__main__':
-    main()
