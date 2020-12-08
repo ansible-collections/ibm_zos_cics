@@ -514,18 +514,12 @@ class AnsibleCMCIModule(object):
         self.result['request'] = result_request
 
     def _handle_module_params(self):
-        parameters = {}
-        # TODO: Don't know why this is necessary, should remove!
-        #  I think this copies everything because it wants to set values like 'method' but module.params is immutable!
-        for key, value in self._module.params.items():
-            parameters[key] = value
         method_action_pair = {'define': 'POST', 'install': 'PUT', 'update': 'PUT', 'delete': 'DELETE', 'query': 'GET'}
         for key, value in method_action_pair.items():
             if self._option == key:
                 self._method = value
 
         self._validate(
-            parameters,
             _CMCI_HOST,
             '^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.)'
             '{3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|((([a-zA-Z0-9]|[a-zA-Z0-9]'
@@ -535,31 +529,27 @@ class AnsibleCMCIModule(object):
         )
 
         self._validate(
-            parameters,
             _CMCI_PORT,
             '^([0-9]|[1-9]\\d{1,3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$',
             "a port number 0-65535."
         )
 
         self._validate(
-            parameters,
             _CONTEXT,
             '^([A-Za-z0-9]{1,8})$',
             'a CPSM context name.  CPSM context names are max 8 characters.  Valid characters are A-Z a-z 0-9.'
         )
 
         self._validate(
-            parameters,
             _SCOPE,
             '^([A-Za-z0-9]{1,8})$',
             'a CPSM scope name.  CPSM scope names are max 8 characters.  Valid characters are A-Z a-z 0-9.'
         )
 
-        self._p = parameters
-        return parameters
+        self._p = self._module.params
 
-    def _validate(self, params, name, regex, message):
-        value = params.get(name)  # TODO: don't flatten params
+    def _validate(self, name, regex, message):
+        value = self._module.params.get(name)
         if value:
             pattern = re.compile(regex)
             if not pattern.fullmatch(value):
