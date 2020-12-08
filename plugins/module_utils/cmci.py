@@ -364,92 +364,114 @@ response:
 
 """
 
+_CMCI_HOST = 'cmci_host'
+_CMCI_PORT = 'cmci_port'
+_CMCI_USER = 'cmci_user'
+_CMCI_PASSWORD = 'cmci_password'
+_CMCI_CERT = 'cmci_cert'
+_CMCI_KEY = 'cmci_key'
+_SECURITY_TYPE = 'security_type'
+_CONTEXT = 'context'
+_SCOPE = 'scope'
+_CRITERIA = 'criteria'
+_PARAMETER = 'parameter'
+_RECORD_COUNT = 'record_count'
+_RESOURCE = 'resource'
+_TYPE = 'type'
+_ATTRIBUTES = 'attributes'
+_PARAMETERS = 'parameters'
+_NAME = 'name'
+_VALUE = 'value'
+_LOCATION = 'location'
+
 
 def cmci_common_argument_spec():
-    return dict(
-        cmci_host=dict(
-            required=True,
-            type='str'
-        ),
-        cmci_port=dict(
-            required=True,
-            type='str'
-        ),
-        cmci_user=dict(
-            type='str',
-            fallback=(env_fallback, ['CMCI_USER'])
-        ),
-        cmci_password=dict(
-            type='str',
-            no_log=True,
-            fallback=(env_fallback, ['CMCI_PASSWORD'])
-        ),
-        cmci_cert=dict(
-            type='str',
-            no_log=True,
-            fallback=(env_fallback, ['CMCI_CERT'])
-        ),
-        cmci_key=dict(
-            type='str',
-            no_log=True,
-            fallback=(env_fallback, ['CMCI_KEY'])
-        ),
-        security_type=dict(
-            type='str',
-            default='none',
-            choices=['none', 'basic', 'certificate']
-        ),
-        context=dict(
-            required=True,
-            type='str'
-        ),
-        scope=dict(
-            type='str'
-        ),
-        criteria=dict(
-            type='str',
-            required=False
-        ),
-        parameter=dict(
-            type='str',
-            required=False
-        ),
-        record_count=dict(type='int'),
-        resource=dict(
-            type='dict',
-            required=True,
-            options=dict(
-                type=dict(
-                    type='str',
-                    required=True
-                ),
-                attributes=dict(
-                    type='dict',
-                    required=False
-                ),
-                parameters=dict(
-                    type='list',
-                    required=False,
-                    elements='dict',
-                    options=dict(
-                        name=dict(
-                            type='str',
-                            required=True
-                        ),
+    return {
+        _CMCI_HOST: {
+            'required': True,
+            'type': 'str'
+        },
+        _CMCI_PORT:  {
+            'required': True,
+            'type': 'str'
+        },
+        _CMCI_USER: {
+            'type': 'str',
+            'fallback': (env_fallback, ['CMCI_USER'])
+        },
+        _CMCI_PASSWORD: {
+            'type': 'str',
+            'no_log': True,
+            'fallback': (env_fallback, ['CMCI_PASSWORD'])
+        },
+        _CMCI_CERT: {
+            'type': 'str',
+            'no_log': True,
+            'fallback': (env_fallback, ['CMCI_CERT'])
+        },
+        _CMCI_KEY: {
+            'type': 'str',
+            'no_log': True,
+            'fallback': (env_fallback, ['CMCI_KEY'])
+        },
+        _SECURITY_TYPE: {
+            'type': 'str',
+            'default': 'none',
+            'choices': ['none', 'basic', 'certificate']
+        },
+        _CONTEXT: {
+            'required': True,
+            'type': 'str'
+        },
+        _SCOPE: {
+            'type': 'str'
+        },
+        _CRITERIA: {
+            'type': 'str',
+            'required': False
+        },
+        _PARAMETER: {
+            'type': 'str',
+            'required': False
+        },
+        _RECORD_COUNT: {
+            'type': 'int'
+        },
+        _RESOURCE: {
+            'type': 'dict',
+            'required': True,
+            'options': {
+                _TYPE: {
+                    'type': 'str',
+                    'required': True
+                },
+                _ATTRIBUTES: {
+                    'type': 'dict',
+                    'required': False
+                },
+                _PARAMETERS: {
+                    'type': 'list',
+                    'required': False,
+                    'elements': 'dict',
+                    'options': {
+                        _NAME: {
+                            'type': 'str',
+                            'required': True
+                        },
                         # Value is not required for flag-type parameters like CSD
-                        value=dict(
-                            type='str'
-                        )
-                    )
-                ),
-                location=dict(
-                    type='str',
-                    required=False,
-                    choices=['BAS', 'CSD']
-                )
-            )
-        )
-    )
+                        _VALUE: {
+                            'type': 'str'
+                        }
+                    }
+                },
+                _LOCATION: {
+                    'type': 'str',
+                    'required': False,
+                    'choices': ['BAS', 'CSD']
+                }
+            }
+        }
+    }
 
 
 class AnsibleCMCIModule(object):
@@ -468,32 +490,28 @@ class AnsibleCMCIModule(object):
         self._option = option
 
     def main(self):
-        session, url, request_params, body_xml, resource = self._handle_params()
-        response = self._do_request(session, url, request_params, body_xml)
-        self._handle_response(response, resource)
+        self._handle_params()
+        response = self._do_request()
+        self._handle_response(response)
         self._module.exit_json(**self.result)
 
     def _handle_params(self):
-        params = self._handle_module_params()
-        session = self._create_session(**params)
-        url, resource, request_params = self._get_url(params)
-        body = self._create_body(params)
-        # TODO: can this fail?
-        # full_document=False suppresses the xml prolog, which CMCI doesn't like
-        body_xml = xmltodict.unparse(body, full_document=False) if body else None
+        self._handle_module_params()
+        self._init_session()
+        self._init_url()
+        self._init_body()
 
         result_request = {
-            'url': url,
+            'url': self._url,
             'method': self._method,
-            'body': body_xml
+            'body': self._body
         }
 
-        if request_params:
-            result_request['params'] = request_params
+        self._init_request_params()
+        if self._request_params:
+            result_request['params'] = self._request_params
 
         self.result['request'] = result_request
-
-        return session, url, request_params, body_xml, resource
 
     def _handle_module_params(self):
         parameters = {}
@@ -506,57 +524,59 @@ class AnsibleCMCIModule(object):
             if self._option == key:
                 self._method = value
 
-        self._cmci_host = self._validate(
+        self._validate(
             parameters,
-            'cmci_host',
+            _CMCI_HOST,
             '^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.)'
             '{3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|((([a-zA-Z0-9]|[a-zA-Z0-9]'
             '[a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*'
             '[A-Za-z0-9]))$',
             'an IP address or host name.'
         )
-        self._cmci_port = self._validate(
+
+        self._validate(
             parameters,
-            'cmci_port',
+            _CMCI_PORT,
             '^([0-9]|[1-9]\\d{1,3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$',
             "a port number 0-65535."
         )
-        self._context = self._validate(
+
+        self._validate(
             parameters,
-            'context',
+            _CONTEXT,
             '^([A-Za-z0-9]{1,8})$',
             'a CPSM context name.  CPSM context names are max 8 characters.  Valid characters are A-Z a-z 0-9.'
         )
-        self._scope = self._validate(
+
+        self._validate(
             parameters,
-            'scope',
+            _SCOPE,
             '^([A-Za-z0-9]{1,8})$',
             'a CPSM scope name.  CPSM scope names are max 8 characters.  Valid characters are A-Z a-z 0-9.'
         )
+
+        self._p = parameters
         return parameters
 
     def _validate(self, params, name, regex, message):
         value = params.get(name)  # TODO: don't flatten params
-        if not value:
-            return None  # Unspecified optional values
-        pattern = re.compile(regex)
-        if not pattern.fullmatch(value):
-            self._fail('Parameter "{0}" with value "{1} was not valid.  Expected {2}'.format(name, value, message))
-        return value
+        if value:
+            pattern = re.compile(regex)
+            if not pattern.fullmatch(value):
+                self._fail('Parameter "{0}" with value "{1} was not valid.  Expected {2}'.format(name, value, message))
 
-    def _create_body(self, params):
+    def _init_body(self):
         if self._option not in ['install', 'update', 'define']:
-            return None
+            self._body = None
+            return
 
-        resource = params.get('resource')
-        parameters = resource.get('parameters', None)
-        attributes = resource.get('attributes', None)
+        resource = self._p.get(_RESOURCE)
+        parameters = resource.get(_PARAMETERS, None)
+        attributes = resource.get(_ATTRIBUTES, None)
 
         request = {}
         if self._option == 'install':
-            # TODO: we don't currently validate location is mandatory, so possible it won't be specified,
-            #  which we should validate against
-            location = params.get('location')
+            location = resource.get(_LOCATION)
             request['action'] = {'@name': 'INSTALL' if location == 'BAS' else 'CSDINSTALL'}
         elif self._option == 'update':
             update = {}
@@ -568,10 +588,13 @@ class AnsibleCMCIModule(object):
             _append_parameters(create, parameters)
             _append_attributes(create, attributes)
             request['create'] = create
-        document = {"request": request}
-        return document
+        body_dict = {"request": request}
 
-    def _handle_response(self, response, resource):
+        # TODO: can this fail?
+        # full_document=False suppresses the xml prolog, which CMCI doesn't like
+        self._body = xmltodict.unparse(body_dict, full_document=False)
+
+    def _handle_response(self, response):
         # Try and parse the XML response body into a dict
         content_type = response.headers.get('content-type')
         # Content type header may include the encoding.  Just look at the first segment if so
@@ -595,7 +618,8 @@ class AnsibleCMCIModule(object):
                 response.content,
                 process_namespaces=True,
                 namespaces=namespaces,
-                force_list=(resource,)  # Make sure we always return a list for the resource node
+                # Make sure we always return a list for the resource node
+                force_list=(self._p.get(_RESOURCE).get(_TYPE),)
             )
 
             # Attached parsed xml to response
@@ -624,60 +648,66 @@ class AnsibleCMCIModule(object):
             # TODO: verbose log content if it couldn't be parsed?.  And maybe the other info from the ExpatError
             self._fail_e('CMCI response XML document could not be successfully parsed: {0}'.format(e), e)
 
-    def _get_url(self, params):
-        # TODO convert common params to fields
-        resource = params.get('resource')
-        t = resource.get('type')
-        security_type = params.get('security_type', 'none')
-        record_count = params.get('record_count')
-        criteria = params.get('criteria')
-        parameter = params.get('parameter')
+    def _init_url(self):
+        resource = self._p.get(_RESOURCE)
+        t = resource.get(_TYPE)
+        security_type = self._p.get(_SECURITY_TYPE)
 
         if security_type == 'none':
             scheme = 'http://'
         else:
             scheme = 'https://'
-        url = scheme + self._cmci_host + ':' + self._cmci_port + '/CICSSystemManagement/'\
-            + t + '/' + self._context + '/'
-        if self._scope:
-            url = url + self._scope
+        url = scheme + self._p.get(_CMCI_HOST) + ':' + self._p.get(_CMCI_PORT) + '/CICSSystemManagement/'\
+            + t + '/' + self._p.get(_CONTEXT) + '/'
+        if self._p.get(_SCOPE):
+            url = url + self._p.get(_SCOPE)
+
+        if self._option == 'query':
+            if self._p.get(_RECORD_COUNT):
+                url = url + '//' + str(self._p.get(_RECORD_COUNT))
+
+        self._url = url
+
+    def _init_request_params(self):
+        self._request_params = {}
         if self._option != 'define':
-            # get, delete, put will all need CRITERIA
-            if self._option == 'query':
-                if record_count:
-                    url = url + '//' + str(record_count)
+            # get, delete, put will all need CRITERIA{}
+            if self._p.get(_CRITERIA):
+                self._request_params['CRITERIA'] = self._p.get(_CRITERIA)
 
-        request_params = None
-        if criteria:
-            if not request_params:
-                request_params = {}
-            request_params['CRITERIA'] = criteria
+            if self._p.get(_PARAMETER):
+                self._request_params['PARAMETER'] = self._p.get(_PARAMETER)
 
-        if parameter:
-            if not request_params:
-                request_params = {}
-            request_params['PARAMETER'] = parameter
-
-        return url, t, request_params
-
-    def _create_session(self, security_type='none', crt=None, key=None, cmci_user=None, cmci_password=None, **kwargs):
+    def _init_session(self):
         session = requests.Session()
+        security_type = self._p.get(_SECURITY_TYPE)
         if security_type == 'certificate':
-            if (crt is not None and crt.strip() != '') and (key is not None and key.strip() != ''):
-                session.cert = (crt.strip(), key.strip())
+            cmci_cert = self._p.get(_CMCI_CERT)
+            cmci_key = self._p.get(_CMCI_KEY)
+            if cmci_cert is not None and cmci_cert.strip() != '' and cmci_key is not None and cmci_key.strip() != '':
+                session.cert = cmci_cert.strip(), cmci_key.strip()
             else:
                 self._fail('HTTP setup error: cmci_cert/cmci_key are required ')
         # TODO: there's no clear distinction between unauthenticated HTTPS and authenticated HTTP
         if security_type == 'basic':
-            if (cmci_user is not None and cmci_user.strip() != '') and (cmci_password is not None and cmci_password.strip() != ''):
-                session.auth = (cmci_user.strip(), cmci_password.strip())
+            cmci_user = self._p.get(_CMCI_USER)
+            cmci_password = self._p.get(_CMCI_PASSWORD)
+            if cmci_user is not None and cmci_user.strip() != '' and \
+                    cmci_password is not None and cmci_password.strip() != '':
+                session.auth = cmci_user.strip(), cmci_password.strip()
             else:
                 self._fail('HTTP setup error: cmci_user/cmci_password are required')
-        return session
+        self._session = session
 
-    def _do_request(self, session: requests.Session, url, params, data=None):
+    def _do_request(self):
         try:
-            response = session.request(self._method, url, verify=False, timeout=30, data=data, params=params)
+            response = self._session.request(
+                self._method,
+                self._url,
+                verify=False,
+                timeout=30,
+                data=self._body,
+                params=self._request_params)
             reason = response.reason if response.reason else response.status_code
 
             self.result['response'] = {'status_code': response.status_code, 'reason': reason}
