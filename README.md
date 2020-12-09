@@ -46,23 +46,10 @@ License
 
 This collection is licensed under [Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0).
 
-
-If you're planning on using PyCharm, to deal with how Ansible Collections must be structured, you'll need to clone this repository to a specific path, and open `{project_root}` as your project in PyCharm: `{project_root}/ansible_collections/ibm/ibm_zos_cics`.  E.g. I have this repository cloned to `Users/stewf/cics-ansible/ansible_collections/ibm/ibm_zos_cics`
-
-Add `ansible_pytest_collections` plugin to `PYTHONPATH` for your python interpreter:
-
-In PyCharm you can do this by: `Preferences > Interpreters > Cog menu > Show all > Select your interpreter > Show paths for the selected interpreter (at the bottom) > Plus > add the path to the `ansible_test` `pytest` plugin.  For me this was in my venv:
-
-`{project_root}/ansible_collections/ibm/ibm_zos_cics/env/lib/python3.8/site-packages/ansible_test/_data/pytest/plugins`
-
-Make all pytest run configurations use `ansible_pytest_collections`:
-
-- `Run Config Menu > Edit Configurations... > Templates > Python tests > pytest > Environment variables little button`
-- Set `ANSIBLE_COLLECTIONS_PATHS` to whatever `{project_root}` is for you.  I couldn't get this to resolve from a symbol unfortunately, so I have mine set to `/Users/stewf/repos/cics-ansible`
-- Set `PYTEST_PLUGINS` to `ansible_pytest_collections`
-
+Set-Up Instructions
+===================
+### Create a new virtual environment in the project with the necessary requirements (env is not tracked)
 ```
-
 # Create a new venv called env
 python3 -m venv env
 
@@ -73,15 +60,61 @@ source env/bin/activate
 pip install -r requirements.txt`
 ```
 
+#### Run unit tests
 ```
 # Run unit tests
 pytest tests/unit
 ```
 
-```
-Integration tests
-You have to clone into {...}/ansible_collections/ibm/ibm_zos_cics to be able to run the test using ansible-test
+#### Run Integration Tests
+You have to clone into {...}/cics-ansible/ansible_collections/ibm/ibm_zos_cics to be able to run the test using ansible-test
 See this issue: https://github.com/ansible/ansible/issues/60215
 
+```
+# Run integration tests
 ansible-test integration cics_cmci --python=3.8
 ```
+
+### PyCharm set-up instructions
+
+If you're planning on using PyCharm, to deal with how Ansible Collections must be structured:
+ - Clone this repository to a specific path: `{project_root}/ansible_collections/ibm/ibm_zos_cics`
+ - Open `{project_root}` as your project in PyCharm 
+ - E.g. I have this repository cloned to `Users/stewf/cics-ansible/ansible_collections/ibm/ibm_zos_cics`
+
+#### Make the virtual environment the default Python interpreter for the project
+
+Add the virtual environment as an existing Python interpreter
+
+ - `Preferences > Project: cics-ansible > Python Interpreter > Cog menu > Add.. > {project_root}/ansible_collections/ibm/ibm_zos_cics/env/bin/python`
+
+Set the virtual environment as the default Python interpreter
+
+ - `Preferences > Project: cics-ansible > Python Interpreter > Top dropdown box > Select interpreter you just imported > Apply`
+
+#### Add `ansible_pytest_collections` plugin to `PYTHONPATH` for your python interpreter
+
+In PyCharm you can do this by going to:
+
+ - `Preferences > Project: cics-ansible > Python Interpreter > Cog menu > Show all > 
+   Select your interpreter > Show paths for the selected interpreter (at the bottom) > Plus > 
+   add the path to the 'ansible_test' 'pytest' plugin in your python environment`
+
+   - For me this was in my venv:
+     `{project_root}/ansible_collections/ibm/ibm_zos_cics/env/lib/python3.8/site-packages/ansible_test/_data/pytest/plugins`
+
+#### Make all pytest run configurations use `ansible_pytest_collections`
+
+ - `Run Config Menu > Edit Configurations... > Templates > Python tests > pytest > Environment variables little button`
+   
+   - Set `ANSIBLE_COLLECTIONS_PATHS` to whatever `{project_root}` is for you. 
+     I couldn't get this to resolve from a symbol unfortunately, so I have mine set to `/Users/stewf/cics-ansible`
+     
+   - Set `PYTEST_PLUGINS` to `ansible_pytest_collections`
+     
+   - *(You may need to delete existing test configurations in `Python Tests` 
+     as they won't have been created with the new template)*
+
+
+
+
