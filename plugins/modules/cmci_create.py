@@ -10,11 +10,12 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
     AnsibleCMCIModule, RESOURCE, PARAMETERS, ATTRIBUTES, append_attributes, append_parameters,
     append_attributes_parameters_arguments
 )
+from typing import Optional, Dict
 
 
 class AnsibleCMCICreateModule(AnsibleCMCIModule):
     def __init__(self):
-        super(AnsibleCMCICreateModule, self).__init__('POST', 'define')
+        super(AnsibleCMCICreateModule, self).__init__('POST')
 
     def init_argument_spec(self):  # type: () -> Dict
         argument_spec = super(AnsibleCMCICreateModule, self).init_argument_spec()

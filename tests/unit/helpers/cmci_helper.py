@@ -10,6 +10,7 @@ from ansible.module_utils.common.text.converters import to_bytes
 from ansible.module_utils import basic
 from collections import OrderedDict
 from requests import PreparedRequest
+from typing import Dict
 
 import json
 import pytest
@@ -30,21 +31,28 @@ class CMCITestHelper:
     def stub_request(self, *args, complete_qs=True, **kwargs):
         self.requests_mock.request(*args, complete_qs=complete_qs, **kwargs)
 
-    def stub_get_records(self, resource_type, records, *args, **kwargs):
-        return self.stub_cmci('GET', resource_type, *args, records=records, **kwargs)
+    def stub_delete(self, resource_type, success_count, *args, **kwargs):
+        return self.stub_cmci(
+            'DELETE',
+            resource_type,
+            *args,
+            response_dict=create_delete_response(success_count),
+            **kwargs
+        )
 
-    def stub_create_record(self, resource_type, record, **kwargs):
-        return self.stub_cmci('POST', resource_type, records=[record], **kwargs)
-
-    def stub_update_record(self, resource_type, record, **kwargs):
-        return self.stub_cmci('PUT', resource_type, records=[record], **kwargs)
+    def stub_records(self, method, resource_type, records, *args, **kwargs):
+        return self.stub_cmci(
+            method,
+            resource_type,
+            *args,
+            response_dict=create_records_response(resource_type, records),
+            **kwargs
+        )
 
     def stub_cmci(self, method, resource_type, scheme='http', host=HOST, port=PORT,
-                  context=CONTEXT, scope=None, parameters='', records=None,
+                  context=CONTEXT, scope=None, parameters='', response_dict=None,
                   headers={'CONTENT-TYPE': 'application/xml'}, status_code=200, reason='OK',
                   record_count=None, **kwargs):
-
-        text = create_records_response_xml(resource_type, records) if records else None
         url = '{0}://{1}:{2}/CICSSystemManagement/{3}/{4}/{5}{6}{7}'\
             .format(scheme, host, port, resource_type, context, '//' + str(record_count) if record_count else '',
                     scope if scope else '', parameters)
@@ -52,7 +60,7 @@ class CMCITestHelper:
         return self.stub_request(
             method,
             url,
-            text=text,
+            text=xmltodict.unparse(response_dict) if response_dict else None,
             headers=headers,
             status_code=status_code,
             reason=reason,
@@ -120,17 +128,41 @@ def fail_json(*args, **kwargs):
     raise AnsibleFailJson(kwargs)
 
 
-def create_records_response_xml(resource_type, records):
-    return xmltodict.unparse(
-        create_records_response(
-            resource_type,
-            # Convert to ordered dict, with @ sign for attribute prefix
-            # Suspect I'll be able to remove this when we switch to a get-specific action
-            [OrderedDict([('@' + key, value) for key, value in record.items()]) for record in records])
+def create_delete_response(success_count):  # type: (int) -> OrderedDict
+    return create_cmci_response(
+        ('resultsummary', od(
+            ('@api_response1', '1024'),
+            ('@api_response2', '0'),
+            ('@api_response_alt', 'OK'),
+            ('@api_response2_alt', ''),
+            ('@recordcount', str(success_count)),  # TODO: could I surface this as an int in Ansible?
+            ('@successcount', str(success_count))  # TODO: could I surface this as an int in Ansible?
+        ))
     )
 
 
-def create_records_response(resource_type, records):
+def create_records_response(resource_type, records):  # type: (str, List) -> OrderedDict
+    # Convert to ordered dict, with @ sign for attribute prefix
+    # Suspect I'll be able to remove this when we switch to a get-specific action
+    # Would be good to make it so that the response values in ansible don't expose the
+    # Attribute prefix for records, as we're dealing with known documents we can avoid collisions that the @
+    # is designed to mitigate
+    return create_cmci_response(
+        ('resultsummary', od(
+            ('@api_response1', '1024'),
+            ('@api_response2', '0'),
+            ('@api_response_alt', 'OK'),
+            ('@api_response2_alt', ''),
+            ('@recordcount', str(len(records))),
+            ('@displayed_recordcount', str(len(records)))
+        )),
+        ('records', od(
+            (resource_type, [OrderedDict([('@' + key, value) for key, value in record.items()]) for record in records])
+        ))
+    )
+
+
+def create_cmci_response(*args):  # type () -> OrderedDict
     return od(
         ('response', od(
             ('@schemaLocation', 'http://www.ibm.com/xmlns/prod/CICS/smw2int '
@@ -142,17 +174,7 @@ def create_records_response(resource_type, records):
                 ('', 'http://www.ibm.com/xmlns/prod/CICS/smw2int'),
                 ('xsi', 'http://www.w3.org/2001/XMLSchema-instance')
             )),
-            ('resultsummary', od(
-                ('@api_response1', '1024'),
-                ('@api_response2', '0'),
-                ('@api_response_alt', 'OK'),
-                ('@api_response2_alt', ''),
-                ('@recordcount', str(len(records))),
-                ('@displayed_recordcount', str(len(records)))
-            )),
-            ('records', od(
-                (resource_type, records)
-            ))
+            *args
         ))
     )
 

@@ -8,18 +8,20 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_create
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
-    HOST, PORT, CONTEXT, od, create_records_response, body_matcher, cmci_module
+    HOST, PORT, CONTEXT, od, create_records_response, body_matcher, cmci_module, CMCITestHelper
 )
 
 
-def test_csd_create(cmci_module):
-    cmci_module.stub_create_record(
+def test_csd_create(cmci_module):  # type: (CMCITestHelper) -> None
+    record = dict(
+        name='bar',
+        bundledir='/u/bundles/bloop',
+        csdgroup='bat'
+    )
+    cmci_module.stub_records(
+        'POST',
         'cicsdefinitionbundle',
-        dict(
-            name='bar',
-            bundledir='/u/bundles/bloop',
-            csdgroup='bat'
-        ),
+        [record],
         scope='IYCWEMW2',
         additional_matcher=body_matcher(od(
             ('request', od(
@@ -50,14 +52,7 @@ def test_csd_create(cmci_module):
         },
         'response': {
             'body': create_records_response(
-                'cicsdefinitionbundle',
-                [
-                    od(
-                        ('@name', 'bar'),
-                        ('@bundledir', '/u/bundles/bloop'),
-                        ('@csdgroup', 'bat')
-                    )
-                ]
+                'cicsdefinitionbundle', [record]
             ),
             'reason': 'OK',
             'status_code': 200,
@@ -74,10 +69,6 @@ def test_csd_create(cmci_module):
             parameters=[dict(
                 name='CSD'
             )],
-            attributes=dict(
-                name='bar',
-                bundledir='/u/bundles/bloop',
-                csdgroup='bat'
-            )
+            attributes=record
         )
     ))

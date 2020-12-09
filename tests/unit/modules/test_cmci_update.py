@@ -8,20 +8,22 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_update
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
-    HOST, PORT, CONTEXT, SCOPE, od, create_records_response, body_matcher, cmci_module
+    HOST, PORT, CONTEXT, SCOPE, od, create_records_response, body_matcher, cmci_module, CMCITestHelper
 )
 
 
-def test_update(cmci_module):
-    cmci_module.stub_update_record(
+def test_update(cmci_module):  # type: (CMCITestHelper) -> None
+    record = dict(
+        changeagent='CSDAPI',
+        changeagrel='0730',
+        csdgroup='DUMMY',
+        description='new description',
+        name='DUMMY'
+    )
+    cmci_module.stub_records(
+        'PUT',
         'cicsdefinitionprogram',
-        dict(
-            changeagent='CSDAPI',
-            changeagrel='0730',
-            csdgroup='DUMMY',
-            description='new description',
-            name='DUMMY'
-        ),
+        [record],
         scope=SCOPE,
         parameters='?CRITERIA=NAME%3DDUMMY&PARAMETER=CSDGROUP%28DUMMY%29',
         additional_matcher=body_matcher(od(
@@ -54,18 +56,7 @@ def test_update(cmci_module):
             }
         },
         'response': {
-            'body': create_records_response(
-                'cicsdefinitionprogram',
-                [
-                    od(
-                        ('@changeagent', 'CSDAPI'),
-                        ('@changeagrel', '0730'),
-                        ('@csdgroup', 'DUMMY'),
-                        ('@description', 'new description'),
-                        ('@name', 'DUMMY')
-                    )
-                ]
-            ),
+            'body': create_records_response('cicsdefinitionprogram', [record]),
             'reason': 'OK',
             'status_code': 200}
     })

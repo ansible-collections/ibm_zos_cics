@@ -8,19 +8,20 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_install
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
-    HOST, PORT, CONTEXT, od, create_records_response, body_matcher, cmci_module
+    HOST, PORT, CONTEXT, od, create_records_response, body_matcher, cmci_module, CMCITestHelper
 )
 
 
-def test_csd_install(cmci_module):
-    cmci_module.stub_cmci(
+def test_csd_install(cmci_module):  # type: (CMCITestHelper) -> None
+    record = dict(
+        name='bar',
+        bundledir='/u/bundles/bloop',
+        csdgroup='bat'
+    )
+    cmci_module.stub_records(
         'PUT',
         'cicsdefinitionbundle',
-        records=[dict(
-            name='bar',
-            bundledir='/u/bundles/bloop',
-            csdgroup='bat'
-        )],
+        records=[record],
         scope='IYCWEMW2',
         additional_matcher=body_matcher(od(
             ('request', od(
@@ -40,17 +41,7 @@ def test_csd_install(cmci_module):
             'body': '<request><action name="CSDINSTALL"></action></request>'
         },
         'response': {
-            # TODO: check install response
-            'body': create_records_response(
-                'cicsdefinitionbundle',
-                [
-                    od(
-                        ('@name', 'bar'),
-                        ('@bundledir', '/u/bundles/bloop'),
-                        ('@csdgroup', 'bat')
-                    )
-                ]
-            ),
+            'body': create_records_response('cicsdefinitionbundle', [record]),
             'reason': 'OK',
             'status_code': 200,
         }
@@ -68,15 +59,16 @@ def test_csd_install(cmci_module):
     ))
 
 
-def test_bas_install(cmci_module):
-    cmci_module.stub_cmci(
+def test_bas_install(cmci_module):  # type: (CMCITestHelper) -> None
+    record = dict(
+        name='bar',
+        bundledir='/u/bundles/bloop',
+        csdgroup='bat'
+    )
+    cmci_module.stub_records(
         'PUT',
         'cicsdefinitionbundle',
-        records=[dict(
-            name='bar',
-            bundledir='/u/bundles/bloop',
-            csdgroup='bat'
-        )],
+        [record],
         additional_matcher=body_matcher(od(
             ('request', od(
                 ('action', od(
@@ -95,17 +87,8 @@ def test_bas_install(cmci_module):
             'body': '<request><action name="INSTALL"></action></request>'
         },
         'response': {
-            # TODO: check install response
-            'body': create_records_response(
-                'cicsdefinitionbundle',
-                [
-                    od(
-                        ('@name', 'bar'),
-                        ('@bundledir', '/u/bundles/bloop'),
-                        ('@csdgroup', 'bat')
-                    )
-                ]
-            ),
+            'body':
+                create_records_response('cicsdefinitionbundle', [record]),
             'reason': 'OK',
             'status_code': 200,
         }

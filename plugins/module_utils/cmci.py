@@ -385,7 +385,7 @@ VALUE = 'value'
 
 class AnsibleCMCIModule(object):
 
-    def __init__(self, method, option):
+    def __init__(self, method):
         self._module = AnsibleModule(argument_spec=self.init_argument_spec())  # type: AnsibleModule
         self.result = dict(changed=False)  # type: dict
 
@@ -395,7 +395,6 @@ class AnsibleCMCIModule(object):
         if not xmltodict:
             self._fail_e(missing_required_lib('encoder'), exception=XMLTODICT_IMP_ERR)
 
-        self._option = option  # type: str
         self._method = method  # type: str
         self._p = self.init_p()  # type: dict
         self._session = self.init_session()  # type: requests.Session
@@ -457,14 +456,6 @@ class AnsibleCMCIModule(object):
             },
             SCOPE: {
                 'type': 'str'
-            },
-            CRITERIA: {
-                'type': 'str',
-                'required': False
-            },
-            PARAMETER: {
-                'type': 'str',
-                'required': False
             },
             RESOURCE: {
                 'type': 'dict',
@@ -593,16 +584,18 @@ class AnsibleCMCIModule(object):
 
         return url
 
-    def init_request_params(self):  # type: () -> Dict[str, str]
+    def init_request_params(self):  # type: () -> Optional[Dict[str, str]]
         # TODO: spaces in parameters get encoded as + rather than %20 which CMCI doesn't like
-        request_params = {}  # type: Dict[str, str]
-        if self._option != 'define':
-            # get, delete, put will all need CRITERIA{}
-            if self._p.get(CRITERIA):
-                request_params['CRITERIA'] = self._p.get(CRITERIA)
+        return None
 
-            if self._p.get(PARAMETER):
-                request_params['PARAMETER'] = self._p.get(PARAMETER)
+    def get_criteria_parameter_request_params(self):  # type: () -> Dict[str, str]
+        # get, delete, put will all need CRITERIA{}
+        request_params = {}
+        if self._p.get(CRITERIA):
+            request_params['CRITERIA'] = self._p.get(CRITERIA)
+
+        if self._p.get(PARAMETER):
+            request_params['PARAMETER'] = self._p.get(PARAMETER)
         return request_params
 
     def init_session(self):  # type: () -> requests.Session
@@ -681,6 +674,19 @@ def append_attributes_parameters_arguments(argument_spec):
                     'type': 'str'
                 }
             }
+        }
+    })
+
+
+def append_criteria_parameter_arguments(argument_spec):  # type: (Dict) -> None
+    argument_spec.update({
+        CRITERIA: {
+            'type': 'str',
+            'required': False
+        },
+        PARAMETER: {
+            'type': 'str',
+            'required': False
         }
     })
 

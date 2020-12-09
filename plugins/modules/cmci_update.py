@@ -8,18 +8,19 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
     AnsibleCMCIModule, RESOURCE, PARAMETERS, ATTRIBUTES, append_parameters, append_attributes,
-    append_attributes_parameters_arguments
+    append_attributes_parameters_arguments, append_criteria_parameter_arguments
 )
 from typing import Optional, Dict
 
 
 class AnsibleCMCIUpdateModule(AnsibleCMCIModule):
     def __init__(self):
-        super(AnsibleCMCIUpdateModule, self).__init__('PUT', 'update')
+        super(AnsibleCMCIUpdateModule, self).__init__('PUT')
 
     def init_argument_spec(self):  # type: () -> Dict
         argument_spec = super(AnsibleCMCIUpdateModule, self).init_argument_spec()
         append_attributes_parameters_arguments(argument_spec)
+        append_criteria_parameter_arguments(argument_spec)
         return argument_spec
 
     def init_body(self):  # type: () -> Optional[Dict]
@@ -34,6 +35,9 @@ class AnsibleCMCIUpdateModule(AnsibleCMCIModule):
                 'update': update
             }
         }
+
+    def init_request_params(self):  # type: () -> Optional[Dict[str, str]]
+        return self.get_criteria_parameter_request_params()
 
 
 def main():
