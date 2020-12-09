@@ -8,21 +8,20 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_install
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
-    HOST, PORT, CONTEXT, SCOPE, od, create_records_response, body_matcher, cmci_module
+    HOST, PORT, CONTEXT, od, create_records_response, body_matcher, cmci_module
 )
 
-def test_install_csd(cmci_module):
-    #TODO The parameters field for criteria is intentionally stubbing a bad request here. The "+'s" will be removed in a future fix
-    cmci_module.stub_update_record(
-        'cicsdefinitionprogram',
-        dict(
-            changeagent='CSDAPI',
-            changeagrel='0730',
-            csdgroup='DUMMY',
-            name='DUMMY'
-        ),
-        scope=SCOPE,
-        parameters='?CRITERIA=%28%28NAME%3DDUMMY%29+AND+%28DEFVER%3D0%29+AND+%28CSDGROUP%3DDUMMY%29%29&PARAMETER=CSDGROUP%28DUMMY%29',
+
+def test_csd_install(cmci_module):
+    cmci_module.stub_cmci(
+        'PUT',
+        'cicsdefinitionbundle',
+        records=[dict(
+            name='bar',
+            bundledir='/u/bundles/bloop',
+            csdgroup='bat'
+        )],
+        scope='IYCWEMW2',
         additional_matcher=body_matcher(od(
             ('request', od(
                 ('action', od(
@@ -35,43 +34,89 @@ def test_install_csd(cmci_module):
     cmci_module.expect({
         'changed': True,
         'request': {
-            'body':
-                '<request>'
-                '<action name="CSDINSTALL"></action>'
-                '</request>',
+            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+                   'cicsdefinitionbundle/CICSEX56/IYCWEMW2',
             'method': 'PUT',
-            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram/CICSEX56/IYCWEMW2',
-            'params': {
-                'PARAMETER': 'CSDGROUP(DUMMY)',
-                'CRITERIA': '((NAME=DUMMY) AND (DEFVER=0) AND (CSDGROUP=DUMMY))'
-            }
+            'body': '<request><action name="CSDINSTALL"></action></request>'
         },
         'response': {
+            # TODO: check install response
             'body': create_records_response(
-                'cicsdefinitionprogram',
+                'cicsdefinitionbundle',
                 [
                     od(
-                        ('@changeagent', 'CSDAPI'),
-                        ('@changeagrel', '0730'),
-                        ('@csdgroup', 'DUMMY'),
-                        ('@name', 'DUMMY')
+                        ('@name', 'bar'),
+                        ('@bundledir', '/u/bundles/bloop'),
+                        ('@csdgroup', 'bat')
                     )
                 ]
             ),
             'reason': 'OK',
-            'status_code': 200}
+            'status_code': 200,
+        }
     })
 
     cmci_module.run(cmci_install, dict(
         cmci_host=HOST,
         cmci_port=PORT,
         context=CONTEXT,
-        scope=SCOPE,
-        security_type='none',
+        scope='IYCWEMW2',
         resource=dict(
-            type='cicsdefinitionprogram',
-            location='CSD',
-        ),
-        criteria="((NAME=DUMMY) AND (DEFVER=0) AND (CSDGROUP=DUMMY))",
-        parameter='CSDGROUP(DUMMY)'
+            type='cicsdefinitionbundle',
+            location='CSD'
+        )
+    ))
+
+
+def test_bas_install(cmci_module):
+    cmci_module.stub_cmci(
+        'PUT',
+        'cicsdefinitionbundle',
+        records=[dict(
+            name='bar',
+            bundledir='/u/bundles/bloop',
+            csdgroup='bat'
+        )],
+        additional_matcher=body_matcher(od(
+            ('request', od(
+                ('action', od(
+                    ('@name', 'INSTALL')
+                ))
+            ))
+        ))
+    )
+
+    cmci_module.expect({
+        'changed': True,
+        'request': {
+            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+                   'cicsdefinitionbundle/CICSEX56/',
+            'method': 'PUT',
+            'body': '<request><action name="INSTALL"></action></request>'
+        },
+        'response': {
+            # TODO: check install response
+            'body': create_records_response(
+                'cicsdefinitionbundle',
+                [
+                    od(
+                        ('@name', 'bar'),
+                        ('@bundledir', '/u/bundles/bloop'),
+                        ('@csdgroup', 'bat')
+                    )
+                ]
+            ),
+            'reason': 'OK',
+            'status_code': 200,
+        }
+    })
+
+    cmci_module.run(cmci_install, dict(
+        cmci_host=HOST,
+        cmci_port=PORT,
+        context=CONTEXT,
+        resource=dict(
+            type='cicsdefinitionbundle',
+            location='BAS'
+        )
     ))

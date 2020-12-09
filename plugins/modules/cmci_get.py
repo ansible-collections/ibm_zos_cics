@@ -10,6 +10,8 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
     AnsibleCMCIModule
 )
 
+from typing import Dict
+
 
 _RECORD_COUNT = 'record_count'
 
@@ -18,7 +20,7 @@ class AnsibleCMCIGetModule(AnsibleCMCIModule):
     def __init__(self):
         super(AnsibleCMCIGetModule, self).__init__('GET', 'query')
 
-    def init_argument_spec(self):  # type: () -> dict
+    def init_argument_spec(self):  # type: () -> Dict
         argument_spec = super(AnsibleCMCIGetModule, self).init_argument_spec()
         argument_spec.update({
             _RECORD_COUNT: {
@@ -27,8 +29,8 @@ class AnsibleCMCIGetModule(AnsibleCMCIModule):
         })
         return argument_spec
 
-    def _init_url(self):  # type: () -> str
-        url = super(AnsibleCMCIGetModule, self)._init_url()
+    def init_url(self):  # type: () -> str
+        url = super(AnsibleCMCIGetModule, self).init_url()
 
         if self._p.get(_RECORD_COUNT):
             url = url + '//' + str(self._p.get(_RECORD_COUNT))
