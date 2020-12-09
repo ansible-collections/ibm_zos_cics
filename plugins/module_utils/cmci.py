@@ -490,18 +490,10 @@ class AnsibleCMCIModule(object):
 
         self._option = option  # type: str
         self._method = method  # type: str
-
-    def main(self):
-        self._handle_params()
-        response = self._do_request()  # type: requests.Response
-        self._handle_response(response)
-        self._module.exit_json(**self.result)
-
-    def _handle_params(self):
-        self._p = self._init_p()
-        self._session = self._init_session()
-        self._url = self._init_url()
-        self._body = self._init_body()
+        self._p = self._init_p()  # type: dict
+        self._session = self._init_session()  # type: requests.Session
+        self._url = self._init_url()  # type: str
+        self._body = self._init_body()  # type: str
 
         result_request = {
             'url': self._url,
@@ -514,6 +506,11 @@ class AnsibleCMCIModule(object):
             result_request['params'] = self._request_params
 
         self.result['request'] = result_request
+
+    def main(self):
+        response = self._do_request()  # type: requests.Response
+        self._handle_response(response)
+        self._module.exit_json(**self.result)
 
     def _init_p(self):
         self._validate(
@@ -656,6 +653,7 @@ class AnsibleCMCIModule(object):
         return url
 
     def _init_request_params(self):
+        # TODO: spaces in parameters get encoded as + rather than %20 which CMCI doesn't like
         request_params = {}
         if self._option != 'define':
             # get, delete, put will all need CRITERIA{}
@@ -738,5 +736,4 @@ def _append_parameters(element, parameters):
 def _append_attributes(element, attributes):
     # Attributes are <attributes name="value" name2="value2"/>
     if attributes:
-        # TODO: validate types?
         element['attributes'] = {'@' + key: value for key, value in attributes.items()}
