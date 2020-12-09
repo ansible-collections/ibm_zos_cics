@@ -473,25 +473,6 @@ class AnsibleCMCIModule(object):
                     TYPE: {
                         'type': 'str',
                         'required': True
-                    },
-                    ATTRIBUTES: {
-                        'type': 'dict',
-                        'required': False
-                    },
-                    PARAMETERS: {
-                        'type': 'list',
-                        'required': False,
-                        'elements': 'dict',
-                        'options': {
-                            NAME: {
-                                'type': 'str',
-                                'required': True
-                            },
-                            # Value is not required for flag-type parameters like CSD
-                            VALUE: {
-                                'type': 'str'
-                            }
-                        }
                     }
                 }
             }
@@ -540,28 +521,7 @@ class AnsibleCMCIModule(object):
                 self._fail('Parameter "{0}" with value "{1} was not valid.  Expected {2}'.format(name, value, message))
 
     def init_body(self):  # type: () -> Optional[Dict]
-        if self._option not in ['install', 'update', 'define']:
-            self._body = None
-            return
-
-        resource = self._p.get(RESOURCE)
-        parameters = resource.get(PARAMETERS, None)
-        attributes = resource.get(ATTRIBUTES, None)
-
-        request = {}
-        if self._option == 'update':
-            update = {}
-            _append_parameters(update, parameters)
-            _append_attributes(update, attributes)
-            request['update'] = update
-        elif self._option == 'define':
-            create = {}
-            _append_parameters(create, parameters)
-            _append_attributes(create, attributes)
-            request['create'] = create
-        body_dict = {"request": request}
-
-        return body_dict
+        return None
 
     def handle_response(self, response):
         # Try and parse the XML response body into a dict
@@ -701,7 +661,31 @@ class AnsibleCMCIModule(object):
         self._module.fail_json(msg=msg, exception=exception, **self.result)
 
 
-def _append_parameters(element, parameters):
+def append_attributes_parameters_arguments(argument_spec):
+    argument_spec[RESOURCE]['options'].update({
+        ATTRIBUTES: {
+            'type': 'dict',
+            'required': False
+        },
+        PARAMETERS: {
+            'type': 'list',
+            'required': False,
+            'elements': 'dict',
+            'options': {
+                NAME: {
+                    'type': 'str',
+                    'required': True
+                },
+                # Value is not required for flag-type parameters like CSD
+                VALUE: {
+                    'type': 'str'
+                }
+            }
+        }
+    })
+
+
+def append_parameters(element, parameters):
     # Parameters are <parameter name="pname" value="pvalue" />
     if parameters:
         ps = []
@@ -714,7 +698,7 @@ def _append_parameters(element, parameters):
         element['parameter'] = ps
 
 
-def _append_attributes(element, attributes):
+def append_attributes(element, attributes):
     # Attributes are <attributes name="value" name2="value2"/>
     if attributes:
         element['attributes'] = {'@' + key: value for key, value in attributes.items()}
