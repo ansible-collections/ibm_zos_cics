@@ -495,3 +495,43 @@ def test_query_parameter_criteria(cmci_module):
         'parameter': 'CSDGROUP(*)',
         'criteria': 'FOO=BAR'
     })
+
+
+def test_ok_context_record_count(cmci_module):
+    cmci_module.stub_get_records(
+        'cicslocalfile',
+        [
+            {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}
+        ],
+        record_count=1
+    )
+
+    cmci_module.expect({
+        'changed': False,
+        'request': {
+            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+                   'cicslocalfile/CICSEX56///1',
+            'method': 'GET',
+            'body': None
+        },
+        'response': {
+            'body': create_records_response(
+                'cicslocalfile', [
+                    od(
+                        ('@name', 'bat'),
+                        ('@dsname', 'STEWF.BLOP.BLIP')
+                    )
+                ]
+            ),
+            'reason': 'OK',
+            'status_code': 200,
+        }
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'record_count': 1,
+        'resource': {'type': 'cicslocalfile'},
+    })

@@ -41,11 +41,13 @@ class CMCITestHelper:
 
     def stub_cmci(self, method, resource_type, scheme='http', host=HOST, port=PORT,
                   context=CONTEXT, scope=None, parameters='', records=None,
-                  headers={'CONTENT-TYPE': 'application/xml'}, status_code=200, reason='OK', **kwargs):
+                  headers={'CONTENT-TYPE': 'application/xml'}, status_code=200, reason='OK',
+                  record_count=None, **kwargs):
 
         text = create_records_response_xml(resource_type, records) if records else None
-        url = '{0}://{1}:{2}/CICSSystemManagement/{3}/{4}{5}{6}'\
-            .format(scheme, host, port, resource_type, context, '/' + scope if scope else '', parameters)
+        url = '{0}://{1}:{2}/CICSSystemManagement/{3}/{4}/{5}{6}{7}'\
+            .format(scheme, host, port, resource_type, context, '//' + str(record_count) if record_count else '',
+                    scope if scope else '', parameters)
 
         return self.stub_request(
             method,

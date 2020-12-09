@@ -375,7 +375,6 @@ _CONTEXT = 'context'
 _SCOPE = 'scope'
 _CRITERIA = 'criteria'
 _PARAMETER = 'parameter'
-_RECORD_COUNT = 'record_count'
 _RESOURCE = 'resource'
 _TYPE = 'type'
 _ATTRIBUTES = 'attributes'
@@ -385,99 +384,10 @@ _VALUE = 'value'
 _LOCATION = 'location'
 
 
-def cmci_common_argument_spec():
-    return {
-        _CMCI_HOST: {
-            'required': True,
-            'type': 'str'
-        },
-        _CMCI_PORT:  {
-            'required': True,
-            'type': 'str'
-        },
-        _CMCI_USER: {
-            'type': 'str',
-            'fallback': (env_fallback, ['CMCI_USER'])
-        },
-        _CMCI_PASSWORD: {
-            'type': 'str',
-            'no_log': True,
-            'fallback': (env_fallback, ['CMCI_PASSWORD'])
-        },
-        _CMCI_CERT: {
-            'type': 'str',
-            'no_log': True,
-            'fallback': (env_fallback, ['CMCI_CERT'])
-        },
-        _CMCI_KEY: {
-            'type': 'str',
-            'no_log': True,
-            'fallback': (env_fallback, ['CMCI_KEY'])
-        },
-        _SECURITY_TYPE: {
-            'type': 'str',
-            'default': 'none',
-            'choices': ['none', 'basic', 'certificate']
-        },
-        _CONTEXT: {
-            'required': True,
-            'type': 'str'
-        },
-        _SCOPE: {
-            'type': 'str'
-        },
-        _CRITERIA: {
-            'type': 'str',
-            'required': False
-        },
-        _PARAMETER: {
-            'type': 'str',
-            'required': False
-        },
-        _RECORD_COUNT: {
-            'type': 'int'
-        },
-        _RESOURCE: {
-            'type': 'dict',
-            'required': True,
-            'options': {
-                _TYPE: {
-                    'type': 'str',
-                    'required': True
-                },
-                _ATTRIBUTES: {
-                    'type': 'dict',
-                    'required': False
-                },
-                _PARAMETERS: {
-                    'type': 'list',
-                    'required': False,
-                    'elements': 'dict',
-                    'options': {
-                        _NAME: {
-                            'type': 'str',
-                            'required': True
-                        },
-                        # Value is not required for flag-type parameters like CSD
-                        _VALUE: {
-                            'type': 'str'
-                        }
-                    }
-                },
-                _LOCATION: {
-                    'type': 'str',
-                    'required': False,
-                    'choices': ['BAS', 'CSD']
-                }
-            }
-        }
-    }
-
-
 class AnsibleCMCIModule(object):
 
     def __init__(self, method, option):
-        full_argument_spec = cmci_common_argument_spec()
+        full_argument_spec = self.init_argument_spec()
 
         self._module = AnsibleModule(argument_spec=full_argument_spec)  # type: AnsibleModule
         self.result = dict(changed=False)  # type: dict
@@ -506,6 +416,91 @@ class AnsibleCMCIModule(object):
             result_request['params'] = self._request_params
 
         self.result['request'] = result_request
+
+    def init_argument_spec(self):  # type: () -> dict
+        return {
+            _CMCI_HOST: {
+                'required': True,
+                'type': 'str'
+            },
+            _CMCI_PORT: {
+                'required': True,
+                'type': 'str'
+            },
+            _CMCI_USER: {
+                'type': 'str',
+                'fallback': (env_fallback, ['CMCI_USER'])
+            },
+            _CMCI_PASSWORD: {
+                'type': 'str',
+                'no_log': True,
+                'fallback': (env_fallback, ['CMCI_PASSWORD'])
+            },
+            _CMCI_CERT: {
+                'type': 'str',
+                'no_log': True,
+                'fallback': (env_fallback, ['CMCI_CERT'])
+            },
+            _CMCI_KEY: {
+                'type': 'str',
+                'no_log': True,
+                'fallback': (env_fallback, ['CMCI_KEY'])
+            },
+            _SECURITY_TYPE: {
+                'type': 'str',
+                'default': 'none',
+                'choices': ['none', 'basic', 'certificate']
+            },
+            _CONTEXT: {
+                'required': True,
+                'type': 'str'
+            },
+            _SCOPE: {
+                'type': 'str'
+            },
+            _CRITERIA: {
+                'type': 'str',
+                'required': False
+            },
+            _PARAMETER: {
+                'type': 'str',
+                'required': False
+            },
+            _RESOURCE: {
+                'type': 'dict',
+                'required': True,
+                'options': {
+                    _TYPE: {
+                        'type': 'str',
+                        'required': True
+                    },
+                    _ATTRIBUTES: {
+                        'type': 'dict',
+                        'required': False
+                    },
+                    _PARAMETERS: {
+                        'type': 'list',
+                        'required': False,
+                        'elements': 'dict',
+                        'options': {
+                            _NAME: {
+                                'type': 'str',
+                                'required': True
+                            },
+                            # Value is not required for flag-type parameters like CSD
+                            _VALUE: {
+                                'type': 'str'
+                            }
+                        }
+                    },
+                    _LOCATION: {
+                        'type': 'str',
+                        'required': False,
+                        'choices': ['BAS', 'CSD']
+                    }
+                }
+            }
+        }
 
     def main(self):
         response = self._do_request()  # type: requests.Response
@@ -632,7 +627,7 @@ class AnsibleCMCIModule(object):
             # TODO: verbose log content if it couldn't be parsed?.  And maybe the other info from the ExpatError
             self._fail_e('CMCI response XML document could not be successfully parsed: {0}'.format(e), e)
 
-    def _init_url(self):
+    def _init_url(self):  # type: () -> str
         resource = self._p.get(_RESOURCE)
         t = resource.get(_TYPE)
         security_type = self._p.get(_SECURITY_TYPE)
@@ -645,10 +640,6 @@ class AnsibleCMCIModule(object):
             + t + '/' + self._p.get(_CONTEXT) + '/'
         if self._p.get(_SCOPE):
             url = url + self._p.get(_SCOPE)
-
-        if self._option == 'query':
-            if self._p.get(_RECORD_COUNT):
-                url = url + '//' + str(self._p.get(_RECORD_COUNT))
 
         return url
 
