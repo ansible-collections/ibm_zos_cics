@@ -475,11 +475,12 @@ def cmci_common_argument_spec():
 
 
 class AnsibleCMCIModule(object):
-    def __init__(self, option):
+
+    def __init__(self, method, option):
         full_argument_spec = cmci_common_argument_spec()
 
-        self._module = AnsibleModule(argument_spec=full_argument_spec)
-        self.result = dict(changed=False)
+        self._module = AnsibleModule(argument_spec=full_argument_spec)  # type: AnsibleModule
+        self.result = dict(changed=False)  # type: dict
 
         if not requests:
             self._fail_e(missing_required_lib('requests'), exception=REQUESTS_IMP_ERR)
@@ -487,19 +488,20 @@ class AnsibleCMCIModule(object):
         if not xmltodict:
             self._fail_e(missing_required_lib('encoder'), exception=XMLTODICT_IMP_ERR)
 
-        self._option = option
+        self._option = option  # type: str
+        self._method = method  # type: str
 
     def main(self):
         self._handle_params()
-        response = self._do_request()
+        response = self._do_request()  # type: requests.Response
         self._handle_response(response)
         self._module.exit_json(**self.result)
 
     def _handle_params(self):
-        self._handle_module_params()
-        self._init_session()
-        self._init_url()
-        self._init_body()
+        self._p = self._init_p()
+        self._session = self._init_session()
+        self._url = self._init_url()
+        self._body = self._init_body()
 
         result_request = {
             'url': self._url,
@@ -507,18 +509,13 @@ class AnsibleCMCIModule(object):
             'body': self._body
         }
 
-        self._init_request_params()
+        self._request_params = self._init_request_params()
         if self._request_params:
             result_request['params'] = self._request_params
 
         self.result['request'] = result_request
 
-    def _handle_module_params(self):
-        method_action_pair = {'define': 'POST', 'install': 'PUT', 'update': 'PUT', 'delete': 'DELETE', 'query': 'GET'}
-        for key, value in method_action_pair.items():
-            if self._option == key:
-                self._method = value
-
+    def _init_p(self):
         self._validate(
             _CMCI_HOST,
             '^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.)'
@@ -546,7 +543,7 @@ class AnsibleCMCIModule(object):
             'a CPSM scope name.  CPSM scope names are max 8 characters.  Valid characters are A-Z a-z 0-9.'
         )
 
-        self._p = self._module.params
+        return self._module.params
 
     def _validate(self, name, regex, message):
         value = self._module.params.get(name)
@@ -582,7 +579,7 @@ class AnsibleCMCIModule(object):
 
         # TODO: can this fail?
         # full_document=False suppresses the xml prolog, which CMCI doesn't like
-        self._body = xmltodict.unparse(body_dict, full_document=False)
+        return xmltodict.unparse(body_dict, full_document=False)
 
     def _handle_response(self, response):
         # Try and parse the XML response body into a dict
@@ -656,17 +653,18 @@ class AnsibleCMCIModule(object):
             if self._p.get(_RECORD_COUNT):
                 url = url + '//' + str(self._p.get(_RECORD_COUNT))
 
-        self._url = url
+        return url
 
     def _init_request_params(self):
-        self._request_params = {}
+        request_params = {}
         if self._option != 'define':
             # get, delete, put will all need CRITERIA{}
             if self._p.get(_CRITERIA):
-                self._request_params['CRITERIA'] = self._p.get(_CRITERIA)
+                request_params['CRITERIA'] = self._p.get(_CRITERIA)
 
             if self._p.get(_PARAMETER):
-                self._request_params['PARAMETER'] = self._p.get(_PARAMETER)
+                request_params['PARAMETER'] = self._p.get(_PARAMETER)
+        return request_params
 
     def _init_session(self):
         session = requests.Session()
@@ -687,7 +685,7 @@ class AnsibleCMCIModule(object):
                 session.auth = cmci_user.strip(), cmci_password.strip()
             else:
                 self._fail('HTTP setup error: cmci_user/cmci_password are required')
-        self._session = session
+        return session  # type: requests.Session
 
     def _do_request(self):
         try:

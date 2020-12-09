@@ -12,7 +12,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
 
 
 def main():
-    AnsibleCMCIModule('delete').main()
+    AnsibleCMCIModule('DELETE', 'delete').main()
 
 
 if __name__ == '__main__':

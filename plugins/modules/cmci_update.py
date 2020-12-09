@@ -12,7 +12,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
 
 
 def main():
-    AnsibleCMCIModule('update').main()
+    AnsibleCMCIModule('PUT', 'update').main()
 
 
 if __name__ == '__main__':
