@@ -63,7 +63,7 @@ def test_401_fails(cmci_module):  # type: (CMCITestHelper) -> None
 
 def test_invalid_host(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': 'Parameter "cmci_host" with value "^*.99.99.199 was not valid.  Expected an IP address or host name.',
+        'msg': 'Parameter "cmci_host" with value "^*.99.99.199" was not valid.  Expected an IP address or host name.',
         'changed': False,
         'failed': True
     })
@@ -102,10 +102,10 @@ def test_unknown_host(monkeypatch):
     assert re.match(exp, exc_info.value.args[0]['msg'])
 
 
-def test_invalid_port(cmci_module):  # type: (CMCITestHelper) -> None
+def test_invalid_port_type(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': 'Parameter "cmci_port" with value "^%^080 was not valid.  Expected a port number 0-65535.',
-        'changed': False,
+        'msg': "argument cmci_port is of type <class 'str'> and we were unable to "
+               "convert to int: invalid literal for int() with base 10: '^%^080'",
         'failed': True
     })
 
@@ -120,9 +120,45 @@ def test_invalid_port(cmci_module):  # type: (CMCITestHelper) -> None
     })
 
 
+def test_invalid_port_low(cmci_module):  # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': 'Parameter "cmci_port" with value "-1" was not valid.  Expected a port number 0-65535.',
+        'changed': False,
+        'failed': True
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': '100.99.99.199',
+        'cmci_port': -1,
+        'context': 'iyk3z0r9',
+        'scope': 'iyk3z0r8',
+        'resource': {
+            'type': 'cicslocalfile'
+        },
+    })
+
+
+def test_invalid_port_high(cmci_module):  # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': 'Parameter "cmci_port" with value "65536" was not valid.  Expected a port number 0-65535.',
+        'changed': False,
+        'failed': True
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': '100.99.99.199',
+        'cmci_port': 65536,
+        'context': 'iyk3z0r9',
+        'scope': 'iyk3z0r8',
+        'resource': {
+            'type': 'cicslocalfile'
+        },
+    })
+
+
 def test_invalid_context(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': 'Parameter "context" with value "^&iyk3z0r9 was not valid.  Expected a CPSM context name.  CPSM '
+        'msg': 'Parameter "context" with value "^&iyk3z0r9" was not valid.  Expected a CPSM context name.  CPSM '
                'context names are max 8 characters.  Valid characters are A-Z a-z 0-9.',
         'changed': False,
         'failed': True
@@ -141,7 +177,7 @@ def test_invalid_context(cmci_module):  # type: (CMCITestHelper) -> None
 
 def test_invalid_scope(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': 'Parameter "scope" with value "&^iyk3z0r8 was not valid.  Expected a CPSM scope name.  CPSM scope '
+        'msg': 'Parameter "scope" with value "&^iyk3z0r8" was not valid.  Expected a CPSM scope name.  CPSM scope '
                'names are max 8 characters.  Valid characters are A-Z a-z 0-9.',
         'changed': False,
         'failed': True
@@ -327,10 +363,9 @@ def test_query_criteria(cmci_module):  # type: (CMCITestHelper) -> None
         'changed': False,
         'request': {
             'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-                   'cicslocalfile/CICSEX56/IYCWEMW2',
+                   'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=FOO%3DBAR',
             'method': 'GET',
-            'body': None,
-            'params': {'CRITERIA': 'FOO=BAR'}
+            'body': None
         },
         'response': {
             'body': create_records_response('cicslocalfile', records),
@@ -363,10 +398,9 @@ def test_query_parameter(cmci_module):  # type: (CMCITestHelper) -> None
         'changed': False,
         'request': {
             'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-                   'cicsdefinitionfile/CICSEX56/IYCWEMW2',
+                   'cicsdefinitionfile/CICSEX56/IYCWEMW2?PARAMETER=CSDGROUP%28%2A%29',
             'method': 'GET',
-            'body': None,
-            'params': {'PARAMETER': 'CSDGROUP(*)'}
+            'body': None
         },
         'response': {
             'body': create_records_response('cicsdefinitionfile', records),
@@ -400,13 +434,9 @@ def test_query_parameter_criteria(cmci_module):  # type: (CMCITestHelper) -> Non
         'changed': False,
         'request': {
             'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-                   'cicsdefinitionfile/CICSEX56/IYCWEMW2',
+                   'cicsdefinitionfile/CICSEX56/IYCWEMW2?CRITERIA=FOO%3DBAR&PARAMETER=CSDGROUP%28%2A%29',
             'method': 'GET',
-            'body': None,
-            'params': {
-                'PARAMETER': 'CSDGROUP(*)',
-                'CRITERIA': 'FOO=BAR'
-            }
+            'body': None
         },
         'response': {
             'body': create_records_response('cicsdefinitionfile', records),
