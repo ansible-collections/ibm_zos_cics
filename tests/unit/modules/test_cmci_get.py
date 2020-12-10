@@ -8,8 +8,8 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_get
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
-    HOST, PORT, CONTEXT, SCOPE, od, create_records_response, AnsibleFailJson,
-    set_module_args, exit_json, fail_json, cmci_module
+    HOST, PORT, CONTEXT, SCOPE, create_records_response, AnsibleFailJson,
+    set_module_args, exit_json, fail_json, cmci_module, CMCITestHelper
 )
 from ansible.module_utils import basic
 
@@ -17,7 +17,7 @@ import pytest
 import re
 
 
-def test_401_fails(cmci_module):
+def test_401_fails(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.stub_request(
         'GET',
         'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/CICSDefinitionBundle/CICPY012/',
@@ -61,7 +61,7 @@ def test_401_fails(cmci_module):
     })
 
 
-def test_invalid_host(cmci_module):
+def test_invalid_host(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
         'msg': 'Parameter "cmci_host" with value "^*.99.99.199 was not valid.  Expected an IP address or host name.',
         'changed': False,
@@ -102,7 +102,7 @@ def test_unknown_host(monkeypatch):
     assert re.match(exp, exc_info.value.args[0]['msg'])
 
 
-def test_invalid_port(cmci_module):
+def test_invalid_port(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
         'msg': 'Parameter "cmci_port" with value "^%^080 was not valid.  Expected a port number 0-65535.',
         'changed': False,
@@ -120,7 +120,7 @@ def test_invalid_port(cmci_module):
     })
 
 
-def test_invalid_context(cmci_module):
+def test_invalid_context(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
         'msg': 'Parameter "context" with value "^&iyk3z0r9 was not valid.  Expected a CPSM context name.  CPSM '
                'context names are max 8 characters.  Valid characters are A-Z a-z 0-9.',
@@ -139,7 +139,7 @@ def test_invalid_context(cmci_module):
     })
 
 
-def test_invalid_scope(cmci_module):
+def test_invalid_scope(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
         'msg': 'Parameter "scope" with value "&^iyk3z0r8 was not valid.  Expected a CPSM scope name.  CPSM scope '
                'names are max 8 characters.  Valid characters are A-Z a-z 0-9.',
@@ -158,7 +158,7 @@ def test_invalid_scope(cmci_module):
     })
 
 
-def test_invalid_security(cmci_module):
+def test_invalid_security(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
         'msg': 'value of security_type must be one of: none, basic, certificate, got: yes',
         'failed': True
@@ -176,13 +176,15 @@ def test_invalid_security(cmci_module):
     })
 
 
-def test_auth(cmci_module):
-    cmci_module.stub_get_records(
+def test_auth(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [
+        {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'},
+        {'name': 'bing', 'dsname': 'STEWF.BAT.BAZ'}
+    ]
+    cmci_module.stub_records(
+        'GET',
         'cicslocalfile',
-        [
-            {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'},
-            {'name': 'bing', 'dsname': 'STEWF.BAT.BAZ'}
-        ],
+        records,
         scope=SCOPE,
         request_headers={
             'authorization': 'Basic Zm9vOmJhcg=='
@@ -199,19 +201,7 @@ def test_auth(cmci_module):
             'body': None
         },
         'response': {
-            'body': create_records_response(
-                'cicslocalfile',
-                [
-                    od(
-                        ('@name', 'bat'),
-                        ('@dsname', 'STEWF.BLOP.BLIP')
-                    ),
-                    od(
-                        ('@name', 'bing'),
-                        ('@dsname', 'STEWF.BAT.BAZ')
-                    )
-                ]
-            ),
+            'body': create_records_response('cicslocalfile', records),
             'reason': 'OK',
             'status_code': 200,
         }
@@ -229,15 +219,12 @@ def test_auth(cmci_module):
     })
 
 
-def test_ok_context_scope(cmci_module):
-    cmci_module.stub_get_records(
-        'cicslocalfile',
-        [
-            {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'},
-            {'name': 'bing', 'dsname': 'STEWF.BAT.BAZ'}
-        ],
-        scope=SCOPE
-    )
+def test_ok_context_scope(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [
+        {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'},
+        {'name': 'bing', 'dsname': 'STEWF.BAT.BAZ'}
+    ]
+    cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE)
 
     cmci_module.expect({
         'changed': False,
@@ -248,18 +235,7 @@ def test_ok_context_scope(cmci_module):
             'body': None
         },
         'response': {
-            'body': create_records_response(
-                'cicslocalfile', [
-                    od(
-                        ('@name', 'bat'),
-                        ('@dsname', 'STEWF.BLOP.BLIP')
-                    ),
-                    od(
-                        ('@name', 'bing'),
-                        ('@dsname', 'STEWF.BAT.BAZ')
-                    )
-                ]
-            ),
+            'body': create_records_response('cicslocalfile', records),
             'reason': 'OK',
             'status_code': 200,
         }
@@ -274,14 +250,9 @@ def test_ok_context_scope(cmci_module):
     })
 
 
-def test_ok_context_scope_single_record(cmci_module):
-    cmci_module.stub_get_records(
-        'cicslocalfile',
-        [
-            {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}
-        ],
-        scope=SCOPE
-    )
+def test_ok_context_scope_single_record(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
+    cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE)
 
     cmci_module.expect({
         'changed': False,
@@ -292,14 +263,7 @@ def test_ok_context_scope_single_record(cmci_module):
             'body': None
         },
         'response': {
-            'body': create_records_response(
-                'cicslocalfile', [
-                    od(
-                        ('@name', 'bat'),
-                        ('@dsname', 'STEWF.BLOP.BLIP')
-                    )
-                ]
-            ),
+            'body': create_records_response('cicslocalfile', records),
             'reason': 'OK',
             'status_code': 200,
         }
@@ -314,13 +278,16 @@ def test_ok_context_scope_single_record(cmci_module):
     })
 
 
-def test_ok_context_scope_jvmserver_header(cmci_module):
-    cmci_module.stub_get_records(
+def test_ok_context_scope_jvmserver_header(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [
+        {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'},
+        {'name': 'bing', 'dsname': 'STEWF.BAT.BAZ'}
+    ]
+
+    cmci_module.stub_records(
+        'GET',
         'cicslocalfile',
-        [
-            {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'},
-            {'name': 'bing', 'dsname': 'STEWF.BAT.BAZ'}
-        ],
+        records,
         scope=SCOPE,
         headers={
             # JVM server returns a content type with the charset embedded
@@ -337,19 +304,7 @@ def test_ok_context_scope_jvmserver_header(cmci_module):
             'body': None
         },
         'response': {
-            'body': create_records_response(
-                'cicslocalfile',
-                [
-                    od(
-                        ('@name', 'bat'),
-                        ('@dsname', 'STEWF.BLOP.BLIP')
-                    ),
-                    od(
-                        ('@name', 'bing'),
-                        ('@dsname', 'STEWF.BAT.BAZ')
-                    )
-                ]
-            ),
+            'body': create_records_response('cicslocalfile', records),
             'reason': 'OK',
             'status_code': 200,
         }
@@ -364,15 +319,9 @@ def test_ok_context_scope_jvmserver_header(cmci_module):
     })
 
 
-def test_query_criteria(cmci_module):
-    cmci_module.stub_get_records(
-        'cicslocalfile',
-        [
-            {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}
-        ],
-        scope=SCOPE,
-        parameters='?CRITERIA=FOO%3DBAR'
-    )
+def test_query_criteria(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
+    cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE,  parameters='?CRITERIA=FOO%3DBAR')
 
     cmci_module.expect({
         'changed': False,
@@ -384,14 +333,7 @@ def test_query_criteria(cmci_module):
             'params': {'CRITERIA': 'FOO=BAR'}
         },
         'response': {
-            'body': create_records_response(
-                'cicslocalfile', [
-                    od(
-                        ('@name', 'bat'),
-                        ('@dsname', 'STEWF.BLOP.BLIP')
-                    )
-                ]
-            ),
+            'body': create_records_response('cicslocalfile', records),
             'reason': 'OK',
             'status_code': 200,
         }
@@ -407,12 +349,12 @@ def test_query_criteria(cmci_module):
     })
 
 
-def test_query_parameter(cmci_module):
-    cmci_module.stub_get_records(
+def test_query_parameter(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
+    cmci_module.stub_records(
+        'GET',
         'cicsdefinitionfile',
-        [
-            {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}
-        ],
+        records,
         scope=SCOPE,
         parameters='?PARAMETER=CSDGROUP%28%2A%29'
     )
@@ -427,14 +369,7 @@ def test_query_parameter(cmci_module):
             'params': {'PARAMETER': 'CSDGROUP(*)'}
         },
         'response': {
-            'body': create_records_response(
-                'cicsdefinitionfile', [
-                    od(
-                        ('@name', 'bat'),
-                        ('@dsname', 'STEWF.BLOP.BLIP')
-                    )
-                ]
-            ),
+            'body': create_records_response('cicsdefinitionfile', records),
             'reason': 'OK',
             'status_code': 200,
         }
@@ -450,12 +385,13 @@ def test_query_parameter(cmci_module):
     })
 
 
-def test_query_parameter_criteria(cmci_module):
-    cmci_module.stub_get_records(
+def test_query_parameter_criteria(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
+
+    cmci_module.stub_records(
+        'GET',
         'cicsdefinitionfile',
-        [
-            {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}
-        ],
+        records,
         scope=SCOPE,
         parameters='?CRITERIA=FOO%3DBAR&PARAMETER=CSDGROUP%28%2A%29'
     )
@@ -473,14 +409,7 @@ def test_query_parameter_criteria(cmci_module):
             }
         },
         'response': {
-            'body': create_records_response(
-                'cicsdefinitionfile', [
-                    od(
-                        ('@name', 'bat'),
-                        ('@dsname', 'STEWF.BLOP.BLIP')
-                    )
-                ]
-            ),
+            'body': create_records_response('cicsdefinitionfile', records),
             'reason': 'OK',
             'status_code': 200,
         }
@@ -494,4 +423,33 @@ def test_query_parameter_criteria(cmci_module):
         'resource': {'type': 'cicsdefinitionfile'},
         'parameter': 'CSDGROUP(*)',
         'criteria': 'FOO=BAR'
+    })
+
+
+def test_ok_context_record_count(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
+
+    cmci_module.stub_records('GET', 'cicslocalfile', records, record_count=1)
+
+    cmci_module.expect({
+        'changed': False,
+        'request': {
+            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+                   'cicslocalfile/CICSEX56///1',
+            'method': 'GET',
+            'body': None
+        },
+        'response': {
+            'body': create_records_response('cicslocalfile', records),
+            'reason': 'OK',
+            'status_code': 200,
+        }
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'record_count': 1,
+        'resource': {'type': 'cicslocalfile'},
     })
