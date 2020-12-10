@@ -23,6 +23,7 @@ def test_csd_install(cmci_module):  # type: (CMCITestHelper) -> None
         'cicsdefinitionbundle',
         records=[record],
         scope='IYCWEMW2',
+        parameters='?PARAMETER=CSDGROUP%28%2A%29',
         additional_matcher=body_matcher(od(
             ('request', od(
                 ('action', od(
@@ -38,6 +39,7 @@ def test_csd_install(cmci_module):  # type: (CMCITestHelper) -> None
             'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
                    'cicsdefinitionbundle/CICSEX56/IYCWEMW2',
             'method': 'PUT',
+            'params': {'PARAMETER': 'CSDGROUP(*)'},
             'body': '<request><action name="CSDINSTALL"></action></request>'
         },
         'response': {
@@ -55,7 +57,8 @@ def test_csd_install(cmci_module):  # type: (CMCITestHelper) -> None
         resource=dict(
             type='cicsdefinitionbundle',
             location='CSD'
-        )
+        ),
+        parameter='CSDGROUP(*)'
     ))
 
 
