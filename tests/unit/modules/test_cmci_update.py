@@ -49,11 +49,8 @@ def test_update(cmci_module):  # type: (CMCITestHelper) -> None
                 '<attributes description="new description"></attributes>'
                 '</update></request>',
             'method': 'PUT',
-            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram/CICSEX56/IYCWEMW2',
-            'params': {
-                'PARAMETER': 'CSDGROUP(DUMMY)',
-                'CRITERIA': 'NAME=DUMMY'
-            }
+            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram'
+                   '/CICSEX56/IYCWEMW2?CRITERIA=NAME%3DDUMMY&PARAMETER=CSDGROUP%28DUMMY%29'
         },
         'response': {
             'body': create_records_response('cicsdefinitionprogram', [record]),
