@@ -40,23 +40,15 @@ def test_update(cmci_module):  # type: (CMCITestHelper) -> None
         ))
     )
 
-    cmci_module.expect({
-        'changed': True,
-        'request': {
-            'body':
-                '<request><update>'
-                '<parameter name="CSD"></parameter>'
-                '<attributes description="new description"></attributes>'
-                '</update></request>',
-            'method': 'PUT',
-            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram'
-                   '/CICSEX56/IYCWEMW2?CRITERIA=NAME%3DDUMMY&PARAMETER=CSDGROUP%28DUMMY%29'
-        },
-        'response': {
-            'body': create_records_response('cicsdefinitionprogram', [record]),
-            'reason': 'OK',
-            'status_code': 200}
-    })
+    cmci_module.expect(result(
+        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram'
+        '/CICSEX56/IYCWEMW2?CRITERIA=NAME%3DDUMMY&PARAMETER=CSDGROUP%28DUMMY%29',
+        record,
+        '<request><update>'
+        '<parameter name="CSD"></parameter>'
+        '<attributes description="new description"></attributes>'
+        '</update></request>'
+    ))
 
     cmci_module.run(cmci_update, dict(
         cmci_host=HOST,
@@ -76,3 +68,23 @@ def test_update(cmci_module):  # type: (CMCITestHelper) -> None
         criteria='NAME=DUMMY',
         parameter='CSDGROUP(DUMMY)'
     ))
+
+
+def result(url, record, body):
+    return {
+        'changed': True,
+        'connect_version': '0560',
+        'cpsm_reason': '',
+        'cpsm_reason_code': 0,
+        'cpsm_response': 'OK',
+        'cpsm_response_code': 1024,
+        'http_status': 'OK',
+        'http_status_code': 200,
+        'request': {
+            'url': url,
+            'method': 'PUT',
+            'body': body
+        },
+        'records': [record],
+        'record_count': 1
+    }

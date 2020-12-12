@@ -10,7 +10,7 @@ from ansible.module_utils.common.text.converters import to_bytes
 from ansible.module_utils import basic
 from collections import OrderedDict
 from requests import PreparedRequest
-from typing import Dict
+from typing import List
 
 import json
 import pytest
@@ -71,6 +71,10 @@ class CMCITestHelper:
         self.expected = expected
 
     def run(self, module, config):
+        # upper-case the resource name, so it definitely doesn't match the CMCI response, to ensure
+        # we don't rely on them matching
+        resource = config.get('resource')
+        resource['type'] = resource['type'].upper()
         set_module_args(config)
 
         with pytest.raises(AnsibleFailJson if self.expected.get('failed') else AnsibleExitJson) as exc_info:
@@ -133,31 +137,31 @@ def create_delete_response(success_count):  # type: (int) -> OrderedDict
         ('resultsummary', od(
             ('@api_response1', '1024'),
             ('@api_response2', '0'),
-            ('@api_response_alt', 'OK'),
+            ('@api_response1_alt', 'OK'),
             ('@api_response2_alt', ''),
-            ('@recordcount', str(success_count)),  # TODO: could I surface this as an int in Ansible?
-            ('@successcount', str(success_count))  # TODO: could I surface this as an int in Ansible?
+            ('@recordcount', str(success_count)),
+            ('@successcount', str(success_count))
         ))
     )
 
 
 def create_records_response(resource_type, records):  # type: (str, List) -> OrderedDict
     # Convert to ordered dict, with @ sign for attribute prefix
-    # Suspect I'll be able to remove this when we switch to a get-specific action
-    # Would be good to make it so that the response values in ansible don't expose the
-    # Attribute prefix for records, as we're dealing with known documents we can avoid collisions that the @
-    # is designed to mitigate
+    # CMCI always returns lower case names
     return create_cmci_response(
         ('resultsummary', od(
             ('@api_response1', '1024'),
             ('@api_response2', '0'),
-            ('@api_response_alt', 'OK'),
+            ('@api_response1_alt', 'OK'),
             ('@api_response2_alt', ''),
             ('@recordcount', str(len(records))),
             ('@displayed_recordcount', str(len(records)))
         )),
         ('records', od(
-            (resource_type, [OrderedDict([('@' + key, value) for key, value in record.items()]) for record in records])
+            (
+                resource_type.lower(),
+                [OrderedDict([('@' + key, value) for key, value in record.items()]) for record in records]
+            )
         ))
     )
 

@@ -392,10 +392,10 @@ class AnsibleCMCIModule(object):
         self.result = dict(changed=False)  # type: dict
 
         if not requests:
-            self._fail_e(missing_required_lib('requests'), exception=REQUESTS_IMP_ERR)
+            self._fail_tb(missing_required_lib('requests'), REQUESTS_IMP_ERR)
 
         if not xmltodict:
-            self._fail_e(missing_required_lib('encoder'), exception=XMLTODICT_IMP_ERR)
+            self._fail_tb(missing_required_lib('encoder'), XMLTODICT_IMP_ERR)
 
         self._method = method  # type: str
         self._p = self.init_p()  # type: dict
@@ -479,7 +479,7 @@ class AnsibleCMCIModule(object):
         }
 
     def main(self):
-        response = self._do_request()  # type: requests.Response
+        response = self._do_request()  # type: Dict
         self.handle_response(response)
         self._module.exit_json(**self.result)
 
@@ -523,64 +523,58 @@ class AnsibleCMCIModule(object):
     def init_body(self):  # type: () -> Optional[Dict]
         return None
 
-    def handle_response(self, response):
-        # Try and parse the XML response body into a dict
-        content_type = response.headers.get('content-type')
-        # Content type header may include the encoding.  Just look at the first segment if so
-        content_type = content_type.split(';')[0]
-        if content_type != 'application/xml':
-            self._fail('CMCI request returned a non application/xml content type: {0}'.format(content_type))
-
-        # Missing content
-        if not response.content:
-            self._fail('CMCI response did not contain any data')
-
-        # Fail the task in the event of a CMCI error
+    def handle_response(self, response_dict):  # type: (Dict) -> None
         try:
-            # TODO: What exception do we actually get from this? Do I actually need to strip namespaces
-            namespaces = {
-                'http://www.ibm.com/xmlns/prod/CICS/smw2int': None,
-                'http://www.w3.org/2001/XMLSchema-instance': None
-            }  # namespace information
+            response_node = response_dict['response']
 
-            response_dict = xmltodict.parse(
-                response.content,
-                process_namespaces=True,
-                namespaces=namespaces,
-                # Make sure we always return a list for the resource node
-                force_list=(self._p.get(RESOURCE).get(TYPE),)
-            )
+            self.result['connect_version'] = response_node.get('@connect_version')
 
-            # Attached parsed xml to response
-            self.result['response']['body'] = response_dict
+            result_summary = response_node['resultsummary']
+            cpsm_response_code = int(result_summary['@api_response1'])
+            cpsm_response = result_summary['@api_response1_alt']
+            cpsm_reason = result_summary['@api_response2_alt']
+            cpsm_reason_code = int(result_summary['@api_response2'])
 
-            try:
-                result_summary = response_dict['response']['resultsummary']
-                cpsm_response = result_summary['@api_response1']
+            self.result['cpsm_response'] = cpsm_response
+            self.result['cpsm_response_code'] = cpsm_response_code
+            self.result['cpsm_reason'] = cpsm_reason
+            self.result['cpsm_reason_code'] = cpsm_reason_code
 
-                # Non-OK queries fail the module by default unless failure detection is turned off
-                if self._p.get(FAILURE_DETECTION):
-                    if cpsm_response != '1024':
-                        cpsm_response_alt = result_summary['@api_response1_alt']
-                        cpsm_reason = result_summary['@api_response2_alt']
-                        self._fail(
-                            'CMCI request failed with response "{0}" reason "{1}"'.format(cpsm_response_alt, cpsm_reason)
-                        )
+            if '@recordcount' in result_summary:
+                self.result['record_count'] = int(result_summary['@recordcount'])
 
-                if self._method != 'GET':
-                    self.result['changed'] = True
-            except KeyError as e:
-                # CMCI response parse error
-                self._fail('Could not parse CMCI response: missing node "{0}"'.format(e.args[0]))
+            if '@successcount' in result_summary:
+                self.result['success_count'] = int(result_summary['@successcount'])
 
-        except xmltodict.expat.ExpatError as e:
-            # Content couldn't be parsed as XML
-            # TODO: verbose log content if it couldn't be parsed?.  And maybe the other info from the ExpatError
-            self._fail_e('CMCI response XML document could not be successfully parsed: {0}'.format(e), e)
+            # TODO: maybe only allow this bit in results that will definitely include records
+            if 'records' in response_node:
+                records_node = response_node['records']
+                resource_type = self._p[RESOURCE][TYPE].lower()
+                if resource_type in records_node:
+                    records = records_node[resource_type]
+                    # Copy records in result, stripping @ from attributes
+                    self.result['records'] =\
+                        [
+                            {k[1:]: v for k, v in record.items()}
+                            for record in records
+                        ]
+
+            # Non-OK queries fail the module by default unless failure detection is turned off
+            if self._p.get(FAILURE_DETECTION):
+                if cpsm_response_code != 1024:
+                    self._fail('CMCI request failed with response "{0}" reason "{1}"'.format(
+                            cpsm_response, cpsm_reason if cpsm_reason else cpsm_response_code
+                    ))
+
+            if self._method != 'GET':
+                self.result['changed'] = True
+        except KeyError as e:
+            # CMCI response parse error
+            self._fail('Could not parse CMCI response: missing node "{0}"'.format(e.args[0]))
 
     def init_url(self):  # type: () -> str
         resource = self._p.get(RESOURCE)
-        t = resource.get(TYPE)
+        t = resource.get(TYPE).lower()
         security_type = self._p.get(SECURITY_TYPE)
 
         if security_type == 'none':
@@ -628,7 +622,7 @@ class AnsibleCMCIModule(object):
                 self._fail('HTTP setup error: cmci_user/cmci_password are required')
         return session  # type: requests.Session
 
-    def _do_request(self):  # type: () -> requests.Response
+    def _do_request(self):  # type: () -> Dict
         try:
             response = self._session.request(
                 self._method,
@@ -637,30 +631,67 @@ class AnsibleCMCIModule(object):
                 timeout=30,
                 data=self._body
             )
-            reason = response.reason if response.reason else response.status_code
 
-            self.result['response'] = {'status_code': response.status_code, 'reason': reason}
+            self.result['http_status_code'] = response.status_code
+            self.result['http_status'] = response.reason if response.reason else str(response.status_code)
+
+            # TODO: in OK responses CPSM sometimes returns error feedback information.
 
             # TODO: in non-OK responses CPSM returns a body with error information
             #  Can recreate this by supplying a malformed body with a create request.
             #  We should surface this error information somehow.  Not sure what content type we get.
             if response.status_code != 200:
-                self._fail('CMCI request returned non-OK status: {0}'.format(reason))
+                # TODO: <?xml version=\"1.0\" encoding=\"UTF-8\"?> \r\n<error message_id=\"DFHWU4007\" connect_version=
+                #  \"0560\">\r\n\t<title> 400 CICS management client interface HTTP Error</title>\r\n\t<short>An error
+                #  has occurred in the CICS management client interface. The request cannot be processed.</short>\r\n\t
+                #  <full> The body of the HTTP request was not specified correctly.</full> \r\n</error>
+                #  This sort of thing's probably relevant for warning count errors too
+                self._fail('CMCI request returned non-OK status: {0}'.format(self.result.get('http_status')))
 
-            return response
+            # Try and parse the XML response body into a dict
+            content_type = response.headers.get('content-type')
+            # Content type header may include the encoding.  Just look at the first segment if so
+            content_type = content_type.split(';')[0]
+            if content_type != 'application/xml':
+                self._fail('CMCI request returned a non application/xml content type: {0}'.format(content_type))
+
+            # Missing content
+            if not response.content:
+                self._fail('CMCI response did not contain any data')
+
+            namespaces = {
+                'http://www.ibm.com/xmlns/prod/CICS/smw2int': None,
+                'http://www.w3.org/2001/XMLSchema-instance': None
+            }  # namespace information
+
+            r = xmltodict.parse(
+                response.content,
+                process_namespaces=True,
+                namespaces=namespaces,
+                # Make sure we always return a list for the resource node
+                force_list=(self._p.get(RESOURCE).get(TYPE).lower(),)
+            )
+
+            return r
         except requests.exceptions.RequestException as e:
             cause = e
             if isinstance(cause, requests.exceptions.ConnectionError):
                 cause = cause.args[0]
             if isinstance(cause, requests.packages.urllib3.exceptions.MaxRetryError):
                 cause = cause.reason
-            self._fail_e('Error performing CMCI request: {0}'.format(cause), e)
+            self._fail_tb('Error performing CMCI request: {0}'.format(cause), traceback.format_exc())
+        except xmltodict.expat.ExpatError as e:
+            # Content couldn't be parsed as XML
+            self._fail_tb(
+                'CMCI response XML document could not be successfully parsed: {0}'.format(e),
+                traceback.format_exc()
+            )
 
     def _fail(self, msg):  # type: (str) -> None
         self._module.fail_json(msg=msg, **self.result)
 
-    def _fail_e(self, msg, exception):  # type: (str, Exception) -> None
-        self._module.fail_json(msg=msg, exception=exception, **self.result)
+    def _fail_tb(self, msg, tb):  # type: (str, str) -> None
+        self._module.fail_json(msg=msg, exception=tb, **self.result)
 
 
 def append_attributes_parameters_arguments(argument_spec):

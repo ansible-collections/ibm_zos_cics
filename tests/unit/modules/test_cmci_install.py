@@ -33,20 +33,12 @@ def test_csd_install(cmci_module):  # type: (CMCITestHelper) -> None
         ))
     )
 
-    cmci_module.expect({
-        'changed': True,
-        'request': {
-            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-                   'cicsdefinitionbundle/CICSEX56/IYCWEMW2?PARAMETER=CSDGROUP%28%2A%29',
-            'method': 'PUT',
-            'body': '<request><action name="CSDINSTALL"></action></request>'
-        },
-        'response': {
-            'body': create_records_response('cicsdefinitionbundle', [record]),
-            'reason': 'OK',
-            'status_code': 200,
-        }
-    })
+    cmci_module.expect(result(
+        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'cicsdefinitionbundle/CICSEX56/IYCWEMW2?PARAMETER=CSDGROUP%28%2A%29',
+        record,
+        '<request><action name="CSDINSTALL"></action></request>'
+    ))
 
     cmci_module.run(cmci_install, dict(
         cmci_host=HOST,
@@ -80,21 +72,11 @@ def test_bas_install(cmci_module):  # type: (CMCITestHelper) -> None
         ))
     )
 
-    cmci_module.expect({
-        'changed': True,
-        'request': {
-            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-                   'cicsdefinitionbundle/CICSEX56/',
-            'method': 'PUT',
-            'body': '<request><action name="INSTALL"></action></request>'
-        },
-        'response': {
-            'body':
-                create_records_response('cicsdefinitionbundle', [record]),
-            'reason': 'OK',
-            'status_code': 200,
-        }
-    })
+    cmci_module.expect(result(
+        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/',
+        record,
+        '<request><action name="INSTALL"></action></request>'
+    ))
 
     cmci_module.run(cmci_install, dict(
         cmci_host=HOST,
@@ -130,23 +112,13 @@ def test_install_csd_criteria_parameter(cmci_module):  # type: (CMCITestHelper) 
         ))
     )
 
-    cmci_module.expect({
-        'changed': True,
-        'request': {
-            'body':
-                '<request>'
-                '<action name="CSDINSTALL"></action>'
-                '</request>',
-            'method': 'PUT',
-            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram/'
-                   'CICSEX56/IYCWEMW2?CRITERIA=%28%28NAME%3DDUMMY%29%20AND%20%28DEFVER%3D0%29%20AND'
-                   '%20%28CSDGROUP%3DDUMMY%29%29&PARAMETER=CSDGROUP%28DUMMY%29'
-        },
-        'response': {
-            'body': create_records_response('cicsdefinitionprogram', [record]),
-            'reason': 'OK',
-            'status_code': 200}
-    })
+    cmci_module.expect(result(
+        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram/'
+        'CICSEX56/IYCWEMW2?CRITERIA=%28%28NAME%3DDUMMY%29%20AND%20%28DEFVER%3D0%29%20AND'
+        '%20%28CSDGROUP%3DDUMMY%29%29&PARAMETER=CSDGROUP%28DUMMY%29',
+        record,
+        '<request><action name="CSDINSTALL"></action></request>'
+    ))
 
     cmci_module.run(cmci_install, dict(
         cmci_host=HOST,
@@ -161,3 +133,23 @@ def test_install_csd_criteria_parameter(cmci_module):  # type: (CMCITestHelper) 
         criteria="((NAME=DUMMY) AND (DEFVER=0) AND (CSDGROUP=DUMMY))",
         parameter='CSDGROUP(DUMMY)'
     ))
+
+
+def result(url, record, body):
+    return {
+        'changed': True,
+        'connect_version': '0560',
+        'cpsm_reason': '',
+        'cpsm_reason_code': 0,
+        'cpsm_response': 'OK',
+        'cpsm_response_code': 1024,
+        'http_status': 'OK',
+        'http_status_code': 200,
+        'request': {
+            'url': url,
+            'method': 'PUT',
+            'body': body
+        },
+        'records': [record],
+        'record_count': 1
+    }

@@ -8,7 +8,7 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_get
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
-    HOST, PORT, CONTEXT, SCOPE, create_records_response, AnsibleFailJson,
+    HOST, PORT, CONTEXT, SCOPE, AnsibleFailJson,
     set_module_args, exit_json, fail_json, cmci_module, CMCITestHelper
 )
 from ansible.module_utils import basic
@@ -40,13 +40,14 @@ def test_401_fails(cmci_module):  # type: (CMCITestHelper) -> None
         'msg': 'CMCI request returned non-OK status: Not authorized',
         'changed': False,
         'failed': True,
+        'http_status': 'Not authorized',
+        'http_status_code': 401,
         'request': {
             'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-                   'CICSDefinitionBundle/CICPY012/',
+                   'cicsdefinitionbundle/CICPY012/',
             'method': 'GET',
             'body': None
-        },
-        'response': {'reason': 'Not authorized', 'status_code': 401}
+        }
     })
 
     # Module config
@@ -228,20 +229,10 @@ def test_auth(cmci_module):  # type: (CMCITestHelper) -> None
         scheme='https'
     )
 
-    cmci_module.expect({
-        'changed': False,
-        'request': {
-            'url': 'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-                   'cicslocalfile/CICSEX56/IYCWEMW2',
-            'method': 'GET',
-            'body': None
-        },
-        'response': {
-            'body': create_records_response('cicslocalfile', records),
-            'reason': 'OK',
-            'status_code': 200,
-        }
-    })
+    cmci_module.expect(result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56/IYCWEMW2',
+        records=records
+    ))
 
     cmci_module.run(cmci_get, {
         'cmci_host': HOST,
@@ -262,20 +253,10 @@ def test_ok_context_scope(cmci_module):  # type: (CMCITestHelper) -> None
     ]
     cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE)
 
-    cmci_module.expect({
-        'changed': False,
-        'request': {
-            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-                   'cicslocalfile/CICSEX56/IYCWEMW2',
-            'method': 'GET',
-            'body': None
-        },
-        'response': {
-            'body': create_records_response('cicslocalfile', records),
-            'reason': 'OK',
-            'status_code': 200,
-        }
-    })
+    cmci_module.expect(result(
+        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56/IYCWEMW2',
+        records=records
+    ))
 
     cmci_module.run(cmci_get, {
         'cmci_host': HOST,
@@ -290,20 +271,10 @@ def test_ok_context_scope_single_record(cmci_module):  # type: (CMCITestHelper) 
     records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
     cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE)
 
-    cmci_module.expect({
-        'changed': False,
-        'request': {
-            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-                   'cicslocalfile/CICSEX56/IYCWEMW2',
-            'method': 'GET',
-            'body': None
-        },
-        'response': {
-            'body': create_records_response('cicslocalfile', records),
-            'reason': 'OK',
-            'status_code': 200,
-        }
-    })
+    cmci_module.expect(result(
+        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56/IYCWEMW2',
+        records=records
+    ))
 
     cmci_module.run(cmci_get, {
         'cmci_host': HOST,
@@ -331,20 +302,10 @@ def test_ok_context_scope_jvmserver_header(cmci_module):  # type: (CMCITestHelpe
         }
     )
 
-    cmci_module.expect({
-        'changed': False,
-        'request': {
-            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-                   'cicslocalfile/CICSEX56/IYCWEMW2',
-            'method': 'GET',
-            'body': None
-        },
-        'response': {
-            'body': create_records_response('cicslocalfile', records),
-            'reason': 'OK',
-            'status_code': 200,
-        }
-    })
+    cmci_module.expect(result(
+        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56/IYCWEMW2',
+        records=records
+    ))
 
     cmci_module.run(cmci_get, {
         'cmci_host': HOST,
@@ -359,20 +320,11 @@ def test_query_criteria(cmci_module):  # type: (CMCITestHelper) -> None
     records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
     cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE,  parameters='?CRITERIA=FOO%3DBAR')
 
-    cmci_module.expect({
-        'changed': False,
-        'request': {
-            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-                   'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=FOO%3DBAR',
-            'method': 'GET',
-            'body': None
-        },
-        'response': {
-            'body': create_records_response('cicslocalfile', records),
-            'reason': 'OK',
-            'status_code': 200,
-        }
-    })
+    cmci_module.expect(result(
+        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=FOO%3DBAR',
+        records=records
+    ))
 
     cmci_module.run(cmci_get, {
         'cmci_host': HOST,
@@ -394,20 +346,11 @@ def test_query_parameter(cmci_module):  # type: (CMCITestHelper) -> None
         parameters='?PARAMETER=CSDGROUP%28%2A%29'
     )
 
-    cmci_module.expect({
-        'changed': False,
-        'request': {
-            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-                   'cicsdefinitionfile/CICSEX56/IYCWEMW2?PARAMETER=CSDGROUP%28%2A%29',
-            'method': 'GET',
-            'body': None
-        },
-        'response': {
-            'body': create_records_response('cicsdefinitionfile', records),
-            'reason': 'OK',
-            'status_code': 200,
-        }
-    })
+    cmci_module.expect(result(
+        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'cicsdefinitionfile/CICSEX56/IYCWEMW2?PARAMETER=CSDGROUP%28%2A%29',
+        records=records
+    ))
 
     cmci_module.run(cmci_get, {
         'cmci_host': HOST,
@@ -430,20 +373,11 @@ def test_query_parameter_criteria(cmci_module):  # type: (CMCITestHelper) -> Non
         parameters='?CRITERIA=FOO%3DBAR&PARAMETER=CSDGROUP%28%2A%29'
     )
 
-    cmci_module.expect({
-        'changed': False,
-        'request': {
-            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-                   'cicsdefinitionfile/CICSEX56/IYCWEMW2?CRITERIA=FOO%3DBAR&PARAMETER=CSDGROUP%28%2A%29',
-            'method': 'GET',
-            'body': None
-        },
-        'response': {
-            'body': create_records_response('cicsdefinitionfile', records),
-            'reason': 'OK',
-            'status_code': 200,
-        }
-    })
+    cmci_module.expect(result(
+        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'cicsdefinitionfile/CICSEX56/IYCWEMW2?CRITERIA=FOO%3DBAR&PARAMETER=CSDGROUP%28%2A%29',
+        records=records
+    ))
 
     cmci_module.run(cmci_get, {
         'cmci_host': HOST,
@@ -461,20 +395,10 @@ def test_ok_context_record_count(cmci_module):  # type: (CMCITestHelper) -> None
 
     cmci_module.stub_records('GET', 'cicslocalfile', records, record_count=1)
 
-    cmci_module.expect({
-        'changed': False,
-        'request': {
-            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-                   'cicslocalfile/CICSEX56///1',
-            'method': 'GET',
-            'body': None
-        },
-        'response': {
-            'body': create_records_response('cicslocalfile', records),
-            'reason': 'OK',
-            'status_code': 200,
-        }
-    })
+    cmci_module.expect(result(
+        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56///1',
+        records=records
+    ))
 
     cmci_module.run(cmci_get, {
         'cmci_host': HOST,
@@ -483,3 +407,23 @@ def test_ok_context_record_count(cmci_module):  # type: (CMCITestHelper) -> None
         'record_count': 1,
         'resource': {'type': 'cicslocalfile'},
     })
+
+
+def result(url, records, http_status='OK', http_status_code=200):
+    return {
+        'changed': False,
+        'connect_version': '0560',
+        'cpsm_reason': '',
+        'cpsm_reason_code': 0,
+        'cpsm_response': 'OK',
+        'cpsm_response_code': 1024,
+        'http_status': http_status,
+        'http_status_code': http_status_code,
+        'record_count': len(records),
+        'records': records,
+        'request': {
+            'url': url,
+            'method': 'GET',
+            'body': None
+        }
+    }
