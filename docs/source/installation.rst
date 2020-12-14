@@ -6,7 +6,27 @@ Installation
 ============
 You can install the **IBM z/OS CICS collection** from Ansible Galaxy, a custom Galaxy server, or a local build, using the `ansible-galaxy`_ command.
 
-.. note:: Python module dependencies are not installed with the collection. To use the collection, you must also install Python dependencies as described in `Installing Python dependencies`_.
+.. note:: Python module dependencies are not installed with the collection. To use the collection, you must install Python dependencies where the task will be running, in our case, the control node. See `Installing Python dependencies`_.
+
+Installing Python dependencies
+-------------------------------
+You can use the supplied ``requirements`` file to install the dependencies:
+
+.. code-block:: sh
+
+   pip install requirements.txt
+
+
+.. this is a placeholder, no requirements file created yet.
+
+If you want to install the dependencies manually, here are the requirements of the control node:
+
+* `Ansible version`_: 2.9 or later
+
+.. _Ansible version:
+   https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html
+
+
 
 Installing from Ansible Galaxy
 ------------------------------
@@ -14,7 +34,7 @@ Install the CICS collection from CLI:
 
 .. code-block:: sh
 
-   $ ansible-galaxy collection install ibm.cics_zos_cics
+   $ ansible-galaxy collection install ibm.ibm_zos_cics
 
 
 ..
@@ -32,13 +52,7 @@ You'll see some output like this in the console:
    Starting collection install process
    Installing 'ibm.ibm_zos_cics:1.0.0' to '/Users/user/.ansible/collections/ansible_collections/ibm/cics'
 
-By default, collections are installed in ``~/.ansible/collections``. To specify another installation path, use the ``-p`` option:
-
-.. code-block:: sh
-
-   $ ansible-galaxy collection install ibm.ibm_zos_cics -p /home/myAnsible/collections
-
-After installation, the collection content will resemble this hierarchy: :
+By default, collections are installed in ``~/.ansible/collections``. After installation, the collection content will resemble this hierarchy: :
 
 .. code-block:: sh
 
@@ -54,7 +68,8 @@ After installation, the collection content will resemble this hierarchy: :
    │                  ├── modules/
 
 
-You can also install the collection using a playbook, see `installing collections`_.
+
+To install with customization, such as specifying another installation path or using a playbook, see `installing collections`_.
 
 .. _installing collections:
    https://docs.ansible.com/ansible/latest/user_guide/collections_using.html#installing-collections-with-ansible-galaxy
@@ -103,12 +118,8 @@ To build a collection from the Git repository:
          Starting collection install process
          Installing 'ibm.ibm_zos_cics:1.0.0' to '/Users/user/.ansible/collections/ansible_collections/ibm/ibm_zos_cics'
 
-      You can also use the ``-p`` option with ``ansible-galaxy`` to specify the
-      installation path:
+      To install with customization, such as specifying another installation path or using a playbook, see `installing collections`_.
 
-      .. code-block:: sh
-
-         ansible-galaxy collection install ibm-ibm_zos_cics-1.0.0.tar.gz -p /home/myAnsible/collections
 
 
 
@@ -139,21 +150,3 @@ Instructions on how to configure the server list in ``ansible.cfg`` can be found
    https://docs.ansible.com/ansible/latest/reference_appendices/config.html
 
 
-Installing Python dependencies
--------------------------------
-
-Install Python module dependencies using ``pip``:
-
-.. code-block:: sh
-
-   pip install
-
-
-You can also use the supplied ``requirements`` file to install the dependencies:
-
-.. code-block:: sh
-
-   pip install requirements.txt
-
-
-.. this is a placeholder, no requirements file created yet.
