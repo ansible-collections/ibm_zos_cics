@@ -65,11 +65,13 @@
           type: 'CICSDefinitionProgram'
         criteria: "NAME='{{ program }}' AND CSDGROUP='{{ csdgroup }}'"
         parameter: 'CSDGROUP({{ csdgroup }})'
-        failure_detection: False
       register: result
-      failed_when:
-        - result.cpsm_response != 'OK'
-        - result.cpsm_response != 'NODATA'
+      failed_when: >
+        'cpsm_response' not in result or
+        (
+          result.cpsm_response != 'OK' and
+          result.cpsm_response != 'NODATA'
+        )
 
 
     - name: 'create progdef'

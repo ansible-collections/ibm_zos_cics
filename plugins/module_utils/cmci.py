@@ -382,7 +382,6 @@ ATTRIBUTES = 'attributes'
 PARAMETERS = 'parameters'
 NAME = 'name'
 VALUE = 'value'
-FAILURE_DETECTION = 'failure_detection'
 
 
 class AnsibleCMCIModule(object):
@@ -422,11 +421,6 @@ class AnsibleCMCIModule(object):
 
     def init_argument_spec(self):  # type: () -> Dict
         return {
-            FAILURE_DETECTION: {
-                'required': False,
-                'type': bool,
-                'default': True
-            },
             CMCI_HOST: {
                 'required': True,
                 'type': 'str'
@@ -559,12 +553,11 @@ class AnsibleCMCIModule(object):
                             for record in records
                         ]
 
-            # Non-OK queries fail the module by default unless failure detection is turned off
-            if self._p.get(FAILURE_DETECTION):
-                if cpsm_response_code != 1024:
-                    self._fail('CMCI request failed with response "{0}" reason "{1}"'.format(
-                            cpsm_response, cpsm_reason if cpsm_reason else cpsm_response_code
-                    ))
+            # Non-OK CPSM responses fail the module
+            if cpsm_response_code != 1024:
+                self._fail('CMCI request failed with response "{0}" reason "{1}"'.format(
+                        cpsm_response, cpsm_reason if cpsm_reason else cpsm_response_code
+                ))
 
             if self._method != 'GET':
                 self.result['changed'] = True
