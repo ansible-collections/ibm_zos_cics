@@ -67,11 +67,7 @@
         parameter: 'CSDGROUP({{ csdgroup }})'
       register: result
       failed_when: >
-        'cpsm_response' not in result or
-        (
-          result.cpsm_response != 'OK' and
-          result.cpsm_response != 'NODATA'
-        )
+        'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
 
     - name: 'create progdef'

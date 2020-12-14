@@ -672,7 +672,9 @@ class AnsibleCMCIModule(object):
                 cause = cause.args[0]
             if isinstance(cause, requests.packages.urllib3.exceptions.MaxRetryError):
                 cause = cause.reason
-            self._fail_tb('Error performing CMCI request: {0}'.format(cause), traceback.format_exc())
+            # Can't use self._fail_tb here, because we'll end up with tb for RequestException, not the cause
+            #  which invalidates our attempts to clean up the message
+            self._fail('Error performing CMCI request: {0}'.format(cause))
         except xmltodict.expat.ExpatError as e:
             # Content couldn't be parsed as XML
             self._fail_tb(
