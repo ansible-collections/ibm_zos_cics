@@ -37,9 +37,8 @@ def test_csd_install(cmci_module):  # type: (CMCITestHelper) -> None
         'changed': True,
         'request': {
             'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-                   'cicsdefinitionbundle/CICSEX56/IYCWEMW2',
+                   'cicsdefinitionbundle/CICSEX56/IYCWEMW2?PARAMETER=CSDGROUP%28%2A%29',
             'method': 'PUT',
-            'params': {'PARAMETER': 'CSDGROUP(*)'},
             'body': '<request><action name="CSDINSTALL"></action></request>'
         },
         'response': {
@@ -109,8 +108,6 @@ def test_bas_install(cmci_module):  # type: (CMCITestHelper) -> None
 
 
 def test_install_csd_criteria_parameter(cmci_module):  # type: (CMCITestHelper) -> None
-    # TODO: The parameters field for criteria is intentionally stubbing a bad request here. The "+'s" will be
-    # removed in a future fix
     record = dict(
         changeagent='CSDAPI',
         changeagrel='0730',
@@ -141,11 +138,9 @@ def test_install_csd_criteria_parameter(cmci_module):  # type: (CMCITestHelper) 
                 '<action name="CSDINSTALL"></action>'
                 '</request>',
             'method': 'PUT',
-            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram/CICSEX56/IYCWEMW2',
-            'params': {
-                'PARAMETER': 'CSDGROUP(DUMMY)',
-                'CRITERIA': '((NAME=DUMMY) AND (DEFVER=0) AND (CSDGROUP=DUMMY))'
-            }
+            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram/'
+                   'CICSEX56/IYCWEMW2?CRITERIA=%28%28NAME%3DDUMMY%29%20AND%20%28DEFVER%3D0%29%20AND'
+                   '%20%28CSDGROUP%3DDUMMY%29%29&PARAMETER=CSDGROUP%28DUMMY%29'
         },
         'response': {
             'body': create_records_response('cicsdefinitionprogram', [record]),

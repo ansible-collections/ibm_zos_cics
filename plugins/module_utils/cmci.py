@@ -6,6 +6,7 @@ __metaclass__ = type
 
 from ansible.module_utils.basic import AnsibleModule, missing_required_lib, env_fallback
 from typing import Optional, Dict
+from urllib.parse import urlencode, quote
 import re
 import traceback
 
@@ -381,6 +382,7 @@ ATTRIBUTES = 'attributes'
 PARAMETERS = 'parameters'
 NAME = 'name'
 VALUE = 'value'
+FAILURE_DETECTION = 'failure_detection'
 
 
 class AnsibleCMCIModule(object):
@@ -404,27 +406,34 @@ class AnsibleCMCIModule(object):
         body_dict = self.init_body()
         self._body = xmltodict.unparse(self.init_body(), full_document=False) if body_dict else None  # type: str
 
+        request_params = self.init_request_params()
+        if request_params:
+            self._url = self._url +\
+                        "?" +\
+                        urlencode(requests.utils.to_key_val_list(request_params), quote_via=quote)
+
         result_request = {
             'url': self._url,
             'method': self._method,
             'body': self._body
         }
 
-        self._request_params = self.init_request_params()
-        if self._request_params:
-            result_request['params'] = self._request_params
-
         self.result['request'] = result_request
 
     def init_argument_spec(self):  # type: () -> Dict
         return {
+            FAILURE_DETECTION: {
+                'required': False,
+                'type': bool,
+                'default': True
+            },
             CMCI_HOST: {
                 'required': True,
                 'type': 'str'
             },
             CMCI_PORT: {
                 'required': True,
-                'type': 'str'
+                'type': int
             },
             CMCI_USER: {
                 'type': 'str',
@@ -484,11 +493,11 @@ class AnsibleCMCIModule(object):
             'an IP address or host name.'
         )
 
-        self.validate(
-            CMCI_PORT,
-            '^([0-9]|[1-9]\\d{1,3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$',
-            "a port number 0-65535."
-        )
+        port = self._module.params.get(CMCI_PORT)
+        if port < 0 or port > 65535:
+            self._fail(
+                'Parameter "{0}" with value "{1}" was not valid.  Expected a port number 0-65535.'
+                .format(CMCI_PORT, str(port)))
 
         self.validate(
             CONTEXT,
@@ -509,7 +518,7 @@ class AnsibleCMCIModule(object):
         if value:
             pattern = re.compile(regex)
             if not pattern.fullmatch(value):
-                self._fail('Parameter "{0}" with value "{1} was not valid.  Expected {2}'.format(name, value, message))
+                self._fail('Parameter "{0}" with value "{1}" was not valid.  Expected {2}'.format(name, value, message))
 
     def init_body(self):  # type: () -> Optional[Dict]
         return None
@@ -549,13 +558,14 @@ class AnsibleCMCIModule(object):
                 result_summary = response_dict['response']['resultsummary']
                 cpsm_response = result_summary['@api_response1']
 
-                # Non-OK queries fail the module, except if we get NODATA on a query, when there are no records
-                if cpsm_response != '1024' and not (self._method == 'query' and cpsm_response == '1027'):
-                    cpsm_response_alt = result_summary['@api_response1_alt']
-                    cpsm_reason = result_summary['@api_response2_alt']
-                    self._fail(
-                        'CMCI request failed with response "{0}" reason "{1}"'.format(cpsm_response_alt, cpsm_reason)
-                    )
+                # Non-OK queries fail the module by default unless failure detection is turned off
+                if self._p.get(FAILURE_DETECTION):
+                    if cpsm_response != '1024':
+                        cpsm_response_alt = result_summary['@api_response1_alt']
+                        cpsm_reason = result_summary['@api_response2_alt']
+                        self._fail(
+                            'CMCI request failed with response "{0}" reason "{1}"'.format(cpsm_response_alt, cpsm_reason)
+                        )
 
                 if self._method != 'GET':
                     self.result['changed'] = True
@@ -577,7 +587,7 @@ class AnsibleCMCIModule(object):
             scheme = 'http://'
         else:
             scheme = 'https://'
-        url = scheme + self._p.get(CMCI_HOST) + ':' + self._p.get(CMCI_PORT) + '/CICSSystemManagement/'\
+        url = scheme + self._p.get(CMCI_HOST) + ':' + str(self._p.get(CMCI_PORT)) + '/CICSSystemManagement/'\
             + t + '/' + self._p.get(CONTEXT) + '/'
         if self._p.get(SCOPE):
             url = url + self._p.get(SCOPE)
@@ -585,7 +595,6 @@ class AnsibleCMCIModule(object):
         return url
 
     def init_request_params(self):  # type: () -> Optional[Dict[str, str]]
-        # TODO: spaces in parameters get encoded as + rather than %20 which CMCI doesn't like
         return None
 
     def get_criteria_parameter_request_params(self):  # type: () -> Dict[str, str]
@@ -626,15 +635,15 @@ class AnsibleCMCIModule(object):
                 self._url,
                 verify=False,
                 timeout=30,
-                data=self._body,
-                params=self._request_params)
+                data=self._body
+            )
             reason = response.reason if response.reason else response.status_code
 
             self.result['response'] = {'status_code': response.status_code, 'reason': reason}
 
             # TODO: in non-OK responses CPSM returns a body with error information
-            # Can recreate this by supplying a malformed body with a create request.
-            # We should surface this error information somehow.  Not sure what content type we get.
+            #  Can recreate this by supplying a malformed body with a create request.
+            #  We should surface this error information somehow.  Not sure what content type we get.
             if response.status_code != 200:
                 self._fail('CMCI request returned non-OK status: {0}'.format(reason))
 

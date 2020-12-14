@@ -54,13 +54,9 @@ def test_delete_criteria(cmci_module):  # type: (CMCITestHelper) -> None
 
     cmci_module.expect(
         result(
-            'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/',
-            1,
-            other_request={
-                'params': {
-                    'CRITERIA': 'FOO=BAR'
-                }
-            }
+            'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+            'cicsdefinitionbundle/CICSEX56/?CRITERIA=FOO%3DBAR',
+            1
         )
     )
 
@@ -78,13 +74,9 @@ def test_delete_parameter(cmci_module):  # type: (CMCITestHelper) -> None
 
     cmci_module.expect(
         result(
-            'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/',
-            1,
-            other_request={
-                'params': {
-                    'PARAMETER': 'CSDGROUP(*)'
-                }
-            }
+            'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+            'cicsdefinitionbundle/CICSEX56/?PARAMETER=CSDGROUP%28%2A%29',
+            1
         )
     )
 
@@ -106,14 +98,9 @@ def test_delete_criteria_parameter(cmci_module):  # type: (CMCITestHelper) -> No
 
     cmci_module.expect(
         result(
-            'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/',
-            1,
-            other_request={
-                'params': {
-                    'CRITERIA': 'FOO=BAR',
-                    'PARAMETER': 'CSDGROUP(*)'
-                }
-            }
+            'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+            'cicsdefinitionbundle/CICSEX56/?CRITERIA=FOO%3DBAR&PARAMETER=CSDGROUP%28%2A%29',
+            1
         )
     )
 
@@ -127,14 +114,13 @@ def test_delete_criteria_parameter(cmci_module):  # type: (CMCITestHelper) -> No
     })
 
 
-def result(url, success_count, other_request={}):
+def result(url, success_count):
     return {
         'changed': True,
         'request': {
             'url': url,
             'method': 'DELETE',
-            'body': None,
-            **other_request
+            'body': None
         },
         'response': {
             'body': create_delete_response(success_count),
