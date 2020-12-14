@@ -6,17 +6,30 @@ IBM z/OS CICS collection
 ========================
 
 The **IBM z/OS CICS collection**, also represented as **ibm\_zos\_cics**
-in this document, is part of the broader offering **Red Hat® Ansible
-Certified Content for IBM Z**. The IBM z/OS CICS collection supports tasks
-such as operating CICS resources, operating CICS system definition (CSD) files, initializing CICS catalogs,
-and processing CICS catalogs.
+in this document, provides tasks to define, install, and perform actions on CICS resources such as creating a PROGRAM definition, installing and updating it, and deleting the definition.
 
-The **IBM z/OS CICS collection** works closely with offerings such as the 
-`IBM z/OS core collection`_ to deliver a solution that will enable you to 
-automate tasks on z/OS.
+The **IBM z/OS CICS collection** can work independently from other IBM z/OS modules on Ansible to perform tasks in CICS. You can, however, to use it in conjunction with the `IBM z/OS core collection`_ to achieve more automation on z/OS. If you do that, always refer to their documentation for extra configuration needed.
 
 .. _IBM z/OS core collection:
    https://github.com/ansible-collections/ibm_zos_core
+
+Included content
+================
+
+The IBM z/OS CICS collection includes modules, sample playbooks, and ansible-doc to automate tasks against CICS resources and definitions.
+
+.. toctree::
+   :maxdepth: 3
+
+   modules
+   playbooks
+
+
+.. _modules:
+    https://github.com/ansible-collections/ibm_zos_cics/tree/master/plugins/modules/
+.. _sample playbooks:
+    https://github.com/ansible-collections/ibm_zos_cics/tree/master/playbooks/
+
 
 Red Hat Ansible Certified Content for IBM Z
 ===========================================
@@ -31,20 +44,6 @@ easy-to-use platform.
 **The IBM z/OS CICS collection**, as part of the broader offering
 **Red Hat® Ansible Certified Content for IBM Z**, is available on Galaxy as 
 community supported.
-
-Features
-========
-
-The IBM z/OS CICS collection includes `modules`_, 
-`sample playbooks`_, and ansible-doc to automate tasks on z/OS.
-
-
-.. _action plugins:
-   https://github.com/ansible-collections/ibm_zos_cics/tree/master/plugins/action/
-.. _modules:
-    https://github.com/ansible-collections/ibm_zos_cics/tree/master/plugins/modules/
-.. _sample playbooks:
-    https://github.com/ansible-collections/ibm_zos_cics/tree/master/playbooks/
 
 
 
@@ -66,13 +65,6 @@ This collection is licensed under `Apache License, Version 2.0`_.
    :caption: Getting Started
 
    installation
-
-.. toctree::
-   :maxdepth: 3
-   :caption: Reference
-
-   modules
-   playbooks
 
 .. toctree::
    :maxdepth: 1
