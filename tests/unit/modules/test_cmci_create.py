@@ -50,13 +50,15 @@ def test_csd_create(cmci_module):  # type: (CMCITestHelper) -> None
                     '<attributes name="bar" bundledir="/u/bundles/bloop" csdgroup="bat"></attributes>'
                     '</create></request>'
         },
-        'response': {
-            'body': create_records_response(
-                'cicsdefinitionbundle', [record]
-            ),
-            'reason': 'OK',
-            'status_code': 200,
-        }
+        'connect_version': '0560',
+        'cpsm_reason': '',
+        'cpsm_reason_code': 0,
+        'cpsm_response': 'OK',
+        'cpsm_response_code': 1024,
+        'http_status': 'OK',
+        'http_status_code': 200,
+        'record_count': 1,
+        'records': [record]
     })
 
     cmci_module.run(cmci_create, dict(

@@ -117,14 +117,18 @@ def test_delete_criteria_parameter(cmci_module):  # type: (CMCITestHelper) -> No
 def result(url, success_count):
     return {
         'changed': True,
+        'connect_version': '0560',
+        'cpsm_reason': '',
+        'cpsm_reason_code': 0,
+        'cpsm_response': 'OK',
+        'cpsm_response_code': 1024,
+        'http_status': 'OK',
+        'http_status_code': 200,
+        'record_count': 1,
         'request': {
             'url': url,
             'method': 'DELETE',
             'body': None
         },
-        'response': {
-            'body': create_delete_response(success_count),
-            'reason': 'OK',
-            'status_code': 200,
-        }
+        'success_count': success_count
     }
