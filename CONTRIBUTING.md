@@ -122,7 +122,7 @@ ansible-test units --python=3.8
 
 #### Run Integration Tests
 
-You can also use the `ansible-test` command to run all of the integration test:
+You can also use the `ansible-test` command to run all of the integration tests:
 
 ```
 # Run integration tests
