@@ -1,5 +1,4 @@
 # Copyright (c) IBM Corporation 2019, 2020
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
-ansible==2.9.6
 requests==2.23.0
 xmltodict==0.12.0
