@@ -94,7 +94,7 @@ tooling requires you to clone the repository to a pretty specific path.  As an e
 ```
 
 `ansible-test` requires your project to exist in a FQCN-compatible folder structure following the Ansible Collections
-conventions.  For details, see [this issue](https://github.com/ansible/ansible/issues/60215) 
+conventions.  For details, see [this issue](https://github.com/ansible/ansible/issues/60215).
 
 ### Create a new virtual environment
 
