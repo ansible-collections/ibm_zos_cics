@@ -86,7 +86,7 @@ If you haven't signed each commit, then the pull request will fail to pass all c
 Development Environment Set-Up Instructions
 ===================
 
-This repository contains an Ansible colleciton, which is tested using `ansible-test`.  This combination of development
+This repository contains an Ansible collection, which is tested using `ansible-test`.  This combination of development
 tooling requires you to clone the repository to a pretty specific path.  As an example, clone the repository to:
 
 ```
