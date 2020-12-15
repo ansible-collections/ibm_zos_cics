@@ -344,32 +344,114 @@ Return Values
       
       
                               
-       url
-        | The cmci url that been composed
-      
-        | **returned**: always
-        | **type**: str
-      
-      
-                              
-       api_response
-        | Indicate if the cmci request been issued successfully or not
-      
-        | **returned**: always
-        | **type**: str
-      
-      
-                              
-       response
-        | The response of cmci request
+       connect_version
+        | Version of the CMCI API
       
         | **returned**: success
-        | **type**: dict      
+        | **type**: str
+      
+      
+                              
+       cpsm_reason
+        | Character value of the CPSM API reason code returned.  For a list of reason values provided by each API command, see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kr.html)
+      
+        | **returned**: success
+        | **type**: str
+      
+      
+                              
+       cpsm_reason_code
+        | Numeric value of the CPSM API reason code returned.  For a list of numeric values see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ks.html)
+      
+        | **returned**: success
+        | **type**: int
+      
+      
+                              
+       cpsm_response
+        | Character value of the CPSM API response code returned.  For a list of response values provided by each API command, see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kr.html)
+      
+        | **returned**: success
+        | **type**: str
+      
+      
+                              
+       cpsm_response_code
+        | Numeric value of the CPSM API response code returned.  For a list of numeric values see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ks.html)
+      
+        | **returned**: success
+        | **type**: str
+      
+      
+                              
+       http_status
+        | Message associated with HTTP status code returned by CMCI
+      
+        | **returned**: success
+        | **type**: str
+      
+      
+                              
+       http_status_code
+        | HTTP status code returned by CMCI
+      
+        | **returned**: success
+        | **type**: int
+      
+      
+                              
+       record_count
+        | Number of records returned
+      
+        | **returned**: success
+        | **type**: int
+      
+      
+                              
+       records
+        | A list of the returned records
+      
+        | **returned**: success
+        | **type**: list      
         | **sample**:
 
               .. code-block::
 
-                       {"records": {"cicsdefinitionlibrary": {"_keydata": "D7D6D5C74040404000D1E5D4C7D9D74040", "changeagent": "CSDAPI", "changeagrel": "0710", "changetime": "2020-06-16T10:40:50.000000+00:00", "changeusrid": "CICSUSER", "createtime": "2020-06-16T10:40:50.000000+00:00", "critical": "NO", "csdgroup": "JVMGRP", "defver": "0", "desccodepage": "0", "description": "", "dsname01": "XIAOPIN.PONG.LOADLIB", "dsname02": "", "dsname03": "", "dsname04": "", "dsname05": "", "dsname06": "", "dsname07": "", "dsname08": "", "dsname09": "", "dsname10": "", "dsname11": "", "dsname12": "", "dsname13": "", "dsname14": "", "dsname15": "", "dsname16": "", "name": "PONG", "ranking": "50", "status": "ENABLED", "userdata1": "", "userdata2": "", "userdata3": ""}}, "resultsummary": {"api_response1": "1024", "api_response1_alt": "OK", "api_response2": "0", "api_response2_alt": "", "displayed_recordcount": "1", "recordcount": "1"}}
+                       [{"_keydata": "C1D5E2C9E3C5E2E3", "aloadtime": "00:00:00.000000", "apist": "CICSAPI", "application": "", "applmajorver": "-1", "applmicrover": "-1", "applminorver": "-1", "basdefinever": "0", "cedfstatus": "CEDF", "changeagent": "CSDAPI", "changeagrel": "0730", "changetime": "2020-12-15T02:34:31.000000+00:00", "changeusrid": "YQCHEN", "coboltype": "NOTAPPLIC", "concurrency": "QUASIRENT", "copy": "NOTREQUIRED", "currentloc": "NOCOPY", "datalocation": "ANY", "definesource": "ANSITEST", "definetime": "2020-12-15T02:34:29.000000+00:00", "dynamstatus": "NOTDYNAMIC", "entrypoint": "FF000000", "execkey": "USEREXECKEY", "executionset": "FULLAPI", "eyu_cicsname": "IYCWEMW2", "eyu_cicsrel": "E730", "eyu_reserved": "0", "fetchcnt": "0", "fetchtime": "00:00:00.000000", "holdstatus": "NOTAPPLIC", "installagent": "CSDAPI", "installtime": "2020-12-15T02:34:33.000000+00:00", "installusrid": "YQCHEN", "jvmclass": "", "jvmserver": "", "language": "NOTDEFINED", "length": "0", "library": "", "librarydsn": "", "loadpoint": "FF000000", "lpastat": "NOTAPPLIC", "newcopycnt": "0", "operation": "", "pgrjusecount": "0", "platform": "", "program": "ANSITEST", "progtype": "PROGRAM", "remotename": "", "remotesystem": "", "removecnt": "0", "rescount": "0", "residency": "NONRESIDENT", "rloading": "0.000", "rplid": "0", "rremoval": "0.000", "runtime": "UNKNOWN", "ruse": "0.000", "sharestatus": "PRIVATE", "status": "DISABLED", "transid": "", "useagelstat": "0", "usecount": "0", "usefetch": "0.000"}]
             
+      
+      
+                              
+       request
+        | Information about the request that was made to CMCI
+      
+        | **returned**: success
+        | **type**: dict
+              
+   
+                              
+        body
+          | The XML body sent with the request, if any
+      
+          | **returned**: success
+          | **type**: str
+      
+      
+                              
+        method
+          | The HTTP method used for the request
+      
+          | **returned**: success
+          | **type**: str
+      
+      
+                              
+        url
+          | The URL used for the request
+      
+          | **returned**: success
+          | **type**: str
+      
+        
       
         
