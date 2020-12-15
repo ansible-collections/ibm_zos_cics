@@ -62,8 +62,9 @@
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_delete:
         type: 'CICSDefinitionProgram'
-        criteria: "NAME='{{ program }}' AND CSDGROUP='{{ csdgroup }}'"
-        parameter: 'CSDGROUP({{ csdgroup }})'
+        resources:
+          criteria: "NAME='{{ program }}' AND CSDGROUP='{{ csdgroup }}'"
+          parameter: 'CSDGROUP({{ csdgroup }})'
       register: result
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
@@ -73,12 +74,11 @@
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_create:
         type: 'CICSDefinitionProgram'
-        resource:
-          attributes:
-            name: '{{ program }}'
-            csdgroup: '{{ csdgroup }}'
-          parameters:
-            - name: 'CSD'
+        attributes:
+          name: '{{ program }}'
+          csdgroup: '{{ csdgroup }}'
+        parameters:
+          - name: 'CSD'
       register: result
 
 
@@ -94,11 +94,11 @@
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_update:
         type: 'CICSDefinitionProgram'
-        resource:
-          attributes:
-            description: 'foo'
-        criteria: 'NAME={{ program }}'
-        parameter: 'CSDGROUP({{ csdgroup }})'
+        attributes:
+          description: 'foo'
+        resources:
+          criteria: 'NAME={{ program }}'
+          parameter: 'CSDGROUP({{ csdgroup }})'
       register: result
 
     - assert:
@@ -114,8 +114,9 @@
       ibm.ibm_zos_cics.cmci_install:
         type: 'CICSDefinitionProgram'
         location: 'CSD'
-        criteria: 'NAME={{ program }}'
-        parameter: 'CSDGROUP({{ csdgroup }})'
+        resources:
+          criteria: 'NAME={{ program }}'
+          parameter: 'CSDGROUP({{ csdgroup }})'
       register: result
 
 
@@ -129,7 +130,8 @@
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_get:
         type: 'CICSProgram'
-        criteria: 'PROGRAM={{ program }}'
+        resources:
+          criteria: 'PROGRAM={{ program }}'
       retries: 3  # May take a while to install, so give it a chance!
       until: result is not failed
       register: result
@@ -148,10 +150,10 @@
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_update:
         type: 'CICSProgram'
-        resource:
-          attributes:
-            status: 'disabled'
-        criteria: 'PROGRAM={{ program }}'
+        attributes:
+          status: 'disabled'
+        resources:
+          criteria: 'PROGRAM={{ program }}'
       register: result
     - debug:
         msg: "{{ result }}"
@@ -168,7 +170,8 @@
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_delete:
         type: 'CICSProgram'
-        criteria: 'PROGRAM={{ program }}'
+        resources:
+          criteria: 'PROGRAM={{ program }}'
       register: result
 
     - assert:
@@ -183,8 +186,9 @@
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_delete:
         type: 'CICSDefinitionProgram'
-        criteria: 'NAME={{ program }}'
-        parameter: 'CSDGROUP({{ csdgroup }})'
+        resources:
+          criteria: 'NAME={{ program }}'
+          parameter: 'CSDGROUP({{ csdgroup }})'
       register: result
 
     - assert:

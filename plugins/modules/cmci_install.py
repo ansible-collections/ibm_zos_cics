@@ -7,7 +7,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
-    AnsibleCMCIModule, RESOURCE, append_criteria_parameter_arguments, update_resource_argument
+    AnsibleCMCIModule, append_resources_argument
 )
 
 from typing import Dict, Optional
@@ -234,7 +234,7 @@ class AnsibleCMCIInstallModule(AnsibleCMCIModule):
                 'choices': ['BAS', 'CSD']
             }
         })
-        append_criteria_parameter_arguments(argument_spec)
+        append_resources_argument(argument_spec)
         return argument_spec
 
     def init_body(self):  # type: () -> Optional[Dict]
@@ -248,7 +248,7 @@ class AnsibleCMCIInstallModule(AnsibleCMCIModule):
         }
 
     def init_request_params(self):  # type: () -> Optional[Dict[str, str]]
-        return self.get_criteria_parameter_request_params()
+        return self.get_resources_request_params()
 
 
 def main():

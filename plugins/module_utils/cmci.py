@@ -34,7 +34,7 @@ CONTEXT = 'context'
 SCOPE = 'scope'
 CRITERIA = 'criteria'
 PARAMETER = 'parameter'
-RESOURCE = 'resource'
+RESOURCES = 'resources'
 TYPE = 'type'
 ATTRIBUTES = 'attributes'
 PARAMETERS = 'parameters'
@@ -235,14 +235,16 @@ class AnsibleCMCIModule(object):
     def init_request_params(self):  # type: () -> Optional[Dict[str, str]]
         return None
 
-    def get_criteria_parameter_request_params(self):  # type: () -> Dict[str, str]
+    def get_resources_request_params(self):  # type: () -> Dict[str, str]
         # get, delete, put will all need CRITERIA{}
         request_params = {}
-        if self._p.get(CRITERIA):
-            request_params['CRITERIA'] = self._p.get(CRITERIA)
+        resources = self._p.get(RESOURCES)
+        if resources:
+            if resources.get(CRITERIA):
+                request_params['CRITERIA'] = resources.get(CRITERIA)
 
-        if self._p.get(PARAMETER):
-            request_params['PARAMETER'] = self._p.get(PARAMETER)
+            if resources.get(PARAMETER):
+                request_params['PARAMETER'] = resources.get(PARAMETER)
         return request_params
 
     def init_session(self):  # type: () -> requests.Session
@@ -340,18 +342,8 @@ class AnsibleCMCIModule(object):
         self._module.fail_json(msg=msg, exception=tb, **self.result)
 
 
-def update_resource_argument(argument_spec, updates):
-    if RESOURCE not in argument_spec:
-        argument_spec[RESOURCE] = {
-            'type': 'dict',
-            'required': True,
-            'options': {}
-        }
-    argument_spec[RESOURCE]['options'].update(updates)
-
-
 def append_attributes_parameters_arguments(argument_spec):
-    update_resource_argument(argument_spec, {
+    argument_spec.update({
         ATTRIBUTES: {
             'type': 'dict',
             'required': False
@@ -374,15 +366,21 @@ def append_attributes_parameters_arguments(argument_spec):
     })
 
 
-def append_criteria_parameter_arguments(argument_spec):  # type: (Dict) -> None
+def append_resources_argument(argument_spec):  # type: (Dict) -> None
     argument_spec.update({
-        CRITERIA: {
-            'type': 'str',
-            'required': False
-        },
-        PARAMETER: {
-            'type': 'str',
-            'required': False
+        RESOURCES: {
+            'type': 'dict',
+            'required': False,
+            'options': {
+                CRITERIA: {
+                    'type': 'str',
+                    'required': False
+                },
+                PARAMETER: {
+                    'type': 'str',
+                    'required': False
+                }
+            }
         }
     })
 
