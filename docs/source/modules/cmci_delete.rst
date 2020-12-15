@@ -131,7 +131,7 @@ resource
 
 
   | **required**: False
-  | **type**: str
+  | **type**: dict
 
 
      

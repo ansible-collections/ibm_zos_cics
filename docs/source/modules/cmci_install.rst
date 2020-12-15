@@ -4,8 +4,8 @@
 .. _cmci_install_module:
 
 
-cmci_install -- Get CICS and CICSplex SM resources
-==================================================
+cmci_install -- Install CICS and CICSplex SM definitions
+========================================================
 
 
 
@@ -143,7 +143,7 @@ resource
 
 
   | **required**: False
-  | **type**: str
+  | **type**: dict
 
 
      

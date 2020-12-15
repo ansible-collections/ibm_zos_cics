@@ -15,7 +15,7 @@ from typing import Dict, Optional
 DOCUMENTATION = r'''
 ---
 module: cmci_get
-short_description: Delete CICS and CICSplex SM resources
+short_description: Query CICS and CICSplex SM resources
 description:
   - The cmci_get module can be used to get information about installed and definitional
     CICS and CICSPlex® SM resources from CICS regions, using the CMCI API.  The CMCI API is provided by 

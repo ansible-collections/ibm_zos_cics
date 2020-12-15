@@ -4,8 +4,8 @@
 .. _cmci_get_module:
 
 
-cmci_get -- Delete CICS and CICSplex SM resources
-=================================================
+cmci_get -- Query CICS and CICSplex SM resources
+================================================
 
 
 
@@ -135,7 +135,7 @@ resource
 
 
   | **required**: False
-  | **type**: str
+  | **type**: dict
 
 
      

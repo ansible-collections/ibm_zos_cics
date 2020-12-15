@@ -97,7 +97,7 @@ options:
   resource:
     description:
       - Options which specify a target resource
-    type: str
+    type: dict
     required: false
     suboptions:   
       criteria:

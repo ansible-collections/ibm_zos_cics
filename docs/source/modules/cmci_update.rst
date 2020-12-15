@@ -4,8 +4,8 @@
 .. _cmci_update_module:
 
 
-cmci_update -- Get CICS and CICSplex SM resources
-=================================================
+cmci_update -- Update CICS and CICSplex SM resources and definitions
+====================================================================
 
 
 
@@ -140,7 +140,7 @@ resource
 
 
   | **required**: False
-  | **type**: str
+  | **type**: dict
 
 
      

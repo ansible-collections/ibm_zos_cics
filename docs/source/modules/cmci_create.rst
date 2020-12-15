@@ -4,8 +4,8 @@
 .. _cmci_create_module:
 
 
-cmci_create -- Delete CICS and CICSplex SM resources
-====================================================
+cmci_create -- Create CICS and CICSplex definitions in CSD and BAS repositories
+===============================================================================
 
 
 
