@@ -166,15 +166,6 @@ resource
 
 
      
-resource_name
-  The CMCI resource name for the target resource type.  For the list of CMCI resource names, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_resources.html
-
-
-  | **required**: True
-  | **type**: str
-
-
-     
 scheme
   Whether or not to use HTTPS
 
@@ -202,6 +193,15 @@ scope
   | **type**: str
 
 
+     
+type
+  The CMCI resource name for the target resource type.  For the list of CMCI resource names, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_resources.html
+
+
+  | **required**: True
+  | **type**: str
+
+
 
 
 Examples
@@ -210,109 +210,33 @@ Examples
 .. code-block:: yaml+jinja
 
    
-   - name: get a localfile in a CICS region
-     cics_cmci:
+   - name: get 2 LOCFILEs from a CICSplex
+     cmci_get:
        cmci_host: 'winmvs2c.hursley.ibm.com'
        cmci_port: '10080'
        cmci_user: 'ibmuser'
        cmci_password: '123456'
        context: 'iyk3z0r9'
-       option: 'query'
-       resource:
-         - type: CICSLocalFile
+       resource_name:  CICSLocalFile
        record_count: 2
-       criteria: 'dsname=XIAOPIN* and file=DFH*'
-
-   - name: define a bundle in a CICS region
-     cics_cmci:
-         cmci_host: 'winmvs2c.hursley.ibm.com'
-         cmci_port: '10080'
-         context: 'iyk3z0r9'
-         option: 'define'
-         resource:
-           - type: CICSDefinitionBundle
-             attributes:
-               - name: PONGALT
-                 BUNDLEDIR: /u/ibmuser/bundle/pong/pongbundle_1.0.0
-                 csdgroup: JVMGRP
-             parameters:
-               - name: CSD
-         record_count: 1
-
-   - name: install a bundle in a CICS region
-     cics_cmci:
-       cmci_host: 'winmvs2c.hursley.ibm.com'
-       cmci_port: '10080'
-       context: 'iyk3z0r9'
-       option: 'install'
        resource:
-         - type: CICSDefinitionBundle
-           location: CSD
-       criteria: 'NAME=PONGALT'
-       parameter: 'CSDGROUP(JVMGRP)'
-
-   - name: update a bundle definition in a CICS region
-     cics_cmci:
-       cmci_host: 'winmvs2c.hursley.ibm.com'
-       cmci_port: '10080'
-       context: 'iyk3z0r9'
-       option: 'update'
-       resource:
-         - type: CICSDefinitionBundle
-           attributes:
-             - description: 'forget description'
-           parameters:
-             - name: CSD
-       criteria: 'NAME=PONGALT'
-       parameter: 'CSDGROUP(JVMGRP)'
-
-   - name: install a bundle in a CICS region
-     cics_cmci:
-       cmci_host: 'winmvs2c.hursley.ibm.com'
-       cmci_port: '10080'
-       context: 'iyk3z0r9'
-       option: 'update'
-       resource:
-         - type: CICSBundle
-           attributes:
-             - Enablestatus: disabled
-       criteria: 'NAME=PONGALT'
-
-   - name: delete a bundle in a CICS region
-     cics_cmci:
-       cmci_host: 'winmvs2c.hursley.ibm.com'
-       cmci_port: '10080'
-       security_type: 'yes'
-       context: 'iyk3z0r9'
-       option: 'delete'
-       resource:
-         - type: CICSBundle
-       criteria: 'NAME=PONGALT'
-
-   - name: delete a bundle definition in a CICS region
-     cics_cmci:
-       cmci_host: 'winmvs2c.hursley.ibm.com'
-       cmci_port: '10080'
-       context: 'iyk3z0r9'
-       option: 'delete'
-       resource:
-         - type: CICSDefinitionBundle
-       criteria: 'NAME=PONGALT'
-       parameter: 'CSDGROUP(JVMGRP)'
+         filter:
+           dsname: 'CTS*'
 
    - name: get a localfile in a CICS region
-     cics_cmci:
+     cmci_get:
        cmci_host: 'winmvs2c.hursley.ibm.com'
        cmci_port: '10080'
        cmci_cert: './sec/ansible.pem'
        cmci_key: './sec/ansible.key'
-       connection_type: 'certificate'
        context: 'iyk3z0r9'
        option: 'query'
+       resource_name: 'CICSLocalFile' 
        resource:
-         - type: CICSLocalFile
+         filter:
+           dsname: 'XIAOPIN*'
+           file: 'DFH*'
        record_count: 1
-       criteria: 'dsname=XIAOPIN* AND file=DFH*'
 
 
 

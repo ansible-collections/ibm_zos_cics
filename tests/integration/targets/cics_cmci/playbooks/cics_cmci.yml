@@ -61,8 +61,7 @@
     - name: 'Delete progdef'
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_delete:
-        resource:
-          type: 'CICSDefinitionProgram'
+        type: 'CICSDefinitionProgram'
         criteria: "NAME='{{ program }}' AND CSDGROUP='{{ csdgroup }}'"
         parameter: 'CSDGROUP({{ csdgroup }})'
       register: result
@@ -73,8 +72,8 @@
     - name: 'create progdef'
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_create:
+        type: 'CICSDefinitionProgram'
         resource:
-          type: 'CICSDefinitionProgram'
           attributes:
             name: '{{ program }}'
             csdgroup: '{{ csdgroup }}'
@@ -94,8 +93,8 @@
     - name: 'update progdef'
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_update:
+        type: 'CICSDefinitionProgram'
         resource:
-          type: 'CICSDefinitionProgram'
           attributes:
             description: 'foo'
         criteria: 'NAME={{ program }}'
@@ -113,8 +112,8 @@
     - name: 'install program'
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_install:
+        type: 'CICSDefinitionProgram'
         resource:
-          type: 'CICSDefinitionProgram'
           location: 'CSD'
         criteria: 'NAME={{ program }}'
         parameter: 'CSDGROUP({{ csdgroup }})'
@@ -130,8 +129,7 @@
     - name: 'check program was installed'
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_get:
-        resource:
-          type: 'CICSProgram'
+        type: 'CICSProgram'
         criteria: 'PROGRAM={{ program }}'
       retries: 3  # May take a while to install, so give it a chance!
       until: result is not failed
@@ -144,12 +142,14 @@
           - result.record_count == 1
           - result.records[0].program == program
 
+    - debug:
+        msg: "{{ result }}"
 
     - name: 'disable program'
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_update:
+        type: 'CICSProgram'
         resource:
-          type: 'CICSProgram'
           attributes:
             status: 'disabled'
         criteria: 'PROGRAM={{ program }}'
@@ -168,8 +168,7 @@
     - name: 'delete program'
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_delete:
-        resource:
-          type: 'CICSProgram'
+        type: 'CICSProgram'
         criteria: 'PROGRAM={{ program }}'
       register: result
 
@@ -184,8 +183,7 @@
     - name: 'delete progdef'
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_delete:
-        resource:
-          type: 'CICSDefinitionProgram'
+        type: 'CICSDefinitionProgram'
         criteria: 'NAME={{ program }}'
         parameter: 'CSDGROUP({{ csdgroup }})'
       register: result

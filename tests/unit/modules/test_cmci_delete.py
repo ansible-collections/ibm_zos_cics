@@ -26,7 +26,7 @@ def test_delete_context(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_host': HOST,
         'cmci_port': PORT,
         'context': CONTEXT,
-        'resource': {'type': 'cicsdefinitionbundle'},
+        'type': 'cicsdefinitionbundle'
     })
 
 
@@ -45,7 +45,7 @@ def test_delete_context_scope(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': PORT,
         'context': CONTEXT,
         'scope': 'IYCWEMW2',
-        'resource': {'type': 'cicsdefinitionbundle'},
+        'type': 'cicsdefinitionbundle'
     })
 
 
@@ -64,7 +64,7 @@ def test_delete_criteria(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_host': HOST,
         'cmci_port': PORT,
         'context': CONTEXT,
-        'resource': {'type': 'cicsdefinitionbundle'},
+        'type': 'cicsdefinitionbundle',
         'criteria': 'FOO=BAR'
     })
 
@@ -84,7 +84,7 @@ def test_delete_parameter(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_host': HOST,
         'cmci_port': PORT,
         'context': CONTEXT,
-        'resource': {'type': 'cicsdefinitionbundle'},
+        'type': 'cicsdefinitionbundle',
         'parameter': 'CSDGROUP(*)'
     })
 
@@ -108,7 +108,7 @@ def test_delete_criteria_parameter(cmci_module):  # type: (CMCITestHelper) -> No
         'cmci_host': HOST,
         'cmci_port': PORT,
         'context': CONTEXT,
-        'resource': {'type': 'cicsdefinitionbundle'},
+        'type': 'cicsdefinitionbundle',
         'criteria': 'FOO=BAR',
         'parameter': 'CSDGROUP(*)'
     })

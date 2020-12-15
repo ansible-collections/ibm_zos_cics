@@ -79,7 +79,7 @@ options:
       - The value of scope must not contain spaces.
       - Scope is not case-sensitive
     type: str
-  resource_name:
+  type:
     description:
       - The CMCI resource name for the target resource type.  For the list of CMCI resource names, see
         U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_resources.html)

@@ -118,15 +118,9 @@ class AnsibleCMCIModule(object):
             SCOPE: {
                 'type': 'str'
             },
-            RESOURCE: {
-                'type': 'dict',
-                'required': True,
-                'options': {
-                    TYPE: {
-                        'type': 'str',
-                        'required': True
-                    }
-                }
+            TYPE: {
+                'type': 'str',
+                'required': True
             }
         }
 
@@ -201,7 +195,7 @@ class AnsibleCMCIModule(object):
             # TODO: maybe only allow this bit in results that will definitely include records
             if 'records' in response_node:
                 records_node = response_node['records']
-                resource_type = self._p[RESOURCE][TYPE].lower()
+                resource_type = self._p[TYPE].lower()
                 if resource_type in records_node:
                     records = records_node[resource_type]
                     # Copy records in result, stripping @ from attributes
@@ -224,8 +218,7 @@ class AnsibleCMCIModule(object):
             self._fail('Could not parse CMCI response: missing node "{0}"'.format(e.args[0]))
 
     def init_url(self):  # type: () -> str
-        resource = self._p.get(RESOURCE)
-        t = resource.get(TYPE).lower()
+        t = self._p.get(TYPE).lower()
         security_type = self._p.get(SECURITY_TYPE)
 
         if security_type == 'none':
@@ -320,7 +313,7 @@ class AnsibleCMCIModule(object):
                 process_namespaces=True,
                 namespaces=namespaces,
                 # Make sure we always return a list for the resource node
-                force_list=(self._p.get(RESOURCE).get(TYPE).lower(),)
+                force_list=(self._p.get(TYPE).lower(),)
             )
 
             return r
@@ -347,8 +340,18 @@ class AnsibleCMCIModule(object):
         self._module.fail_json(msg=msg, exception=tb, **self.result)
 
 
+def update_resource_argument(argument_spec, updates):
+    if RESOURCE not in argument_spec:
+        argument_spec[RESOURCE] = {
+            'type': 'dict',
+            'required': True,
+            'options': {}
+        }
+    argument_spec[RESOURCE]['options'].update(updates)
+
+
 def append_attributes_parameters_arguments(argument_spec):
-    argument_spec[RESOURCE]['options'].update({
+    update_resource_argument(argument_spec, {
         ATTRIBUTES: {
             'type': 'dict',
             'required': False

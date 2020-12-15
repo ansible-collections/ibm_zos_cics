@@ -73,8 +73,7 @@ class CMCITestHelper:
     def run(self, module, config):
         # upper-case the resource name, so it definitely doesn't match the CMCI response, to ensure
         # we don't rely on them matching
-        resource = config.get('resource')
-        resource['type'] = resource['type'].upper()
+        config['type'] = config['type'].upper()
         set_module_args(config)
 
         with pytest.raises(AnsibleFailJson if self.expected.get('failed') else AnsibleExitJson) as exc_info:
