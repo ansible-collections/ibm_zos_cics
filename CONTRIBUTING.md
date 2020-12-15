@@ -143,7 +143,7 @@ Add the virtual environment as an existing Python interpreter:
 
  - `Preferences > Project: cics-ansible > Python Interpreter > Cog menu > Add.. > {project_root}/ansible_collections/ibm/ibm_zos_cics/env/bin/python`
 
-Set the virtual environment as the default Python interpreter
+Set the virtual environment as the default Python interpreter:
 
  - `Preferences > Project: cics-ansible > Python Interpreter > Top dropdown box > Select interpreter you just imported > Apply`
 
