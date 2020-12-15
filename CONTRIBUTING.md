@@ -114,7 +114,7 @@ pip install -r requirements.txt
 
 #### Running the unit tests
 
-You can use the `ansible-test` command to run all of the unit tests
+You can use the `ansible-test` command to run all of the unit tests:
 ```
 # Run unit tests
 ansible-test units --python=3.8
