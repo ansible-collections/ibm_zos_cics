@@ -1,7 +1,5 @@
-###############################################################################
 # Copyright (c) IBM Corporation 2020
-###############################################################################
-
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ###############################################################################
 # This sample playbook demonstrates using various modules included in the
 # Red Hat Ansible Certified Content for IBM Z core and IBM Z CICS collection.
