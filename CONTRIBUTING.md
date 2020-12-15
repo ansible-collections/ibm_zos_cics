@@ -139,7 +139,7 @@ references to FQCN imports:
 
 #### Make your virtual environment the default Python interpreter for the project
 
-Add the virtual environment as an existing Python interpreter
+Add the virtual environment as an existing Python interpreter:
 
  - `Preferences > Project: cics-ansible > Python Interpreter > Cog menu > Add.. > {project_root}/ansible_collections/ibm/ibm_zos_cics/env/bin/python`
 
