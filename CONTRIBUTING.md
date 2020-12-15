@@ -24,7 +24,7 @@ If you're thinking of fixing a bug or adding new features, be sure to open an is
 
 ### Licensing
 
-All code must have an ASL v2.0 header
+All code must have an Apache-2.0 header.
 
 ### Signing your contribution
 
