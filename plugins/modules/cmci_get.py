@@ -7,7 +7,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
-    AnsibleCMCIModule, append_criteria_parameter_arguments
+    AnsibleCMCIModule, append_resources_argument
 )
 
 from typing import Dict, Optional
@@ -231,11 +231,11 @@ class AnsibleCMCIGetModule(AnsibleCMCIModule):
                 'type': 'int'
             }
         })
-        append_criteria_parameter_arguments(argument_spec)
+        append_resources_argument(argument_spec)
         return argument_spec
 
     def init_request_params(self):  # type: () -> Optional[Dict[str, str]]
-        return self.get_criteria_parameter_request_params()
+        return self.get_resources_request_params()
 
     def init_url(self):  # type: () -> str
         url = super(AnsibleCMCIGetModule, self).init_url()

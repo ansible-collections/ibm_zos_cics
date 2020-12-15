@@ -8,7 +8,7 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_create
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
-    HOST, PORT, CONTEXT, od, create_records_response, body_matcher, cmci_module, CMCITestHelper
+    HOST, PORT, CONTEXT, od, body_matcher, cmci_module, CMCITestHelper
 )
 
 
@@ -67,10 +67,8 @@ def test_csd_create(cmci_module):  # type: (CMCITestHelper) -> None
         context=CONTEXT,
         scope='IYCWEMW2',
         type='cicsdefinitionbundle',
-        resource=dict(
-            parameters=[dict(
-                name='CSD'
-            )],
-            attributes=record
-        )
+        parameters=[dict(
+            name='CSD'
+        )],
+        attributes=record
     ))

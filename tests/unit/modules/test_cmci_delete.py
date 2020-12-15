@@ -8,7 +8,7 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_delete
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
-    HOST, PORT, CONTEXT, create_delete_response, cmci_module, CMCITestHelper
+    HOST, PORT, CONTEXT, cmci_module, CMCITestHelper
 )
 
 
@@ -65,7 +65,9 @@ def test_delete_criteria(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': PORT,
         'context': CONTEXT,
         'type': 'cicsdefinitionbundle',
-        'criteria': 'FOO=BAR'
+        'resources': {
+            'criteria': 'FOO=BAR'
+        }
     })
 
 
@@ -85,7 +87,9 @@ def test_delete_parameter(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': PORT,
         'context': CONTEXT,
         'type': 'cicsdefinitionbundle',
-        'parameter': 'CSDGROUP(*)'
+        'resources': {
+            'parameter': 'CSDGROUP(*)'
+        }
     })
 
 
@@ -109,8 +113,10 @@ def test_delete_criteria_parameter(cmci_module):  # type: (CMCITestHelper) -> No
         'cmci_port': PORT,
         'context': CONTEXT,
         'type': 'cicsdefinitionbundle',
-        'criteria': 'FOO=BAR',
-        'parameter': 'CSDGROUP(*)'
+        'resources': {
+            'criteria': 'FOO=BAR',
+            'parameter': 'CSDGROUP(*)'
+        }
     })
 
 

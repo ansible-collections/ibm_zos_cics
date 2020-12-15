@@ -8,7 +8,7 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_update
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
-    HOST, PORT, CONTEXT, SCOPE, od, create_records_response, body_matcher, cmci_module, CMCITestHelper
+    HOST, PORT, CONTEXT, SCOPE, od, body_matcher, cmci_module, CMCITestHelper
 )
 
 
@@ -50,24 +50,24 @@ def test_update(cmci_module):  # type: (CMCITestHelper) -> None
         '</update></request>'
     ))
 
-    cmci_module.run(cmci_update, dict(
-        cmci_host=HOST,
-        cmci_port=PORT,
-        context=CONTEXT,
-        scope=SCOPE,
-        security_type='none',
-        type='cicsdefinitionprogram',
-        resource=dict(
-            parameters=[dict(
-                name='CSD'
-            )],
-            attributes=dict(
-                description='new description'
-            )
-        ),
-        criteria='NAME=DUMMY',
-        parameter='CSDGROUP(DUMMY)'
-    ))
+    cmci_module.run(cmci_update, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': SCOPE,
+        'security_type': 'none',
+        'type': 'cicsdefinitionprogram',
+        'parameters': [{
+            'name': 'CSD'
+        }],
+        'attributes': {
+            'description': 'new description'
+        },
+        'resources': {
+            'criteria': 'NAME=DUMMY',
+            'parameter': 'CSDGROUP(DUMMY)'
+        }
+    })
 
 
 def result(url, record, body):
