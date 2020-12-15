@@ -144,6 +144,8 @@
           - result.record_count == 1
           - result.records[0].program == program
 
+    - debug:
+        msg: "{{ result }}"
 
     - name: 'disable program'
       delegate_to: 'localhost'

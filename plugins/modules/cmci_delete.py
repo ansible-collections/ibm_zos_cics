@@ -32,113 +32,29 @@ extends_documentation_fragment:
 
 
 EXAMPLES = r"""
-- name: get a localfile in a CICS region
-  cics_cmci:
-    cmci_host: 'winmvs2c.hursley.ibm.com'
-    cmci_port: '10080'
-    cmci_user: 'ibmuser'
-    cmci_password: '123456'
-    context: 'iyk3z0r9'
-    option: 'query'
-    resource:
-      - type: CICSLocalFile
-    record_count: 2
-    criteria: 'dsname=XIAOPIN* and file=DFH*'
-
-- name: define a bundle in a CICS region
-  cics_cmci:
-      cmci_host: 'winmvs2c.hursley.ibm.com'
-      cmci_port: '10080'
-      context: 'iyk3z0r9'
-      option: 'define'
-      resource:
-        - type: CICSDefinitionBundle
-          attributes:
-            - name: PONGALT
-              BUNDLEDIR: /u/ibmuser/bundle/pong/pongbundle_1.0.0
-              csdgroup: JVMGRP
-          parameters:
-            - name: CSD
-      record_count: 1
-
-- name: install a bundle in a CICS region
-  cics_cmci:
-    cmci_host: 'winmvs2c.hursley.ibm.com'
-    cmci_port: '10080'
-    context: 'iyk3z0r9'
-    option: 'install'
-    resource:
-      - type: CICSDefinitionBundle
-        location: CSD
-    criteria: 'NAME=PONGALT'
-    parameter: 'CSDGROUP(JVMGRP)'
-
-- name: update a bundle definition in a CICS region
-  cics_cmci:
-    cmci_host: 'winmvs2c.hursley.ibm.com'
-    cmci_port: '10080'
-    context: 'iyk3z0r9'
-    option: 'update'
-    resource:
-      - type: CICSDefinitionBundle
-        attributes:
-          - description: 'forget description'
-        parameters:
-          - name: CSD
-    criteria: 'NAME=PONGALT'
-    parameter: 'CSDGROUP(JVMGRP)'
-
-- name: install a bundle in a CICS region
-  cics_cmci:
-    cmci_host: 'winmvs2c.hursley.ibm.com'
-    cmci_port: '10080'
-    context: 'iyk3z0r9'
-    option: 'update'
-    resource:
-      - type: CICSBundle
-        attributes:
-          - Enablestatus: disabled
-    criteria: 'NAME=PONGALT'
-
 - name: delete a bundle in a CICS region
-  cics_cmci:
+  cmci_delete:
     cmci_host: 'winmvs2c.hursley.ibm.com'
     cmci_port: '10080'
-    security_type: 'yes'
     context: 'iyk3z0r9'
-    option: 'delete'
+    resource_name: CICSBundle
     resource:
-      - type: CICSBundle
-    criteria: 'NAME=PONGALT'
+      filter:
+        name: 'PONGALT'
 
 - name: delete a bundle definition in a CICS region
-  cics_cmci:
+  cmci_delete:
     cmci_host: 'winmvs2c.hursley.ibm.com'
     cmci_port: '10080'
     context: 'iyk3z0r9'
     option: 'delete'
-    resource:
-      - type: CICSDefinitionBundle
-    criteria: 'NAME=PONGALT'
-    parameter: 'CSDGROUP(JVMGRP)'
-
-- name: get a localfile in a CICS region
-  cics_cmci:
-    cmci_host: 'winmvs2c.hursley.ibm.com'
-    cmci_port: '10080'
-    cmci_cert: './sec/ansible.pem'
-    cmci_key: './sec/ansible.key'
-    connection_type: 'certificate'
-    context: 'iyk3z0r9'
-    option: 'query'
-    resource:
-      - type: CICSLocalFile
-    record_count: 1
-    criteria: 'dsname=XIAOPIN* AND file=DFH*'
+    resource_name: CICSDefinitionBundle
+    resource: 
+      filter:
+        name: 'PONGALT'
+      parameters:
+        csdgroup: JVMGRP
 """
-
-
-
 
 
 RETURN = r"""
