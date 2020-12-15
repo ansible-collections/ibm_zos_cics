@@ -113,8 +113,7 @@
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_install:
         type: 'CICSDefinitionProgram'
-        resource:
-          location: 'CSD'
+        location: 'CSD'
         criteria: 'NAME={{ program }}'
         parameter: 'CSDGROUP({{ csdgroup }})'
       register: result

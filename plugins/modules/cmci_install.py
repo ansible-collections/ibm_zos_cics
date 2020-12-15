@@ -227,7 +227,7 @@ class AnsibleCMCIInstallModule(AnsibleCMCIModule):
 
     def init_argument_spec(self):  # type: () -> Dict
         argument_spec = super(AnsibleCMCIInstallModule, self).init_argument_spec()
-        update_resource_argument(argument_spec, {
+        argument_spec.update({
             'location': {
                 'type': 'str',
                 'required': False,
@@ -238,7 +238,7 @@ class AnsibleCMCIInstallModule(AnsibleCMCIModule):
         return argument_spec
 
     def init_body(self):  # type: () -> Optional[Dict]
-        location = self._p.get(RESOURCE).get(LOCATION)
+        location = self._p.get(LOCATION)
         return {
             'request': {
                 'action': {
