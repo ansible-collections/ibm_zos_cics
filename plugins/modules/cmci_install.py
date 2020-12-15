@@ -7,7 +7,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
-    AnsibleCMCIModule, RESOURCE, append_criteria_parameter_arguments
+    AnsibleCMCIModule, RESOURCE, append_criteria_parameter_arguments, update_resource_argument
 )
 
 from typing import Dict, Optional
@@ -227,11 +227,13 @@ class AnsibleCMCIInstallModule(AnsibleCMCIModule):
 
     def init_argument_spec(self):  # type: () -> Dict
         argument_spec = super(AnsibleCMCIInstallModule, self).init_argument_spec()
-        argument_spec[RESOURCE]['options'][LOCATION] = {
-            'type': 'str',
-            'required': False,
-            'choices': ['BAS', 'CSD']
-        }
+        update_resource_argument(argument_spec, {
+            'location': {
+                'type': 'str',
+                'required': False,
+                'choices': ['BAS', 'CSD']
+            }
+        })
         append_criteria_parameter_arguments(argument_spec)
         return argument_spec
 

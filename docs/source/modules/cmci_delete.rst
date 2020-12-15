@@ -162,15 +162,6 @@ resource
 
 
      
-resource_name
-  The CMCI resource name for the target resource type.  For the list of CMCI resource names, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_resources.html
-
-
-  | **required**: True
-  | **type**: str
-
-
-     
 scheme
   Whether or not to use HTTPS
 
@@ -195,6 +186,15 @@ scope
 
 
   | **required**: false
+  | **type**: str
+
+
+     
+type
+  The CMCI resource name for the target resource type.  For the list of CMCI resource names, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_resources.html
+
+
+  | **required**: True
   | **type**: str
 
 

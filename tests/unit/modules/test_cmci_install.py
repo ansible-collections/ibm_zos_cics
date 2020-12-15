@@ -45,8 +45,8 @@ def test_csd_install(cmci_module):  # type: (CMCITestHelper) -> None
         cmci_port=PORT,
         context=CONTEXT,
         scope='IYCWEMW2',
+        type='cicsdefinitionbundle',
         resource=dict(
-            type='cicsdefinitionbundle',
             location='CSD'
         ),
         parameter='CSDGROUP(*)'
@@ -82,8 +82,8 @@ def test_bas_install(cmci_module):  # type: (CMCITestHelper) -> None
         cmci_host=HOST,
         cmci_port=PORT,
         context=CONTEXT,
+        type='cicsdefinitionbundle',
         resource=dict(
-            type='cicsdefinitionbundle',
             location='BAS'
         )
     ))
@@ -126,9 +126,9 @@ def test_install_csd_criteria_parameter(cmci_module):  # type: (CMCITestHelper) 
         context=CONTEXT,
         scope=SCOPE,
         security_type='none',
+        type='cicsdefinitionprogram',
         resource=dict(
-            type='cicsdefinitionprogram',
-            location='CSD',
+            location='CSD'
         ),
         criteria="((NAME=DUMMY) AND (DEFVER=0) AND (CSDGROUP=DUMMY))",
         parameter='CSDGROUP(DUMMY)'

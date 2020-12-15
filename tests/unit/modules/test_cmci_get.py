@@ -56,9 +56,7 @@ def test_401_fails(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': '26040',
         'context': 'CICPY012',
         'security_type': 'none',
-        'resource': {
-            'type': 'CICSDefinitionBundle'
-        }
+        'type': 'CICSDefinitionBundle'
     })
 
 
@@ -74,9 +72,7 @@ def test_invalid_host(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': '10080',
         'context': 'iyk3z0r9',
         'scope': 'iyk3z0r8',
-        'resource': {
-            'type': 'cicslocalfile'
-        }
+        'type': 'cicslocalfile'
     })
 
 
@@ -89,9 +85,7 @@ def test_unknown_host(monkeypatch):
         'cmci_port': '26040',
         'context': 'CICPY012',
         'security_type': 'none',
-        'resource': {
-            'type': 'CICSDefinitionBundle'
-        }
+        'type': 'CICSDefinitionBundle'
     })
 
     with pytest.raises(AnsibleFailJson) as exc_info:
@@ -115,9 +109,7 @@ def test_invalid_port_type(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': '^%^080',
         'context': 'iyk3z0r9',
         'scope': 'iyk3z0r8',
-        'resource': {
-            'type': 'cicslocalfile'
-        },
+        'type': 'cicslocalfile'
     })
 
 
@@ -133,9 +125,7 @@ def test_invalid_port_low(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': -1,
         'context': 'iyk3z0r9',
         'scope': 'iyk3z0r8',
-        'resource': {
-            'type': 'cicslocalfile'
-        },
+        'type': 'cicslocalfile'
     })
 
 
@@ -151,9 +141,7 @@ def test_invalid_port_high(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': 65536,
         'context': 'iyk3z0r9',
         'scope': 'iyk3z0r8',
-        'resource': {
-            'type': 'cicslocalfile'
-        },
+        'type': 'cicslocalfile'
     })
 
 
@@ -170,9 +158,7 @@ def test_invalid_context(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': '10080',
         'context': '^&iyk3z0r9',
         'scope': 'iyk3z0r8',
-        'resource': {
-            'type': 'cicslocalfile'
-        },
+        'type': 'cicslocalfile'
     })
 
 
@@ -189,9 +175,7 @@ def test_invalid_scope(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': '10080',
         'context': 'iyk3z0r9',
         'scope': '&^iyk3z0r8',
-        'resource': {
-            'type': 'cicslocalfile'
-        },
+        'type': 'cicslocalfile'
     })
 
 
@@ -207,9 +191,7 @@ def test_invalid_security(cmci_module):  # type: (CMCITestHelper) -> None
         'context': 'iyk3z0r9',
         'scope': 'iyk3z0r8',
         'security_type': 'yes',
-        'resource': {
-            'type': 'cicslocalfile'
-        },
+        'type': 'cicslocalfile'
     })
 
 
@@ -242,7 +224,7 @@ def test_auth(cmci_module):  # type: (CMCITestHelper) -> None
         'security_type': 'basic',
         'context': CONTEXT,
         'scope': SCOPE,
-        'resource': {'type': 'cicslocalfile'},
+        'type': 'cicslocalfile'
     })
 
 
@@ -263,7 +245,7 @@ def test_ok_context_scope(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': PORT,
         'context': CONTEXT,
         'scope': 'IYCWEMW2',
-        'resource': {'type': 'cicslocalfile'},
+        'type': 'cicslocalfile'
     })
 
 
@@ -281,7 +263,7 @@ def test_ok_context_scope_single_record(cmci_module):  # type: (CMCITestHelper) 
         'cmci_port': PORT,
         'context': CONTEXT,
         'scope': 'IYCWEMW2',
-        'resource': {'type': 'cicslocalfile'},
+        'type': 'cicslocalfile'
     })
 
 
@@ -312,7 +294,7 @@ def test_ok_context_scope_jvmserver_header(cmci_module):  # type: (CMCITestHelpe
         'cmci_port': PORT,
         'context': CONTEXT,
         'scope': 'IYCWEMW2',
-        'resource': {'type': 'cicslocalfile'},
+        'type': 'cicslocalfile'
     })
 
 
@@ -331,7 +313,7 @@ def test_query_criteria(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': PORT,
         'context': CONTEXT,
         'scope': 'IYCWEMW2',
-        'resource': {'type': 'cicslocalfile'},
+        'type': 'cicslocalfile',
         'criteria': 'FOO=BAR'
     })
 
@@ -357,7 +339,7 @@ def test_query_parameter(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': PORT,
         'context': CONTEXT,
         'scope': 'IYCWEMW2',
-        'resource': {'type': 'cicsdefinitionfile'},
+        'type': 'cicsdefinitionfile',
         'parameter': 'CSDGROUP(*)'
     })
 
@@ -384,7 +366,7 @@ def test_query_parameter_criteria(cmci_module):  # type: (CMCITestHelper) -> Non
         'cmci_port': PORT,
         'context': CONTEXT,
         'scope': 'IYCWEMW2',
-        'resource': {'type': 'cicsdefinitionfile'},
+        'type': 'cicsdefinitionfile',
         'parameter': 'CSDGROUP(*)',
         'criteria': 'FOO=BAR'
     })
@@ -405,7 +387,7 @@ def test_ok_context_record_count(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': PORT,
         'context': CONTEXT,
         'record_count': 1,
-        'resource': {'type': 'cicslocalfile'},
+        'type': 'cicslocalfile'
     })
 
 

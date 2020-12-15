@@ -66,8 +66,8 @@ def test_csd_create(cmci_module):  # type: (CMCITestHelper) -> None
         cmci_port=PORT,
         context=CONTEXT,
         scope='IYCWEMW2',
+        type='cicsdefinitionbundle',
         resource=dict(
-            type='cicsdefinitionbundle',
             parameters=[dict(
                 name='CSD'
             )],

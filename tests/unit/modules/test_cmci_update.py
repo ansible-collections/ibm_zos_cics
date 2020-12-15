@@ -56,8 +56,8 @@ def test_update(cmci_module):  # type: (CMCITestHelper) -> None
         context=CONTEXT,
         scope=SCOPE,
         security_type='none',
+        type='cicsdefinitionprogram',
         resource=dict(
-            type='cicsdefinitionprogram',
             parameters=[dict(
                 name='CSD'
             )],
