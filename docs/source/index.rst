@@ -5,11 +5,12 @@
 
 IBM z/OS CICS collection
 ========================
+Collections are a distribution format for prepackaged Ansible content including playbooks, modules, and so on that enable you to quickly set up your automation project.
 
 The **IBM z/OS CICS collection**, also represented as **ibm\_zos\_cics**
-in this document, provides tasks to define, install, and perform actions on CICS resources such as creating a PROGRAM definition, installing and updating it, and deleting the definition.
+in this document, provides tasks to define, install, and perform actions on CICS definitions and resources such as creating a PROGRAM definition, installing and updating it, and deleting the definition.
 
-The **IBM z/OS CICS collection** can work independently from other IBM z/OS modules on Ansible to perform tasks in CICS. You can, however, to use it in conjunction with the `IBM z/OS core collection`_ to achieve more automation on z/OS. If you do that, always refer to their documentation for extra configuration needed.
+This CICS collection can work independently from other IBM z/OS modules on Ansible to perform tasks in CICS. You can, however, to use it in conjunction with the `IBM z/OS core collection`_ to achieve more automation on z/OS. If you do that, always refer to their documentation for extra configuration needed.
 
 .. _IBM z/OS core collection:
    https://github.com/ansible-collections/ibm_zos_core
@@ -17,19 +18,26 @@ The **IBM z/OS CICS collection** can work independently from other IBM z/OS modu
 Included content
 ================
 
-The IBM z/OS CICS collection includes modules, sample playbooks, and ansible-doc to automate tasks against CICS resources and definitions.
+The IBM z/OS CICS collection includes `modules`_, `sample playbooks`_, and ansible-doc to automate tasks against CICS resources and definitions.
 
-.. toctree::
-   :maxdepth: 3
-
-   modules
-   playbooks
 
 
 .. _modules:
     https://github.com/ansible-collections/ibm_zos_cics/tree/master/plugins/modules/
 .. _sample playbooks:
     https://github.com/ansible-collections/ibm_zos_cics/tree/master/playbooks/
+
+Contributing
+============
+
+Thank you for contributing to this project.
+
+We welcome bug reports and discussions about new function in the issue tracker, and we also welcome proposed new features or bug fixes via pull requests.
+
+For contribution guidelines, see `How to contribute`_.
+
+.. _How to contribute:
+   https://github.com/ansible-collections/ibm_zos_cics/tree/master/CONTRIBUTING.md
 
 
 Red Hat Ansible Certified Content for IBM Z
@@ -63,21 +71,23 @@ This collection is licensed under `Apache License, Version 2.0`_.
 
 .. toctree::
    :maxdepth: 1
+   :caption: Requirements
+
+   requirements
+
+.. toctree::
+   :maxdepth: 1
    :caption: Getting Started
 
    installation
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Community guides
+   :maxdepth: 3
+   :caption: Reference
 
-   community_guides
+   modules
+   playbooks
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Requirements
-
-   requirements
 
 .. toctree::
    :maxdepth: 1

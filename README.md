@@ -6,9 +6,32 @@ in this document, is part of the broader offering **Red Hat® Ansible
 Certified Content for IBM Z**. The IBM z/OS CICS collection supports management
 of CICS resources and definitions via the CMCI API.
 
-The **IBM z/OS CICS collection** works closely with offerings such as the 
+This CICS collection can work independently from other IBM z/OS modules on Ansible to perform tasks in CICS. You can, however, use it in conjunction with other IBM z/OS collections such as the 
 [IBM z/OS core collection](https://github.com/ansible-collections/ibm_zos_core) 
 to deliver a solution that will enable you to automate tasks on z/OS.
+
+
+
+Included Content
+================
+
+The IBM CICS collection includes
+[modules](https://github.com/ansible-collections/ibm_zos_cics/tree/master/plugins/modules/),
+[sample playbooks](https://github.com/ansible-collections/ibm_zos_cics/tree/master/playbooks/),
+and ansible-doc to automate tasks in CICS.
+
+For **guides** and **reference**, please visit [the documentation
+site](https://ansible-collections.github.io/ibm_zos_cics/).
+
+Contributing
+============
+
+Thank you for contributing to this project.
+
+We welcome bug reports and discussions about new function in the issue tracker, and we also welcome proposed new features or bug fixes via pull requests.
+
+For contribution guidelines, see [How to contribute](https://github.com/ansible-collections/ibm_zos_cics/tree/master/CONTRIBUTING.md).
+
 
 Red Hat Ansible Certified Content for IBM Z
 ===========================================
@@ -23,17 +46,6 @@ application deployment in one easy-to-use platform.
 **The IBM z/OS CICS collection**, as part of the broader offering
 **Red Hat® Ansible Certified Content for IBM Z**, is available on Galaxy as 
 community supported.
-
-For **guides** and **reference**, please visit [the documentation
-site](https://ansible-collections.github.io/ibm_zos_cics/).
-
-Features
-========
-
-The IBM CICS collection includes
-[modules](https://github.com/ansible-collections/ibm_zos_cics/tree/master/plugins/modules/),
-[sample playbooks](https://github.com/ansible-collections/ibm_zos_cics/tree/master/playbooks/),
-and ansible-doc to automate tasks on CICS.
 
 Copyright
 =========

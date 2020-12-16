@@ -15,12 +15,5 @@ the future.
 .. _git issues:
    https://github.com/ansible-collections/ibm_zos_cics/issues
 
-Helpful Links
-=============
-
-* Getting Started `Ansible guide`_.
-
-.. _Ansible guide:
-   https://docs.ansible.com/ansible/latest/user_guide/intro_getting_started.html
 
 
