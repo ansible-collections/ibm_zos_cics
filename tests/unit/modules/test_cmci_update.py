@@ -25,7 +25,7 @@ def test_update(cmci_module):  # type: (CMCITestHelper) -> None
         'cicsdefinitionprogram',
         [record],
         scope=SCOPE,
-        parameters='?CRITERIA=NAME%3DDUMMY&PARAMETER=CSDGROUP%28DUMMY%29',
+        parameters='?CRITERIA=%28NAME%3D%27DUMMY%27%29&PARAMETER=CSDGROUP%28DUMMY%29',
         additional_matcher=body_matcher(od(
             ('request', od(
                 ('update', od(
@@ -42,7 +42,7 @@ def test_update(cmci_module):  # type: (CMCITestHelper) -> None
 
     cmci_module.expect(result(
         'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram'
-        '/CICSEX56/IYCWEMW2?CRITERIA=NAME%3DDUMMY&PARAMETER=CSDGROUP%28DUMMY%29',
+        '/CICSEX56/IYCWEMW2?CRITERIA=%28NAME%3D%27DUMMY%27%29&PARAMETER=CSDGROUP%28DUMMY%29',
         record,
         '<request><update>'
         '<parameter name="CSD"></parameter>'
@@ -64,7 +64,9 @@ def test_update(cmci_module):  # type: (CMCITestHelper) -> None
             'description': 'new description'
         },
         'resources': {
-            'criteria': 'NAME=DUMMY',
+            'filter': {
+                'NAME': 'DUMMY'
+            },
             'parameter': 'CSDGROUP(DUMMY)'
         }
     })
