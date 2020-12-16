@@ -4,6 +4,9 @@
 # Copyright (c) IBM Corporation 2020
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 DOCUMENTATION = r'''
 ---
 module: cmci_delete
@@ -18,7 +21,7 @@ description:
 author: "IBM"
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.cmci.COMMON
-  - ibm.ibm_zos_cics.cmci.RESOURCE
+  - ibm.ibm_zos_cics.cmci.RESOURCES
   - ibm.ibm_zos_cics.cmci.PARAMETERS
 '''
 
@@ -196,9 +199,6 @@ request:
       type: str
 """
 
-
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
     AnsibleCMCIModule, append_resources_argument
