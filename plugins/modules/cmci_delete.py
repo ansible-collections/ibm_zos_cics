@@ -18,7 +18,7 @@ description:
 author: "IBM"
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.cmci.COMMON
-  - ibm.ibm_zos_cics.cmci.RESOURCE
+  - ibm.ibm_zos_cics.cmci.RESOURCES
   - ibm.ibm_zos_cics.cmci.PARAMETERS
 '''
 

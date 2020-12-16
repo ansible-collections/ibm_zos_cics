@@ -2,6 +2,7 @@
 .. © Copyright IBM Corporation 2020                                              .
 .. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
 .. ...............................................................................
+
 :github_url: https://github.com/ansible-collections/ibm_zos_cics/blob/dev/plugins/modules/cmci_delete.py
 
 .. _cmci_delete_module:
@@ -129,7 +130,7 @@ parameters
 
 
      
-resource
+resources
   Options which specify a target resource
 
 

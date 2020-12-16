@@ -92,9 +92,9 @@ options:
     default: false
 '''
 
-    RESOURCE = r'''
+    RESOURCES = r'''
 options:
-  resource:
+  resources:
     description:
       - Options which specify a target resource
     type: dict
