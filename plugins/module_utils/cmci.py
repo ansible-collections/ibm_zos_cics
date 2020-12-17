@@ -60,19 +60,22 @@ value_dict = dict(
     required=False
 )
 
+
 def _nest_and_or_dicts():
     return _get_and_or_dict(
         _create_and_or_dicts(_create_and_or_dicts(_create_and_or_dicts(_create_and_or_dicts()))))
 
 
-def _create_and_or_dicts(children={}):
+def _create_and_or_dicts(children=None):
+    c = children if children else {}
     return {
-        'and': _get_and_or_dict(children),
-        'or': _get_and_or_dict(children)
+        'and': _get_and_or_dict(c),
+        'or': _get_and_or_dict(c)
     }
 
 
-def _get_and_or_dict(my_dict={}):
+def _get_and_or_dict(nested=None):
+    d = nested if nested else {}
     return {
         'type': 'list',
         'required': False,
@@ -81,10 +84,11 @@ def _get_and_or_dict(my_dict={}):
             'attribute': attribute_dict,
             'operator': operator_dict,
             'value': value_dict,
-            **my_dict
+            **d
         },
         'required_together': [('attribute', 'value')]
     }
+
 
 RESOURCES_ARGUMENT = {
     RESOURCES: {
@@ -339,13 +343,13 @@ class AnsibleCMCIModule(object):
         request_params = {}
         resources = self._p.get(RESOURCES)
         if resources:
-            filter = resources.get(FILTER)
-            if filter:
+            f = resources.get(FILTER)
+            if f:
                 # AND basic filters together, and use the = operator for each one
                 filter_string = ''
                 if not request_params:
                     request_params = {}
-                for key, value in filter.items():
+                for key, value in f.items():
                     filter_string = _append_filter_string(filter_string, key + '=' + '\'' + value + '\'',
                                                           joiner=' AND ')
                 request_params['CRITERIA'] = filter_string
@@ -361,8 +365,8 @@ class AnsibleCMCIModule(object):
                 attribute_item = complex_filter['attribute']
 
                 if ((and_item is not None and or_item is not None) or
-                    (or_item is not None and attribute_item is not None) or
-                    (attribute_item is not None and and_item is not None)):
+                        (or_item is not None and attribute_item is not None) or
+                        (attribute_item is not None and and_item is not None)):
                     self._fail("complex_filter can only have 'and', 'or', or 'attribute' dictionaries at the top level")
 
                 if and_item is not None:
@@ -498,95 +502,28 @@ class AnsibleCMCIModule(object):
         self._module.fail_json(msg=msg, exception=tb, **self.result)
 
 
-def append_attributes_parameters_arguments(argument_spec):
-    argument_spec.update({
-        ATTRIBUTES: {
-            'type': 'dict',
-            'required': False
-        },
-        PARAMETERS: {
-            'type': 'list',
-            'required': False,
-            'elements': 'dict',
-            'options': {
-                NAME: {
-                    'type': 'str',
-                    'required': True
-                },
-                # Value is not required for flag-type parameters like CSD
-                VALUE: {
-                    'type': 'str'
-                }
-            }
-        }
-    })
-
-
-def append_resources_argument(argument_spec):  # type: (Dict) -> None
-    argument_spec.update({
-        RESOURCES: {
-            'type': 'dict',
-            'required': False,
-            'options': {
-                FILTER: {
-                    'type': 'dict',
-                    'required': False
-                },
-                COMPLEX_FILTER: {
-                    'type': 'dict',
-                    'required': False,
-                    'options': {
-                        'attribute': attribute_dict,
-                        'operator': operator_dict,
-                        'value': value_dict,
-                        'and': _nest_and_or_dicts(),
-                        'or': _nest_and_or_dicts()
-                    },
-                    'required_together': '[(\'attribute\', \'value\')]'
-                },
-                PARAMETER: {
-                    'type': 'str',
-                    'required': False
-                }
-            }
-        }
-    })
-
-
-def append_parameters(element, parameters):
-    # Parameters are <parameter name="pname" value="pvalue" />
-    if parameters:
-        ps = []
-        for p in parameters:
-            np = {'@name': p.get('name')}
-            value = p.get('value')
-            if value:
-                np['@value'] = value
-            ps.append(np)
-        element['parameter'] = ps
-
-
-def append_attributes(element, attributes):
-    # Attributes are <attributes name="value" name2="value2"/>
-    if attributes:
-        element['attributes'] = {'@' + key: value for key, value in attributes.items()}
-
-
 def _convert_filter_operator(operator):
-    if operator in ['<', 'LT']: return '<'
-    if operator in ['<=', 'LE']: return '<='
-    if operator in ['=', 'EQ']: return '='
-    if operator in ['>=', 'GE']: return '>='
-    if operator in ['>', 'GT']: return '>'
-    if operator in ['¬=', '!=', 'NE']: return '¬='
-    if operator in ['==', 'IS']: return '=='
+    if operator in ['<', 'LT']:
+        return '<'
+    if operator in ['<=', 'LE']:
+        return '<='
+    if operator in ['=', 'EQ']:
+        return '='
+    if operator in ['>=', 'GE']:
+        return '>='
+    if operator in ['>', 'GT']:
+        return '>'
+    if operator in ['¬=', '!=', 'NE']:
+        return '¬='
+    if operator in ['==', 'IS']:
+        return '=='
 
 
 def _get_filter(list_of_filters, complex_filter_string, joiner):
     for i in list_of_filters:
-        and_item = _safe_get_dict(i, 'and')
-        or_item = _safe_get_dict(i, 'or')
-        attribute = _safe_get_dict(i, 'attribute')
+        and_item = i.get('and')
+        or_item = i.get('or')
+        attribute = i.get('attribute')
 
         if and_item is not None:
             and_filter_string = _get_filter(and_item, '', ' AND ')
@@ -601,13 +538,6 @@ def _get_filter(list_of_filters, complex_filter_string, joiner):
             complex_filter_string = _append_filter_string(complex_filter_string, attribute_filter_string, joiner)
 
     return complex_filter_string
-
-
-def _safe_get_dict(list, key):
-    try:
-        return list[key]
-    except KeyError:
-        return None
 
 
 def _append_filter_string(existing_filter_string, filter_string_to_append, joiner=' AND '):
