@@ -15,7 +15,26 @@ This CICS collection can work independently from other IBM z/OS modules on Ansib
 .. _IBM z/OS core collection:
    https://github.com/ansible-collections/ibm_zos_core
 
-Included content
+
+Red Hat Ansible Certified Content for IBM Z
+===========================================
+
+**Red Hat® Ansible Certified Content for IBM Z** provides the ability to
+connect IBM Z® to clients' wider enterprise automation strategy through the
+Ansible Automation Platform ecosystem. This enables development and operations
+automation on Z through a seamless, unified workflow orchestration with
+configuration management, provisioning, and application deployment in one
+easy-to-use platform.
+
+The **The IBM z/OS CICS collection** is following the **Red Hat Ansible Certified Content for IBM Z** method of distributing content. Collections will be developed in the open, and when content is ready for use it is released to `Ansible Galaxy`_ for community adoption. Once contributors review community usage, feedback, and are satisfied with the content published, the collection will then be released to `Ansible Automation Hub`_ as certified and IBM supported for Red Hat® Ansible Automation Platform subscribers.
+
+.. _Ansible Galaxy:
+   https://galaxy.ansible.com/search?keywords=zos_&order_by=-relevance&deprecated=false&type=collection&page=1
+
+.. _Ansible Automation Hub:
+   https://www.ansible.com/products/automation-hub
+
+Features
 ================
 
 The IBM z/OS CICS collection includes `modules`_, `sample playbooks`_, and ansible-doc to automate tasks against CICS resources and definitions.
@@ -40,21 +59,6 @@ For contribution guidelines, see `How to contribute`_.
    https://github.com/ansible-collections/ibm_zos_cics/tree/master/CONTRIBUTING.md
 
 
-Red Hat Ansible Certified Content for IBM Z
-===========================================
-
-**Red Hat® Ansible Certified Content for IBM Z** provides the ability to
-connect IBM Z® to clients' wider enterprise automation strategy through the
-Ansible Automation Platform ecosystem. This enables development and operations
-automation on Z through a seamless, unified workflow orchestration with
-configuration management, provisioning, and application deployment in one
-easy-to-use platform.
-
-**The IBM z/OS CICS collection**, as part of the broader offering
-**Red Hat® Ansible Certified Content for IBM Z**, is available on Galaxy as 
-community supported.
-
-
 
 Copyright
 =========
@@ -69,28 +73,31 @@ This collection is licensed under `Apache License, Version 2.0`_.
 .. _Apache License, Version 2.0:
     https://opensource.org/licenses/Apache-2.0
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Requirements
-
-   requirements
 
 .. toctree::
    :maxdepth: 1
    :caption: Getting Started
 
+   requirements
    installation
+   playbooks
 
 .. toctree::
-   :maxdepth: 3
-   :caption: Reference
+   :maxdepth: 1
+   :caption: Ansible Content
 
    modules
-   playbooks
 
 
 .. toctree::
    :maxdepth: 1
-   :caption: Appendices
+   :caption: Release Notes
 
    release_notes
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Reference
+
+   community_guides
