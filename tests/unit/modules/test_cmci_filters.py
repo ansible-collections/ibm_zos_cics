@@ -382,6 +382,42 @@ def test_complex_filter_operator_letters(cmci_module):  # type: (CMCITestHelper)
     })
 
 
+def test_complex_filter_and_attribute(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
+    cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE,
+                             parameters='?CRITERIA=%28FOO%3D%27BAR%27%29%20AND%20%28BAT%3D%3D%27BAZ%27%29%20AND%20'
+                                        '%28FOO2%3D%27BAR2%27%29')
+
+    cmci_module.expect(result(
+        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=%28FOO%3D%27BAR%27%29%20AND%20%28BAT%3D%3D%27BAZ%27%29%20AND%20'
+        '%28FOO2%3D%27BAR2%27%29',
+        records=records
+    ))
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'and': [{
+                    'attribute': 'FOO',
+                    'value': 'BAR'
+                },{
+                        'attribute': 'BAT',
+                        'operator': '==',
+                        'value': 'BAZ'
+                }],
+                'attribute': 'FOO2',
+                'value': 'BAR2'
+            }
+        }
+    })
+
+
 def result(url, records, http_status='OK', http_status_code=200):
     return {
         'changed': False,
