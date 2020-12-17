@@ -41,7 +41,7 @@
       security_type: 'basic'
 
 
-    ibm.ibm_zos_cics.cmci_install:
+    ibm.ibm_zos_cics.cmci_action:
       cmci_host: '{{ cmci_host }}'
       cmci_port: '{{ cmci_port }}'
       cmci_user: '{{ cmci_user }}'
@@ -114,9 +114,9 @@
 
     - name: 'install program'
       delegate_to: 'localhost'
-      ibm.ibm_zos_cics.cmci_install:
+      ibm.ibm_zos_cics.cmci_action:
         type: 'CICSDefinitionProgram'
-        location: 'CSD'
+        action_name: 'CSDINSTALL'
         resources:
           criteria: 'NAME={{ program }}'
           parameter: 'CSDGROUP({{ csdgroup }})'

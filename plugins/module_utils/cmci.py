@@ -44,6 +44,48 @@ PARAMETERS = 'parameters'
 NAME = 'name'
 VALUE = 'value'
 
+RESOURCES_ARGUMENT = {
+    RESOURCES: {
+        'type': 'dict',
+        'required': False,
+        'options': {
+            CRITERIA: {
+                'type': 'str',
+                'required': False
+            },
+            PARAMETER: {
+                'type': 'str',
+                'required': False
+            }
+        }
+    }
+}
+
+PARAMETERS_ARGUMENT = {
+    PARAMETERS: {
+        'type': 'list',
+        'required': False,
+        'elements': 'dict',
+        'options': {
+            NAME: {
+                'type': 'str',
+                'required': True
+            },
+            # Value is not required for flag-type parameters like CSD
+            VALUE: {
+                'type': 'str'
+            }
+        }
+    }
+}
+
+ATTRIBUTES_ARGUMENT = {
+    ATTRIBUTES: {
+        'type': 'dict',
+        'required': False
+    }
+}
+
 
 class AnsibleCMCIModule(object):
 
@@ -338,70 +380,27 @@ class AnsibleCMCIModule(object):
                 traceback.format_exc()
             )
 
+    def append_parameters(self, element):
+        # Parameters are <parameter name="pname" value="pvalue" />
+        parameters = self._p.get(PARAMETERS)
+        if parameters:
+            ps = []
+            for p in parameters:
+                np = {'@name': p.get('name')}
+                value = p.get('value')
+                if value:
+                    np['@value'] = value
+                ps.append(np)
+            element['parameter'] = ps
+
+    def append_attributes(self, element):
+        # Attributes are <attributes name="value" name2="value2"/>
+        attributes = self._p.get(ATTRIBUTES)
+        if attributes:
+            element['attributes'] = {'@' + key: value for key, value in attributes.items()}
+
     def _fail(self, msg):  # type: (str) -> None
         self._module.fail_json(msg=msg, **self.result)
 
     def _fail_tb(self, msg, tb):  # type: (str, str) -> None
         self._module.fail_json(msg=msg, exception=tb, **self.result)
-
-
-def append_attributes_parameters_arguments(argument_spec):
-    argument_spec.update({
-        ATTRIBUTES: {
-            'type': 'dict',
-            'required': False
-        },
-        PARAMETERS: {
-            'type': 'list',
-            'required': False,
-            'elements': 'dict',
-            'options': {
-                NAME: {
-                    'type': 'str',
-                    'required': True
-                },
-                # Value is not required for flag-type parameters like CSD
-                VALUE: {
-                    'type': 'str'
-                }
-            }
-        }
-    })
-
-
-def append_resources_argument(argument_spec):  # type: (Dict) -> None
-    argument_spec.update({
-        RESOURCES: {
-            'type': 'dict',
-            'required': False,
-            'options': {
-                CRITERIA: {
-                    'type': 'str',
-                    'required': False
-                },
-                PARAMETER: {
-                    'type': 'str',
-                    'required': False
-                }
-            }
-        }
-    })
-
-
-def append_parameters(element, parameters):
-    # Parameters are <parameter name="pname" value="pvalue" />
-    if parameters:
-        ps = []
-        for p in parameters:
-            np = {'@name': p.get('name')}
-            value = p.get('value')
-            if value:
-                np['@value'] = value
-            ps.append(np)
-        element['parameter'] = ps
-
-
-def append_attributes(element, attributes):
-    # Attributes are <attributes name="value" name2="value2"/>
-    if attributes:
-        element['attributes'] = {'@' + key: value for key, value in attributes.items()}
