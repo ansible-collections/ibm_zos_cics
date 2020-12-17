@@ -9,12 +9,11 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 ---
-module: cmci_install
+module: cmci_action
 short_description: Install CICS and CICSplex SM definitions
 description:
-  - The cmci_install module can be used to install CICS and CICSPlex® SM resources into CICS regions from definitions,
-    using the CMCI API.  The CMCI API is provided by CICSplex SM, or in SMSS regions.  For information about the CMCI
-    API see
+  - The cmci_action module can be used to perform actions on CICS and CICSPlex® SM definitions and resources, using the
+    CMCI API.  The CMCI API is provided by CICSplex SM, or in SMSS regions.  For information about the CMCI API see
     U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
     For information about how to compose PUT requests, see
     U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_put.html).
@@ -25,7 +24,11 @@ extends_documentation_fragment:
   - ibm.ibm_zos_cics.cmci.PARAMETERS
 options:
   action_name:
-    description: The name of the target action.  TODO: how to find the action names
+    description: >
+      The name of the target action.  To find the name of the appropriat action, consult the CICSplex SM resource
+      tables for the target resource type.  For example, see this reference information which lists the eligible
+      actions for CICS programs:
+      U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html)
     type: str
     required: true
 '''
