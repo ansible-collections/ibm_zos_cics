@@ -19,12 +19,7 @@ This CICS collection can work independently from other IBM z/OS modules on Ansib
 Red Hat Ansible Certified Content for IBM Z
 ===========================================
 
-**Red Hat® Ansible Certified Content for IBM Z** provides the ability to
-connect IBM Z® to clients' wider enterprise automation strategy through the
-Ansible Automation Platform ecosystem. This enables development and operations
-automation on Z through a seamless, unified workflow orchestration with
-configuration management, provisioning, and application deployment in one
-easy-to-use platform.
+**Red Hat® Ansible Certified Content for IBM Z** provides the ability to connect IBM Z® to clients' wider enterprise automation strategy through the Ansible Automation Platform ecosystem. This enables development and operations automation on Z through a seamless, unified workflow orchestration with configuration management, provisioning, and application deployment in one easy-to-use platform.
 
 The **The IBM z/OS CICS collection** is following the **Red Hat Ansible Certified Content for IBM Z** method of distributing content. Collections will be developed in the open, and when content is ready for use it is released to `Ansible Galaxy`_ for community adoption. Once contributors review community usage, feedback, and are satisfied with the content published, the collection will then be released to `Ansible Automation Hub`_ as certified and IBM supported for Red Hat® Ansible Automation Platform subscribers.
 
