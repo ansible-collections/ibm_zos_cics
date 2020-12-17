@@ -99,8 +99,9 @@ def test_install_csd_criteria_parameter(cmci_module):  # type: (CMCITestHelper) 
         'cicsdefinitionprogram',
         [record],
         scope=SCOPE,
-        parameters='?CRITERIA=%28%28NAME%3DDUMMY%29+AND+%28DEFVER%3D0%29+AND+'
-                   '%28CSDGROUP%3DDUMMY%29%29&PARAMETER=CSDGROUP%28DUMMY%29',
+        parameters='?CRITERIA=%28NAME%3D%27DUMMY%27%29+AND+%28DEFVER%3D%270%27%29+AND+'
+                   '%28CSDGROUP%3D%27DUMMY%27%29&PARAMETER=CSDGROUP%28DUMMY%29',
+
         additional_matcher=body_matcher(od(
             ('request', od(
                 ('action', od(
@@ -112,8 +113,8 @@ def test_install_csd_criteria_parameter(cmci_module):  # type: (CMCITestHelper) 
 
     cmci_module.expect(result(
         'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram/'
-        'CICSEX56/IYCWEMW2?CRITERIA=%28%28NAME%3DDUMMY%29%20AND%20%28DEFVER%3D0%29%20AND'
-        '%20%28CSDGROUP%3DDUMMY%29%29&PARAMETER=CSDGROUP%28DUMMY%29',
+        'CICSEX56/IYCWEMW2?CRITERIA=%28NAME%3D%27DUMMY%27%29%20AND%20%28DEFVER%3D%270%27%29%20AND'
+        '%20%28CSDGROUP%3D%27DUMMY%27%29&PARAMETER=CSDGROUP%28DUMMY%29',
         record,
         '<request><action name="CSDINSTALL"></action></request>'
     ))
@@ -126,7 +127,18 @@ def test_install_csd_criteria_parameter(cmci_module):  # type: (CMCITestHelper) 
         'type': 'cicsdefinitionprogram',
         'action_name': 'CSDINSTALL',
         'resources': {
-            'criteria': '((NAME=DUMMY) AND (DEFVER=0) AND (CSDGROUP=DUMMY))',
+            'complex_filter': {
+                'and': [{
+                        'attribute': 'NAME',
+                        'value': 'DUMMY'
+                    }, {
+                        'attribute': 'DEFVER',
+                        'value': '0'
+                    }, {
+                        'attribute': 'CSDGROUP',
+                        'value': 'DUMMY'
+                    }]
+            },
             'parameter': 'CSDGROUP(DUMMY)'
         }
     })

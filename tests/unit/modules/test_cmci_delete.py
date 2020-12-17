@@ -50,12 +50,12 @@ def test_delete_context_scope(cmci_module):  # type: (CMCITestHelper) -> None
 
 
 def test_delete_criteria(cmci_module):  # type: (CMCITestHelper) -> None
-    cmci_module.stub_delete('cicsdefinitionbundle', 1, parameters='?CRITERIA=FOO%3DBAR')
+    cmci_module.stub_delete('cicsdefinitionbundle', 1, parameters='?CRITERIA=%28FOO%3D%27BAR%27%29')
 
     cmci_module.expect(
         result(
             'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-            'cicsdefinitionbundle/CICSEX56/?CRITERIA=FOO%3DBAR',
+            'cicsdefinitionbundle/CICSEX56/?CRITERIA=%28FOO%3D%27BAR%27%29',
             1
         )
     )
@@ -66,7 +66,9 @@ def test_delete_criteria(cmci_module):  # type: (CMCITestHelper) -> None
         'context': CONTEXT,
         'type': 'cicsdefinitionbundle',
         'resources': {
-            'criteria': 'FOO=BAR'
+            'filter': {
+                'FOO': 'BAR'
+            }
         }
     })
 
@@ -97,13 +99,13 @@ def test_delete_criteria_parameter(cmci_module):  # type: (CMCITestHelper) -> No
     cmci_module.stub_delete(
         'cicsdefinitionbundle',
         1,
-        parameters='?CRITERIA=FOO%3DBAR&PARAMETER=CSDGROUP%28%2A%29'
+        parameters='?CRITERIA=%28FOO%3D%27BAR%27%29&PARAMETER=CSDGROUP%28%2A%29'
     )
 
     cmci_module.expect(
         result(
             'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-            'cicsdefinitionbundle/CICSEX56/?CRITERIA=FOO%3DBAR&PARAMETER=CSDGROUP%28%2A%29',
+            'cicsdefinitionbundle/CICSEX56/?CRITERIA=%28FOO%3D%27BAR%27%29&PARAMETER=CSDGROUP%28%2A%29',
             1
         )
     )
@@ -114,7 +116,9 @@ def test_delete_criteria_parameter(cmci_module):  # type: (CMCITestHelper) -> No
         'context': CONTEXT,
         'type': 'cicsdefinitionbundle',
         'resources': {
-            'criteria': 'FOO=BAR',
+            'filter': {
+                'FOO': 'BAR'
+            },
             'parameter': 'CSDGROUP(*)'
         }
     })
