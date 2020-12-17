@@ -191,8 +191,7 @@ request:
 
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
-    AnsibleCMCIModule, PARAMETERS, ATTRIBUTES, append_parameters, append_attributes,
-    append_attributes_parameters_arguments, append_resources_argument
+    AnsibleCMCIModule, RESOURCES_ARGUMENT, PARAMETERS_ARGUMENT, ATTRIBUTES_ARGUMENT
 )
 from typing import Optional, Dict
 
@@ -203,14 +202,15 @@ class AnsibleCMCIUpdateModule(AnsibleCMCIModule):
 
     def init_argument_spec(self):  # type: () -> Dict
         argument_spec = super(AnsibleCMCIUpdateModule, self).init_argument_spec()
-        append_attributes_parameters_arguments(argument_spec)
-        append_resources_argument(argument_spec)
+        argument_spec.update(RESOURCES_ARGUMENT)
+        argument_spec.update(PARAMETERS_ARGUMENT)
+        argument_spec.update(ATTRIBUTES_ARGUMENT)
         return argument_spec
 
     def init_body(self):  # type: () -> Optional[Dict]
         update = {}
-        append_parameters(update, self._p.get(PARAMETERS))
-        append_attributes(update, self._p.get(ATTRIBUTES))
+        self.append_parameters(update)
+        self.append_attributes(update)
 
         return {
             'request': {

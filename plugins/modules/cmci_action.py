@@ -9,12 +9,11 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 ---
-module: cmci_install
+module: cmci_action
 short_description: Install CICS and CICSplex SM definitions
 description:
-  - The cmci_install module can be used to install CICS and CICSPlex® SM resources into CICS regions from definitions,
-    using the CMCI API.  The CMCI API is provided by CICSplex SM, or in SMSS regions.  For information about the CMCI
-    API see
+  - The cmci_action module can be used to perform actions on CICS and CICSPlex® SM definitions and resources, using the
+    CMCI API.  The CMCI API is provided by CICSplex SM, or in SMSS regions.  For information about the CMCI API see
     U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
     For information about how to compose PUT requests, see
     U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_put.html).
@@ -24,15 +23,14 @@ extends_documentation_fragment:
   - ibm.ibm_zos_cics.cmci.RESOURCES
   - ibm.ibm_zos_cics.cmci.PARAMETERS
 options:
-  location:
-    description:
-      - The location that resource been installed to.
-      - This variable only work with option 'install'.
+  action_name:
+    description: >
+      The name of the target action.  To find the name of the appropriat action, consult the CICSplex SM resource
+      tables for the target resource type.  For example, see this reference information which lists the eligible
+      actions for CICS programs:
+      U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html)
     type: str
-    required: false
-    choices:
-      - BAS
-      - CSD
+    required: true
 '''
 
 
@@ -214,13 +212,13 @@ request:
 
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
-    AnsibleCMCIModule, append_resources_argument
+    AnsibleCMCIModule, RESOURCES_ARGUMENT, PARAMETERS_ARGUMENT
 )
 
 from typing import Dict, Optional
 
 
-LOCATION = 'location'
+ACTION_NAME = 'action_name'
 
 
 class AnsibleCMCIInstallModule(AnsibleCMCIModule):
@@ -230,22 +228,22 @@ class AnsibleCMCIInstallModule(AnsibleCMCIModule):
     def init_argument_spec(self):  # type: () -> Dict
         argument_spec = super(AnsibleCMCIInstallModule, self).init_argument_spec()
         argument_spec.update({
-            'location': {
+            'action_name': {
                 'type': 'str',
-                'required': False,
-                'choices': ['BAS', 'CSD']
+                'required': True
             }
         })
-        append_resources_argument(argument_spec)
+        argument_spec.update(RESOURCES_ARGUMENT)
+        argument_spec.update(PARAMETERS_ARGUMENT)
         return argument_spec
 
     def init_body(self):  # type: () -> Optional[Dict]
-        location = self._p.get(LOCATION)
+
+        action = {'@name': self._p.get(ACTION_NAME)}
+        self.append_parameters(action)
         return {
             'request': {
-                'action': {
-                    '@name': 'INSTALL' if location == 'BAS' else 'CSDINSTALL'
-                }
+                'action': action
             }
         }
 

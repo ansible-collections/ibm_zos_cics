@@ -213,7 +213,7 @@ request:
 
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
-    AnsibleCMCIModule, append_resources_argument
+    AnsibleCMCIModule, RESOURCES_ARGUMENT
 )
 
 from typing import Dict, Optional
@@ -233,7 +233,7 @@ class AnsibleCMCIGetModule(AnsibleCMCIModule):
                 'type': 'int'
             }
         })
-        append_resources_argument(argument_spec)
+        argument_spec.update(RESOURCES_ARGUMENT)
         return argument_spec
 
     def init_request_params(self):  # type: () -> Optional[Dict[str, str]]

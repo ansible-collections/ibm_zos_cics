@@ -1,8 +1,9 @@
 # Copyright (c) IBM Corporation 2020
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-cmci_host: winmvs2c.hursley.ibm.com
-cmci_port: 26040
+cmci_host: winmvs28.hursley.ibm.com
+cmci_port: 28951
 cmci_user: youruser
 cmci_password: yourpass
-context: CICPY012
+context: CICSEX56
+scope: IYCWEMW2

@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_install
+from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_action
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
     HOST, PORT, CONTEXT, SCOPE, od, body_matcher, cmci_module, CMCITestHelper
 )
@@ -40,13 +40,13 @@ def test_csd_install(cmci_module):  # type: (CMCITestHelper) -> None
         '<request><action name="CSDINSTALL"></action></request>'
     ))
 
-    cmci_module.run(cmci_install, {
+    cmci_module.run(cmci_action, {
         'cmci_host': HOST,
         'cmci_port': PORT,
         'context': CONTEXT,
         'scope': 'IYCWEMW2',
         'type': 'cicsdefinitionbundle',
-        'location': 'CSD',
+        'action_name': 'CSDINSTALL',
         'resources': {
             'parameter': 'CSDGROUP(*)'
         }
@@ -78,12 +78,12 @@ def test_bas_install(cmci_module):  # type: (CMCITestHelper) -> None
         '<request><action name="INSTALL"></action></request>'
     ))
 
-    cmci_module.run(cmci_install, {
+    cmci_module.run(cmci_action, {
         'cmci_host': HOST,
         'cmci_port': PORT,
         'context': CONTEXT,
         'type': 'cicsdefinitionbundle',
-        'location': 'BAS'
+        'action_name': 'INSTALL'
     })
 
 
@@ -117,18 +117,69 @@ def test_install_csd_criteria_parameter(cmci_module):  # type: (CMCITestHelper) 
         record,
         '<request><action name="CSDINSTALL"></action></request>'
     ))
-    cmci_module.run(cmci_install, {
+    cmci_module.run(cmci_action, {
         'cmci_host': HOST,
         'cmci_port': PORT,
         'context': CONTEXT,
         'scope': SCOPE,
         'security_type': 'none',
         'type': 'cicsdefinitionprogram',
-        'location': 'CSD',
+        'action_name': 'CSDINSTALL',
         'resources': {
             'criteria': '((NAME=DUMMY) AND (DEFVER=0) AND (CSDGROUP=DUMMY))',
             'parameter': 'CSDGROUP(DUMMY)'
         }
+    })
+
+
+def test_bas_install_params(cmci_module):  # type: (CMCITestHelper) -> None
+    record = dict(
+        name='bar',
+        bundledir='/u/bundles/bloop',
+        csdgroup='bat'
+    )
+    cmci_module.stub_records(
+        'PUT',
+        'cicsdefinitionbundle',
+        [record],
+        additional_matcher=body_matcher(od(
+            ('request', od(
+                ('action', od(
+                    ('@name', 'INSTALL'),
+                    ('parameter', [
+                        od(
+                            ('@name', 'FORCEINS'),
+                            ('@value', 'NO')
+                        ),
+                        od(
+                            ('@name', 'USAGE'),
+                            ('@value', 'LOCAL')
+                        )
+                    ])
+                ))
+            ))
+        ))
+    )
+
+    cmci_module.expect(result(
+        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/',
+        record,
+        '<request><action name="INSTALL">'
+        '<parameter name="FORCEINS" value="NO"></parameter>'
+        '<parameter name="USAGE" value="LOCAL"></parameter>'
+        '</action></request>'
+    ))
+
+    cmci_module.run(cmci_action, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicsdefinitionbundle',
+        'action_name': 'INSTALL',
+        'parameters': [
+          {'name': 'FORCEINS', 'value': 'NO'},
+          {'name': 'USAGE', 'value': 'LOCAL'}
+        ]
     })
 
 
