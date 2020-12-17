@@ -360,8 +360,10 @@ class AnsibleCMCIModule(object):
                 or_item = complex_filter['or']
                 attribute_item = complex_filter['attribute']
 
-                if and_item is not None and or_item is not None:
-                    self._fail("complex_filter can't have both 'and' and 'or' dictionaries at the top level")
+                if ((and_item is not None and or_item is not None) or
+                    (or_item is not None and attribute_item is not None) or
+                    (attribute_item is not None and and_item is not None)):
+                    self._fail("complex_filter can only have 'and', 'or', or 'attribute' dictionaries at the top level")
 
                 if and_item is not None:
                     complex_filter_string = _get_filter(and_item, complex_filter_string, ' AND ')
