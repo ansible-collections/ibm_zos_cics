@@ -59,14 +59,53 @@ value_dict = dict(
     type='str',
     required=False
 )
+
+def _nest_and_or_dicts():
+    return _get_and_or_dict(
+        _create_and_or_dicts(_create_and_or_dicts(_create_and_or_dicts(_create_and_or_dicts()))))
+
+
+def _create_and_or_dicts(children={}):
+    return {
+        'and': _get_and_or_dict(children),
+        'or': _get_and_or_dict(children)
+    }
+
+
+def _get_and_or_dict(my_dict={}):
+    return {
+        'type': 'list',
+        'required': False,
+        'elements': 'dict',
+        'options': {
+            'attribute': attribute_dict,
+            'operator': operator_dict,
+            'value': value_dict,
+            **my_dict
+        },
+        'required_together': [('attribute', 'value')]
+    }
+
 RESOURCES_ARGUMENT = {
     RESOURCES: {
         'type': 'dict',
         'required': False,
         'options': {
-            CRITERIA: {
-                'type': 'str',
+            FILTER: {
+                'type': 'dict',
                 'required': False
+            },
+            COMPLEX_FILTER: {
+                'type': 'dict',
+                'required': False,
+                'options': {
+                    'attribute': attribute_dict,
+                    'operator': operator_dict,
+                    'value': value_dict,
+                    'and': _nest_and_or_dicts(),
+                    'or': _nest_and_or_dicts()
+                },
+                'required_together': '[(\'attribute\', \'value\')]'
             },
             PARAMETER: {
                 'type': 'str',
@@ -529,33 +568,6 @@ def append_attributes(element, attributes):
     # Attributes are <attributes name="value" name2="value2"/>
     if attributes:
         element['attributes'] = {'@' + key: value for key, value in attributes.items()}
-
-
-def _nest_and_or_dicts():
-    return _get_and_or_dict(
-        _create_and_or_dicts(_create_and_or_dicts(_create_and_or_dicts(_create_and_or_dicts()))))
-
-
-def _create_and_or_dicts(children={}):
-    return {
-        'and': _get_and_or_dict(children),
-        'or': _get_and_or_dict(children)
-    }
-
-
-def _get_and_or_dict(my_dict={}):
-    return {
-        'type': 'list',
-        'required': False,
-        'elements': 'dict',
-        'options': {
-            'attribute': attribute_dict,
-            'operator': operator_dict,
-            'value': value_dict,
-            **my_dict
-        },
-        'required_together': [('attribute', 'value')]
-    }
 
 
 def _convert_filter_operator(operator):
