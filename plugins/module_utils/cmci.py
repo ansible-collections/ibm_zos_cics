@@ -52,6 +52,7 @@ attribute_dict = dict(
 operator_dict = dict(
     type='str',
     required=False,
+    default='EQ',
     choices=['<', '<=', '=', '>=', '>=', '¬=', '==', '!=', 'EQ', 'NE', 'LT', 'LE', 'GE', 'GT', 'IS']
 )
 value_dict = dict(
@@ -558,14 +559,13 @@ def _get_and_or_dict(my_dict={}):
 
 
 def _convert_filter_operator(operator):
-    if operator is None: return '='
-    if operator == '<' or operator == 'LT': return '<'
-    if operator == '<=' or operator == 'LE': return '<='
-    if operator == '=' or operator == 'EQ': return '='
-    if operator == '>=' or operator == 'GE': return '>='
-    if operator == '>' or operator == 'GT': return '>'
-    if operator == '¬=' or operator == '!=' or operator == 'NE': return '¬='
-    if operator == '==' or operator == 'IS': return '=='
+    if operator in ['<', 'LT']: return '<'
+    if operator in ['<=', 'LE']: return '<='
+    if operator in ['=', 'EQ']: return '='
+    if operator in ['>=', 'GE']: return '>='
+    if operator in ['>', 'GT']: return '>'
+    if operator in ['¬=', '!=', 'NE']: return '¬='
+    if operator in ['==', 'IS']: return '=='
 
 
 def _get_filter(list_of_filters, complex_filter_string, joiner):
