@@ -42,7 +42,7 @@ def test_csd_create(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
         'changed': True,
         'request': {
-            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+            'url': 'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
                    'cicsdefinitionbundle/CICSEX56/IYCWEMW2',
             'method': 'POST',
             'body': '<request><create>'

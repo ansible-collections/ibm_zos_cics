@@ -20,7 +20,7 @@ import re
 def test_401_fails(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.stub_request(
         'GET',
-        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/CICSDefinitionBundle/CICPY012/',
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/CICSDefinitionBundle/CICPY012/',
         status_code=401,
         reason='Not authorized',
         text='<!doctype html public "-//IETF//DTD HTML 2.0//EN">\n'
@@ -43,7 +43,7 @@ def test_401_fails(cmci_module):  # type: (CMCITestHelper) -> None
         'http_status': 'Not authorized',
         'http_status_code': 401,
         'request': {
-            'url': 'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+            'url': 'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
                    'cicsdefinitionbundle/CICPY012/',
             'method': 'GET',
             'body': None
@@ -55,7 +55,6 @@ def test_401_fails(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_host': 'winmvs2c.hursley.ibm.com',
         'cmci_port': '26040',
         'context': 'CICPY012',
-        'security_type': 'none',
         'type': 'CICSDefinitionBundle'
     })
 
@@ -84,7 +83,6 @@ def test_unknown_host(monkeypatch):
         'cmci_host': 'invalid.hursley.ibm.com',
         'cmci_port': '26040',
         'context': 'CICPY012',
-        'security_type': 'none',
         'type': 'CICSDefinitionBundle'
     })
 
@@ -179,22 +177,6 @@ def test_invalid_scope(cmci_module):  # type: (CMCITestHelper) -> None
     })
 
 
-def test_invalid_security(cmci_module):  # type: (CMCITestHelper) -> None
-    cmci_module.expect({
-        'msg': 'value of security_type must be one of: none, basic, certificate, got: yes',
-        'failed': True
-    })
-
-    cmci_module.run(cmci_get, {
-        'cmci_host': '100.99.99.199',
-        'cmci_port': '10080',
-        'context': 'iyk3z0r9',
-        'scope': 'iyk3z0r8',
-        'security_type': 'yes',
-        'type': 'cicslocalfile'
-    })
-
-
 def test_auth(cmci_module):  # type: (CMCITestHelper) -> None
     records = [
         {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'},
@@ -221,7 +203,57 @@ def test_auth(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': PORT,
         'cmci_user': 'foo',
         'cmci_password': 'bar',
-        'security_type': 'basic',
+        'context': CONTEXT,
+        'scope': SCOPE,
+        'type': 'cicslocalfile'
+    })
+
+
+def test_basic_auth_required_together(cmci_module):  # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': 'parameters are required together: cmci_user, cmci_password',
+        'failed': True
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'cmci_user': 'foo',
+        'context': CONTEXT,
+        'scope': SCOPE,
+        'type': 'cicslocalfile'
+    })
+
+
+def test_cert_key_required_together(cmci_module):  # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': 'parameters are required together: cmci_cert, cmci_key',
+        'failed': True
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'cmci_cert': 'foo',
+        'context': CONTEXT,
+        'scope': SCOPE,
+        'type': 'cicslocalfile'
+    })
+
+
+def test_cert_key_http_incompatible(cmci_module):  # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': 'scheme can not be set to http if you are using certificate auth',
+        'changed': False,
+        'failed': True
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'cmci_cert': 'foo',
+        'cmci_key': 'bar',
+        'scheme': 'http',
         'context': CONTEXT,
         'scope': SCOPE,
         'type': 'cicslocalfile'
@@ -236,7 +268,7 @@ def test_ok_context_scope(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE)
 
     cmci_module.expect(result(
-        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56/IYCWEMW2',
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56/IYCWEMW2',
         records=records
     ))
 
@@ -249,12 +281,34 @@ def test_ok_context_scope(cmci_module):  # type: (CMCITestHelper) -> None
     })
 
 
+def test_ok_context_scope_http(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [
+        {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'},
+        {'name': 'bing', 'dsname': 'STEWF.BAT.BAZ'}
+    ]
+    cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE, scheme='http')
+
+    cmci_module.expect(result(
+        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56/IYCWEMW2',
+        records=records
+    ))
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'scheme': 'http'
+    })
+
+
 def test_ok_context_scope_single_record(cmci_module):  # type: (CMCITestHelper) -> None
     records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
     cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE)
 
     cmci_module.expect(result(
-        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56/IYCWEMW2',
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56/IYCWEMW2',
         records=records
     ))
 
@@ -285,7 +339,7 @@ def test_ok_context_scope_jvmserver_header(cmci_module):  # type: (CMCITestHelpe
     )
 
     cmci_module.expect(result(
-        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56/IYCWEMW2',
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56/IYCWEMW2',
         records=records
     ))
 
@@ -303,7 +357,7 @@ def test_query_criteria(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE, parameters='?CRITERIA=%28FOO%3D%27BAR%27%29')
 
     cmci_module.expect(result(
-        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
         'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=%28FOO%3D%27BAR%27%29',
         records=records
     ))
@@ -333,7 +387,7 @@ def test_query_parameter(cmci_module):  # type: (CMCITestHelper) -> None
     )
 
     cmci_module.expect(result(
-        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
         'cicsdefinitionfile/CICSEX56/IYCWEMW2?PARAMETER=CSDGROUP%28%2A%29',
         records=records
     ))
@@ -364,7 +418,7 @@ def test_query_parameters(cmci_module):  # type: (CMCITestHelper) -> None
     )
 
     cmci_module.expect(result(
-        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
         'cicsdefinitionfile/CICSEX56/IYCWEMW2?PARAMETER=CSDGROUP%28%2A%29%20FOO%28BO%20BO%29%20blah',
         records=records
     ))
@@ -401,7 +455,7 @@ def test_query_parameter_criteria(cmci_module):  # type: (CMCITestHelper) -> Non
     )
 
     cmci_module.expect(result(
-        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
         'cicsdefinitionfile/CICSEX56/IYCWEMW2?CRITERIA=%28FOO%3D%27BAR%27%29&PARAMETER=CSDGROUP%28%2A%29',
         records=records
     ))
@@ -427,7 +481,7 @@ def test_ok_context_record_count(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.stub_records('GET', 'cicslocalfile', records, record_count=1)
 
     cmci_module.expect(result(
-        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56///1',
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56///1',
         records=records
     ))
 
