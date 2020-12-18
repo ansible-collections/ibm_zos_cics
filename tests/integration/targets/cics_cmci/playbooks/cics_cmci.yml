@@ -72,7 +72,9 @@
                 value: '{{ program }}'
               - attribute: CSDGROUP
                 value: '{{ csdgroup }}'
-          parameter: 'CSDGROUP({{ csdgroup }})'
+          parameters:
+            - name: 'CSDGROUP'
+              value: '{{ csdgroup }}'
       register: result
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
@@ -107,7 +109,9 @@
         resources:
           filter:
             NAME: '{{ program }}'
-          parameter: 'CSDGROUP({{ csdgroup }})'
+          parameters:
+            - name: 'CSDGROUP'
+              value: '{{ csdgroup }}'
       register: result
 
     - assert:
@@ -126,14 +130,16 @@
         resources:
           filter:
             NAME: '{{ program }}'
-          parameter: 'CSDGROUP({{ csdgroup }})'
+          parameters:
+            - name: 'CSDGROUP'
+              value: '{{ csdgroup }}'
       register: result
-
 
     - assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
+          - result.record_count == 1
 
 
     - name: 'check program was installed'
@@ -202,7 +208,9 @@
         resources:
           filter:
             NAME: '{{ program }}'
-          parameter: 'CSDGROUP({{ csdgroup }})'
+          parameters:
+            - name: 'CSDGROUP'
+              value: '{{ csdgroup }}'
       register: result
 
     - assert:

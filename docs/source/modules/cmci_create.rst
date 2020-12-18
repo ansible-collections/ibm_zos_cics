@@ -131,11 +131,31 @@ insecure
 
      
 parameters
-  The resource parameters,refer to the CICSPlex SM resource tables in the knowledge center to get the possible parameters.
+  A list of one or more parameters for the target operation.  TODO should we document this parameter separately for each operation?  E.g. might be easier to show how to find the parameters for an action distinct from create... TODO Provide an example of how to use flag style parameters
+
 
 
   | **required**: False
-  | **type**: dict
+  | **type**: list
+
+
+     
+  name
+    Parameter name
+
+
+    | **required**: True
+    | **type**: str
+
+
+     
+  value
+    Parameter value if any
+
+
+    | **required**: False
+    | **type**: str
+
 
 
      
@@ -188,13 +208,13 @@ Examples
          cmci_host: 'winmvs2c.hursley.ibm.com'
          cmci_port: '10080'
          context: 'iyk3z0r9'
-         resource_name: 'CICSDefinitionBundle'
+         type: 'CICSDefinitionBundle'
          attributes:
            name: PONGALT
            BUNDLEDIR: /u/ibmuser/bundle/pong/pongbundle_1.0.0
            csdgroup: JVMGRP
          parameters:
-           csd: null
+           - name: 'csd'
 
 
 

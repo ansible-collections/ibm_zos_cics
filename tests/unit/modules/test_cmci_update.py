@@ -67,7 +67,7 @@ def test_update(cmci_module):  # type: (CMCITestHelper) -> None
             'filter': {
                 'NAME': 'DUMMY'
             },
-            'parameter': 'CSDGROUP(DUMMY)'
+            'parameters': [{'name': 'CSDGROUP', 'value': 'DUMMY'}]
         }
     })
 

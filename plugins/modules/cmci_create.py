@@ -32,13 +32,13 @@ EXAMPLES = r"""
       cmci_host: 'winmvs2c.hursley.ibm.com'
       cmci_port: '10080'
       context: 'iyk3z0r9'
-      resource_name: 'CICSDefinitionBundle'
+      type: 'CICSDefinitionBundle'
       attributes:
         name: PONGALT
         BUNDLEDIR: /u/ibmuser/bundle/pong/pongbundle_1.0.0
         csdgroup: JVMGRP
       parameters:
-        csd: null
+        - name: 'csd'
 """
 
 

@@ -35,7 +35,6 @@ CMCI_KEY = 'cmci_key'
 SECURITY_TYPE = 'security_type'
 CONTEXT = 'context'
 SCOPE = 'scope'
-PARAMETER = 'parameter'
 RESOURCES = 'resources'
 TYPE = 'type'
 ATTRIBUTES = 'attributes'
@@ -90,6 +89,25 @@ def _get_and_or_dict(nested=None):
     }
 
 
+PARAMETERS_ARGUMENT = {
+    PARAMETERS: {
+        'type': 'list',
+        'required': False,
+        'elements': 'dict',
+        'options': {
+            NAME: {
+                'type': 'str',
+                'required': True
+            },
+            # Value is not required for flag-type parameters like CSD
+            VALUE: {
+                'type': 'str'
+            }
+        }
+    }
+}
+
+
 RESOURCES_ARGUMENT = {
     RESOURCES: {
         'type': 'dict',
@@ -111,28 +129,7 @@ RESOURCES_ARGUMENT = {
                 },
                 'required_together': '[(\'attribute\', \'value\')]'
             },
-            PARAMETER: {
-                'type': 'str',
-                'required': False
-            }
-        }
-    }
-}
-
-PARAMETERS_ARGUMENT = {
-    PARAMETERS: {
-        'type': 'list',
-        'required': False,
-        'elements': 'dict',
-        'options': {
-            NAME: {
-                'type': 'str',
-                'required': True
-            },
-            # Value is not required for flag-type parameters like CSD
-            VALUE: {
-                'type': 'str'
-            }
+            **PARAMETERS_ARGUMENT
         }
     }
 }
@@ -383,9 +380,11 @@ class AnsibleCMCIModule(object):
 
                 request_params['CRITERIA'] = complex_filter_string
 
-            if resources.get(PARAMETER):
-                request_params['PARAMETER'] = resources.get(PARAMETER)
-
+            parameters = resources.get(PARAMETERS)
+            if parameters:
+                def mapper(p):
+                    return p.get('name') + '(' + p.get('value') + ')' if p.get('value') else p.get('name')
+                request_params['PARAMETER'] = ' '.join(map(mapper, parameters))
         return request_params
 
     def init_session(self):  # type: () -> requests.Session
