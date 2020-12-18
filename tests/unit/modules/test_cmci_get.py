@@ -475,6 +475,39 @@ def test_query_parameter_criteria(cmci_module):  # type: (CMCITestHelper) -> Non
     })
 
 
+def test_bas_query(cmci_module):    #type: (CMCITestHelper) -> None
+    records = [
+        {'defname': 'DUMMY1', 'deftype': 'PROGDEF', 'ingtype': 'PGMINGRP', 'resgroup': 'BASGRP1'},
+        {'defname': 'DUMMY2', 'deftype': 'TRANDEF', 'ingtype': 'PGMINGRP', 'resgroup': 'BASGRP1'},
+        {'defname': 'DUMMY3', 'deftype': 'LIBDEF', 'ingtype': 'PGMINGRP', 'resgroup': 'BASGRP1'}
+    ]
+
+    cmci_module.stub_records(
+        'GET',
+        'cicsresourceingroup',
+        records,
+        parameters='?CRITERIA=%28RESGROUP%3D%27BASGRP1%27%29'
+    )
+
+    cmci_module.expect(result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'cicsresourceingroup/CICSEX56/?CRITERIA=%28RESGROUP%3D%27BASGRP1%27%29',
+        records=records
+    ))
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'resources': {
+            'filter': {
+                'RESGROUP': 'BASGRP1'
+            }
+        },
+        'type': 'cicsresourceingroup'
+    })
+
+
 def test_ok_context_record_count(cmci_module):  # type: (CMCITestHelper) -> None
     records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
 

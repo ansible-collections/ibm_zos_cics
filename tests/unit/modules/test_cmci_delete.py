@@ -124,6 +124,34 @@ def test_delete_criteria_parameter(cmci_module):  # type: (CMCITestHelper) -> No
     })
 
 
+def test_delete_bas(cmci_module):  # type: (CMCITestHelper) -> None
+    cmci_module.stub_delete(
+        'cicsresourceingroup',
+        1,
+        parameters='?CRITERIA=%28RESGROUP%3D%27BASGRP1%27%29'
+    )
+
+    cmci_module.expect(
+        result(
+            'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+            'cicsresourceingroup/CICSEX56/?CRITERIA=%28RESGROUP%3D%27BASGRP1%27%29',
+            1
+        )
+    )
+
+    cmci_module.run(cmci_delete, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicsresourceingroup',
+        'resources': {
+            'filter': {
+                'RESGROUP': 'BASGRP1'
+            },
+        }
+    })
+
+
 def result(url, success_count):
     return {
         'changed': True,
