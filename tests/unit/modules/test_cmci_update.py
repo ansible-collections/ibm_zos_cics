@@ -41,7 +41,7 @@ def test_update(cmci_module):  # type: (CMCITestHelper) -> None
     )
 
     cmci_module.expect(result(
-        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram'
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram'
         '/CICSEX56/IYCWEMW2?CRITERIA=%28NAME%3D%27DUMMY%27%29&PARAMETER=CSDGROUP%28DUMMY%29',
         record,
         '<request><update>'
@@ -55,7 +55,6 @@ def test_update(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': PORT,
         'context': CONTEXT,
         'scope': SCOPE,
-        'security_type': 'none',
         'type': 'cicsdefinitionprogram',
         'parameters': [{
             'name': 'CSD'

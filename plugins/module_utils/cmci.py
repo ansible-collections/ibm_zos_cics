@@ -4,6 +4,7 @@
 # Copyright (c) IBM Corporation 2020
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import (absolute_import, division, print_function)
+
 __metaclass__ = type
 
 from ansible.module_utils.basic import AnsibleModule, missing_required_lib, env_fallback
@@ -11,7 +12,6 @@ from typing import Optional, Dict
 from urllib.parse import urlencode, quote
 import re
 import traceback
-
 
 try:
     import requests
@@ -25,14 +25,12 @@ except ImportError:
     xmltodict = None
     XMLTODICT_IMP_ERR = traceback.format_exc()
 
-
 CMCI_HOST = 'cmci_host'
 CMCI_PORT = 'cmci_port'
 CMCI_USER = 'cmci_user'
 CMCI_PASSWORD = 'cmci_password'
 CMCI_CERT = 'cmci_cert'
 CMCI_KEY = 'cmci_key'
-SECURITY_TYPE = 'security_type'
 CONTEXT = 'context'
 SCOPE = 'scope'
 RESOURCES = 'resources'
@@ -43,6 +41,7 @@ NAME = 'name'
 VALUE = 'value'
 FILTER = 'filter'
 COMPLEX_FILTER = 'complex_filter'
+SCHEME = 'scheme'
 
 PARAMETERS_ARGUMENT = {
     PARAMETERS: {
@@ -140,7 +139,10 @@ ATTRIBUTES_ARGUMENT = {
 class AnsibleCMCIModule(object):
 
     def __init__(self, method):
-        self._module = AnsibleModule(argument_spec=self.init_argument_spec())  # type: AnsibleModule
+        self._module = AnsibleModule(
+            argument_spec=self.init_argument_spec(),
+            required_together=[(CMCI_USER, CMCI_PASSWORD), (CMCI_CERT, CMCI_KEY)]
+        )  # type: AnsibleModule
         self.result = dict(changed=False)  # type: dict
 
         if not requests:
@@ -160,8 +162,8 @@ class AnsibleCMCIModule(object):
 
         request_params = self.init_request_params()
         if request_params:
-            self._url = self._url +\
-                        "?" +\
+            self._url = self._url + \
+                        "?" + \
                         urlencode(requests.utils.to_key_val_list(request_params), quote_via=quote)
 
         result_request = {
@@ -201,11 +203,6 @@ class AnsibleCMCIModule(object):
                 'no_log': True,
                 'fallback': (env_fallback, ['CMCI_KEY'])
             },
-            SECURITY_TYPE: {
-                'type': 'str',
-                'default': 'none',
-                'choices': ['none', 'basic', 'certificate']
-            },
             CONTEXT: {
                 'required': True,
                 'type': 'str'
@@ -216,6 +213,11 @@ class AnsibleCMCIModule(object):
             TYPE: {
                 'type': 'str',
                 'required': True
+            },
+            SCHEME: {
+                'type': 'str',
+                'choices': ['http', 'https'],
+                'default': 'https'
             }
         }
 
@@ -238,7 +240,8 @@ class AnsibleCMCIModule(object):
         if port < 0 or port > 65535:
             self._fail(
                 'Parameter "{0}" with value "{1}" was not valid.  Expected a port number 0-65535.'
-                .format(CMCI_PORT, str(port)))
+                .format(CMCI_PORT, str(port))
+            )
 
         self.validate(
             CONTEXT,
@@ -294,7 +297,7 @@ class AnsibleCMCIModule(object):
                 if resource_type in records_node:
                     records = records_node[resource_type]
                     # Copy records in result, stripping @ from attributes
-                    self.result['records'] =\
+                    self.result['records'] = \
                         [
                             {k[1:]: v for k, v in record.items()}
                             for record in records
@@ -303,7 +306,7 @@ class AnsibleCMCIModule(object):
             # Non-OK CPSM responses fail the module
             if cpsm_response_code != 1024:
                 self._fail('CMCI request failed with response "{0}" reason "{1}"'.format(
-                        cpsm_response, cpsm_reason if cpsm_reason else cpsm_response_code
+                    cpsm_response, cpsm_reason if cpsm_reason else cpsm_response_code
                 ))
 
             if self._method != 'GET':
@@ -314,14 +317,15 @@ class AnsibleCMCIModule(object):
 
     def init_url(self):  # type: () -> str
         t = self._p.get(TYPE).lower()
-        security_type = self._p.get(SECURITY_TYPE)
-
-        if security_type == 'none':
-            scheme = 'http://'
-        else:
-            scheme = 'https://'
-        url = scheme + self._p.get(CMCI_HOST) + ':' + str(self._p.get(CMCI_PORT)) + '/CICSSystemManagement/'\
-            + t + '/' + self._p.get(CONTEXT) + '/'
+        url = self._p.get(SCHEME) + \
+            '://' + \
+            self._p.get(CMCI_HOST) + \
+            ':' + \
+            str(self._p.get(CMCI_PORT)) + \
+            '/CICSSystemManagement/' + \
+            t + \
+            '/' + \
+            self._p.get(CONTEXT) + '/'
         if self._p.get(SCOPE):
             url = url + self._p.get(SCOPE)
 
@@ -374,28 +378,27 @@ class AnsibleCMCIModule(object):
             if parameters:
                 def mapper(p):
                     return p.get('name') + '(' + p.get('value') + ')' if p.get('value') else p.get('name')
+
                 request_params['PARAMETER'] = ' '.join(map(mapper, parameters))
         return request_params
 
     def init_session(self):  # type: () -> requests.Session
         session = requests.Session()
-        security_type = self._p.get(SECURITY_TYPE)
-        if security_type == 'certificate':
-            cmci_cert = self._p.get(CMCI_CERT)
-            cmci_key = self._p.get(CMCI_KEY)
-            if cmci_cert is not None and cmci_cert.strip() != '' and cmci_key is not None and cmci_key.strip() != '':
-                session.cert = cmci_cert.strip(), cmci_key.strip()
-            else:
-                self._fail('HTTP setup error: cmci_cert/cmci_key are required ')
-        # TODO: there's no clear distinction between unauthenticated HTTPS and authenticated HTTP
-        if security_type == 'basic':
-            cmci_user = self._p.get(CMCI_USER)
-            cmci_password = self._p.get(CMCI_PASSWORD)
-            if cmci_user is not None and cmci_user.strip() != '' and \
-                    cmci_password is not None and cmci_password.strip() != '':
-                session.auth = cmci_user.strip(), cmci_password.strip()
-            else:
-                self._fail('HTTP setup error: cmci_user/cmci_password are required')
+
+        # Try cert auth first
+        cmci_cert = self._p.get(CMCI_CERT)
+        cmci_key = self._p.get(CMCI_KEY)
+        if cmci_cert is not None and cmci_cert.strip() != '' and cmci_key is not None and cmci_key.strip() != '':
+            if self._p.get(SCHEME) == 'http':
+                self._fail('scheme can not be set to http if you are using certificate auth')
+            session.cert = cmci_cert.strip(), cmci_key.strip()
+        else:
+            # If we didn't get valid cert info, try basic auth
+            user = self._p.get(CMCI_USER)
+            passwd = self._p.get(CMCI_PASSWORD)
+            if user is not None and user.strip() != '' and passwd is not None and passwd.strip() != '':
+                session.auth = user.strip(), passwd.strip()
+
         return session  # type: requests.Session
 
     def _do_request(self):  # type: () -> Dict

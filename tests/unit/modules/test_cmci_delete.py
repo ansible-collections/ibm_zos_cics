@@ -17,7 +17,7 @@ def test_delete_context(cmci_module):  # type: (CMCITestHelper) -> None
 
     cmci_module.expect(
         result(
-            'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/',
+            'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/',
             1
         )
     )
@@ -35,7 +35,7 @@ def test_delete_context_scope(cmci_module):  # type: (CMCITestHelper) -> None
 
     cmci_module.expect(
         result(
-            'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/IYCWEMW2',
+            'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/IYCWEMW2',
             1
         )
     )
@@ -54,7 +54,7 @@ def test_delete_criteria(cmci_module):  # type: (CMCITestHelper) -> None
 
     cmci_module.expect(
         result(
-            'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+            'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
             'cicsdefinitionbundle/CICSEX56/?CRITERIA=%28FOO%3D%27BAR%27%29',
             1
         )
@@ -78,7 +78,7 @@ def test_delete_parameter(cmci_module):  # type: (CMCITestHelper) -> None
 
     cmci_module.expect(
         result(
-            'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+            'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
             'cicsdefinitionbundle/CICSEX56/?PARAMETER=CSDGROUP%28%2A%29',
             1
         )
@@ -104,7 +104,7 @@ def test_delete_criteria_parameter(cmci_module):  # type: (CMCITestHelper) -> No
 
     cmci_module.expect(
         result(
-            'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+            'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
             'cicsdefinitionbundle/CICSEX56/?CRITERIA=%28FOO%3D%27BAR%27%29&PARAMETER=CSDGROUP%28%2A%29',
             1
         )

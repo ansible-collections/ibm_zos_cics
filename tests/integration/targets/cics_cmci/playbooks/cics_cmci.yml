@@ -19,7 +19,6 @@
       cmci_password: '{{ cmci_password }}'
       context: '{{ context }}'
       scope: '{{ scope }}'
-      security_type: 'basic'
 
     ibm.ibm_zos_cics.cmci_update:
       cmci_host: '{{ cmci_host }}'
@@ -28,7 +27,6 @@
       cmci_password: '{{ cmci_password }}'
       context: '{{ context }}'
       scope: '{{ scope }}'
-      security_type: 'basic'
 
 
     ibm.ibm_zos_cics.cmci_delete:
@@ -38,7 +36,6 @@
       cmci_password: '{{ cmci_password }}'
       context: '{{ context }}'
       scope: '{{ scope }}'
-      security_type: 'basic'
 
 
     ibm.ibm_zos_cics.cmci_action:
@@ -48,7 +45,6 @@
       cmci_password: '{{ cmci_password }}'
       context: '{{ context }}'
       scope: '{{ scope }}'
-      security_type: 'basic'
 
 
     ibm.ibm_zos_cics.cmci_create:
@@ -58,7 +54,6 @@
       cmci_password: '{{ cmci_password }}'
       context: '{{ context }}'
       scope: '{{ scope }}'
-      security_type: 'basic'
 
   tasks:
     - name: 'Delete progdef'

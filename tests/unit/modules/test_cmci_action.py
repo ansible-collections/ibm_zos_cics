@@ -34,7 +34,7 @@ def test_csd_install(cmci_module):  # type: (CMCITestHelper) -> None
     )
 
     cmci_module.expect(result(
-        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
         'cicsdefinitionbundle/CICSEX56/IYCWEMW2?PARAMETER=CSDGROUP%28%2A%29',
         record,
         '<request><action name="CSDINSTALL"></action></request>'
@@ -73,7 +73,7 @@ def test_bas_install(cmci_module):  # type: (CMCITestHelper) -> None
     )
 
     cmci_module.expect(result(
-        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/',
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/',
         record,
         '<request><action name="INSTALL"></action></request>'
     ))
@@ -112,7 +112,7 @@ def test_install_csd_criteria_parameter(cmci_module):  # type: (CMCITestHelper) 
     )
 
     cmci_module.expect(result(
-        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram/'
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram/'
         'CICSEX56/IYCWEMW2?CRITERIA=%28NAME%3D%27DUMMY%27%29%20AND%20%28DEFVER%3D%270%27%29%20AND'
         '%20%28CSDGROUP%3D%27DUMMY%27%29&PARAMETER=CSDGROUP%28DUMMY%29',
         record,
@@ -123,7 +123,6 @@ def test_install_csd_criteria_parameter(cmci_module):  # type: (CMCITestHelper) 
         'cmci_port': PORT,
         'context': CONTEXT,
         'scope': SCOPE,
-        'security_type': 'none',
         'type': 'cicsdefinitionprogram',
         'action_name': 'CSDINSTALL',
         'resources': {
@@ -176,7 +175,7 @@ def test_bas_install_params(cmci_module):  # type: (CMCITestHelper) -> None
     )
 
     cmci_module.expect(result(
-        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/',
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/',
         record,
         '<request><action name="INSTALL">'
         '<parameter name="FORCEINS" value="NO"></parameter>'

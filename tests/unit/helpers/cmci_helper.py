@@ -49,7 +49,7 @@ class CMCITestHelper:
             **kwargs
         )
 
-    def stub_cmci(self, method, resource_type, scheme='http', host=HOST, port=PORT,
+    def stub_cmci(self, method, resource_type, scheme='https', host=HOST, port=PORT,
                   context=CONTEXT, scope=None, parameters='', response_dict=None,
                   headers={'CONTENT-TYPE': 'application/xml'}, status_code=200, reason='OK',
                   record_count=None, **kwargs):
