@@ -122,11 +122,31 @@ insecure
 
      
 parameters
-  The resource parameters,refer to the CICSPlex SM resource tables in the knowledge center to get the possible parameters.
+  A list of one or more parameters with optional values used to identify the resources for this request. Eligible parameters for identifying resources can be found in the resource tables reference for the target resource type, for the GET operation. For example, the valid parameters for identifying a PROGDEF are CICSSYS, CSDGROUP and RESGROUP, as found in the resource tables reference https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html
+
 
 
   | **required**: False
-  | **type**: dict
+  | **type**: list
+
+
+     
+  name
+    Parameter name
+
+
+    | **required**: True
+    | **type**: str
+
+
+     
+  value
+    Parameter value if any
+
+
+    | **required**: False
+    | **type**: str
+
 
 
      
@@ -151,17 +171,6 @@ resources
 
     | **required**: False
     | **type**: str
-
-
-     
-  parameters
-    A string of one or more parameters and values of the form parameter_name(data_value) that refines the request. The rules for specifying these parameters are the same as in the CICSPlex SM application programming interface.
-
-    For more guidance about specifying parameter expressions using the CICSPlex SM API, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1bg.html
-
-
-    | **required**: False
-    | **type**: dict
 
 
 
