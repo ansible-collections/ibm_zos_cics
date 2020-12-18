@@ -293,8 +293,7 @@ def test_complex_filter_or_or(cmci_module):  # type: (CMCITestHelper) -> None
 
 def test_complex_filter_invalid_and_or_combo(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': "complex_filter can only have 'and', 'or', or 'attribute' dictionaries at the top level",
-        'changed': False,
+        'msg': 'parameters are mutually exclusive: attribute|and|or found in resources -> complex_filter',
         'failed': True
     })
 
@@ -384,8 +383,7 @@ def test_complex_filter_operator_letters(cmci_module):  # type: (CMCITestHelper)
 
 def test_complex_filter_invalid_and_attribute(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': "complex_filter can only have 'and', 'or', or 'attribute' dictionaries at the top level",
-        'changed': False,
+        'msg': 'parameters are mutually exclusive: attribute|and|or, and|value found in resources -> complex_filter',
         'failed': True
     })
 
@@ -400,10 +398,10 @@ def test_complex_filter_invalid_and_attribute(cmci_module):  # type: (CMCITestHe
                 'and': [{
                     'attribute': 'FOO',
                     'value': 'BAR'
-                },{
-                        'attribute': 'BAT',
-                        'operator': '==',
-                        'value': 'BAZ'
+                }, {
+                    'attribute': 'BAT',
+                    'operator': '==',
+                    'value': 'BAZ'
                 }],
                 'attribute': 'FOO2',
                 'value': 'BAR2'

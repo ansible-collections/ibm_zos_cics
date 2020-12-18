@@ -44,51 +44,6 @@ VALUE = 'value'
 FILTER = 'filter'
 COMPLEX_FILTER = 'complex_filter'
 
-attribute_dict = dict(
-    type='str',
-    required=False
-)
-operator_dict = dict(
-    type='str',
-    required=False,
-    default='EQ',
-    choices=['<', '<=', '=', '>=', '>=', '¬=', '==', '!=', 'EQ', 'NE', 'LT', 'LE', 'GE', 'GT', 'IS']
-)
-value_dict = dict(
-    type='str',
-    required=False
-)
-
-
-def _nest_and_or_dicts():
-    return _get_and_or_dict(
-        _create_and_or_dicts(_create_and_or_dicts(_create_and_or_dicts(_create_and_or_dicts()))))
-
-
-def _create_and_or_dicts(children=None):
-    c = children if children else {}
-    return {
-        'and': _get_and_or_dict(c),
-        'or': _get_and_or_dict(c)
-    }
-
-
-def _get_and_or_dict(nested=None):
-    d = nested if nested else {}
-    return {
-        'type': 'list',
-        'required': False,
-        'elements': 'dict',
-        'options': {
-            'attribute': attribute_dict,
-            'operator': operator_dict,
-            'value': value_dict,
-            **d
-        },
-        'required_together': [('attribute', 'value')]
-    }
-
-
 PARAMETERS_ARGUMENT = {
     PARAMETERS: {
         'type': 'list',
@@ -107,6 +62,54 @@ PARAMETERS_ARGUMENT = {
     }
 }
 
+ATTRIBUTE_ARGUMENTS = {
+    'attribute': {
+        'type': 'str',
+        'required': False
+    },
+    'operator': {
+        'type': 'str',
+        'required': False,
+        'default': 'EQ',
+        'choices': ['<', '<=', '=', '>=', '>=', '¬=', '==', '!=', 'EQ', 'NE', 'LT', 'LE', 'GE', 'GT', 'IS']
+    },
+    'value': {
+        'type': 'str',
+        'required': False
+    }
+}
+
+
+def _cf_child(children):
+    return {
+        'required': False,
+        'required_together': [('attribute', 'value')],
+        'required_one_of': [('attribute', 'and', 'or')],
+        'mutually_exclusive': [('attribute', 'and', 'or'),
+                               ('and', 'operator'),
+                               ('and', 'value'),
+                               ('or', 'operator'),
+                               ('or', 'value')
+                               ],
+        'options': children
+    }
+
+
+def _cf_options(children):
+    return {
+        **ATTRIBUTE_ARGUMENTS,
+        'and': {
+            'type': 'list',
+            'elements': 'dict',
+            **_cf_child(children)
+        },
+        'or': {
+            'type': 'list',
+            'elements': 'dict',
+            **_cf_child(children)
+        }
+    }
+
 
 RESOURCES_ARGUMENT = {
     RESOURCES: {
@@ -119,15 +122,7 @@ RESOURCES_ARGUMENT = {
             },
             COMPLEX_FILTER: {
                 'type': 'dict',
-                'required': False,
-                'options': {
-                    'attribute': attribute_dict,
-                    'operator': operator_dict,
-                    'value': value_dict,
-                    'and': _nest_and_or_dicts(),
-                    'or': _nest_and_or_dicts()
-                },
-                'required_together': '[(\'attribute\', \'value\')]'
+                **_cf_child(_cf_options(_cf_options(_cf_options(ATTRIBUTE_ARGUMENTS))))
             },
             **PARAMETERS_ARGUMENT
         }
@@ -360,11 +355,6 @@ class AnsibleCMCIModule(object):
                 and_item = complex_filter['and']
                 or_item = complex_filter['or']
                 attribute_item = complex_filter['attribute']
-
-                if ((and_item is not None and or_item is not None) or
-                        (or_item is not None and attribute_item is not None) or
-                        (attribute_item is not None and and_item is not None)):
-                    self._fail("complex_filter can only have 'and', 'or', or 'attribute' dictionaries at the top level")
 
                 if and_item is not None:
                     complex_filter_string = _get_filter(and_item, complex_filter_string, ' AND ')
