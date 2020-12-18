@@ -33,7 +33,7 @@ EXAMPLES = r"""
     cmci_host: 'winmvs2c.hursley.ibm.com'
     cmci_port: '10080'
     context: 'iyk3z0r9'
-    resource_name: 'CICSDefinitionBundle'
+    type: 'CICSDefinitionBundle'
     attributes:
       description: 'New description'
     parameters:
@@ -42,7 +42,8 @@ EXAMPLES = r"""
       filter:
         name: 'PONGALT'
       parameters:
-        csdgroup: 'JVMGRP'
+        - name: csdgroup
+          value: JVMGRP
 """
 
 

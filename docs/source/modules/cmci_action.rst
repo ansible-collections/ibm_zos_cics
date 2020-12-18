@@ -234,26 +234,28 @@ Examples
        cmci_host: 'winmvs2c.hursley.ibm.com'
        cmci_port: '10080'
        context: 'iyk3z0r9'
-       resource_name: 'CICSProgram'
+       type: 'CICSProgram'
        action_name: NEWCOPY
        resource:
          filter:
            name: 'PONGALT'
          parameters:
-           csdgroup: 'JVMGRP'
+           - name: 'csdgroup'
+             value: 'JVMGRP'
 
    - name: install a bundle in a CICS region
      cmci_action:
        cmci_host: 'winmvs2c.hursley.ibm.com'
        cmci_port: '10080'
        context: 'iyk3z0r9'
-       resource_name: CICSBundle
+       type: CICSBundle
        action_name: install
        resource:
          filter:
            name: 'PONGALT'
        parameters:
-         usage: local
+         - name: 'usage'
+           value: 'local'
 
 
 

@@ -224,7 +224,7 @@ Examples
        cmci_host: 'winmvs2c.hursley.ibm.com'
        cmci_port: '10080'
        context: 'iyk3z0r9'
-       resource_name: CICSBundle
+       type: CICSBundle
        resource:
          filter:
            name: 'PONGALT'
@@ -235,12 +235,13 @@ Examples
        cmci_port: '10080'
        context: 'iyk3z0r9'
        option: 'delete'
-       resource_name: CICSDefinitionBundle
+       type: CICSDefinitionBundle
        resource: 
          filter:
            name: 'PONGALT'
          parameters:
-           csdgroup: JVMGRP
+           - name: 'csdgroup'
+             value: 'JVMGRP'
 
 
 

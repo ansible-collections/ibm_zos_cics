@@ -239,7 +239,7 @@ Examples
        cmci_user: 'ibmuser'
        cmci_password: '123456'
        context: 'iyk3z0r9'
-       resource_name:  CICSLocalFile
+       type:  CICSLocalFile
        record_count: 2
        resource:
          filter:
@@ -252,12 +252,27 @@ Examples
        cmci_cert: './sec/ansible.pem'
        cmci_key: './sec/ansible.key'
        context: 'iyk3z0r9'
-       option: 'query'
-       resource_name: 'CICSLocalFile' 
+       type: 'CICSLocalFile' 
        resource:
          filter:
            dsname: 'XIAOPIN*'
            file: 'DFH*'
+       record_count: 1
+
+   - name: get a progdef from a CSD
+     cmci_get:
+       cmci_host: 'winmvs2c.hursley.ibm.com'
+       cmci_port: '10080'
+       cmci_cert: './sec/ansible.pem'
+       cmci_key: './sec/ansible.key'
+       context: 'iyk3z0r9'
+       type: cicsdefinitionprogram 
+       resource:
+         filter:
+           name: MYPROG
+         parameters:
+           - name: csdgroup
+             value: MYGRP
        record_count: 1
 
 
