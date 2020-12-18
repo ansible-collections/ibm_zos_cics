@@ -300,7 +300,7 @@ def test_ok_context_scope_jvmserver_header(cmci_module):  # type: (CMCITestHelpe
 
 def test_query_criteria(cmci_module):  # type: (CMCITestHelper) -> None
     records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
-    cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE,  parameters='?CRITERIA=%28FOO%3D%27BAR%27%29')
+    cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE, parameters='?CRITERIA=%28FOO%3D%27BAR%27%29')
 
     cmci_module.expect(result(
         'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
@@ -345,7 +345,46 @@ def test_query_parameter(cmci_module):  # type: (CMCITestHelper) -> None
         'scope': 'IYCWEMW2',
         'type': 'cicsdefinitionfile',
         'resources': {
-            'parameter': 'CSDGROUP(*)'
+            'parameters': [{
+                'name': 'CSDGROUP',
+                'value': '*'
+            }]
+        }
+    })
+
+
+def test_query_parameters(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
+    cmci_module.stub_records(
+        'GET',
+        'cicsdefinitionfile',
+        records,
+        scope=SCOPE,
+        parameters='?PARAMETER=CSDGROUP%28%2A%29%20FOO%28BO%20BO%29%20blah'
+    )
+
+    cmci_module.expect(result(
+        'http://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'cicsdefinitionfile/CICSEX56/IYCWEMW2?PARAMETER=CSDGROUP%28%2A%29%20FOO%28BO%20BO%29%20blah',
+        records=records
+    ))
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicsdefinitionfile',
+        'resources': {
+            'parameters': [{
+                'name': 'CSDGROUP',
+                'value': '*'
+            }, {
+                'name': 'FOO',
+                'value': 'BO BO'
+            }, {
+                'name': 'blah'
+            }]
         }
     })
 
@@ -374,7 +413,7 @@ def test_query_parameter_criteria(cmci_module):  # type: (CMCITestHelper) -> Non
         'scope': 'IYCWEMW2',
         'type': 'cicsdefinitionfile',
         'resources': {
-            'parameter': 'CSDGROUP(*)',
+            'parameters': [{'name': 'CSDGROUP', 'value': '*'}],
             'filter': {
                 'FOO': 'BAR'
             }

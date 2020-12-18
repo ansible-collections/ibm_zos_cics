@@ -48,7 +48,7 @@ def test_csd_install(cmci_module):  # type: (CMCITestHelper) -> None
         'type': 'cicsdefinitionbundle',
         'action_name': 'CSDINSTALL',
         'resources': {
-            'parameter': 'CSDGROUP(*)'
+            'parameters': [{'name': 'CSDGROUP', 'value': '*'}]
         }
     })
 
@@ -99,8 +99,8 @@ def test_install_csd_criteria_parameter(cmci_module):  # type: (CMCITestHelper) 
         'cicsdefinitionprogram',
         [record],
         scope=SCOPE,
-        parameters='?CRITERIA=%28NAME%3D%27DUMMY%27%29+AND+%28DEFVER%3D%270%27%29+AND+'
-                   '%28CSDGROUP%3D%27DUMMY%27%29&PARAMETER=CSDGROUP%28DUMMY%29',
+        parameters='?CRITERIA=%28NAME%3D%27DUMMY%27%29%20AND%20%28DEFVER%3D%270%27%29%20AND'
+                   '%20%28CSDGROUP%3D%27DUMMY%27%29&PARAMETER=CSDGROUP%28DUMMY%29',
 
         additional_matcher=body_matcher(od(
             ('request', od(
@@ -128,7 +128,8 @@ def test_install_csd_criteria_parameter(cmci_module):  # type: (CMCITestHelper) 
         'action_name': 'CSDINSTALL',
         'resources': {
             'complex_filter': {
-                'and': [{
+                'and': [
+                    {
                         'attribute': 'NAME',
                         'value': 'DUMMY'
                     }, {
@@ -137,9 +138,10 @@ def test_install_csd_criteria_parameter(cmci_module):  # type: (CMCITestHelper) 
                     }, {
                         'attribute': 'CSDGROUP',
                         'value': 'DUMMY'
-                    }]
+                    }
+                ]
             },
-            'parameter': 'CSDGROUP(DUMMY)'
+            'parameters': [{'name': 'CSDGROUP', 'value': 'DUMMY'}]
         }
     })
 

@@ -90,7 +90,7 @@ def test_delete_parameter(cmci_module):  # type: (CMCITestHelper) -> None
         'context': CONTEXT,
         'type': 'cicsdefinitionbundle',
         'resources': {
-            'parameter': 'CSDGROUP(*)'
+            'parameters': [{'name': 'CSDGROUP', 'value': '*'}]
         }
     })
 
@@ -119,7 +119,7 @@ def test_delete_criteria_parameter(cmci_module):  # type: (CMCITestHelper) -> No
             'filter': {
                 'FOO': 'BAR'
             },
-            'parameter': 'CSDGROUP(*)'
+            'parameters': [{'name': 'CSDGROUP', 'value': '*'}]
         }
     })
 
