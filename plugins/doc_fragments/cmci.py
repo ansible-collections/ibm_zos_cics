@@ -21,25 +21,18 @@ options:
       - The port number of the CMCI connection.
     type: int
     required: true
-  scheme:
-    description:
-      - Whether or not to use HTTPS
-    required: false
-    type: str
-    choices:
-      - http
-      - https
-    default: https
   cmci_user:
     description:
       - The user id to run the CMCI request as
       - Required when security type is yes
       - Can also be specified using the environment variable CMCI_USER
+      - Required with cmci_password
     type: str
   cmci_password:
     description:
       - The password of cmci_user to pass using HTTP basic authentication
       - Can also be specified using the environment variable CMCI_PASSWORD
+      - Required with cmci_user
     type: str
   cmci_cert:
     description:
@@ -47,6 +40,7 @@ options:
         HTTPS client authentication.
       - Required when security_type is certificate.
       - Can also be specified using the environment variable CMCI_CERT
+      - Required with cmci_key
     required: false
     type: str
   cmci_key:
@@ -55,6 +49,7 @@ options:
         for HTTPS client authentication.
       - Required when security type is certificate.
       - Can also be specified using the environment variable CMCI_KEY
+      - Required with cmci_cert
     required: false
     type: str
   context:
@@ -85,6 +80,13 @@ options:
         U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_resources.html)
     type: str
     required: true
+  scheme:
+    description: The http scheme to use when establishing a connection to the CMCI API
+    type: str
+    choices:
+      - http
+      - https
+    default: https
   insecure:
     description: Set to true to disable SSL certificate trust chain verification when using https
     type: bool

@@ -48,6 +48,8 @@ cmci_cert
 
   Can also be specified using the environment variable CMCI_CERT
 
+  Required with cmci_key
+
 
   | **required**: False
   | **type**: str
@@ -70,6 +72,8 @@ cmci_key
 
   Can also be specified using the environment variable CMCI_KEY
 
+  Required with cmci_cert
+
 
   | **required**: False
   | **type**: str
@@ -80,6 +84,8 @@ cmci_password
   The password of cmci_user to pass using HTTP basic authentication
 
   Can also be specified using the environment variable CMCI_PASSWORD
+
+  Required with cmci_user
 
 
   | **required**: false
@@ -102,6 +108,8 @@ cmci_user
   Required when security type is yes
 
   Can also be specified using the environment variable CMCI_USER
+
+  Required with cmci_password
 
 
   | **required**: false
@@ -186,10 +194,10 @@ resources
 
      
 scheme
-  Whether or not to use HTTPS
+  The http scheme to use when establishing a connection to the CMCI API
 
 
-  | **required**: False
+  | **required**: false
   | **type**: str
   | **default**: https
   | **choices**: http, https
