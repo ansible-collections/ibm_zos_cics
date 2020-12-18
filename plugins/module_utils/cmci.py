@@ -42,6 +42,7 @@ VALUE = 'value'
 FILTER = 'filter'
 COMPLEX_FILTER = 'complex_filter'
 SCHEME = 'scheme'
+INSECURE = 'insecure'
 
 PARAMETERS_ARGUMENT = {
     PARAMETERS: {
@@ -218,6 +219,10 @@ class AnsibleCMCIModule(object):
                 'type': 'str',
                 'choices': ['http', 'https'],
                 'default': 'https'
+            },
+            INSECURE: {
+                'type': 'bool',
+                'default': False
             }
         }
 
@@ -406,7 +411,7 @@ class AnsibleCMCIModule(object):
             response = self._session.request(
                 self._method,
                 self._url,
-                verify=False,
+                verify=not self._p[INSECURE],
                 timeout=30,
                 data=self._body
             )

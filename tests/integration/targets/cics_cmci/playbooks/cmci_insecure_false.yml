@@ -1,0 +1,34 @@
+# Copyright (c) IBM Corporation 2020
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name:  CMCI Integration Test
+  collections:
+   - ibm.ibm_zos_cics
+  hosts: 'localhost'
+  gather_facts: 'false'
+
+  tasks:
+    - name: test insecure false
+      ibm.ibm_zos_cics.cmci_get:
+        cmci_host: '{{ cmci_host }}'
+        cmci_port: '{{ cmci_port }}'
+        cmci_user: '{{ cmci_user }}'
+        cmci_password: '{{ cmci_password }}'
+        context: '{{ context }}'
+        scope: '{{ scope }}'
+        type: 'cicsprogram'
+        resources:
+          filter:
+            program: 'DFHLEINI'
+      failed_when: false
+      register: result
+
+    - name: debug
+      debug:
+        msg: '{{ result.msg[:-14] }}'
+
+    - name: assert
+      assert:
+        that:
+          - result.failed is false
+          - '{{  result.msg[:-14] == "Error performing CMCI request: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate in certificate chain" }}'
