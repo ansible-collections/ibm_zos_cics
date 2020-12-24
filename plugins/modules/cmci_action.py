@@ -10,13 +10,14 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: cmci_action
-short_description: Install CICS and CICSplex SM definitions
+short_description: Install CICS® and CICSPlex® SM definitions
 description:
-  - The cmci_action module can be used to perform actions on CICS and CICSPlex® SM definitions and resources, using the
-    CMCI API.  The CMCI API is provided by CICSplex SM, or in SMSS regions.  For information about the CMCI API see
-    U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
-    For information about how to compose PUT requests, see
-    U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_put.html).
+  - Perform actions on CICS or CICSPlex SM definitions and resources, by initiating PUT requests via the CMCI REST API.
+    The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API,
+    see L(CMCI REST API,
+    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
+    For information about how to compose PUT requests, see L(CMCI PUT requests,
+    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_put.html).
 author: "IBM"
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.cmci.COMMON
@@ -25,7 +26,7 @@ extends_documentation_fragment:
 options:
   action_name:
     description: >
-      The name of the target action.  To find the name of the appropriat action, consult the CICSplex SM resource
+      The name of the target action.  To find the name of the appropriate action, consult the CICSPlex SM resource
       tables for the target resource type.  For example, see this reference information which lists the eligible
       actions for CICS programs:
       U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html)
@@ -75,7 +76,7 @@ failed:
   returned: always
   type: bool
 connect_version:
-  description: Version of the CMCI API
+  description: Version of the CMCI REST API
   returned: success
   type: str
 cpsm_reason:

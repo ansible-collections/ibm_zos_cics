@@ -34,11 +34,11 @@ Parameters
 cmci_cert
   Location of the PEM-formatted certificate chain file to be used for HTTPS client authentication.
 
-  Required when security_type is certificate.
+  Can also be specified using the environment variable CMCI_CERT.
 
-  Can also be specified using the environment variable CMCI_CERT
+  Required if *cmci_key* is specified.
 
-  Required with cmci_key
+  Authentication prioritises certificate authentication if *cmci_cert* and *cmci_key* are provided, then basic authentication if *cmci_user* and (cmci_password) are provided, and then unauthenticated if none is provided.
 
 
   | **required**: False
@@ -47,7 +47,7 @@ cmci_cert
 
      
 cmci_host
-  The TCP/IP host name of CMCI connection
+  The TCP/IP host name of CMCI connection.
 
 
   | **required**: True
@@ -56,13 +56,13 @@ cmci_host
 
      
 cmci_key
-  Location of the PEM-formatted file with your private key to be used for HTTPS client authentication.
+  Location of the PEM-formatted file storing your private key to be used for HTTPS client authentication.
 
-  Required when security type is certificate.
+  Can also be specified using the environment variable CMCI_KEY.
 
-  Can also be specified using the environment variable CMCI_KEY
+  Required if *cmci_cert* is specified.
 
-  Required with cmci_cert
+  Authentication prioritises certificate authentication if *cmci_cert* and *cmci_key* are provided, then basic authentication if *cmci_user* and (cmci_password) are provided, and then unauthenticated if none is provided.
 
 
   | **required**: False
@@ -71,11 +71,13 @@ cmci_key
 
      
 cmci_password
-  The password of cmci_user to pass using HTTP basic authentication
+  The password of *cmci_user* to pass HTTP basic authentication.
 
-  Can also be specified using the environment variable CMCI_PASSWORD
+  Can also be specified using the environment variable CMCI_PASSWORD.
 
-  Required with cmci_user
+  Required if *cmci_user* is specified.
+
+  Authentication prioritises certificate authentication if *cmci_cert* and *cmci_key* are provided, then basic authentication if *cmci_user* and (cmci_password) are provided, and then unauthenticated if none is provided.
 
 
   | **required**: false
@@ -93,13 +95,13 @@ cmci_port
 
      
 cmci_user
-  The user id to run the CMCI request as
+  The user ID under which the CMCI request will run.
 
-  Required when security type is yes
+  Can also be specified using the environment variable CMCI_USER.
 
-  Can also be specified using the environment variable CMCI_USER
+  Required if *cmci_password* is specified.
 
-  Required with cmci_password
+  Authentication prioritises certificate authentication if *cmci_cert* and *cmci_key* are provided, then basic authentication if *cmci_user* and (cmci_password) are provided, and then unauthenticated if none is provided.
 
 
   | **required**: false
@@ -108,11 +110,11 @@ cmci_user
 
      
 context
-  If CMCI is installed in a CICSPlex SM environment, context is the name of the CICSplex or CMAS associated with the request; for example, PLEX1. See the relevant resource table in CICSPlex SM resource tables to determine whether to specify a CICSplex or CMAS.
+  If CMCI is installed in a CICSPlex SM environment, *context* is the name of the CICSplex or CMAS associated with the request, for example, PLEX1. See the relevant CICSPlex SM resource table, for example, `PROGRAM resource table <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html>`_, to determine whether to specify a CICSplex or CMAS.
 
-  If CMCI is installed as a single server (SMSS), context is the APPLID of the CICS region associated with the request.
+  If CMCI is installed in a single region (SMSS), *context* is the APPLID of the CICS region associate with the request.
 
-  The value of context must not contain spaces. Context is not case-sensitive.
+  The value of *context* must contain no spaces. *context* is not case-sensitive.
 
 
   | **required**: false
@@ -121,7 +123,7 @@ context
 
      
 insecure
-  Set to true to disable SSL certificate trust chain verification when using https
+  When set to ``true``, disables SSL certificate trust chain verification when using HTTPS.
 
 
   | **required**: False
@@ -130,7 +132,7 @@ insecure
 
      
 parameters
-  A list of one or more parameters with optional values used to identify the resources for this request. Eligible parameters for identifying resources can be found in the resource tables reference for the target resource type, for the GET operation. For example, the valid parameters for identifying a PROGDEF are CICSSYS, CSDGROUP and RESGROUP, as found in the resource tables reference https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html
+  A list of one or more parameters with optional values used to identify the resources for this request. Eligible parameters for identifying the target resources can be found in the resource table reference for the  target resource type, as valid parameters for the GET operation in the "Valid CPSM operations" table.  For example, the valid parameters for identifying a PROGDEF resource are CICSSYS, CSDGROUP and RESGROUP, as found in the `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
 
 
 
@@ -140,7 +142,7 @@ parameters
 
      
   name
-    Parameter name
+    Parameter name available for the GET operation.
 
 
     | **required**: True
@@ -149,7 +151,7 @@ parameters
 
      
   value
-    Parameter value if any
+    Parameter value if any.
 
 
     | **required**: False
@@ -197,7 +199,7 @@ resources
 
      
 scheme
-  The http scheme to use when establishing a connection to the CMCI API
+  The HTTP scheme to use when establishing a connection to the CMCI REST API.
 
 
   | **required**: false
@@ -208,15 +210,13 @@ scheme
 
      
 scope
-  Specifies the name of a CICSplex, CICS region group, CICS region, or logical scope associated with the query.
+  Specifies the name of a CICSplex, CICS region group, CICS region, or logical scope that is associated with the query.
 
-  Scope is a subset of context, and limits the request to particular CICS systems or resources.
+  *scope* is a subset of *context* and limits the request to particular CICS systems or resources.
 
-  Scope is not mandatory. If scope is absent, the request is limited by the value of the context alone.
+  *scope* is optional. If it's not specified, the request is limited by the value of *context* alone.
 
-  The value of scope must not contain spaces.
-
-  Scope is not case-sensitive
+  The value of *scope* must contain no spaces. *scope* is not case-sensitive.
 
 
   | **required**: false
@@ -225,7 +225,7 @@ scope
 
      
 type
-  The CMCI resource name for the target resource type.  For the list of CMCI resource names, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_resources.html
+  The CMCI external resource name that maps to the target CICS or CICSPlex SM resource type. For a list of CMCI external resource names, see `CMCI resource names <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_resources.html>`_.
 
 
   | **required**: True

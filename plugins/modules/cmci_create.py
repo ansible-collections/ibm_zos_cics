@@ -13,8 +13,8 @@ module: cmci_create
 short_description: Create CICS and CICSplex definitions in CSD and BAS repositories
 description:
   - The cmci_create module can be used to create definitional CICS and CICSPlex® SM resources in CICS
-    regions, using the CMCI API.  The CMCI API is provided by CICSplex SM, or in SMSS regions.  For information about
-    the CMCI API see
+    regions, using the CMCI REST API. The CMCI REST API is provided by CICSPlex SM, or in SMSS regions. For information about
+    the CMCI REST API see
     U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
     For information about how to compose POST requests, see
     U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_post.html).
@@ -52,7 +52,7 @@ failed:
   returned: always
   type: bool
 connect_version:
-  description: Version of the CMCI API
+  description: Version of the CMCI REST API
   returned: success
   type: str
 cpsm_reason:

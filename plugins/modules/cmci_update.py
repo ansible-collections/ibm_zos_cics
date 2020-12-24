@@ -13,7 +13,7 @@ module: cmci_update
 short_description: Update CICS and CICSplex SM resources and definitions
 description:
   - The cmci_update module can be used to make changes to CICS and CICSPlex® SM resources in CICS regions
-    using the CMCI API.  The CMCI API is provided by CICSplex SM, or in SMSS regions.  For information about the CMCI
+    using the CMCI REST API. The CMCI REST API is provided by CICSplex SM, or in SMSS regions. For information about the CMCI
     API see
     U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
     For information about how to compose PUT requests, see
@@ -57,7 +57,7 @@ failed:
   returned: always
   type: bool
 connect_version:
-  description: Version of the CMCI API
+  description: Version of the CMCI REST API
   returned: success
   type: str
 cpsm_reason:
