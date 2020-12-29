@@ -171,7 +171,7 @@ parameters
 
      
 resources
-  Options which specify a target resource
+  Options that specify a target resource.
 
 
   | **required**: False
@@ -179,14 +179,62 @@ resources
 
 
      
-  criteria
-    A string containing logical expressions that filters the data returned on the request.
+  complex_filter
+    A string containing logical expressions that filter the resource table records in the data returned on the request.
 
-    The string that makes up the value of the CRITERIA parameter follows the same rules as the filter expressions in the CICSPlex SM application programming interface.
+    Can contain one or more filters. Multiple filters must be combined using ``and`` or ``or`` logical operators.
 
-    The filter can work with options ``query``, ``update``, ``delete``; otherwise it will be ignored.
+    Filters can be nested. At most four nesting layers are allowed.
 
-    For more guidance about specifying filter expressions using the CICSPlex SM API, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1a0.html.
+
+    | **required**: False
+    | **type**: str
+
+
+     
+    attribute
+      The resource table attributes to be filtered.
+
+      For supported attributes of different resource types, see their resource table reference, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
+
+
+      | **required**: False
+      | **type**: str
+
+
+     
+    operator
+      These operators are accepted: ``<`` or ``LT`` (less than), ``<=`` or ``LE`` (less than or equal to), ``=`` or ``EQ`` (equal to), ``>`` or ``GT`` (greater than), ``>=`` or ``GE`` (greater than or equal to), ``==`` or ``IS`` (is), ``¬=``, ``!=``, or ``NE`` (not equal to). 
+
+
+
+      | **required**: False
+      | **type**: str
+      | **default**: EQ
+      | **choices**: <, >, <=, >=, =, ==, !=, ¬=, EQ, GT, GE, LT, LE, NE, IS
+
+
+     
+    value
+      The value by which you are to filter the resource attributes.
+
+      The value must be a valid one for the resource table attribute as documented in the resource table reference, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
+
+
+      | **required**: False
+      | **type**: str
+
+
+
+     
+  filter
+    A string containing basic logical expressions that filter the resource table records in the data returned on the request.
+
+    Supports only the equal logic when filtering attribute values.
+
+    Can contain one or more filters.
+
+    For supported attributes of different resource types, see their resource table reference, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
 
 
     | **required**: False
@@ -280,7 +328,7 @@ Return Values
    
                               
        changed
-        | True if the state was changed, otherwise False
+        | True if the state was changed, otherwise False.
       
         | **returned**: always
         | **type**: bool
@@ -288,7 +336,7 @@ Return Values
       
                               
        failed
-        | True if query_job failed, othewise False
+        | True if the query job failed, otherwise False.
       
         | **returned**: always
         | **type**: bool
@@ -296,7 +344,7 @@ Return Values
       
                               
        connect_version
-        | Version of the CMCI REST API
+        | Version of the CMCI REST API.
       
         | **returned**: success
         | **type**: str
@@ -304,7 +352,7 @@ Return Values
       
                               
        cpsm_reason
-        | Character value of the CPSM API reason code returned.  For a list of reason values provided by each API command, see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kr.html)
+        | The character value of the REASON code returned by each CICSPlex SM API command. For a list of REASON character values, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ky.html.
       
         | **returned**: success
         | **type**: str
@@ -312,7 +360,7 @@ Return Values
       
                               
        cpsm_reason_code
-        | Numeric value of the CPSM API reason code returned.  For a list of numeric values see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ks.html)
+        | The numeric value of the REASON code returned by each CICSPlex SM API command. For a list of REASON numeric values, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kw.html.
       
         | **returned**: success
         | **type**: int
@@ -320,7 +368,7 @@ Return Values
       
                               
        cpsm_response
-        | Character value of the CPSM API response code returned.  For a list of response values provided by each API command, see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kr.html)
+        | The character value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE character values, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kx.html.
       
         | **returned**: success
         | **type**: str
@@ -328,7 +376,7 @@ Return Values
       
                               
        cpsm_response_code
-        | Numeric value of the CPSM API response code returned.  For a list of numeric values see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ks.html)
+        | The numeric value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE numeric values, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kv.html.
       
         | **returned**: success
         | **type**: str
@@ -336,7 +384,7 @@ Return Values
       
                               
        http_status
-        | Message associated with HTTP status code returned by CMCI
+        | The message associated with HTTP status code that is returned by CMCI.
       
         | **returned**: success
         | **type**: str
@@ -344,7 +392,7 @@ Return Values
       
                               
        http_status_code
-        | HTTP status code returned by CMCI
+        | The HTTP status code returned by CMCI.
       
         | **returned**: success
         | **type**: int
@@ -352,7 +400,7 @@ Return Values
       
                               
        record_count
-        | Number of records returned
+        | The number of records returned.
       
         | **returned**: success
         | **type**: int
@@ -360,7 +408,7 @@ Return Values
       
                               
        records
-        | A list of the returned records
+        | A list of the returned records.
       
         | **returned**: success
         | **type**: list      
@@ -374,7 +422,7 @@ Return Values
       
                               
        success_count
-        | Number of resources that the action completed successfully for
+        | The number of resources for which the action completed successfully.
       
         | **returned**: success
         | **type**: int
@@ -382,7 +430,7 @@ Return Values
       
                               
        request
-        | Information about the request that was made to CMCI
+        | Information about the request that was made to CMCI.
       
         | **returned**: success
         | **type**: dict
@@ -390,7 +438,7 @@ Return Values
    
                               
         body
-          | The XML body sent with the request, if any
+          | The XML body sent with the request, if any.
       
           | **returned**: success
           | **type**: str
@@ -398,7 +446,7 @@ Return Values
       
                               
         method
-          | The HTTP method used for the request
+          | The HTTP method used for the request.
       
           | **returned**: success
           | **type**: str
@@ -406,7 +454,7 @@ Return Values
       
                               
         url
-          | The URL used for the request
+          | The URL used for the request.
       
           | **returned**: success
           | **type**: str

@@ -108,24 +108,69 @@ options:
 options:
   resources:
     description:
-      - Options which specify a target resource
+      - Options that specify a target resource.
     type: dict
     required: false
     suboptions:   
-      criteria:
+      filter:
         description:
-          - A string containing logical expressions that filters the data 
-            returned on the request.
-          - The string that makes up the value of the CRITERIA parameter
-            follows the same rules as the filter expressions in the CICSPlex
-            SM application programming interface.
-          - The filter can work with options ``query``, ``update``, ``delete``; 
-            otherwise it will be ignored.
-          - For more guidance about specifying filter expressions using the
-            CICSPlex SM API, see
-            U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1a0.html).
+          - A string containing basic logical expressions that filter the resource table records
+            in the data returned on the request.
+          - Supports only the equal logic when filtering attribute values.
+          - Can contain one or more filters.
+          - For supported attributes of different resource types, see their resource table reference,
+            for example, L(PROGDEF resource table reference,
+            https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
         type: str
         required: false
+      complex_filter:
+        description:
+          - A string containing logical expressions that filter the resource table records
+            in the data returned on the request.
+          - Can contain one or more filters. Multiple filters must be combined using C(and) or C(or) logical operators.
+          - Filters can be nested. At most four nesting layers are allowed.
+        type: str
+        required: false
+        suboptions:
+          attribute:
+            description:
+              - The resource table attributes to be filtered.
+              - For supported attributes of different resource types, see their resource table reference,
+                for example, L(PROGDEF resource table reference,
+                https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
+            type: str
+            required: false
+          operator:
+            description: >
+              These operators are accepted: C(<) or C(LT) (less than), C(<=) or C(LE) (less than or equal to),
+              C(=) or C(EQ) (equal to), C(>) or C(GT) (greater than), C(>=) or C(GE) (greater than or equal to),
+              C(==) or C(IS) (is), C(¬=), C(!=), or C(NE) (not equal to). 
+            type: str
+            required: false
+            choices: 
+              - "<"
+              - ">"
+              - "<="
+              - ">="
+              - "="
+              - "=="
+              - "!="
+              - "¬="
+              - EQ
+              - GT
+              - GE
+              - LT
+              - LE
+              - NE
+              - IS
+            default: EQ              
+          value:
+            description: 
+              - The value by which you are to filter the resource attributes. 
+              - The value must be a valid one for the resource table attribute as documented in the 
+                resource table reference, for example, L(PROGDEF resource table reference,
+                https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
+            required: false
   parameters:
     description: >
       A list of one or more parameters with optional values used to identify the resources for this request.

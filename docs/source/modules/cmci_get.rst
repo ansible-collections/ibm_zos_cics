@@ -174,7 +174,7 @@ record_count
 
      
 resources
-  Options which specify a target resource
+  Options that specify a target resource.
 
 
   | **required**: False
@@ -182,14 +182,62 @@ resources
 
 
      
-  criteria
-    A string containing logical expressions that filters the data returned on the request.
+  complex_filter
+    A string containing logical expressions that filter the resource table records in the data returned on the request.
 
-    The string that makes up the value of the CRITERIA parameter follows the same rules as the filter expressions in the CICSPlex SM application programming interface.
+    Can contain one or more filters. Multiple filters must be combined using ``and`` or ``or`` logical operators.
 
-    The filter can work with options ``query``, ``update``, ``delete``; otherwise it will be ignored.
+    Filters can be nested. At most four nesting layers are allowed.
 
-    For more guidance about specifying filter expressions using the CICSPlex SM API, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1a0.html.
+
+    | **required**: False
+    | **type**: str
+
+
+     
+    attribute
+      The resource table attributes to be filtered.
+
+      For supported attributes of different resource types, see their resource table reference, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
+
+
+      | **required**: False
+      | **type**: str
+
+
+     
+    operator
+      These operators are accepted: ``<`` or ``LT`` (less than), ``<=`` or ``LE`` (less than or equal to), ``=`` or ``EQ`` (equal to), ``>`` or ``GT`` (greater than), ``>=`` or ``GE`` (greater than or equal to), ``==`` or ``IS`` (is), ``¬=``, ``!=``, or ``NE`` (not equal to). 
+
+
+
+      | **required**: False
+      | **type**: str
+      | **default**: EQ
+      | **choices**: <, >, <=, >=, =, ==, !=, ¬=, EQ, GT, GE, LT, LE, NE, IS
+
+
+     
+    value
+      The value by which you are to filter the resource attributes.
+
+      The value must be a valid one for the resource table attribute as documented in the resource table reference, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
+
+
+      | **required**: False
+      | **type**: str
+
+
+
+     
+  filter
+    A string containing basic logical expressions that filter the resource table records in the data returned on the request.
+
+    Supports only the equal logic when filtering attribute values.
+
+    Can contain one or more filters.
+
+    For supported attributes of different resource types, see their resource table reference, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
 
 
     | **required**: False
