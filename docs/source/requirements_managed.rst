@@ -5,13 +5,13 @@
 Requirements of managed nodes
 =============================
 
-The managed z/OS node is the host that is managed by Ansible, as identified in the Ansible inventory.
+The managed node is the host that is managed by Ansible, as identified in the Ansible inventory.
 
-The IBM z/OS CICS collection calls the `CMCI REST API`_ of CICS to perform tasks in CICS. Therefore, it doesn't require Python to be installed on the managed node when used alone.
+The IBM® z/OS® CICS® collection interacts with the managed node by sending HTTP requests via the `CMCI REST API`_ using a CMCI connection. Therefore, no SSH connection or Python is required on the managed node. You need, however, to delegate Ansible tasks to run on the local control node, for example, by specifying ``delegate_to: 'localhost'`` for the task in the playbook. For more ways of delegating tasks, see `Controlling where tasks run`_.
 
-* `z/OS OpenSSH`_
+
 * IBM CICS V4.2 or later
-* `CMCI connection`_ must be set up in either a CICSPlex SM or a stand-alone CICS region
+* A `CMCI connection`_ must be set up in either a CICSplex or a stand-alone CICS region
 
 If you want to use the CICS collection in conjunction with other IBM z/OS collections, you must follow their specific requirements, for example, `IBM z/OS core managed node requirements`_.
 
@@ -26,3 +26,5 @@ If you want to use the CICS collection in conjunction with other IBM z/OS collec
 
 .. _IBM z/OS core managed node requirements:
    https://ibm.github.io/z_ansible_collections_doc/ibm_zos_core/docs/source/requirements_managed.html
+.. _Controlling where tasks run:
+   https://docs.ansible.com/ansible/latest/user_guide/playbooks_delegation.html#delegating-tasks
