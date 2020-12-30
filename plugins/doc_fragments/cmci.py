@@ -196,8 +196,8 @@ options:
 options:
   attributes:
     description:
-      - The resource attributes. Available attributes can be found in the CICSPlex SM resource table reference for the
-        target reource type, for example, L(PROGDEF resource table reference,
+      - The resource attributes to be defined. Available attributes can be found in the CICSPlex SM resource table reference for the
+        target resource type, for example, L(PROGDEF resource table reference,
         https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
     type: dict
     required: false

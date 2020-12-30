@@ -8,8 +8,8 @@
 .. _cmci_update_module:
 
 
-cmci_update -- Update CICS and CICSplex SM resources and definitions
-====================================================================
+cmci_update -- Update CICS® and CICSPlex® resources and definitions
+===================================================================
 
 
 
@@ -20,7 +20,7 @@ cmci_update -- Update CICS and CICSplex SM resources and definitions
 
 Synopsis
 --------
-- The cmci_update module can be used to make changes to CICS and CICSPlex® SM resources in CICS regions using the CMCI REST API. The CMCI REST API is provided by CICSplex SM, or in SMSS regions. For information about the CMCI API see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html. For information about how to compose PUT requests, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_put.html.
+- Make changes to CICS and CICSPlex SM resources in CICS regions, by initiating PUT requests via the CMCI REST API. The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API, see `CMCI REST API <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html>`_. For information about how to compose PUT requests, see `CMCI PUT requests <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_put.html>`_.
 
 
 
@@ -32,7 +32,7 @@ Parameters
 
      
 attributes
-  The resource attributes. Available attributes can be found in the CICSPlex SM resource table reference for the target reource type, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
+  The resource attributes to be defined. Available attributes can be found in the CICSPlex SM resource table reference for the target resource type, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
 
 
   | **required**: False
@@ -316,7 +316,7 @@ Return Values
    
                               
        changed
-        | True if the state was changed, otherwise False
+        | True if the state was changed, otherwise False.
       
         | **returned**: always
         | **type**: bool
@@ -324,7 +324,7 @@ Return Values
       
                               
        failed
-        | True if query_job failed, othewise False
+        | True if the query job failed, otherwise False.
       
         | **returned**: always
         | **type**: bool
@@ -332,7 +332,7 @@ Return Values
       
                               
        connect_version
-        | Version of the CMCI REST API
+        | Version of the CMCI REST API.
       
         | **returned**: success
         | **type**: str
@@ -340,7 +340,7 @@ Return Values
       
                               
        cpsm_reason
-        | Character value of the CPSM API reason code returned.  For a list of reason values provided by each API command, see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kr.html)
+        | The character value of the REASON code returned by each CICSPlex SM API command. For a list of REASON character values, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ky.html.
       
         | **returned**: success
         | **type**: str
@@ -348,7 +348,7 @@ Return Values
       
                               
        cpsm_reason_code
-        | Numeric value of the CPSM API reason code returned.  For a list of numeric values see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ks.html)
+        | The numeric value of the REASON code returned by each CICSPlex SM API command. For a list of REASON numeric values, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kw.html.
       
         | **returned**: success
         | **type**: int
@@ -356,7 +356,7 @@ Return Values
       
                               
        cpsm_response
-        | Character value of the CPSM API response code returned.  For a list of response values provided by each API command, see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kr.html)
+        | The character value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE character values, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kx.html.
       
         | **returned**: success
         | **type**: str
@@ -364,7 +364,7 @@ Return Values
       
                               
        cpsm_response_code
-        | Numeric value of the CPSM API response code returned.  For a list of numeric values see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ks.html)
+        | The numeric value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE numeric values, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kv.html.
       
         | **returned**: success
         | **type**: str
@@ -372,7 +372,7 @@ Return Values
       
                               
        http_status
-        | Message associated with HTTP status code returned by CMCI
+        | The message associated with HTTP status code that is returned by CMCI.
       
         | **returned**: success
         | **type**: str
@@ -380,7 +380,7 @@ Return Values
       
                               
        http_status_code
-        | HTTP status code returned by CMCI
+        | The HTTP status code returned by CMCI.
       
         | **returned**: success
         | **type**: int
@@ -388,7 +388,7 @@ Return Values
       
                               
        record_count
-        | Number of records returned
+        | The number of records returned.
       
         | **returned**: success
         | **type**: int
@@ -396,7 +396,7 @@ Return Values
       
                               
        records
-        | A list of the returned records
+        | A list of the returned records.
       
         | **returned**: success
         | **type**: list      
@@ -410,7 +410,7 @@ Return Values
       
                               
        request
-        | Information about the request that was made to CMCI
+        | Information about the request that was made to CMCI.
       
         | **returned**: success
         | **type**: dict
@@ -418,7 +418,7 @@ Return Values
    
                               
         body
-          | The XML body sent with the request, if any
+          | The XML body sent with the request, if any.
       
           | **returned**: success
           | **type**: str
@@ -426,7 +426,7 @@ Return Values
       
                               
         method
-          | The HTTP method used for the request
+          | The HTTP method used for the request.
       
           | **returned**: success
           | **type**: str
@@ -434,7 +434,7 @@ Return Values
       
                               
         url
-          | The URL used for the request
+          | The URL used for the request.
       
           | **returned**: success
           | **type**: str
