@@ -9,6 +9,7 @@ The managed node is the host that is managed by Ansible, as identified in the An
 
 The IBM® z/OS® CICS® collection interacts with the managed node by sending HTTP requests via the `CMCI REST API`_ using a CMCI connection. Therefore, no SSH connection or Python is required on the managed node. You need, however, to delegate Ansible tasks to run on the local control node, for example, by specifying ``delegate_to: 'localhost'`` for the task in the playbook. For more ways of delegating tasks, see `Controlling where tasks run`_.
 
+The managed node must follow these requirements to use the CICS collection:
 
 * IBM CICS V4.2 or later
 * A `CMCI connection`_ must be set up in either a CICSplex or a stand-alone CICS region
