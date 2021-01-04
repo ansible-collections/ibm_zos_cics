@@ -152,6 +152,34 @@ def test_delete_bas(cmci_module):  # type: (CMCITestHelper) -> None
     })
 
 
+def test_delete_csd(cmci_module):  # type: (CMCITestHelper) -> None
+    cmci_module.stub_delete(
+        'cicscsdgroup',
+        1,
+        parameters='?CRITERIA=%28NAME%3D%27CSDGRP1%27%29'
+    )
+
+    cmci_module.expect(
+        result(
+            'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+            'cicscsdgroup/CICSEX56/?CRITERIA=%28NAME%3D%27CSDGRP1%27%29',
+            1
+        )
+    )
+
+    cmci_module.run(cmci_delete, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicscsdgroup',
+        'resources': {
+            'filter': {
+                'NAME': 'CSDGRP1'
+            },
+        }
+    })
+
+
 def result(url, success_count):
     return {
         'changed': True,

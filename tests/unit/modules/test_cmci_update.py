@@ -12,7 +12,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import 
 )
 
 
-def test_update(cmci_module):  # type: (CMCITestHelper) -> None
+def test_csd_update(cmci_module):  # type: (CMCITestHelper) -> None
     record = dict(
         changeagent='CSDAPI',
         changeagrel='0730',
@@ -67,6 +67,108 @@ def test_update(cmci_module):  # type: (CMCITestHelper) -> None
                 'NAME': 'DUMMY'
             },
             'parameters': [{'name': 'CSDGROUP', 'value': 'DUMMY'}]
+        }
+    })
+
+
+def test_bas_update(cmci_module):  # type: (CMCITestHelper) -> None
+    record = dict(
+        changeagent='CSDAPI',
+        changeagrel='0730',
+        description='new description',
+        resdesc='BASICB1'
+    )
+    cmci_module.stub_records(
+        'PUT',
+        'cicsresourcedefinition',
+        [record],
+        scope=SCOPE,
+        parameters='?CRITERIA=%28RESDESC%3D%27BASICB1%27%29',
+        additional_matcher=body_matcher(od(
+            ('request', od(
+                ('update', od(
+                    ('attributes', od(
+                        ('@description', 'new description')
+                    ))
+                ))
+            ))
+        ))
+    )
+
+    cmci_module.expect(result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsresourcedefinition'
+        '/CICSEX56/IYCWEMW2?CRITERIA=%28RESDESC%3D%27BASICB1%27%29',
+        record,
+        '<request><update>'
+        '<attributes description="new description"></attributes>'
+        '</update></request>'
+    ))
+
+    cmci_module.run(cmci_update, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': SCOPE,
+        'type': 'cicsresourcedefinition',
+        'attributes': {
+            'description': 'new description'
+        },
+        'resources': {
+            'filter': {
+                'RESDESC': 'BASICB1'
+            }
+        }
+    })
+
+
+def test_resource_update(cmci_module):  # type: (CMCITestHelper) -> None
+    record = dict(
+        changeagent='CSDAPI',
+        changeagrel='0730',
+        csdgroup='DUMMY',
+        description='new description',
+        name='DUMMY'
+    )
+    cmci_module.stub_records(
+        'PUT',
+        'cicsdefinitionprogram',
+        [record],
+        scope=SCOPE,
+        parameters='?CRITERIA=%28NAME%3D%27DUMMY%27%29%20AND%20%28DEFVER%3D%271%27%29',
+        additional_matcher=body_matcher(od(
+            ('request', od(
+                ('update', od(
+                    ('attributes', od(
+                        ('@description', 'new description')
+                    ))
+                ))
+            ))
+        ))
+    )
+
+    cmci_module.expect(result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram'
+        '/CICSEX56/IYCWEMW2?CRITERIA=%28NAME%3D%27DUMMY%27%29%20AND%20%28DEFVER%3D%271%27%29',
+        record,
+        '<request><update>'
+        '<attributes description="new description"></attributes>'
+        '</update></request>'
+    ))
+
+    cmci_module.run(cmci_update, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': SCOPE,
+        'type': 'cicsdefinitionprogram',
+        'attributes': {
+            'description': 'new description'
+        },
+        'resources': {
+            'filter': {
+                'NAME': 'DUMMY',
+                'DEFVER': '1'
+            },
         }
     })
 
