@@ -3,8 +3,8 @@
 .. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
 .. ...............................................................................
 
-IBM z/OS CICS collection
-========================
+IBM® z/OS® CICS® collection
+===========================
 Collections are a distribution format for prepackaged Ansible content including playbooks, modules, and so on that enable you to quickly set up your automation project.
 
 The **IBM z/OS CICS collection**, also represented as **ibm\_zos\_cics**

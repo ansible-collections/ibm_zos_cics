@@ -12,13 +12,13 @@ Control node
 ------------
 
 A control node is any machine with Ansible installed. From the control node,
-you can run commands and playbooks from a laptop, desktop, or server.
+you can run commands and playbooks from a laptop, desktop, or server. The following software must be installed on the control node.
 
-.. note:: The IBM z/OS CICS collection cannot run on a Windows system.
+.. note:: The IBM® z/OS® CICS® collection cannot run on a Windows system.
 
 * `Ansible version`_: 2.9 or later
 * `Python`_: 2.7 or later
-* `OpenSSH`_
+
 
 .. _Ansible version:
    https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html
@@ -26,12 +26,14 @@ you can run commands and playbooks from a laptop, desktop, or server.
    https://www.python.org/downloads/release/latest
 .. _OpenSSH:
    https://www.openssh.com/
+.. _CMCI REST API:
+   https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/fundamentals/cpsm/cpsm-cmci-restfulapi-overview.html
 
 
 Managed node
 ------------
 
-Ansible needs not be installed on a managed node, but SSH must be enabled. The CICS collection also requires a CMCI connection to either a CICSPlex SM or a stand-alone CICS region. For detailed requirements, see :doc:`requirements_managed`.
+The IBM z/OS CICS collection interacts with the managed node by sending HTTP requests via the `CMCI REST API`_ using a CMCI connection. Therefore, no SSH connection or Python is required on the managed node. You need, however, to delegate Ansible tasks to run on the local control node, for example, by specifying ``delegate_to: 'localhost'`` for the task in the playbook. For detailed requirements, see :doc:`requirements_managed`.
 
 
 .. toctree::

@@ -10,14 +10,14 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: cmci_get
-short_description: Query CICS and CICSplex SM resources
+short_description: Query CICS® and CICSPlex® SM resources
 description:
-  - The cmci_get module can be used to get information about installed and definitional
-    CICS and CICSPlex® SM resources from CICS regions, using the CMCI API.  The CMCI API is provided by 
-    CICSplex SM, or in SMSS regions.  For information about the CMCI API see
-    U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
-    For information about how to compose GET requests, see
-    U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_get.html).
+  - Get information about installed and definitional CICS and CICSPlex SM resources from CICS regions,
+    by initiating GET requests via the CMCI REST API. The CMCI REST API can be configured in CICSPlex SM or
+    stand-alone regions (SMSS). For information about the API, see L(CMCI REST API,
+    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
+    For information about how to compose GET requests, see L(CMCI GET requests,
+    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_get.html).
 author: "IBM"
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.cmci.COMMON
@@ -25,13 +25,13 @@ extends_documentation_fragment:
 options:
   record_count:
     description:
-      - Identifies a subset of records in a results cache starting from the
+      - Identifies a subset of records in the results cache, starting either from the
         first record in the results cache or from the record specified
         by the index parameter.
       - A negative number indicates a count back from the last record; for
-        example, -1 means the last record, -2 the last record but one, and so
-        on
-      - Count must be an integer, a value of zero is not permitted.
+        example, C(-1) means the last record, C(-2) the last record but one, and so
+        on.
+      - The count value must be an integer; a value of zero is not permitted.
     type: int
     required: false
 '''
@@ -85,11 +85,11 @@ EXAMPLES = r"""
 
 RETURN = r"""
 changed:
-  description: True if the state was changed, otherwise False
+  description: True if the state was changed, otherwise False.
   returned: always
   type: bool
 failed:
-  description: True if query_job failed, othewise False
+  description: True if the query job failed, otherwise False.
   returned: always
   type: bool
 connect_version:
@@ -98,48 +98,50 @@ connect_version:
   type: str
 cpsm_reason:
   description:
-    - Character value of the CPSM API reason code returned.  For a list of reason values provided by each API command,
-      see
-      U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kr.html)
+    - The character value of the REASON code returned by each CICSPlex SM API command. 
+      For a list of REASON character values, see 
+      https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ky.html.
   returned: success
   type: str
 cpsm_reason_code:
   description:
-    - Numeric value of the CPSM API reason code returned.  For a list of numeric values see
-      U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ks.html)
+    - The numeric value of the REASON code returned by each CICSPlex SM API command. 
+      For a list of REASON numeric values, see 
+      https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kw.html.
   returned: success
   type: int
 cpsm_response:
   description:
-    - Character value of the CPSM API response code returned.  For a list of response values provided by each API
-      command, see
-      U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kr.html)
+    - The character value of the RESPONSE code returned by each CICSPlex SM API command. 
+      For a list of RESPONSE character values, see
+      https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kx.html.
   returned: success
   type: str
 cpsm_response_code:
   description:
-    - Numeric value of the CPSM API response code returned.  For a list of numeric values see
-      U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ks.html)
+    - The numeric value of the RESPONSE code returned by each CICSPlex SM API command.
+      For a list of RESPONSE numeric values, see
+      https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kv.html.
   returned: success
   type: str
 http_status:
   description:
-    - Message associated with HTTP status code returned by CMCI
+    - The message associated with HTTP status code that is returned by CMCI.
   returned: success
   type: str
 http_status_code:
   description:
-    - HTTP status code returned by CMCI
+    - The HTTP status code returned by CMCI.
   returned: success
   type: int
 record_count:
   description:
-    - Number of records returned
+    - The number of records returned.
   returned: success
   type: int
 records:
   description:
-    - A list of the returned records
+    - A list of the returned records.
   returned: success
   type: list 
   elements: dict
@@ -208,20 +210,20 @@ records:
       usecount: "0"
       usefetch: "0.000"
 request:
-  description: Information about the request that was made to CMCI
+  description: Information about the request that was made to CMCI.
   returned: success
   type: dict
   contains:
     body:
-      description: The XML body sent with the request, if any
+      description: The XML body sent with the request, if any.
       returned: success
       type: str
     method:
-      description: The HTTP method used for the request
+      description: The HTTP method used for the request.
       returned: success
       type: str
     url:
-      description: The URL used for the request
+      description: The URL used for the request.
       returned: success
       type: str
 """

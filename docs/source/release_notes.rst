@@ -12,17 +12,17 @@ Version 1.0.0
 
 What's New
 -------------------
-Initial release of the **IBM z/OS CICS collection**, also referred to as **ibm_zos_cics**, which is part of the broader offering **Red Hat® Ansible Certified Content for IBM Z®**.
+Initial release of the **IBM® z/OS® CICS® collection**, also referred to as **ibm_zos_cics**, which is part of the broader offering **Red Hat® Ansible Certified Content for IBM Z®**.
 
-This collection can manage CICS resources and definitions by calling the `CMCI REST API`_, which can be configured in a CICSplex or in a stand-alone region.
+This collection can manage CICS and CICSPlex® SM resources and definitions by calling the `CMCI REST API`_, which can be configured in a CICSplex or in a stand-alone region.
 
 * Modules
 
-  * ``cmci_create`` - Create definitional CICS and CICSPlex® SM resources in CICS regions, using the CMCI REST API.
-  * ``cmci_delete`` - Delete installed and definitional CICS and CICSPlex® SM resources from CICS regions, using the CMCI REST API.
-  * ``cmci_get`` - Get information about installed and definitional CICS and CICSPlex® SM resources from CICS regions, using the CMCI REST API.
-  * ``cmci_install`` - Install CICS and CICSPlex® SM resources into CICS regions from definitions, using the CMCI REST API.
-  * ``cmci_update`` - Make changes to CICS and CICSPlex® SM resources in CICS regions using the CMCI REST API.
+  * ``cmci_create`` - Create definitional CICS and CICSPlex SM resources in CICS regions, by initiating POST requests via the CMCI REST API.
+  * ``cmci_delete`` - Remove or discard definitional and installed CICS and CICSPlex SM resources from CICS regions, by initiating DELETE requests via the CMCI REST API.
+  * ``cmci_get`` - Retrieve information about installed and definitional CICS and CICSPlex SM resources from CICS regions, by initiating GET requests via the CMCI REST API.
+  * ``cmci_action`` - Install CICS and CICSPlex SM resources into CICS regions from definitions, by initiating PUT requests via the CMCI REST API.
+  * ``cmci_update`` - Make changes to CICS and CICSPlex SM resources in CICS regions, by initiating PUT requests via the CMCI REST API.
 
 
 * Documentation

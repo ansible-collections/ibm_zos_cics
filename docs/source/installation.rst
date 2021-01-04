@@ -44,18 +44,6 @@ This is the quickest way to install the CICS collection. From your CLI, enter:
 ..
    Comment: Will need to add something about overwriting previous versions when we have multiple versions. If you have installed a prior version, overwrite the existing collection with the ``--force`` (or ``-f``) option. Also, how to install a previous version, including beta.
 
-
-You'll see some output like this in the console:
-
-.. _ansible-galaxy:
-   https://docs.ansible.com/ansible/latest/cli/ansible-galaxy.html
-
-.. code-block:: sh
-
-   Process install dependency map
-   Starting collection install process
-   Installing 'ibm.ibm_zos_cics:1.0.0' to '/Users/user/.ansible/collections/ansible_collections/ibm/cics'
-
 By default, collections are installed in ``~/.ansible/collections``. After installation, the collection content will resemble this hierarchy: :
 
 .. code-block:: sh

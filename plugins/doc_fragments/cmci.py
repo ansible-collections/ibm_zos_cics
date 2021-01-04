@@ -13,7 +13,7 @@ class ModuleDocFragment(object):
 options:
   cmci_host:
     description:
-      - The TCP/IP host name of CMCI connection
+      - The TCP/IP host name of CMCI connection.
     type: str
     required: true
   cmci_port:
@@ -23,72 +23,82 @@ options:
     required: true
   cmci_user:
     description:
-      - The user id to run the CMCI request as
-      - Required when security type is yes
-      - Can also be specified using the environment variable CMCI_USER
-      - Required with cmci_password
+      - The user ID under which the CMCI request will run.
+      - Can also be specified using the environment variable CMCI_USER.
+      - Required if I(cmci_password) is specified.
+      - Authentication prioritises certificate authentication if I(cmci_cert) and I(cmci_key) are provided, then
+        basic authentication if I(cmci_user) and (cmci_password) are provided, and then unauthenticated if none is 
+        provided.
     type: str
   cmci_password:
     description:
-      - The password of cmci_user to pass using HTTP basic authentication
-      - Can also be specified using the environment variable CMCI_PASSWORD
-      - Required with cmci_user
+      - The password of I(cmci_user) to pass HTTP basic authentication. 
+      - Can also be specified using the environment variable CMCI_PASSWORD.
+      - Required if I(cmci_user) is specified.
+      - Authentication prioritises certificate authentication if I(cmci_cert) and I(cmci_key) are provided, then
+        basic authentication if I(cmci_user) and (cmci_password) are provided, and then unauthenticated if none is 
+        provided.
     type: str
   cmci_cert:
     description:
       - Location of the PEM-formatted certificate chain file to be used for
         HTTPS client authentication.
-      - Required when security_type is certificate.
-      - Can also be specified using the environment variable CMCI_CERT
-      - Required with cmci_key
+      - Can also be specified using the environment variable CMCI_CERT.
+      - Required if I(cmci_key) is specified.
+      - Authentication prioritises certificate authentication if I(cmci_cert) and I(cmci_key) are provided, then
+        basic authentication if I(cmci_user) and (cmci_password) are provided, and then unauthenticated if none is 
+        provided.
     required: false
     type: str
   cmci_key:
     description:
-      - Location of the PEM-formatted file with your private key to be used
+      - Location of the PEM-formatted file storing your private key to be used
         for HTTPS client authentication.
-      - Required when security type is certificate.
-      - Can also be specified using the environment variable CMCI_KEY
-      - Required with cmci_cert
+      - Can also be specified using the environment variable CMCI_KEY.
+      - Required if I(cmci_cert) is specified.
+      - Authentication prioritises certificate authentication if I(cmci_cert) and I(cmci_key) are provided, then
+        basic authentication if I(cmci_user) and (cmci_password) are provided, and then unauthenticated if none is 
+        provided.
     required: false
     type: str
   context:
     description:
-      - If CMCI is installed in a CICSPlex SM environment, context is the
-        name of the CICSplex or CMAS associated with the request; for example,
-        PLEX1. See the relevant resource table in CICSPlex SM resource tables
+      - If CMCI is installed in a CICSPlex SM environment, I(context) is the
+        name of the CICSplex or CMAS associated with the request, for example,
+        PLEX1. See the relevant CICSPlex SM resource table, for example, L(PROGRAM resource table,
+        https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html),
         to determine whether to specify a CICSplex or CMAS.
-      - If CMCI is installed as a single server (SMSS), context is the
-        APPLID of the CICS region associated with the request.
-      - The value of context must not contain spaces. Context is not
+      - If CMCI is installed in a single region (SMSS), I(context) is the
+        APPLID of the CICS region associate with the request.
+      - The value of I(context) must contain no spaces. I(context) is not
         case-sensitive.
     type: str
   scope:
     description:
       - Specifies the name of a CICSplex, CICS region group, CICS region, or
-        logical scope associated with the query.
-      - Scope is a subset of context, and limits the request to particular
+        logical scope that is associated with the query.
+      - I(scope) is a subset of I(context) and limits the request to particular
         CICS systems or resources.
-      - Scope is not mandatory. If scope is absent, the request is limited by
-        the value of the context alone.
-      - The value of scope must not contain spaces.
-      - Scope is not case-sensitive
+      - I(scope) is optional. If it's not specified, the request is limited by
+        the value of I(context) alone.
+      - The value of I(scope) must contain no spaces. I(scope) is not case-sensitive.
     type: str
   type:
     description:
-      - The CMCI resource name for the target resource type.  For the list of CMCI resource names, see
-        U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_resources.html)
+      - The CMCI external resource name that maps to the target CICS or CICSPlex SM resource type. 
+        For a list of CMCI external resource names, see L(CMCI resource names, 
+        https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_resources.html).
     type: str
     required: true
   scheme:
-    description: The http scheme to use when establishing a connection to the CMCI API
+    description: The HTTP scheme to use when establishing a connection to the CMCI REST API.
     type: str
     choices:
       - http
       - https
     default: https
   insecure:
-    description: Set to true to disable SSL certificate trust chain verification when using https
+    description: When set to C(true), disables SSL certificate trust chain verification when using HTTPS.
     type: bool
     required: false
     default: false
@@ -98,39 +108,85 @@ options:
 options:
   resources:
     description:
-      - Options which specify a target resource
+      - Options that specify a target resource.
     type: dict
     required: false
     suboptions:   
-      criteria:
+      filter:
         description:
-          - A string containing logical expressions that filters the data 
-            returned on the request.
-          - The string that makes up the value of the CRITERIA parameter
-            follows the same rules as the filter expressions in the CICSPlex
-            SM application programming interface.
-          - The filter can work with options ``query``, ``update``, ``delete``; 
-            otherwise it will be ignored.
-          - For more guidance about specifying filter expressions using the
-            CICSPlex SM API, see
-            U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1a0.html).
+          - A string containing basic logical expressions that filter the resource table records
+            in the data returned on the request.
+          - Supports only the equal logic when filtering attribute values.
+          - Can contain one or more filters.
+          - For supported attributes of different resource types, see their resource table reference,
+            for example, L(PROGDEF resource table reference,
+            https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
         type: str
         required: false
+      complex_filter:
+        description:
+          - A string containing logical expressions that filter the resource table records
+            in the data returned on the request.
+          - Can contain one or more filters. Multiple filters must be combined using C(and) or C(or) logical operators.
+          - Filters can be nested. At most four nesting layers are allowed.
+        type: str
+        required: false
+        suboptions:
+          attribute:
+            description:
+              - The resource table attributes to be filtered.
+              - For supported attributes of different resource types, see their resource table reference,
+                for example, L(PROGDEF resource table reference,
+                https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
+            type: str
+            required: false
+          operator:
+            description: >
+              These operators are accepted: C(<) or C(LT) (less than), C(<=) or C(LE) (less than or equal to),
+              C(=) or C(EQ) (equal to), C(>) or C(GT) (greater than), C(>=) or C(GE) (greater than or equal to),
+              C(==) or C(IS) (is), C(¬=), C(!=), or C(NE) (not equal to). 
+            type: str
+            required: false
+            choices: 
+              - "<"
+              - ">"
+              - "<="
+              - ">="
+              - "="
+              - "=="
+              - "!="
+              - "¬="
+              - EQ
+              - GT
+              - GE
+              - LT
+              - LE
+              - NE
+              - IS
+            default: EQ              
+          value:
+            description: 
+              - The value by which you are to filter the resource attributes. 
+              - The value must be a valid one for the resource table attribute as documented in the 
+                resource table reference, for example, L(PROGDEF resource table reference,
+                https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
+            required: false
   parameters:
     description: >
       A list of one or more parameters with optional values used to identify the resources for this request.
-      Eligible parameters for identifying resources can be found in the resource tables reference for the target
-      resource type, for the GET operation. For example, the valid parameters for identifying a PROGDEF are
-      CICSSYS, CSDGROUP and RESGROUP, as found in the resource tables reference
-      U(https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html)
+      Eligible parameters for identifying the target resources can be found in the resource table reference for the 
+      target resource type, as valid parameters for the GET operation in the "Valid CPSM operations" table. 
+      For example, the valid parameters for identifying a PROGDEF resource are
+      CICSSYS, CSDGROUP and RESGROUP, as found in the L(PROGDEF resource table reference,
+      https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
     type: list
     suboptions:
       name:
-        description: Parameter name
+        description: Parameter name available for the GET operation.
         required: true
         type: str
       value:
-        description: Parameter value if any
+        description: Parameter value if any.
         required: false
         type: str
     required: false
@@ -140,8 +196,9 @@ options:
 options:
   attributes:
     description:
-      - The resource attributes, refer to the CICSPlex SM resource tables
-        in the knowledge center to find the possible attributes.
+      - The resource attributes to be defined. Available attributes can be found in the CICSPlex SM resource table reference for the
+        target resource type, for example, L(PROGDEF resource table reference,
+        https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
     type: dict
     required: false
 '''

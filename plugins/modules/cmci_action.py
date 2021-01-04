@@ -10,13 +10,14 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: cmci_action
-short_description: Install CICS and CICSplex SM definitions
+short_description: Install CICS® and CICSPlex® SM definitions
 description:
-  - The cmci_action module can be used to perform actions on CICS and CICSPlex® SM definitions and resources, using the
-    CMCI API.  The CMCI API is provided by CICSplex SM, or in SMSS regions.  For information about the CMCI API see
-    U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
-    For information about how to compose PUT requests, see
-    U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_put.html).
+  - Perform actions on CICS or CICSPlex SM definitions and resources, by initiating PUT requests via the CMCI REST API.
+    The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API,
+    see L(CMCI REST API,
+    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
+    For information about how to compose PUT requests, see L(CMCI PUT requests,
+    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_put.html).
 author: "IBM"
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.cmci.COMMON
@@ -25,7 +26,7 @@ extends_documentation_fragment:
 options:
   action_name:
     description: >
-      The name of the target action.  To find the name of the appropriat action, consult the CICSplex SM resource
+      The name of the target action.  To find the name of the appropriate action, consult the CICSPlex SM resource
       tables for the target resource type.  For example, see this reference information which lists the eligible
       actions for CICS programs:
       U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html)
@@ -67,61 +68,63 @@ EXAMPLES = r"""
 
 RETURN = r"""
 changed:
-  description: True if the state was changed, otherwise False
+  description: True if the state was changed, otherwise False.
   returned: always
   type: bool
 failed:
-  description: True if query_job failed, othewise False
+  description: True if the query job failed, otherwise False.
   returned: always
   type: bool
 connect_version:
-  description: Version of the CMCI API
+  description: Version of the CMCI REST API.
   returned: success
   type: str
 cpsm_reason:
   description:
-    - Character value of the CPSM API reason code returned.  For a list of reason values provided by each API command,
-      see
-      U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kr.html)
+    - The character value of the REASON code returned by each CICSPlex SM API command. 
+      For a list of REASON character values, see 
+      https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ky.html.
   returned: success
   type: str
 cpsm_reason_code:
   description:
-    - Numeric value of the CPSM API reason code returned.  For a list of numeric values see
-      U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ks.html)
+    - The numeric value of the REASON code returned by each CICSPlex SM API command. 
+      For a list of REASON numeric values, see 
+      https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kw.html.
   returned: success
   type: int
 cpsm_response:
   description:
-    - Character value of the CPSM API response code returned.  For a list of response values provided by each API
-      command, see
-      U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kr.html)
+    - The character value of the RESPONSE code returned by each CICSPlex SM API command. 
+      For a list of RESPONSE character values, see
+      https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kx.html.
   returned: success
   type: str
 cpsm_response_code:
   description:
-    - Numeric value of the CPSM API response code returned.  For a list of numeric values see
-      U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ks.html)
+    - The numeric value of the RESPONSE code returned by each CICSPlex SM API command.
+      For a list of RESPONSE numeric values, see
+      https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kv.html.
   returned: success
   type: str
 http_status:
   description:
-    - Message associated with HTTP status code returned by CMCI
+    - The message associated with HTTP status code that is returned by CMCI.
   returned: success
   type: str
 http_status_code:
   description:
-    - HTTP status code returned by CMCI
+    - The HTTP status code returned by CMCI.
   returned: success
   type: int
 record_count:
   description:
-    - Number of records returned
+    - The number of records returned.
   returned: success
   type: int
 records:
   description:
-    - A list of the returned records
+    - A list of the returned records.
   returned: success
   type: list 
   elements: dict
@@ -190,24 +193,24 @@ records:
       usecount: "0"
       usefetch: "0.000"
 success_count:
-    description: Number of resources that the action completed successfully for
+    description: The number of resources for which the action completed successfully.
     returned: success
     type: int
 request:
-  description: Information about the request that was made to CMCI
+  description: Information about the request that was made to CMCI.
   returned: success
   type: dict
   contains:
     body:
-      description: The XML body sent with the request, if any
+      description: The XML body sent with the request, if any.
       returned: success
       type: str
     method:
-      description: The HTTP method used for the request
+      description: The HTTP method used for the request.
       returned: success
       type: str
     url:
-      description: The URL used for the request
+      description: The URL used for the request.
       returned: success
       type: str
 """

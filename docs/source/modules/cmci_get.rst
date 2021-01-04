@@ -8,8 +8,8 @@
 .. _cmci_get_module:
 
 
-cmci_get -- Query CICS and CICSplex SM resources
-================================================
+cmci_get -- Query CICS® and CICSPlex® SM resources
+==================================================
 
 
 
@@ -20,7 +20,7 @@ cmci_get -- Query CICS and CICSplex SM resources
 
 Synopsis
 --------
-- The cmci_get module can be used to get information about installed and definitional CICS and CICSPlex® SM resources from CICS regions, using the CMCI API.  The CMCI API is provided by CICSplex SM, or in SMSS regions.  For information about the CMCI API see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html. For information about how to compose GET requests, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_get.html.
+- Get information about installed and definitional CICS and CICSPlex SM resources from CICS regions, by initiating GET requests via the CMCI REST API. The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API, see `CMCI REST API <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html>`_. For information about how to compose GET requests, see `CMCI GET requests <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_get.html>`_.
 
 
 
@@ -34,11 +34,11 @@ Parameters
 cmci_cert
   Location of the PEM-formatted certificate chain file to be used for HTTPS client authentication.
 
-  Required when security_type is certificate.
+  Can also be specified using the environment variable CMCI_CERT.
 
-  Can also be specified using the environment variable CMCI_CERT
+  Required if *cmci_key* is specified.
 
-  Required with cmci_key
+  Authentication prioritises certificate authentication if *cmci_cert* and *cmci_key* are provided, then basic authentication if *cmci_user* and (cmci_password) are provided, and then unauthenticated if none is provided.
 
 
   | **required**: False
@@ -47,7 +47,7 @@ cmci_cert
 
      
 cmci_host
-  The TCP/IP host name of CMCI connection
+  The TCP/IP host name of CMCI connection.
 
 
   | **required**: True
@@ -56,13 +56,13 @@ cmci_host
 
      
 cmci_key
-  Location of the PEM-formatted file with your private key to be used for HTTPS client authentication.
+  Location of the PEM-formatted file storing your private key to be used for HTTPS client authentication.
 
-  Required when security type is certificate.
+  Can also be specified using the environment variable CMCI_KEY.
 
-  Can also be specified using the environment variable CMCI_KEY
+  Required if *cmci_cert* is specified.
 
-  Required with cmci_cert
+  Authentication prioritises certificate authentication if *cmci_cert* and *cmci_key* are provided, then basic authentication if *cmci_user* and (cmci_password) are provided, and then unauthenticated if none is provided.
 
 
   | **required**: False
@@ -71,11 +71,13 @@ cmci_key
 
      
 cmci_password
-  The password of cmci_user to pass using HTTP basic authentication
+  The password of *cmci_user* to pass HTTP basic authentication.
 
-  Can also be specified using the environment variable CMCI_PASSWORD
+  Can also be specified using the environment variable CMCI_PASSWORD.
 
-  Required with cmci_user
+  Required if *cmci_user* is specified.
+
+  Authentication prioritises certificate authentication if *cmci_cert* and *cmci_key* are provided, then basic authentication if *cmci_user* and (cmci_password) are provided, and then unauthenticated if none is provided.
 
 
   | **required**: false
@@ -93,13 +95,13 @@ cmci_port
 
      
 cmci_user
-  The user id to run the CMCI request as
+  The user ID under which the CMCI request will run.
 
-  Required when security type is yes
+  Can also be specified using the environment variable CMCI_USER.
 
-  Can also be specified using the environment variable CMCI_USER
+  Required if *cmci_password* is specified.
 
-  Required with cmci_password
+  Authentication prioritises certificate authentication if *cmci_cert* and *cmci_key* are provided, then basic authentication if *cmci_user* and (cmci_password) are provided, and then unauthenticated if none is provided.
 
 
   | **required**: false
@@ -108,11 +110,11 @@ cmci_user
 
      
 context
-  If CMCI is installed in a CICSPlex SM environment, context is the name of the CICSplex or CMAS associated with the request; for example, PLEX1. See the relevant resource table in CICSPlex SM resource tables to determine whether to specify a CICSplex or CMAS.
+  If CMCI is installed in a CICSPlex SM environment, *context* is the name of the CICSplex or CMAS associated with the request, for example, PLEX1. See the relevant CICSPlex SM resource table, for example, `PROGRAM resource table <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html>`_, to determine whether to specify a CICSplex or CMAS.
 
-  If CMCI is installed as a single server (SMSS), context is the APPLID of the CICS region associated with the request.
+  If CMCI is installed in a single region (SMSS), *context* is the APPLID of the CICS region associate with the request.
 
-  The value of context must not contain spaces. Context is not case-sensitive.
+  The value of *context* must contain no spaces. *context* is not case-sensitive.
 
 
   | **required**: false
@@ -121,7 +123,7 @@ context
 
      
 insecure
-  Set to true to disable SSL certificate trust chain verification when using https
+  When set to ``true``, disables SSL certificate trust chain verification when using HTTPS.
 
 
   | **required**: False
@@ -130,7 +132,7 @@ insecure
 
      
 parameters
-  A list of one or more parameters with optional values used to identify the resources for this request. Eligible parameters for identifying resources can be found in the resource tables reference for the target resource type, for the GET operation. For example, the valid parameters for identifying a PROGDEF are CICSSYS, CSDGROUP and RESGROUP, as found in the resource tables reference https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html
+  A list of one or more parameters with optional values used to identify the resources for this request. Eligible parameters for identifying the target resources can be found in the resource table reference for the  target resource type, as valid parameters for the GET operation in the "Valid CPSM operations" table.  For example, the valid parameters for identifying a PROGDEF resource are CICSSYS, CSDGROUP and RESGROUP, as found in the `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
 
 
 
@@ -140,7 +142,7 @@ parameters
 
      
   name
-    Parameter name
+    Parameter name available for the GET operation.
 
 
     | **required**: True
@@ -149,7 +151,7 @@ parameters
 
      
   value
-    Parameter value if any
+    Parameter value if any.
 
 
     | **required**: False
@@ -159,11 +161,11 @@ parameters
 
      
 record_count
-  Identifies a subset of records in a results cache starting from the first record in the results cache or from the record specified by the index parameter.
+  Identifies a subset of records in the results cache, starting either from the first record in the results cache or from the record specified by the index parameter.
 
-  A negative number indicates a count back from the last record; for example, -1 means the last record, -2 the last record but one, and so on
+  A negative number indicates a count back from the last record; for example, ``-1`` means the last record, ``-2`` the last record but one, and so on.
 
-  Count must be an integer, a value of zero is not permitted.
+  The count value must be an integer; a value of zero is not permitted.
 
 
   | **required**: False
@@ -172,7 +174,7 @@ record_count
 
      
 resources
-  Options which specify a target resource
+  Options that specify a target resource.
 
 
   | **required**: False
@@ -180,14 +182,62 @@ resources
 
 
      
-  criteria
-    A string containing logical expressions that filters the data returned on the request.
+  complex_filter
+    A string containing logical expressions that filter the resource table records in the data returned on the request.
 
-    The string that makes up the value of the CRITERIA parameter follows the same rules as the filter expressions in the CICSPlex SM application programming interface.
+    Can contain one or more filters. Multiple filters must be combined using ``and`` or ``or`` logical operators.
 
-    The filter can work with options ``query``, ``update``, ``delete``; otherwise it will be ignored.
+    Filters can be nested. At most four nesting layers are allowed.
 
-    For more guidance about specifying filter expressions using the CICSPlex SM API, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1a0.html.
+
+    | **required**: False
+    | **type**: str
+
+
+     
+    attribute
+      The resource table attributes to be filtered.
+
+      For supported attributes of different resource types, see their resource table reference, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
+
+
+      | **required**: False
+      | **type**: str
+
+
+     
+    operator
+      These operators are accepted: ``<`` or ``LT`` (less than), ``<=`` or ``LE`` (less than or equal to), ``=`` or ``EQ`` (equal to), ``>`` or ``GT`` (greater than), ``>=`` or ``GE`` (greater than or equal to), ``==`` or ``IS`` (is), ``¬=``, ``!=``, or ``NE`` (not equal to). 
+
+
+
+      | **required**: False
+      | **type**: str
+      | **default**: EQ
+      | **choices**: <, >, <=, >=, =, ==, !=, ¬=, EQ, GT, GE, LT, LE, NE, IS
+
+
+     
+    value
+      The value by which you are to filter the resource attributes.
+
+      The value must be a valid one for the resource table attribute as documented in the resource table reference, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
+
+
+      | **required**: False
+      | **type**: str
+
+
+
+     
+  filter
+    A string containing basic logical expressions that filter the resource table records in the data returned on the request.
+
+    Supports only the equal logic when filtering attribute values.
+
+    Can contain one or more filters.
+
+    For supported attributes of different resource types, see their resource table reference, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
 
 
     | **required**: False
@@ -197,7 +247,7 @@ resources
 
      
 scheme
-  The http scheme to use when establishing a connection to the CMCI API
+  The HTTP scheme to use when establishing a connection to the CMCI REST API.
 
 
   | **required**: false
@@ -208,15 +258,13 @@ scheme
 
      
 scope
-  Specifies the name of a CICSplex, CICS region group, CICS region, or logical scope associated with the query.
+  Specifies the name of a CICSplex, CICS region group, CICS region, or logical scope that is associated with the query.
 
-  Scope is a subset of context, and limits the request to particular CICS systems or resources.
+  *scope* is a subset of *context* and limits the request to particular CICS systems or resources.
 
-  Scope is not mandatory. If scope is absent, the request is limited by the value of the context alone.
+  *scope* is optional. If it's not specified, the request is limited by the value of *context* alone.
 
-  The value of scope must not contain spaces.
-
-  Scope is not case-sensitive
+  The value of *scope* must contain no spaces. *scope* is not case-sensitive.
 
 
   | **required**: false
@@ -225,7 +273,7 @@ scope
 
      
 type
-  The CMCI resource name for the target resource type.  For the list of CMCI resource names, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_resources.html
+  The CMCI external resource name that maps to the target CICS or CICSPlex SM resource type. For a list of CMCI external resource names, see `CMCI resource names <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_resources.html>`_.
 
 
   | **required**: True
@@ -298,7 +346,7 @@ Return Values
    
                               
        changed
-        | True if the state was changed, otherwise False
+        | True if the state was changed, otherwise False.
       
         | **returned**: always
         | **type**: bool
@@ -306,7 +354,7 @@ Return Values
       
                               
        failed
-        | True if query_job failed, othewise False
+        | True if the query job failed, otherwise False.
       
         | **returned**: always
         | **type**: bool
@@ -322,7 +370,7 @@ Return Values
       
                               
        cpsm_reason
-        | Character value of the CPSM API reason code returned.  For a list of reason values provided by each API command, see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kr.html)
+        | The character value of the REASON code returned by each CICSPlex SM API command. For a list of REASON character values, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ky.html.
       
         | **returned**: success
         | **type**: str
@@ -330,7 +378,7 @@ Return Values
       
                               
        cpsm_reason_code
-        | Numeric value of the CPSM API reason code returned.  For a list of numeric values see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ks.html)
+        | The numeric value of the REASON code returned by each CICSPlex SM API command. For a list of REASON numeric values, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kw.html.
       
         | **returned**: success
         | **type**: int
@@ -338,7 +386,7 @@ Return Values
       
                               
        cpsm_response
-        | Character value of the CPSM API response code returned.  For a list of response values provided by each API command, see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kr.html)
+        | The character value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE character values, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kx.html.
       
         | **returned**: success
         | **type**: str
@@ -346,7 +394,7 @@ Return Values
       
                               
        cpsm_response_code
-        | Numeric value of the CPSM API response code returned.  For a list of numeric values see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ks.html)
+        | The numeric value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE numeric values, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kv.html.
       
         | **returned**: success
         | **type**: str
@@ -354,7 +402,7 @@ Return Values
       
                               
        http_status
-        | Message associated with HTTP status code returned by CMCI
+        | The message associated with HTTP status code that is returned by CMCI.
       
         | **returned**: success
         | **type**: str
@@ -362,7 +410,7 @@ Return Values
       
                               
        http_status_code
-        | HTTP status code returned by CMCI
+        | The HTTP status code returned by CMCI.
       
         | **returned**: success
         | **type**: int
@@ -370,7 +418,7 @@ Return Values
       
                               
        record_count
-        | Number of records returned
+        | The number of records returned.
       
         | **returned**: success
         | **type**: int
@@ -378,7 +426,7 @@ Return Values
       
                               
        records
-        | A list of the returned records
+        | A list of the returned records.
       
         | **returned**: success
         | **type**: list      
@@ -392,7 +440,7 @@ Return Values
       
                               
        request
-        | Information about the request that was made to CMCI
+        | Information about the request that was made to CMCI.
       
         | **returned**: success
         | **type**: dict
@@ -400,7 +448,7 @@ Return Values
    
                               
         body
-          | The XML body sent with the request, if any
+          | The XML body sent with the request, if any.
       
           | **returned**: success
           | **type**: str
@@ -408,7 +456,7 @@ Return Values
       
                               
         method
-          | The HTTP method used for the request
+          | The HTTP method used for the request.
       
           | **returned**: success
           | **type**: str
@@ -416,7 +464,7 @@ Return Values
       
                               
         url
-          | The URL used for the request
+          | The URL used for the request.
       
           | **returned**: success
           | **type**: str
