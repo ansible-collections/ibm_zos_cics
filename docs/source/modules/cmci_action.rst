@@ -142,7 +142,7 @@ insecure
 
      
 parameters
-  A list of one or more parameters with optional values used to identify the resources for this request. Eligible parameters for identifying the target resources can be found in the resource table reference for the  target resource type, as valid parameters for the GET operation in the "Valid CPSM operations" table.  For example, the valid parameters for identifying a PROGDEF resource are CICSSYS, CSDGROUP and RESGROUP, as found in the `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
+  A list of one or more parameters for the target operation.  TODO should we document this parameter separately for each operation?  E.g. might be easier to show how to find the parameters for an action distinct from create... TODO Provide an example of how to use flag style parameters
 
 
 
@@ -152,7 +152,7 @@ parameters
 
      
   name
-    Parameter name available for the GET operation.
+    Parameter name
 
 
     | **required**: True
@@ -161,7 +161,7 @@ parameters
 
      
   value
-    Parameter value if any.
+    Parameter value if any
 
 
     | **required**: False
@@ -239,6 +239,35 @@ resources
 
     | **required**: False
     | **type**: str
+
+
+     
+  parameters
+    A list of one or more parameters with optional values used to identify the resources for this request. Eligible parameters for identifying the target resources can be found in the resource table reference for the  target resource type, as valid parameters for the GET operation in the "Valid CPSM operations" table.  For example, the valid parameters for identifying a PROGDEF resource are CICSSYS, CSDGROUP and RESGROUP, as found in the `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
+
+
+
+    | **required**: False
+    | **type**: list
+
+
+     
+    name
+      Parameter name available for the GET operation.
+
+
+      | **required**: True
+      | **type**: str
+
+
+     
+    value
+      Parameter value if any.
+
+
+      | **required**: False
+      | **type**: str
+
 
 
 
