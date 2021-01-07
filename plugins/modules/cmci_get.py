@@ -27,7 +27,7 @@ options:
     description:
       - Identifies a subset of records in the results cache, starting either from the
         first record in the results cache or from the record specified
-        by the index parameter.
+        by the index parameter. If not specified, all the records are returned by default.
       - A negative number indicates a count back from the last record; for
         example, C(-1) means the last record, C(-2) the last record but one, and so
         on.
