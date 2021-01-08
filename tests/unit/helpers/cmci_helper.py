@@ -10,7 +10,7 @@ from ansible.module_utils.common.text.converters import to_bytes
 from ansible.module_utils import basic
 from collections import OrderedDict
 from requests import PreparedRequest
-from typing import List
+from typing import List, Tuple
 from sys import version_info
 import urllib
 import requests
@@ -208,17 +208,41 @@ def create_records_response(resource_type, records):  # type: (str, List) -> Ord
 
 
 def create_feedback_response(errors):  # type: (str, List) -> OrderedDict
+
     # Convert to ordered dict, with @ sign for attribute prefix
+    feedback = [
+        OrderedDict(
+            # Feedback can contain inner types of their own dictionary
+            [('@' + key, value) if not isinstance(value, list)
+             else get_error_detail(key, value)
+             for key, value in error.items()]
+        ) for error in errors
+    ]
+
     return create_cmci_response(
         ('resultsummary', od(
             ('@api_response1', '1038'),
             ('@api_response2', '1361'),
             ('@api_response1_alt', 'TABLEERROR'),
             ('@api_response2_alt', 'DATAERROR'),
-            ('@recordcount', str(len(errors))),
-            ('@displayed_recordcount', str(len(errors)))
+            ('@recordcount', 1)
+        )),
+        ('errors', od(
+            (
+                'feedback',
+                feedback
+            )
         ))
     )
+
+
+def get_error_detail(error_type, error_details):    # type: (str, List) -> Tuple[str, List[OrderedDict]]
+    return error_type,\
+        [
+            OrderedDict(
+                [('@' + k, v) for k, v in error.items()]
+            ) for error in error_details
+        ]
 
 
 def create_cmci_response(*args):  # type () -> OrderedDict

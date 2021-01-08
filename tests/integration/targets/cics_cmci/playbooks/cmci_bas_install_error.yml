@@ -1,23 +1,26 @@
 # (c) Copyright IBM Corp. 2021
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name:  CMCI BAS Install Integration Test
-  # Sets Up a full BAS resource assignment deployment. Checks to see where programs will be installed and then
-  # installs to two regions with a target scope and one related scope. Uninstalls and deletes everything created after
+- name:  CMCI BAS Install Error Integration Test
+  # Sets Up a full BAS resource assignment deployment. Checks to see where files will be installed and then
+  # installs to two regions with a target scope and one related scope. Then attempts to install again and checks an error
+  # occured with feedback and nested installerrors. Uninstalls and deletes everything created after
 
   collections:
    - ibm.ibm_zos_cics
   hosts: 'localhost'
   gather_facts: 'false'
   vars:
-    program: 'ANSIPROG'
+    res_def: 'ANSIFIL*'
+    file1: 'ANSIFIL1'
+    file2: 'ANSIFIL2'
     resource_description: 'ANSIDESC'
     resource_assignment: 'ANSIGMNT'
+    resource_assignment_type_target: 'CICSRemoteFile'
+    resource_assignment_type_related: 'CICSLocalFile'
     resource_group: 'ANSIRGRP'
     related_scope: 'IYCWEMW1'
-    region_one: 'IYCWEML1'
-    region_two: 'IYCWEMM1'
-    target_scope: 'ANSITARG'
+    target_scope: 'IYCWEML1'
     def_ver: '1'
 
 
@@ -86,16 +89,30 @@
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
-
-    - name: 'Delete program definition'
+    - name: 'Delete file1 definition'
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSDefinitionProgram'
+        type: 'CICSDefinitionFile'
         resources:
           complex_filter:
             and:
               - attribute: NAME
-                value: '{{ program }}'
+                value: '{{ file1 }}'
+              - attribute: DEFVER
+                value: '{{ def_ver }}'
+      register: result
+      failed_when: >
+        'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
+
+    - name: 'Delete file2 definition'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_delete:
+        type: 'CICSDefinitionFile'
+        resources:
+          complex_filter:
+            and:
+              - attribute: NAME
+                value: '{{ file2 }}'
               - attribute: DEFVER
                 value: '{{ def_ver }}'
       register: result
@@ -103,43 +120,48 @@
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
 
-    - name: 'Delete program in region one'
-      delegate_to: 'localhost'
-      ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSProgram'
-        scope: '{{ region_one }}'
-        resources:
-          filter:
-            program: '{{ program }}'
-      register: result
-      failed_when: >
-        'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
+    ###
+    # DISABLE AND DISCARD file1 and file2 in each region it may be installed
+    ###
+    - name: 'Check if file1 is installed in target scope'
+      include_role:
+        name: cmci_delete_if_exists
+      vars:
+        resource_type: '{{ resource_assignment_type_target }}'
+        context: '{{ cmci_context }}'
+        scope: '{{ target_scope }}'
+        attributes:
+          FILE: '{{ file1 }}'
 
-
-    - name: 'Delete program in region two'
-      delegate_to: 'localhost'
-      ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSProgram'
-        scope: '{{ region_two }}'
-        resources:
-          filter:
-            program: '{{ program }}'
-      register: result
-      failed_when: >
-        'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
-
-
-    - name: 'Delete program in related scope'
-      delegate_to: 'localhost'
-      ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSProgram'
+    - name: 'Check if file1 is installed in related scope'
+      include_role:
+        name: cmci_disable_discard_if_exists
+      vars:
+        resource_type: '{{ resource_assignment_type_related }}'
+        context: '{{ cmci_context }}'
         scope: '{{ related_scope }}'
-        resources:
-          filter:
-            program: '{{ program }}'
-      register: result
-      failed_when: >
-        'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
+        attributes:
+          FILE: '{{ file1 }}'
+
+    - name: 'Check if file2 is installed in target scope'
+      include_role:
+        name: cmci_delete_if_exists
+      vars:
+        resource_type: '{{ resource_assignment_type_target }}'
+        context: '{{ cmci_context }}'
+        scope: '{{ target_scope }}'
+        attributes:
+          FILE: '{{ file2 }}'
+
+    - name: 'Check if file2 is installed in related scope'
+      include_role:
+        name: cmci_disable_discard_if_exists
+      vars:
+        resource_type: '{{ resource_assignment_type_related }}'
+        context: '{{ cmci_context }}'
+        scope: '{{ related_scope }}'
+        attributes:
+          FILE: '{{ file2 }}'
 
 
     - name: 'Delete resource group'
@@ -166,37 +188,43 @@
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
 
-    - name: 'Delete system group target scope'
-      delegate_to: 'localhost'
-      ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSRegionGroup'
-        resources:
-          filter:
-            group: '{{ target_scope }}'
-      register: result
-      failed_when: >
-        'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
-
-
     ##################################################################################
     # Main Test
     ##################################################################################
-    - name: 'Create progdef'
+    - name: 'Create filedef1'
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_create:
-        type: 'CICSDefinitionProgram'
+        type: 'CICSDefinitionFile'
         attributes:
-          name: '{{ program }}'
+          name: '{{ file1 }}'
           defver: '{{ def_ver }}'
       register: result
 
-    - name: assert progdef created
+    - name: assert filedef created
       assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
-          - result.records[0].name == program
+          - result.records[0].name == file1
+
+
+    - name: 'Create filedef2'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_create:
+        type: 'CICSDefinitionFile'
+        attributes:
+          name: '{{ file2 }}'
+          defver: '{{ def_ver }}'
+      register: result
+
+    - name: assert filedef created
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].name == file2
 
 
     - name: 'Create Resource Group'
@@ -216,82 +244,50 @@
           - result.records[0].resgroup == resource_group
 
 
-    - name: 'Add progdef to resource group'
+    - name: 'Add filedef1 to resource group'
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_action:
-        type: 'CICSDefinitionProgram'
+        type: 'CICSDefinitionFile'
         action_name: 'ADDTOGRP'
         resources:
           filter:
-            NAME: '{{ program }}'
+            NAME: '{{ file1 }}'
             DEFVER: '{{ def_ver }}'
         action_parameters:
           - name: 'RESGROUP'
             value: '{{ resource_group }}'
       register: result
 
-    - name: assert progdef added to resource group
+    - name: assert filedef added to resource group
       assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
-          - result.records[0].name == program
+          - result.records[0].name == file1
 
 
-    - name: 'Create system group for target scope'
+    - name: 'Add filedef2 to resource group'
       delegate_to: 'localhost'
-      ibm.ibm_zos_cics.cmci_create:
-        type: 'CICSRegionGroup'
-        attributes:
-          group: '{{ target_scope }}'
+      ibm.ibm_zos_cics.cmci_action:
+        type: 'CICSDefinitionFile'
+        action_name: 'ADDTOGRP'
+        resources:
+          filter:
+            NAME: '{{ file2 }}'
+            DEFVER: '{{ def_ver }}'
+        action_parameters:
+          - name: 'RESGROUP'
+            value: '{{ resource_group }}'
       register: result
 
-    - name: assert create system group
+    - name: assert filedef added to resource group
       assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
-          - result.records[0].group == target_scope
-
-
-    - name: 'Add region one to target scope'
-      delegate_to: 'localhost'
-      ibm.ibm_zos_cics.cmci_create:
-        type: 'CICSSystemToSystemGroup'
-        attributes:
-          group: '{{ target_scope }}'
-          cicsname: '{{ region_one }}'
-      register: result
-
-    - name: assert region one added to system group
-      assert:
-        that:
-          - result is changed
-          - result.cpsm_response == 'OK'
-          - result.record_count == 1
-          - result.records[0].group == target_scope
-          - result.records[0].cicsname == region_one
-
-
-    - name: 'Add region two to target scope'
-      delegate_to: 'localhost'
-      ibm.ibm_zos_cics.cmci_create:
-        type: 'CICSSystemToSystemGroup'
-        attributes:
-          group: '{{ target_scope }}'
-          cicsname: '{{ region_two }}'
-      register: result
-
-    - name: assert region two added to system group
-      assert:
-        that:
-          - result is changed
-          - result.cpsm_response == 'OK'
-          - result.record_count == 1
-          - result.records[0].group == target_scope
-          - result.records[0].cicsname == region_two
+          - result.records[0].name == file2
 
 
     - name: 'Create Resource Description'
@@ -321,7 +317,7 @@
           rscope: '{{ related_scope }}'
           tscope: '{{ target_scope }}'
           resgroup: '{{ resource_group }}'
-          rdeftype: 'progdef'
+          rdeftype: 'filedef'
       register: result
 
     - name: assert create resource assignment
@@ -335,7 +331,7 @@
           - result.records[0].rscope == related_scope
           - result.records[0].tscope == target_scope
           - result.records[0].resgroup == resource_group
-          - result.records[0].rdeftype == 'PROGDEF'
+          - result.records[0].rdeftype == 'FILEDEF'
 
 
     - name: 'Add resource assignment to resource description'
@@ -378,110 +374,175 @@
           - result.record_count == 1
 
 
-    - name: 'Check program where program will be deployed by resource assignmnet'
+    - name: 'Check file where filedef will be deployed by resource assignmnet'
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_get:
         type: 'CICSResourceByDescription'
         resources:
           filter:
             resdesc: '{{ resource_description }}'
-            resdef: '{{ program }}'
+            resdef: '{{ res_def }}'
           get_parameters:
             - name: 'RESDESC'
               value: '{{ resource_description }}'
       register: result
 
-    - name: assert where program will be installed
+    - name: assert where filedef will be installed
       assert:
         that:
           - result is not changed
           - result.cpsm_response == 'OK'
-          - result.record_count == 3
+          - result.record_count == 4
 
-          - result.records[0].resdef == program
-          - result.records[0].rdeftype == 'PROGDEF'
+          - result.records[0].resdef == file1
+          - result.records[0].rdeftype == 'FILEDEF'
           - result.records[0].resassgn == resource_assignment
           - result.records[0].resgroup == resource_group
           - result.records[0].rscope == related_scope
 
-          - result.records[1].resdef == program
-          - result.records[1].rdeftype == 'PROGDEF'
+          - result.records[1].resdef == file1
+          - result.records[1].rdeftype == 'FILEDEF'
           - result.records[1].resassgn == resource_assignment
           - result.records[1].resgroup == resource_group
-          - result.records[1].tscope == region_one
+          - result.records[1].tscope == target_scope
 
-          - result.records[2].resdef == program
-          - result.records[2].rdeftype == 'PROGDEF'
+          - result.records[2].resdef == file2
+          - result.records[2].rdeftype == 'FILEDEF'
           - result.records[2].resassgn == resource_assignment
           - result.records[2].resgroup == resource_group
-          - result.records[2].tscope == region_two
+          - result.records[2].rscope == related_scope
+
+          - result.records[3].resdef == file2
+          - result.records[3].rdeftype == 'FILEDEF'
+          - result.records[3].resassgn == resource_assignment
+          - result.records[3].resgroup == resource_group
+          - result.records[3].tscope == target_scope
 
 
-    - name: 'Check program was installed in region one'
+    - name: 'Check file1 was installed in target region'
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_get:
-        type: 'CICSProgram'
-        scope: '{{ region_one }}'
+        type: 'CICSRemoteFile'
+        scope: '{{ target_scope }}'
         resources:
           filter:
-            program: '{{ program }}'
+            file: '{{ file1 }}'
       retries: 3
       until: result is not failed
       register: result
 
-    - name: assert program was installed in region one
+    - name: assert file1 was installed in target region
       assert:
         that:
           - result is not changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
-          - result.records[0].program == program
+          - result.records[0].remotename == file1
 
 
-    - name: 'Check program was installed in region two'
+    - name: 'Check file2 was installed in target region'
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_get:
-        type: 'CICSProgram'
-        scope: '{{ region_two }}'
+        type: 'CICSRemoteFile'
+        scope: '{{ target_scope }}'
         resources:
           filter:
-            program: '{{ program }}'
+            file: '{{ file2 }}'
       retries: 3
       until: result is not failed
       register: result
 
-    - name: assert program was installed in region two
+    - name: assert file2 was installed in target scope
       assert:
         that:
           - result is not changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
-          - result.records[0].program == program
+          - result.records[0].remotename == file2
 
 
-    - name: 'Check program was installed in related scope'
+    - name: 'Check file1 was installed in related scope'
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_get:
-        type: 'CICSProgram'
+        type: 'CICSLocalFile'
         scope: '{{ related_scope }}'
         resources:
           filter:
-            program: '{{ program }}'
+            file: '{{ file1 }}'
       retries: 3
       until: result is not failed
       register: result
 
-    - name: debug 2
-      debug:
-        msg: "{{ result }}"
-
-    - name: assert program was installed in related scope
+    - name: assert file1 was installed in related scope
       assert:
         that:
           - result is not changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
-          - result.records[0].program == program
+          - result.records[0].file == file1
+
+    - name: 'Check file2 was installed in related scope'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_get:
+        type: 'CICSLocalFile'
+        scope: '{{ related_scope }}'
+        resources:
+          filter:
+            file: '{{ file2 }}'
+      retries: 3
+      until: result is not failed
+      register: result
+
+    - name: assert file2 was installed in related scope
+      assert:
+        that:
+          - result is not changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].file == file2
+
+    #####################################################
+    # Test correct feedback given on installation error #
+    #####################################################
+    - name: 'Install resource description again'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_action:
+        type: 'CICSResourceDescription'
+        action_name: 'INSTALL'
+        resources:
+          filter:
+            resdesc: '{{ resource_description }}'
+      register: result
+      failed_when: false
+
+    - name: assert feedback error is correct
+      assert:
+        that:
+          - result.cpsm_response == 'TABLEERROR'
+          - result.cpsm_reason == 'DATAERROR'
+          - result.record_count == 1
+
+          - result.feedback[0].installerror[0].resourcename == file1
+          - result.feedback[0].installerror[0].eyu_cicsname == related_scope
+          - result.feedback[0].installerror[0].resp == '16'
+          - result.feedback[0].installerror[0].resp2 == '500'
+          - result.feedback[0].installerror[0].resp_alt == 'INVREQ'
+          - result.feedback[0].installerror[0].eibfn == '3014'
+          - result.feedback[0].installerror[0].eibfn_alt == 'CREATE FILE'
+          - result.feedback[0].installerror[0].resourceversion == '1'
+
+          - result.feedback[0].installerror[1].resourcename == file2
+          - result.feedback[0].installerror[1].eyu_cicsname == related_scope
+          - result.feedback[0].installerror[1].resp == '16'
+          - result.feedback[0].installerror[1].resp2 == '500'
+          - result.feedback[0].installerror[1].resp_alt == 'INVREQ'
+          - result.feedback[0].installerror[1].eibfn == '3014'
+          - result.feedback[0].installerror[1].eibfn_alt == 'CREATE FILE'
+          - result.feedback[0].installerror[1].resourceversion == '1'
+
+          - result.feedback[1].action == 'INSTALL'
+          - result.feedback[1].attribute1 == 'RESDESC'
+          - result.feedback[1].errorcode == '29'
 
 
     ##################################################################################
@@ -505,19 +566,40 @@
           - result.success_count == 1
 
 
-    - name: 'Delete progdef'
+    - name: 'Delete filedef1'
       delegate_to: 'localhost'
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSDefinitionProgram'
+        type: 'CICSDefinitionFile'
         resources:
           filter:
-            name: '{{ program }}'
+            name: '{{ file1 }}'
           get_parameters:
             - name: 'RESGROUP'
               value: '{{ resource_group }}'
       register: result
 
-    - name: assert deleted progdef
+    - name: assert deleted filedef1
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.success_count == 1
+
+
+    - name: 'Delete filedef2'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_delete:
+        type: 'CICSDefinitionFile'
+        resources:
+          filter:
+            name: '{{ file2 }}'
+          get_parameters:
+            - name: 'RESGROUP'
+              value: '{{ resource_group }}'
+      register: result
+
+    - name: assert deleted filedef2
       assert:
         that:
           - result is changed
@@ -562,76 +644,42 @@
           - result.success_count == 1
 
 
-    - name: 'Delete system group target scope'
-      delegate_to: 'localhost'
-      ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSRegionGroup'
-        resources:
-          filter:
-            group: '{{ target_scope }}'
-      register: result
+    - name: 'Check if file1 is installed in target scope'
+      include_role:
+        name: cmci_delete_if_exists
+      vars:
+        resource_type: '{{ resource_assignment_type_target }}'
+        context: '{{ cmci_context }}'
+        scope: '{{ target_scope }}'
+        attributes:
+          FILE: '{{ file1 }}'
 
-    - name: assert deleted system group target scope
-      assert:
-        that:
-          - result is changed
-          - result.cpsm_response == 'OK'
-          - result.record_count == 1
-          - result.success_count == 1
-
-
-    - name: 'Delete program in region one'
-      delegate_to: 'localhost'
-      ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSProgram'
-        scope: '{{ region_one }}'
-        resources:
-          filter:
-            program: '{{ program }}'
-      register: result
-
-    - name: assert program deleted in region one
-      assert:
-        that:
-          - result is changed
-          - result.cpsm_response == 'OK'
-          - result.record_count == 1
-          - result.success_count == 1
-
-
-    - name: 'Delete program in region two'
-      delegate_to: 'localhost'
-      ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSProgram'
-        scope: '{{ region_two }}'
-        resources:
-          filter:
-            program: '{{ program }}'
-      register: result
-
-    - name: assert program deleted in region two
-      assert:
-        that:
-          - result is changed
-          - result.cpsm_response == 'OK'
-          - result.record_count == 1
-          - result.success_count == 1
-
-
-    - name: 'Delete program in related scope'
-      delegate_to: 'localhost'
-      ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSProgram'
+    - name: 'Check if file1 is installed in related scope'
+      include_role:
+        name: cmci_disable_discard_if_exists
+      vars:
+        resource_type: '{{ resource_assignment_type_related }}'
+        context: '{{ cmci_context }}'
         scope: '{{ related_scope }}'
-        resources:
-          filter:
-            program: '{{ program }}'
-      register: result
+        attributes:
+          FILE: '{{ file1 }}'
 
-    - name: assert program deleted in related scope
-      assert:
-        that:
-          - result is changed
-          - result.cpsm_response == 'OK'
-          - result.record_count == 1
-          - result.success_count == 1
+    - name: 'Check if file2 is installed in target scope'
+      include_role:
+        name: cmci_delete_if_exists
+      vars:
+        resource_type: '{{ resource_assignment_type_target }}'
+        context: '{{ cmci_context }}'
+        scope: '{{ target_scope }}'
+        attributes:
+          FILE: '{{ file2 }}'
+
+    - name: 'Check if file2 is installed in related scope'
+      include_role:
+        name: cmci_disable_discard_if_exists
+      vars:
+        resource_type: '{{ resource_assignment_type_related }}'
+        context: '{{ cmci_context }}'
+        scope: '{{ related_scope }}'
+        attributes:
+          FILE: '{{ file2 }}'

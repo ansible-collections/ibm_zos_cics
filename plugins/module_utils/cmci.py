@@ -44,8 +44,8 @@ FILTER = 'filter'
 COMPLEX_FILTER = 'complex_filter'
 SCHEME = 'scheme'
 INSECURE = 'insecure'
+FEEDBACK = 'feedback'
 TIMEOUT = 'timeout'
-
 GET_PARAMETERS = 'get_parameters'
 
 
@@ -150,6 +150,33 @@ def escape_quotes(value):
 
 def is_alphanumeric(value):
     return re.match('^([A-Za-z0-9]{1,100})$', value, flags=0)
+
+
+def read_node(node):
+    result = [
+        OrderedDict(
+            # Copy feedback from result, stripping @ from attributes
+            # Feedback nodes can contain error types with further information
+            [(k[1:], v) if k[0] == '@'
+             else read_error_detail(k, v)
+             for k, v in n.items()]
+        ) for n in node
+    ]
+    return result
+
+
+def read_error_detail(key, value):
+    # Xmltodict parses inner error types as Dicts when there is only one item in it even though it may well be a list
+    # if multiple results were returned. If we find a dict here, wrap it in a list so we can account for only one result or many
+    # being returned
+    if not isinstance(value, list):
+        value = [value]
+    return key, \
+        [
+            OrderedDict(
+                [(k[1:], v) for k, v in error.items()]
+            ) for error in value
+        ]
 
 
 class AnsibleCMCIModule(object):
@@ -364,12 +391,13 @@ class AnsibleCMCIModule(object):
                 records_node = response_node['records']
                 resource_type = self._p[TYPE].lower()
                 if resource_type in records_node:
-                    records = records_node[resource_type]
-                    # Copy records in result, stripping @ from attributes
-                    self.result['records'] = [
-                        {k[1:]: v for k, v in record.items()}
-                        for record in records
-                    ]
+                    self.result['records'] = read_node(records_node[resource_type])
+
+            if 'errors' in response_node:
+                errors_node = response_node['errors']
+                if FEEDBACK in errors_node:
+                    feedback = errors_node[FEEDBACK]
+                    self.result[FEEDBACK] = read_node(feedback)
 
             # Non-OK CPSM responses fail the module
             if cpsm_response_code != 1024:
@@ -534,7 +562,10 @@ class AnsibleCMCIModule(object):
                 process_namespaces=True,
                 namespaces=namespaces,
                 # Make sure we always return a list for the resource node
-                force_list=(self._p.get(TYPE).lower(),)
+                force_list=(
+                    self._p.get(TYPE).lower(),
+                    FEEDBACK
+                )
             )
 
             return r
@@ -674,7 +705,7 @@ class AnsibleCMCIModule(object):
             if not is_alphanumeric(attribute):
                 self._fail(
                     "Filter attribute with value {0} was not valid. Valid characters are A-Z a-z 0-9."
-                        .format(attribute)
+                    .format(attribute)
                 )
 
             value = escape_quotes(value)
@@ -684,7 +715,6 @@ class AnsibleCMCIModule(object):
                 return 'NOT(' + attribute + '==' + '\'' + value + '\'' + ')'
             else:
                 return attribute + operator + '\'' + value + '\''
-
 
     def _convert_filter_operator(self, operator, path):
         if operator in ['<', 'LT']:
