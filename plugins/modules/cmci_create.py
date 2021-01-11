@@ -193,6 +193,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
     AnsibleCMCIModule, PARAMETERS_ARGUMENT, ATTRIBUTES_ARGUMENT
 )
 from typing import Optional, Dict
+from collections import OrderedDict
 
 
 class AnsibleCMCICreateModule(AnsibleCMCIModule):
@@ -201,12 +202,12 @@ class AnsibleCMCICreateModule(AnsibleCMCIModule):
 
     def init_argument_spec(self):  # type: () -> Dict
         argument_spec = super(AnsibleCMCICreateModule, self).init_argument_spec()
-        argument_spec.update(ATTRIBUTES_ARGUMENT)
         argument_spec.update(PARAMETERS_ARGUMENT)
+        argument_spec.update(ATTRIBUTES_ARGUMENT)
         return argument_spec
 
-    def init_body(self):  # type: () -> Optional[Dict]
-        create = {}
+    def init_body(self):  # type: () -> Optional[OrderedDict]
+        create = OrderedDict({})
         self.append_parameters(create)
         self.append_attributes(create)
 

@@ -3,6 +3,7 @@
 # Copyright (c) IBM Corporation 2020
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
+from collections import OrderedDict
 
 __metaclass__ = type
 
@@ -65,10 +66,10 @@ def test_csd_create(cmci_module):  # type: (CMCITestHelper) -> None
 
 
 def test_bas_create(cmci_module):  # type: (CMCITestHelper) -> None
-    record = dict(
+    record = OrderedDict(
+        AUTOINST="NO",
         RGSCOPE="BAS1",
-        RESDESC = "BASICB11",
-        AUTOINST = "NO"
+        RESDESC="BASICB11"
     )
     cmci_module.stub_records(
         'POST',
@@ -82,9 +83,9 @@ def test_bas_create(cmci_module):  # type: (CMCITestHelper) -> None
                         ('@name', 'BAS')
                     )),
                     ('attributes', od(
+                        ('@AUTOINST', 'NO'),
                         ('@RGSCOPE', 'BAS1'),
-                        ('@RESDESC', 'BASICB11'),
-                        ('@AUTOINST', 'NO')
+                        ('@RESDESC', 'BASICB11')
                     ))
                 ))
             ))
@@ -98,7 +99,7 @@ def test_bas_create(cmci_module):  # type: (CMCITestHelper) -> None
             record,
             '<request><create>'
             '<parameter name="BAS"></parameter>'
-            '<attributes RGSCOPE="BAS1" RESDESC="BASICB11" AUTOINST="NO"></attributes>'
+            '<attributes AUTOINST="NO" RGSCOPE="BAS1" RESDESC="BASICB11"></attributes>'
             '</create></request>'
         )
     )

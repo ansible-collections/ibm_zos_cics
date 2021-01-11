@@ -14,8 +14,9 @@ from typing import List
 
 import json
 import pytest
-import unittest
 import xmltodict
+import difflib
+import pprint
 
 CONTEXT = 'CICSEX56'
 SCOPE = 'IYCWEMW2'
@@ -28,15 +29,15 @@ class CMCITestHelper:
         self.requests_mock = requests_mock
         self.expected = {}
 
-    def stub_request(self, *args, complete_qs=True, **kwargs):
-        self.requests_mock.request(*args, complete_qs=complete_qs, **kwargs)
+    def stub_request(self, *args, **kwargs):
+        self.requests_mock.request(complete_qs=True, *args, **kwargs)
 
     def stub_delete(self, resource_type, success_count, *args, **kwargs):
         return self.stub_cmci(
             'DELETE',
             resource_type,
-            *args,
             response_dict=create_delete_response(success_count),
+            *args,
             **kwargs
         )
 
@@ -44,8 +45,8 @@ class CMCITestHelper:
         return self.stub_cmci(
             method,
             resource_type,
-            *args,
             response_dict=create_records_response(resource_type, records),
+            *args,
             **kwargs
         )
 
@@ -81,9 +82,16 @@ class CMCITestHelper:
 
         result = exc_info.value.args[0]
 
-        case = unittest.TestCase()
-        case.maxDiff = None
-        case.assertDictEqual(self.expected, result)
+        assert isinstance(self.expected, dict)
+        assert isinstance(result, dict)
+
+        if self.expected != result:
+            standardMsg = '%s != %s' % (repr(self.expected), repr(result))
+            diff = ('\n' + '\n'.join(difflib.ndiff(
+                           pprint.pformat(self.expected).splitlines(),
+                           pprint.pformat(result).splitlines())))
+            raise AssertionError(standardMsg + diff)
+
 
 
 @pytest.fixture
@@ -183,8 +191,10 @@ def create_cmci_response(*args):  # type () -> OrderedDict
 
 
 def body_matcher(expected):
-    def match(request: PreparedRequest):
-        return expected == xmltodict.parse(request.body)
+    def match(request):  # type: (PreparedRequest) -> Dict
+        actual = xmltodict.parse(request.body)
+        return expected == actual
+
     return match
 
 

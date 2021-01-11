@@ -3,11 +3,11 @@
 ansible==2.9.6
 ansible-doc-extractor==0.1.5
 pytest-ansible==2.2.3
-pytest==6.1.2
+pytest==4.6.11
 pytest_mock==1.12.1
 mock==3.0.5
 requests_mock==1.8.0
 # Need this to work around a problem running ansible-test
-pytest-xdist==2.1.0
-Sphinx==3.3.1
+pytest-xdist==1.34.0
+Sphinx==1.8.5
 sphinx-rtd-theme==0.5.0

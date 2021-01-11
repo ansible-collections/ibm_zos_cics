@@ -7,11 +7,15 @@ from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 
+
 from ansible.module_utils.basic import AnsibleModule, missing_required_lib, env_fallback
 from typing import Optional, Dict
-from urllib.parse import urlencode, quote
+from urllib import urlencode, quote
+from itertools import chain
+from collections import OrderedDict
 import re
 import traceback
+import urllib
 
 try:
     import requests
@@ -71,7 +75,7 @@ ATTRIBUTE_ARGUMENTS = {
         'type': 'str',
         'required': False,
         'default': 'EQ',
-        'choices': ['<', '<=', '=', '>=', '>=', '¬=', '==', '!=', 'EQ', 'NE', 'LT', 'LE', 'GE', 'GT', 'IS']
+        'choices': ['<', '<=', '=', '>', '>=', '¬=', '==', '!=', 'EQ', 'NE', 'LT', 'LE', 'GE', 'GT', 'IS']
     },
     'value': {
         'type': 'str',
@@ -82,6 +86,7 @@ ATTRIBUTE_ARGUMENTS = {
 
 def _cf_child(children):
     return {
+        'type': 'dict',
         'required': False,
         'required_together': [('attribute', 'value')],
         'required_one_of': [('attribute', 'and', 'or')],
@@ -96,19 +101,23 @@ def _cf_child(children):
 
 
 def _cf_options(children):
-    return {
-        **ATTRIBUTE_ARGUMENTS,
-        'and': {
-            'type': 'list',
-            'elements': 'dict',
-            **_cf_child(children)
-        },
-        'or': {
-            'type': 'list',
-            'elements': 'dict',
-            **_cf_child(children)
-        }
+    basic_dict_structure = {
+        'type': 'list',
+        'elements': 'dict',
+        'required': False,
+        'required_together': [('attribute', 'value')],
+        'required_one_of': [('attribute', 'and', 'or')],
+        'mutually_exclusive': [('attribute', 'and', 'or'),
+                               ('and', 'operator'),
+                               ('and', 'value'),
+                               ('or', 'operator'),
+                               ('or', 'value')
+                               ]
     }
+    and_list = {'and': dict(chain(basic_dict_structure.items(), children.items()))}
+    or_list = {'or': dict(chain(basic_dict_structure.items(), children.items()))}
+
+    return dict(chain(ATTRIBUTE_ARGUMENTS.items(), and_list.items(), or_list.items()))
 
 
 RESOURCES_ARGUMENT = {
@@ -120,11 +129,8 @@ RESOURCES_ARGUMENT = {
                 'type': 'dict',
                 'required': False
             },
-            COMPLEX_FILTER: {
-                'type': 'dict',
-                **_cf_child(_cf_options(_cf_options(_cf_options(ATTRIBUTE_ARGUMENTS))))
-            },
-            **PARAMETERS_ARGUMENT
+            COMPLEX_FILTER: _cf_child(_cf_options(_cf_options(_cf_options(ATTRIBUTE_ARGUMENTS)))),
+            PARAMETERS: PARAMETERS_ARGUMENT.get(PARAMETERS)
         }
     }
 }
@@ -162,10 +168,11 @@ class AnsibleCMCIModule(object):
         self._body = xmltodict.unparse(self.init_body(), full_document=False) if body_dict else None  # type: str
 
         request_params = self.init_request_params()
+        urllib.quote_plus = urllib.quote  # A fix for urlencoder to give %20
         if request_params:
             self._url = self._url + \
                         "?" + \
-                        urlencode(requests.utils.to_key_val_list(request_params), quote_via=quote)
+                        urlencode(requests.utils.to_key_val_list(request_params))#, quote_via=quote)
 
         result_request = {
             'url': self._url,
@@ -266,8 +273,11 @@ class AnsibleCMCIModule(object):
         value = self._module.params.get(name)
         if value:
             pattern = re.compile(regex)
-            if not pattern.fullmatch(value):
+
+            # Emulate python-3.4 re.fullmatch()
+            if not re.match(regex, value, flags=0):
                 self._fail('Parameter "{0}" with value "{1}" was not valid.  Expected {2}'.format(name, value, message))
+
 
     def init_body(self):  # type: () -> Optional[Dict]
         return None
@@ -341,7 +351,7 @@ class AnsibleCMCIModule(object):
 
     def get_resources_request_params(self):  # type: () -> Dict[str, str]
         # get, delete, put will all need CRITERIA{}
-        request_params = {}
+        request_params = OrderedDict({})
         resources = self._p.get(RESOURCES)
         if resources:
             f = resources.get(FILTER)
@@ -349,7 +359,7 @@ class AnsibleCMCIModule(object):
                 # AND basic filters together, and use the = operator for each one
                 filter_string = ''
                 if not request_params:
-                    request_params = {}
+                    request_params = OrderedDict({})
                 for key, value in f.items():
                     filter_string = _append_filter_string(filter_string, key + '=' + '\'' + value + '\'',
                                                           joiner=' AND ')
@@ -359,7 +369,7 @@ class AnsibleCMCIModule(object):
             if complex_filter:
                 complex_filter_string = ''
                 if not request_params:
-                    request_params = {}
+                    request_params = OrderedDict({})
 
                 and_item = complex_filter['and']
                 or_item = complex_filter['or']
@@ -490,7 +500,8 @@ class AnsibleCMCIModule(object):
         # Attributes are <attributes name="value" name2="value2"/>
         attributes = self._p.get(ATTRIBUTES)
         if attributes:
-            element['attributes'] = {'@' + key: value for key, value in attributes.items()}
+            items = attributes.items()
+            element['attributes'] = OrderedDict({'@' + key: value for key, value in items})
 
     def _fail(self, msg):  # type: (str) -> None
         self._module.fail_json(msg=msg, **self.result)
@@ -504,7 +515,7 @@ def _convert_filter_operator(operator):
         return '<'
     if operator in ['<=', 'LE']:
         return '<='
-    if operator in ['=', 'EQ']:
+    if operator in ['=', 'EQ', None]: #shouldn't have to check for None, it's meant to default to =
         return '='
     if operator in ['>=', 'GE']:
         return '>='
@@ -529,8 +540,8 @@ def _get_filter(list_of_filters, complex_filter_string, joiner):
             or_filter_string = _get_filter(or_item, '', ' OR ')
             complex_filter_string = _append_filter_string(complex_filter_string, or_filter_string, joiner)
         if attribute is not None:
-            operator = _convert_filter_operator(i['operator'])
-            value = i['value']
+            operator = _convert_filter_operator(i.get('operator'))
+            value = i.get('value')
             attribute_filter_string = attribute + operator + '\'' + value + '\''
             complex_filter_string = _append_filter_string(complex_filter_string, attribute_filter_string, joiner)
 
