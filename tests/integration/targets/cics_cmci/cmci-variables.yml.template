@@ -3,7 +3,7 @@
 ---
 cmci_host: winmvs28.hursley.ibm.com
 cmci_port: 28951
-cmci_user: $$user$$
-cmci_password: $$password$$
+cmci_user: __user__
+cmci_password: __password__
 context: CICSEX56
 scope: IYCWEMW2
