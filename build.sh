@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 trap "exit" INT
 set -e
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 echo "/* -------------------------------------------------------------------------- */"
 echo "/*                          Unit tests Python 3.8                             */"
 echo "/* -------------------------------------------------------------------------- */"
-source $CMCI_PYTHON_38/bin/activate
+source "$CMCI_PYTHON_38/bin/activate"
 pip install -r requirements.txt
 ansible-test units --python 3.8
 ansible-test sanity 2>&1 --python 3.8
@@ -31,12 +31,12 @@ python3 -m yamllint -c yamllint.yaml .
 
 #checkForAnsibleLintErrors(out)
 
-for i in "plugins/modules/*.py"; do
+for i in plugins/modules/*.py; do
     [ -f "$i" ] || break # handle empty directory
-    echo "Checking if ${script} is an Ansible module"
+    echo "Checking if $i is an Ansible module"
     if grep -q AnsibleModule "$i"; then
       echo "$i is an Ansible module"
-      ansible-doc -j -M . $i || true
+      ansible-doc -j -M . "$i"
     fi
     # checkForAnsibleDocErrors(out)
 done
