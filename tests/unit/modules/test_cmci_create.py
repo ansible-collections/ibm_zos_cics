@@ -14,7 +14,10 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import 
 
 
 def test_csd_create(cmci_module):  # type: (CMCITestHelper) -> None
-    record = OrderedDict({('csdgroup', 'bat'), ('name', 'bar'), ('bundledir', '/u/bundles/bloop')})
+    record = OrderedDict({})
+    record['csdgroup'] = 'bat'
+    record['name'] = 'bar'
+    record['bundledir'] = '/u/bundles/bloop'
 
     cmci_module.stub_records(
         'POST',
@@ -63,7 +66,10 @@ def test_csd_create(cmci_module):  # type: (CMCITestHelper) -> None
 
 
 def test_bas_create(cmci_module):  # type: (CMCITestHelper) -> None
-    record = OrderedDict({('AUTOINST', 'NO'), ('RGSCOPE', 'BAS1'), ('RESDESC', 'BASICB11')})
+    record = OrderedDict({})
+    record['AUTOINST'] = 'NO'
+    record['RGSCOPE'] = 'BAS1'
+    record['RESDESC'] = 'BASICB11'
 
     cmci_module.stub_records(
         'POST',
