@@ -325,11 +325,10 @@ class AnsibleCMCIModule(object):
                 if resource_type in records_node:
                     records = records_node[resource_type]
                     # Copy records in result, stripping @ from attributes
-                    self.result['records'] = \
-                        [
-                            {k[1:]: v for k, v in record.items()}
-                            for record in records
-                        ]
+                    self.result['records'] = [
+                        {k[1:]: v for k, v in record.items()}
+                        for record in records
+                    ]
 
             # Non-OK CPSM responses fail the module
             if cpsm_response_code != 1024:

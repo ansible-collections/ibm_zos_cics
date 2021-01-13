@@ -27,16 +27,16 @@ options:
       - Can also be specified using the environment variable CMCI_USER.
       - Required if I(cmci_password) is specified.
       - Authentication prioritises certificate authentication if I(cmci_cert) and I(cmci_key) are provided, then
-        basic authentication if I(cmci_user) and (cmci_password) are provided, and then unauthenticated if none is 
+        basic authentication if I(cmci_user) and (cmci_password) are provided, and then unauthenticated if none is
         provided.
     type: str
   cmci_password:
     description:
-      - The password of I(cmci_user) to pass HTTP basic authentication. 
+      - The password of I(cmci_user) to pass HTTP basic authentication.
       - Can also be specified using the environment variable CMCI_PASSWORD.
       - Required if I(cmci_user) is specified.
       - Authentication prioritises certificate authentication if I(cmci_cert) and I(cmci_key) are provided, then
-        basic authentication if I(cmci_user) and (cmci_password) are provided, and then unauthenticated if none is 
+        basic authentication if I(cmci_user) and (cmci_password) are provided, and then unauthenticated if none is
         provided.
     type: str
   cmci_cert:
@@ -46,7 +46,7 @@ options:
       - Can also be specified using the environment variable CMCI_CERT.
       - Required if I(cmci_key) is specified.
       - Authentication prioritises certificate authentication if I(cmci_cert) and I(cmci_key) are provided, then
-        basic authentication if I(cmci_user) and (cmci_password) are provided, and then unauthenticated if none is 
+        basic authentication if I(cmci_user) and (cmci_password) are provided, and then unauthenticated if none is
         provided.
     required: false
     type: str
@@ -57,7 +57,7 @@ options:
       - Can also be specified using the environment variable CMCI_KEY.
       - Required if I(cmci_cert) is specified.
       - Authentication prioritises certificate authentication if I(cmci_cert) and I(cmci_key) are provided, then
-        basic authentication if I(cmci_user) and (cmci_password) are provided, and then unauthenticated if none is 
+        basic authentication if I(cmci_user) and (cmci_password) are provided, and then unauthenticated if none is
         provided.
     required: false
     type: str
@@ -87,8 +87,8 @@ options:
     type: str
   type:
     description:
-      - The CMCI external resource name that maps to the target CICS or CICSPlex SM resource type. 
-        For a list of CMCI external resource names, see L(CMCI resource names, 
+      - The CMCI external resource name that maps to the target CICS or CICSPlex SM resource type.
+        For a list of CMCI external resource names, see L(CMCI resource names,
         https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_resources.html).
     type: str
     required: true
@@ -113,7 +113,7 @@ options:
       - Options that specify a target resource.
     type: dict
     required: false
-    suboptions:   
+    suboptions:
       filter:
         description:
           - A string containing basic logical expressions that filter the resource table records
@@ -146,10 +146,10 @@ options:
             description: >
               These operators are accepted: C(<) or C(LT) (less than), C(<=) or C(LE) (less than or equal to),
               C(=) or C(EQ) (equal to), C(>) or C(GT) (greater than), C(>=) or C(GE) (greater than or equal to),
-              C(==) or C(IS) (is), C(¬=), C(!=), or C(NE) (not equal to). 
+              C(==) or C(IS) (is), C(¬=), C(!=), or C(NE) (not equal to).
             type: str
             required: false
-            choices: 
+            choices:
               - "<"
               - ">"
               - "<="
@@ -165,19 +165,19 @@ options:
               - LE
               - NE
               - IS
-            default: EQ              
+            default: EQ
           value:
-            description: 
-              - The value by which you are to filter the resource attributes. 
-              - The value must be a valid one for the resource table attribute as documented in the 
+            description:
+              - The value by which you are to filter the resource attributes.
+              - The value must be a valid one for the resource table attribute as documented in the
                 resource table reference, for example, L(PROGDEF resource table reference,
                 https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
             required: false
       parameters:
         description: >
           A list of one or more parameters with optional values used to identify the resources for this request.
-          Eligible parameters for identifying the target resources can be found in the resource table reference for the 
-          target resource type, as valid parameters for the GET operation in the "Valid CPSM operations" table. 
+          Eligible parameters for identifying the target resources can be found in the resource table reference for the
+          target resource type, as valid parameters for the GET operation in the "Valid CPSM operations" table.
           For example, the valid parameters for identifying a PROGDEF resource are
           CICSSYS, CSDGROUP and RESGROUP, as found in the L(PROGDEF resource table reference,
           https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).

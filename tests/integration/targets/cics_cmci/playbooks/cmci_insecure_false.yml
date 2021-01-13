@@ -31,4 +31,5 @@
       assert:
         that:
           - result.failed is false
-          - '{{  result.msg[:-14] == "Error performing CMCI request: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate in certificate chain" }}'
+          - '{{  result.msg[:-14] == "Error performing CMCI request: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify
+           failed: self signed certificate in certificate chain" }}'

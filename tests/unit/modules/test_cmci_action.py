@@ -190,8 +190,8 @@ def test_bas_install_params(cmci_module):  # type: (CMCITestHelper) -> None
         'type': 'cicsdefinitionbundle',
         'action_name': 'INSTALL',
         'parameters': [
-          {'name': 'FORCEINS', 'value': 'NO'},
-          {'name': 'USAGE', 'value': 'LOCAL'}
+            {'name': 'FORCEINS', 'value': 'NO'},
+            {'name': 'USAGE', 'value': 'LOCAL'}
         ]
     })
 

@@ -92,12 +92,11 @@ def test_complex_filter_and(cmci_module):  # type: (CMCITestHelper) -> None
                     'attribute': 'FOO',
                     'operator': '=',
                     'value': 'BAR'
-                },
-                    {
-                        'attribute': 'GOO',
-                        'operator': '=',
-                        'value': 'LAR'
-                    }]
+                }, {
+                    'attribute': 'GOO',
+                    'operator': '=',
+                    'value': 'LAR'
+                }]
             }
         }
     })
@@ -126,13 +125,11 @@ def test_complex_filter_or(cmci_module):  # type: (CMCITestHelper) -> None
                     'attribute': 'FOO',
                     'operator': '=',
                     'value': 'BAR'
-                },
-                    {
-                        'attribute': 'GOO',
-                        'operator': '=',
-                        'value': 'LAR'
-                    }
-                ]
+                }, {
+                    'attribute': 'GOO',
+                    'operator': '=',
+                    'value': 'LAR'
+                }]
             }
         }
     })
@@ -231,21 +228,19 @@ def test_complex_filter_and_and(cmci_module):  # type: (CMCITestHelper) -> None
                 'and': [{
                     'attribute': 'FOO',
                     'value': 'BAR'
-                },
-                    {
-                        'attribute': 'BAT',
-                        'operator': '==',
-                        'value': 'BAZ'
-                    },
-                    {
-                        'and': [{
-                            'attribute': 'BING',
-                            'value': '1'
-                        }, {
-                            'attribute': 'BING',
-                            'value': '2'
-                        }]
+                }, {
+                    'attribute': 'BAT',
+                    'operator': '==',
+                    'value': 'BAZ'
+                }, {
+                    'and': [{
+                        'attribute': 'BING',
+                        'value': '1'
+                    }, {
+                        'attribute': 'BING',
+                        'value': '2'
                     }]
+                }]
             }
         }
     })
@@ -310,22 +305,20 @@ def test_complex_filter_invalid_and_or_combo(cmci_module):  # type: (CMCITestHel
                     'attribute': 'FOO',
                     'operator': '=',
                     'value': 'BAR'
-                },
-                    {
-                        'attribute': 'GOO',
-                        'operator': '=',
-                        'value': 'LAR'
-                    }],
+                }, {
+                    'attribute': 'GOO',
+                    'operator': '=',
+                    'value': 'LAR'
+                }],
                 'or': [{
                     'attribute': 'FOO',
                     'operator': '=',
                     'value': 'BAR'
-                },
-                    {
-                        'attribute': 'GOO',
-                        'operator': '=',
-                        'value': 'LAR'
-                    }]
+                }, {
+                    'attribute': 'GOO',
+                    'operator': '=',
+                    'value': 'LAR'
+                }]
             }
         }
     })

@@ -2,6 +2,7 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ansible==2.9.6
 ansible-doc-extractor==0.1.5
+ansible-lint==4.3.7
 pytest-ansible==2.2.3
 pytest==4.6.11
 pytest_mock==1.12.1
@@ -9,5 +10,9 @@ mock==3.0.5
 requests_mock==1.8.0
 # Need this to work around a problem running ansible-test
 pytest-xdist==1.34.0
+pycodestyle==2.6.0
+pylint==2.6.0
+rstcheck==3.3.1
 Sphinx==1.8.5
 sphinx-rtd-theme==0.5.0
+yamllint==1.25.0

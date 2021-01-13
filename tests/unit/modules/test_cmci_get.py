@@ -481,7 +481,7 @@ def test_query_parameter_criteria(cmci_module):  # type: (CMCITestHelper) -> Non
     })
 
 
-def test_bas_query(cmci_module):    #type: (CMCITestHelper) -> None
+def test_bas_query(cmci_module):  # type: (CMCITestHelper) -> None
     records = [
         {'defname': 'DUMMY1', 'deftype': 'PROGDEF', 'ingtype': 'PGMINGRP', 'resgroup': 'BASGRP1'},
         {'defname': 'DUMMY2', 'deftype': 'TRANDEF', 'ingtype': 'PGMINGRP', 'resgroup': 'BASGRP1'},
