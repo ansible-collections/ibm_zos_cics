@@ -11,7 +11,7 @@ The nodes listed below require these specific versions of software:
 Control node
 ------------
 
-A control node is any machine with Ansible installed. From the control node,
+A control node is any machine with Ansible® installed. From the control node,
 you can run commands and playbooks from a laptop, desktop, or server. The following software must be installed on the control node.
 
 .. note:: The IBM® z/OS® CICS® collection cannot run on a Windows system.

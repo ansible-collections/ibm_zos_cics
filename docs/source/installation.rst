@@ -5,9 +5,9 @@
 
 Installation
 ============
-Always check that your control node has fulfilled the :doc:`requirements` before installing the **IBM z/OS CICS collection**.
+Always check that your control node has fulfilled the :doc:`requirements` before installing the **IBM® z/OS® CICS® collection**.
 
-Then, follow the guidance to install the collection from Ansible Galaxy or a custom Galaxy server. More ways to install an Ansible collection are documented at `installing collections`_.
+Then, follow the guidance to install the collection from Ansible® Galaxy or a custom Galaxy server. More ways to install an Ansible collection are documented at `installing collections`_.
 
 .. note:: Python module dependencies are not installed with the collection. To use the collection, you must install Python dependencies where the task will be running, in our case, the control node. See `Installing Python dependencies`_.
 

@@ -63,7 +63,7 @@ options:
     type: str
   context:
     description:
-      - If CMCI is installed in a CICSPlex SM environment, I(context) is the
+      - If CMCI is installed in a CICSPlex® SM environment, I(context) is the
         name of the CICSplex or CMAS associated with the request, for example,
         C(PLEX1). to determine whether a CMAS can be specified as I(context), 
         see the B(CMAS context) entry in the CICSPlex SM resource table reference of a resource.
@@ -199,7 +199,7 @@ options:
   attributes:
     description:
       - The resource attributes to be created or updated. 
-        Available attributes can be found in the CICSPlex SM resource table reference for the
+        Available attributes can be found in the CICSPlex® SM resource table reference for the
         target resource type, for example, L(PROGDEF resource table reference,
         https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
     type: dict
