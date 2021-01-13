@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # Copyright (c) IBM Corporation 2020
@@ -426,7 +425,7 @@ class AnsibleCMCIModule(object):
             if user is not None and user.strip() != '' and passwd is not None and passwd.strip() != '':
                 session.auth = user.strip(), passwd.strip()
 
-        return session  # type: requests.Session
+        return session
 
     def _do_request(self):  # type: () -> Dict
         try:
