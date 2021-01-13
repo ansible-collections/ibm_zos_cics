@@ -10,9 +10,9 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: cmci_update
-short_description: Update CICS® and CICSPlex® resources and definitions
+short_description: Update CICS and CICSPlex resources and definitions
 description:
-  - Make changes to CICS and CICSPlex SM resources in CICS regions, by initiating PUT requests via the CMCI REST API.
+  - Make changes to CICS® and CICSPlex® SM resources in CICS regions, by initiating PUT requests via the CMCI REST API.
     The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API,
     see L(CMCI REST API,
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).

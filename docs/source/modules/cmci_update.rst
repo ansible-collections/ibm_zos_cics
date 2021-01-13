@@ -8,8 +8,8 @@
 .. _cmci_update_module:
 
 
-cmci_update -- Update CICS® and CICSPlex® resources and definitions
-===================================================================
+cmci_update -- Update CICS and CICSPlex resources and definitions
+=================================================================
 
 
 
@@ -20,7 +20,7 @@ cmci_update -- Update CICS® and CICSPlex® resources and definitions
 
 Synopsis
 --------
-- Make changes to CICS and CICSPlex SM resources in CICS regions, by initiating PUT requests via the CMCI REST API. The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API, see `CMCI REST API <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html>`_. For information about how to compose PUT requests, see `CMCI PUT requests <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_put.html>`_.
+- Make changes to CICS® and CICSPlex® SM resources in CICS regions, by initiating PUT requests via the CMCI REST API. The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API, see `CMCI REST API <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html>`_. For information about how to compose PUT requests, see `CMCI PUT requests <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_put.html>`_.
 
 
 
@@ -32,7 +32,7 @@ Parameters
 
      
 attributes
-  The resource attributes to be defined. Available attributes can be found in the CICSPlex SM resource table reference for the target resource type, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
+  The resource attributes to be created or updated. Available attributes can be found in the CICSPlex® SM resource table reference for the target resource type, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
 
 
   | **required**: False
@@ -119,7 +119,7 @@ cmci_user
 
      
 context
-  If CMCI is installed in a CICSPlex SM environment, *context* is the name of the CICSplex or CMAS associated with the request, for example, PLEX1. See the relevant CICSPlex SM resource table, for example, `PROGRAM resource table <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html>`_, to determine whether to specify a CICSplex or CMAS.
+  If CMCI is installed in a CICSPlex® SM environment, *context* is the name of the CICSplex or CMAS associated with the request, for example, ``PLEX1``. to determine whether a CMAS can be specified as *context*, see the **CMAS context** entry in the CICSPlex SM resource table reference of a resource. For example, according to the `PROGRAM resource table <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html>`_, CMAS context is not supported for PROGRAM.
 
   If CMCI is installed in a single region (SMSS), *context* is the APPLID of the CICS region associate with the request.
 

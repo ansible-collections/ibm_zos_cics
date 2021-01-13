@@ -10,9 +10,9 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: cmci_delete
-short_description: Delete CICS® and CICSPlex® SM resources
+short_description: Delete CICS and CICSPlex SM resources
 description:
-  - Remove or discard definitional or installed CICS and CICSPlex SM resources from CICS
+  - Remove or discard definitional or installed CICS® and CICSPlex® SM resources from CICS
     regions, by initiating DELETE requests via the CMCI REST API. The CMCI REST API can be configured
     in CICSPlex SM or stand-alone regions (SMSS). For information about the API, see L(CMCI REST API,
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
