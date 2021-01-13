@@ -165,11 +165,16 @@ class AnsibleCMCIModule(object):
         self._body = xmltodict.unparse(self.init_body(), full_document=False) if body_dict else None  # type: str
 
         request_params = self.init_request_params()
-        urllib.quote_plus = urllib.quote  # A fix for urlencoder to give %20
+        # In python 3, we can pass urllib.quote into the urlencode method, but this is a workaround for python 2.
+        # Store the quote_plus setting, then override it with quote, so that spaces will be encoded as %20 instead of +
+        # Then set the quote_plus value back so we haven't changed the behaviour long term
+        default_quote_plus = urllib.quote_plus
+        urllib.quote_plus = urllib.quote
         if request_params:
             self._url = self._url + \
                         "?" + \
-                        urlencode(requests.utils.to_key_val_list(request_params))#, quote_via=quote)
+                        urlencode(requests.utils.to_key_val_list(request_params))
+            urllib.quote_plus = default_quote_plus
 
         result_request = {
             'url': self._url,
