@@ -1,1 +1,2 @@
 docs/make.bat line-endings!skip
+plugins/modules validate-modules:missing-gplv3-license
