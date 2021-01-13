@@ -52,8 +52,10 @@ class CMCITestHelper:
 
     def stub_cmci(self, method, resource_type, scheme='https', host=HOST, port=PORT,
                   context=CONTEXT, scope=None, parameters='', response_dict=None,
-                  headers={'CONTENT-TYPE': 'application/xml'}, status_code=200, reason='OK',
+                  headers=None, status_code=200, reason='OK',
                   record_count=None, **kwargs):
+        if headers is None:
+            headers = {'CONTENT-TYPE': 'application/xml'}
         url = '{0}://{1}:{2}/CICSSystemManagement/{3}/{4}/{5}{6}{7}'\
             .format(scheme, host, port, resource_type, context, '//' + str(record_count) if record_count else '',
                     scope if scope else '', parameters)

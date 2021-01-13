@@ -229,9 +229,11 @@ ACTION_NAME = 'action_name'
 
 class AnsibleCMCIInstallModule(AnsibleCMCIModule):
     def __init__(self):
+        # pylint: disable=super-with-arguments
         super(AnsibleCMCIInstallModule, self).__init__('PUT')
 
     def init_argument_spec(self):  # type: () -> Dict
+        # pylint: disable=super-with-arguments
         argument_spec = super(AnsibleCMCIInstallModule, self).init_argument_spec()
         argument_spec.update({
             'action_name': {

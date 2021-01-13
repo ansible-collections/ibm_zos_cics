@@ -198,9 +198,11 @@ from collections import OrderedDict
 
 class AnsibleCMCICreateModule(AnsibleCMCIModule):
     def __init__(self):
+        # pylint: disable=super-with-arguments
         super(AnsibleCMCICreateModule, self).__init__('POST')
 
     def init_argument_spec(self):  # type: () -> Dict
+        # pylint: disable=super-with-arguments
         argument_spec = super(AnsibleCMCICreateModule, self).init_argument_spec()
         argument_spec.update(PARAMETERS_ARGUMENT)
         argument_spec.update(ATTRIBUTES_ARGUMENT)
