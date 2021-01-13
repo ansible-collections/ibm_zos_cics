@@ -10,9 +10,9 @@ __metaclass__ = type
 
 from ansible.module_utils.basic import AnsibleModule, missing_required_lib, env_fallback
 from typing import Optional, Dict
-from urllib import urlencode, quote
 from itertools import chain
 from collections import OrderedDict
+from sys import version_info
 import re
 import traceback
 import urllib
@@ -165,16 +165,26 @@ class AnsibleCMCIModule(object):
         self._body = xmltodict.unparse(self.init_body(), full_document=False) if body_dict else None  # type: str
 
         request_params = self.init_request_params()
-        # In python 3, we can pass urllib.quote into the urlencode method, but this is a workaround for python 2.
-        # Store the quote_plus setting, then override it with quote, so that spaces will be encoded as %20 instead of +
-        # Then set the quote_plus value back so we haven't changed the behaviour long term
-        default_quote_plus = urllib.quote_plus
-        urllib.quote_plus = urllib.quote
-        if request_params:
-            self._url = self._url + \
-                        "?" + \
-                        urlencode(requests.utils.to_key_val_list(request_params))
-            urllib.quote_plus = default_quote_plus
+
+        if version_info.major <= 2:
+            # This is a workaround for python 2, where we can't specify the encoding as a parameter in urlencode
+            # Store the quote_plus setting, then override it with quote, so that spaces will be encoded as %20 instead of +
+            # Then set the quote_plus value back so we haven't changed the behaviour long term
+            default_quote_plus = urllib.quote_plus
+            urllib.quote_plus = urllib.quote
+            if request_params:
+                self._url = self._url + \
+                            "?" + \
+                            urllib.urlencode(requests.utils.to_key_val_list(request_params))
+                urllib.quote_plus = default_quote_plus
+        else:
+            # If running at python 3 and above
+            if request_params:
+                self._url = self._url + \
+                            "?" + \
+                            urllib.parse.urlencode(requests.utils.to_key_val_list(request_params),
+                                                   quote_via=urllib.parse.quote)
+
 
         result_request = {
             'url': self._url,
