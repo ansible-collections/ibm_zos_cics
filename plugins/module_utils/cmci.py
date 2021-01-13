@@ -86,7 +86,6 @@ ATTRIBUTE_ARGUMENTS = {
 
 def _cf_child(children):
     return {
-        'type': 'dict',
         'required': False,
         'required_together': [('attribute', 'value')],
         'required_one_of': [('attribute', 'and', 'or')],
@@ -101,23 +100,20 @@ def _cf_child(children):
 
 
 def _cf_options(children):
-    basic_dict_structure = {
+    basic_list_dict = {
         'type': 'list',
         'elements': 'dict',
-        'required': False,
-        'required_together': [('attribute', 'value')],
-        'required_one_of': [('attribute', 'and', 'or')],
-        'mutually_exclusive': [('attribute', 'and', 'or'),
-                               ('and', 'operator'),
-                               ('and', 'value'),
-                               ('or', 'operator'),
-                               ('or', 'value')
-                               ]
     }
-    and_list = {'and': dict(chain(basic_dict_structure.items(), children.items()))}
-    or_list = {'or': dict(chain(basic_dict_structure.items(), children.items()))}
 
+    and_list = {'and': dict(chain(basic_list_dict.items(), _cf_child(children).items()))}
+    or_list = {'or': dict(chain(basic_list_dict.items(), _cf_child(children).items()))}
     return dict(chain(ATTRIBUTE_ARGUMENTS.items(), and_list.items(), or_list.items()))
+
+
+def _complex_filter():
+    children = _cf_child(_cf_options(_cf_options(_cf_options(ATTRIBUTE_ARGUMENTS))))
+    base_type = {'type': 'dict'}
+    return dict(chain(children.items(), base_type.items()))
 
 
 RESOURCES_ARGUMENT = {
@@ -129,11 +125,12 @@ RESOURCES_ARGUMENT = {
                 'type': 'dict',
                 'required': False
             },
-            COMPLEX_FILTER: _cf_child(_cf_options(_cf_options(_cf_options(ATTRIBUTE_ARGUMENTS)))),
+            COMPLEX_FILTER: _complex_filter(),
             PARAMETERS: PARAMETERS_ARGUMENT.get(PARAMETERS)
         }
     }
 }
+
 
 ATTRIBUTES_ARGUMENT = {
     ATTRIBUTES: {
@@ -515,7 +512,7 @@ def _convert_filter_operator(operator):
         return '<'
     if operator in ['<=', 'LE']:
         return '<='
-    if operator in ['=', 'EQ', None]: #shouldn't have to check for None, it's meant to default to =
+    if operator in ['=', 'EQ']:
         return '='
     if operator in ['>=', 'GE']:
         return '>='
