@@ -214,7 +214,7 @@ def test_auth(cmci_module):  # type: (CMCITestHelper) -> None
         'type': 'cicslocalfile'
     })
 
-#TODO look at why this ones 'required_together' works and why filters dont
+
 def test_basic_auth_required_together(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
         'msg': 'parameters are required together: cmci_user, cmci_password',
