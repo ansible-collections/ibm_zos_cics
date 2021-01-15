@@ -7,11 +7,15 @@ from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 
+
 from ansible.module_utils.basic import AnsibleModule, missing_required_lib, env_fallback
 from typing import Optional, Dict
-from urllib.parse import urlencode, quote
+from itertools import chain
+from collections import OrderedDict
+from sys import version_info
 import re
 import traceback
+import urllib
 
 try:
     import requests
@@ -71,7 +75,7 @@ ATTRIBUTE_ARGUMENTS = {
         'type': 'str',
         'required': False,
         'default': 'EQ',
-        'choices': ['<', '<=', '=', '>=', '>=', '¬=', '==', '!=', 'EQ', 'NE', 'LT', 'LE', 'GE', 'GT', 'IS']
+        'choices': ['<', '<=', '=', '>', '>=', '¬=', '==', '!=', 'EQ', 'NE', 'LT', 'LE', 'GE', 'GT', 'IS']
     },
     'value': {
         'type': 'str',
@@ -96,19 +100,20 @@ def _cf_child(children):
 
 
 def _cf_options(children):
-    return {
-        **ATTRIBUTE_ARGUMENTS,
-        'and': {
-            'type': 'list',
-            'elements': 'dict',
-            **_cf_child(children)
-        },
-        'or': {
-            'type': 'list',
-            'elements': 'dict',
-            **_cf_child(children)
-        }
+    basic_list_dict = {
+        'type': 'list',
+        'elements': 'dict',
     }
+
+    and_list = {'and': dict(chain(basic_list_dict.items(), _cf_child(children).items()))}
+    or_list = {'or': dict(chain(basic_list_dict.items(), _cf_child(children).items()))}
+    return dict(chain(ATTRIBUTE_ARGUMENTS.items(), and_list.items(), or_list.items()))
+
+
+def _complex_filter():
+    children = _cf_child(_cf_options(_cf_options(_cf_options(ATTRIBUTE_ARGUMENTS))))
+    base_type = {'type': 'dict'}
+    return dict(chain(children.items(), base_type.items()))
 
 
 RESOURCES_ARGUMENT = {
@@ -120,14 +125,12 @@ RESOURCES_ARGUMENT = {
                 'type': 'dict',
                 'required': False
             },
-            COMPLEX_FILTER: {
-                'type': 'dict',
-                **_cf_child(_cf_options(_cf_options(_cf_options(ATTRIBUTE_ARGUMENTS))))
-            },
-            **PARAMETERS_ARGUMENT
+            COMPLEX_FILTER: _complex_filter(),
+            PARAMETERS: PARAMETERS_ARGUMENT.get(PARAMETERS)
         }
     }
 }
+
 
 ATTRIBUTES_ARGUMENT = {
     ATTRIBUTES: {
@@ -162,10 +165,26 @@ class AnsibleCMCIModule(object):
         self._body = xmltodict.unparse(self.init_body(), full_document=False) if body_dict else None  # type: str
 
         request_params = self.init_request_params()
-        if request_params:
-            self._url = self._url + \
-                        "?" + \
-                        urlencode(requests.utils.to_key_val_list(request_params), quote_via=quote)
+
+        if version_info.major <= 2:
+            # This is a workaround for python 2, where we can't specify the encoding as a parameter in urlencode
+            # Store the quote_plus setting, then override it with quote, so that spaces will be encoded as %20 instead of +
+            # Then set the quote_plus value back so we haven't changed the behaviour long term
+            default_quote_plus = urllib.quote_plus
+            urllib.quote_plus = urllib.quote
+            if request_params:
+                self._url = self._url + \
+                            "?" + \
+                            urllib.urlencode(requests.utils.to_key_val_list(request_params))
+                urllib.quote_plus = default_quote_plus
+        else:
+            # If running at python 3 and above
+            if request_params:
+                self._url = self._url + \
+                            "?" + \
+                            urllib.parse.urlencode(requests.utils.to_key_val_list(request_params),
+                                                   quote_via=urllib.parse.quote)
+
 
         result_request = {
             'url': self._url,
@@ -266,8 +285,11 @@ class AnsibleCMCIModule(object):
         value = self._module.params.get(name)
         if value:
             pattern = re.compile(regex)
-            if not pattern.fullmatch(value):
+
+            # Emulate python-3.4 re.fullmatch()
+            if not re.match(regex, value, flags=0):
                 self._fail('Parameter "{0}" with value "{1}" was not valid.  Expected {2}'.format(name, value, message))
+
 
     def init_body(self):  # type: () -> Optional[Dict]
         return None
@@ -341,7 +363,7 @@ class AnsibleCMCIModule(object):
 
     def get_resources_request_params(self):  # type: () -> Dict[str, str]
         # get, delete, put will all need CRITERIA{}
-        request_params = {}
+        request_params = OrderedDict({})
         resources = self._p.get(RESOURCES)
         if resources:
             f = resources.get(FILTER)
@@ -349,7 +371,7 @@ class AnsibleCMCIModule(object):
                 # AND basic filters together, and use the = operator for each one
                 filter_string = ''
                 if not request_params:
-                    request_params = {}
+                    request_params = OrderedDict({})
                 for key, value in f.items():
                     filter_string = _append_filter_string(filter_string, key + '=' + '\'' + value + '\'',
                                                           joiner=' AND ')
@@ -359,7 +381,7 @@ class AnsibleCMCIModule(object):
             if complex_filter:
                 complex_filter_string = ''
                 if not request_params:
-                    request_params = {}
+                    request_params = OrderedDict({})
 
                 and_item = complex_filter['and']
                 or_item = complex_filter['or']
@@ -490,7 +512,8 @@ class AnsibleCMCIModule(object):
         # Attributes are <attributes name="value" name2="value2"/>
         attributes = self._p.get(ATTRIBUTES)
         if attributes:
-            element['attributes'] = {'@' + key: value for key, value in attributes.items()}
+            items = attributes.items()
+            element['attributes'] = OrderedDict({'@' + key: value for key, value in items})
 
     def _fail(self, msg):  # type: (str) -> None
         self._module.fail_json(msg=msg, **self.result)
@@ -529,8 +552,8 @@ def _get_filter(list_of_filters, complex_filter_string, joiner):
             or_filter_string = _get_filter(or_item, '', ' OR ')
             complex_filter_string = _append_filter_string(complex_filter_string, or_filter_string, joiner)
         if attribute is not None:
-            operator = _convert_filter_operator(i['operator'])
-            value = i['value']
+            operator = _convert_filter_operator(i.get('operator'))
+            value = i.get('value')
             attribute_filter_string = attribute + operator + '\'' + value + '\''
             complex_filter_string = _append_filter_string(complex_filter_string, attribute_filter_string, joiner)
 

@@ -15,6 +15,7 @@ from ansible.module_utils import basic
 
 import pytest
 import re
+import sys
 
 
 def test_401_fails(cmci_module):  # type: (CMCITestHelper) -> None
@@ -96,8 +97,13 @@ def test_unknown_host(monkeypatch):
 
 
 def test_invalid_port_type(cmci_module):  # type: (CMCITestHelper) -> None
+    #the error message is slightly different between Python 2 and 3
+    expectedType = 'class'
+    if sys.version_info.major <= 2:
+        expectedType = 'type'
+
     cmci_module.expect({
-        'msg': "argument cmci_port is of type <class 'str'> and we were unable to "
+        'msg': "argument cmci_port is of type <" + expectedType + " 'str'> and we were unable to "
                "convert to int: invalid literal for int() with base 10: '^%^080'",
         'failed': True
     })

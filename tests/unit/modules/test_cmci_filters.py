@@ -15,6 +15,7 @@ from ansible.module_utils import basic
 
 import pytest
 import re
+from collections import OrderedDict
 
 
 def test_query_criteria(cmci_module):  # type: (CMCITestHelper) -> None
@@ -43,12 +44,16 @@ def test_query_criteria(cmci_module):  # type: (CMCITestHelper) -> None
 
 def test_filter_multi(cmci_module):  # type: (CMCITestHelper) -> None
     records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
+    filters = OrderedDict({})
+    filters['GOO'] = 'LAR'
+    filters['FOO'] = 'BAR'
+
     cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE,
-                             parameters='?CRITERIA=%28FOO%3D%27BAR%27%29%20AND%20%28GOO%3D%27LAR%27%29')
+                             parameters='?CRITERIA=%28GOO%3D%27LAR%27%29%20AND%20%28FOO%3D%27BAR%27%29')
 
     cmci_module.expect(result(
         'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-        'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=%28FOO%3D%27BAR%27%29%20AND%20%28GOO%3D%27LAR%27%29',
+        'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=%28GOO%3D%27LAR%27%29%20AND%20%28FOO%3D%27BAR%27%29',
         records=records
     ))
 
@@ -59,10 +64,7 @@ def test_filter_multi(cmci_module):  # type: (CMCITestHelper) -> None
         'scope': 'IYCWEMW2',
         'type': 'cicslocalfile',
         'resources': {
-            'filter': {
-                'FOO': 'BAR',
-                'GOO': 'LAR'
-            }
+            'filter': filters
         }
     })
 

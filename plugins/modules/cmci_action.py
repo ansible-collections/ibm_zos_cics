@@ -221,6 +221,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
 )
 
 from typing import Dict, Optional
+from collections import OrderedDict
 
 
 ACTION_NAME = 'action_name'
@@ -244,7 +245,7 @@ class AnsibleCMCIInstallModule(AnsibleCMCIModule):
 
     def init_body(self):  # type: () -> Optional[Dict]
 
-        action = {'@name': self._p.get(ACTION_NAME)}
+        action = OrderedDict({'@name': self._p.get(ACTION_NAME)})
         self.append_parameters(action)
         return {
             'request': {
