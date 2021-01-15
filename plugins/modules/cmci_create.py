@@ -19,7 +19,7 @@ description:
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
     For information about how to compose POST requests, see L(CMCI POST requests,
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_post.html).
-author: "IBM"
+author: IBM
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.cmci.COMMON
   - ibm.ibm_zos_cics.cmci.ATTRIBUTES

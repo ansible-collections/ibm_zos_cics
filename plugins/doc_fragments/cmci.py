@@ -123,7 +123,7 @@ options:
           - For supported attributes of different resource types, see their resource table reference,
             for example, L(PROGDEF resource table reference,
             https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
-        type: str
+        type: dict
         required: false
       complex_filter:
         description:
@@ -131,7 +131,7 @@ options:
             in the data returned on the request.
           - Can contain one or more filters. Multiple filters must be combined using C(and) or C(or) logical operators.
           - Filters can be nested. At most four nesting layers are allowed.
-        type: str
+        type: dict
         required: false
         suboptions:
           attribute:

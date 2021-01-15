@@ -202,7 +202,7 @@ class AnsibleCMCIModule(object):
             },
             CMCI_PORT: {
                 'required': True,
-                'type': int
+                'type': 'int'
             },
             CMCI_USER: {
                 'type': 'str',

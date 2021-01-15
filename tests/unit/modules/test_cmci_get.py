@@ -104,7 +104,7 @@ def test_invalid_port_type(cmci_module):  # type: (CMCITestHelper) -> None
 
     cmci_module.expect({
         'msg': "argument cmci_port is of type <" + expectedType + " 'str'> and we were unable to "
-               "convert to int: invalid literal for int() with base 10: '^%^080'",
+               "convert to int: <class 'str'> cannot be converted to an int",
         'failed': True
     })
 
@@ -113,6 +113,27 @@ def test_invalid_port_type(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': '^%^080',
         'context': 'iyk3z0r9',
         'scope': 'iyk3z0r8',
+        'type': 'cicslocalfile'
+    })
+
+
+def test_valid_port_string(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [
+        {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'},
+        {'name': 'bing', 'dsname': 'STEWF.BAT.BAZ'}
+    ]
+    cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE)
+
+    cmci_module.expect(result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56/IYCWEMW2',
+        records=records
+    ))
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': '26040',
+        'context': CONTEXT,
+        'scope': SCOPE,
         'type': 'cicslocalfile'
     })
 

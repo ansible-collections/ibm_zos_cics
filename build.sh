@@ -2,15 +2,27 @@
 trap "exit" INT
 set -e
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+
+source "$CMCI_PYTHON_38/bin/activate"
+(set -x; pip install -r requirements.txt)
+
+(set -x; ANSIBLE_COLLECTIONS_PATHS=../../.. ansible-lint)
+(set -x; python3 -m yamllint -c yamllint.yaml .)
+
+echo "/* -------------------------------------------------------------------------- */"
+echo "/*                           ansible-test Sanity Tests                        */"
+echo "/* -------------------------------------------------------------------------- */"
+(set -x; ansible-test sanity 2>&1 --python 3.8)
+
 echo "/* -------------------------------------------------------------------------- */"
 echo "/*                          Unit tests Python 3.8                             */"
 echo "/* -------------------------------------------------------------------------- */"
-source "$CMCI_PYTHON_38/bin/activate"
-pip install -r requirements.txt
-ansible-test units --python 3.8
-ansible-test sanity 2>&1 --python 3.8
-ansible-test integration --python 3.8
-ansible-lint --python 3.8
+(set -x; ansible-test units --python 3.8)
+
+echo "/* -------------------------------------------------------------------------- */"
+echo "/*                          Integration tests Python 3.8                      */"
+echo "/* -------------------------------------------------------------------------- */"
+(set -x; ansible-test integration --python 3.8)
 deactivate
 
 
@@ -21,71 +33,40 @@ deactivate
 # pip install -r requirements.txt
 # ansible-test units --python 2.7
 # deactivate
-
-
-echo "/* -------------------------------------------------------------------------- */"
-echo "/*                              Linting Tests                                 */"
-echo "/* -------------------------------------------------------------------------- */"
-
-python3 -m yamllint -c yamllint.yaml .
-
-#checkForAnsibleLintErrors(out)
-
-for i in plugins/modules/*.py; do
-    [ -f "$i" ] || break # handle empty directory
-    echo "Checking if $i is an Ansible module"
-    if grep -q AnsibleModule "$i"; then
-      echo "$i is an Ansible module"
-      ansible-doc -j -M . "$i"
-    fi
-    # checkForAnsibleDocErrors(out)
-done
-
-echo "/* -------------------------------------------------------------------------- */"
-echo "/*                   Test Collection Build and Install                        */"
-echo "/* -------------------------------------------------------------------------- */"
-ansible-galaxy collection build . --force
-ansible-galaxy collection install ibm-ibm_zos_cics* --force
-
-echo "/* -------------------------------------------------------------------------- */"
-echo "/*                           ansible-test Sanity Tests                        */"
-echo "/* -------------------------------------------------------------------------- */"
-# ansible-test sanity 2>&1 || true
-# checkForAnsibleTestErrors(out)
-
-echo "/* -------------------------------------------------------------------------- */"
-echo "/*                          Unit and Functional Test                          */"
-echo "/* -------------------------------------------------------------------------- */"
-#    dir("${git_repo_name}") {
-#        dir("playbooks") {
-#            writeFile(file: "ansible.cfg", text: ANSIBLE_CONFIG_CONTENTS)
-#        }
-#        writeFile(file: "configuration.yml", text: generateYmlConfig(TARGET_HOST, USERNAME, PYTHON_PATH, ENVIRONMENT))
-#    }
 #
-#    ansibleTestingImage.inside("-u jenkins\
-#    -e TARGET_HOST=${TARGET_HOST}\
-#    -e ANSIBLE_LIBRARY=${rootDir}/plugins/modules\
-#    -e ANSIBLE_ACTION_PLUGINS=${rootDir}/plugins/action\
-#    -e ANSIBLE_CONFIG=${rootDir}/playbooks/ansible.cfg\
-#    -e ANSIBLE_CONNECTION_PLUGINS=${rootDir}/plugins/connection\
-#    -e ANSIBLE_MODULE_UTILS=${rootDir}/plugins/module_utils") {
+#for i in plugins/modules/*.py; do
+#    [ -f "$i" ] || break # handle empty directory
+#    echo "Checking if $i is an Ansible module"
+#    if grep -q AnsibleCMCIModule "$i"; then
+#      echo "$i is an Ansible module.  Running ansible-doc against it"
 #
-#        dir(params.git_repo_name) {
-#            // Install collection so module_utils imports will be valid in modules
-#            // Attempt to build the collection
-#            sh script: "ansible-galaxy collection build . --force"
-#            // Install the built collection
-#            sh script: "ansible-galaxy collection install ibm-${params.git_repo_name}* --force"
+#      unset t_std t_err t_ret
+#      # shellcheck disable=SC2030
+#      eval "$( (ANSIBLE_COLLECTIONS_PATHS=../../.. ansible-doc -j ibm.ibm_zos_cics."$(basename "$i" .py)") \
+#              2> >(t_err=$(cat); typeset -p t_err) \
+#               > >(t_std=$(cat); typeset -p t_std); t_ret=$?; typeset -p t_ret )"
 #
-#            dir("tests") {
-#                if (env.git_ssh_ref == 'feature/1972/cics_cmci') {
-#                    def out = sh script: "python3 -m pytest --host-pattern=localhost || true ", returnStdout: true
-#                    echo out
-#                    checkForPytestFails(out)
-#                } else {
-#                    def out = sh script: "python3 -m pytest --host-pattern=all -Z=${env.WORKSPACE}/${git_repo_name}/tests/test_config.yml || true", returnStdout: true
-#                    echo out
-#                    checkForPytestFails(out)
-#                }
-#            }
+#      # shellcheck disable=SC2031
+#      printf "stderr:\n%s\n" "$t_err"
+#      # shellcheck disable=SC2031
+#      printf "stdout:\n%s\n" "$t_std"
+#
+#      # shellcheck disable=SC2031
+#      if [[ "${t_ret}" -ne 0 ]]; then
+#        echo "ansible-doc returned a non-zero return code: ${t_ret}"
+#        exit 1
+#      elif [[ ! -z $t_err ]]; then
+#        echo "ansible-doc wrote to std err which we're assuming was an error or warning"
+#        exit 1
+#      elif [[ ${t_std} =~ ^{}$ ]]; then
+#        echo "No documentation"
+#        exit 1
+#      fi
+#    fi
+#done
+
+echo "/* -------------------------------------------------------------------------- */"
+echo "/*                   Collection Build and Install                             */"
+echo "/* -------------------------------------------------------------------------- */"
+(set -x; ansible-galaxy collection build . --force)
+#(set -x; ansible-galaxy collection install ibm-ibm_zos_cics* --force)

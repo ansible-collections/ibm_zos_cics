@@ -18,11 +18,10 @@ description:
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
     For information about how to compose DELETE requests, see L(CMCI DELETE requests,
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_delete.html).
-author: "IBM"
+author: IBM
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.cmci.COMMON
   - ibm.ibm_zos_cics.cmci.RESOURCES
-  - ibm.ibm_zos_cics.cmci.PARAMETERS
 '''
 
 

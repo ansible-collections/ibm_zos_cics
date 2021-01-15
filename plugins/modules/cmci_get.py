@@ -18,7 +18,7 @@ description:
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
     For information about how to compose GET requests, see L(CMCI GET requests,
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_get.html).
-author: "IBM"
+author: IBM
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.cmci.COMMON
   - ibm.ibm_zos_cics.cmci.RESOURCES
