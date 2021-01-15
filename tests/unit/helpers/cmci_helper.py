@@ -88,12 +88,11 @@ class CMCITestHelper:
         assert isinstance(result, dict)
 
         if self.expected != result:
-            standardMsg = '%s != %s' % (repr(self.expected), repr(result))
+            standard_msg = '%s != %s' % (repr(self.expected), repr(result))
             diff = ('\n' + '\n'.join(difflib.ndiff(
                            pprint.pformat(self.expected).splitlines(),
                            pprint.pformat(result).splitlines())))
-            raise AssertionError(standardMsg + diff)
-
+            raise AssertionError(standard_msg + diff)
 
 
 @pytest.fixture

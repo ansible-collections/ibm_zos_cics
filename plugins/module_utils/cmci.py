@@ -173,8 +173,8 @@ class AnsibleCMCIModule(object):
                 default_quote_plus = urllib.quote_plus
                 urllib.quote_plus = urllib.quote
                 self._url = self._url + \
-                            "?" + \
-                            urllib.urlencode(requests.utils.to_key_val_list(request_params))
+                    "?" + \
+                    urllib.urlencode(requests.utils.to_key_val_list(request_params))
                 urllib.quote_plus = default_quote_plus
             else:
                 # If running at python 3 and above
@@ -289,7 +289,6 @@ class AnsibleCMCIModule(object):
             # Emulate python-3.4 re.fullmatch()
             if not re.match(regex, value, flags=0):
                 self._fail('Parameter "{0}" with value "{1}" was not valid.  Expected {2}'.format(name, value, message))
-
 
     def init_body(self):  # type: () -> Optional[Dict]
         return None

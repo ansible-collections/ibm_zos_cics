@@ -97,13 +97,13 @@ def test_unknown_host(monkeypatch):
 
 
 def test_invalid_port_type(cmci_module):  # type: (CMCITestHelper) -> None
-    #the error message is slightly different between Python 2 and 3
-    expectedType = 'class'
+    # The error message is slightly different between Python 2 and 3
+    expected_type = 'class'
     if sys.version_info.major <= 2:
-        expectedType = 'type'
+        expected_type = 'type'
 
     cmci_module.expect({
-        'msg': "argument cmci_port is of type <" + expectedType + " 'str'> and we were unable to "
+        'msg': "argument cmci_port is of type <" + expected_type + " 'str'> and we were unable to "
                "convert to int: <class 'str'> cannot be converted to an int",
         'failed': True
     })

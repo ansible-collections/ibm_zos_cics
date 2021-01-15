@@ -199,6 +199,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
 from typing import Optional, Dict
 from collections import OrderedDict
 
+
 class AnsibleCMCIUpdateModule(AnsibleCMCIModule):
     def __init__(self):
         # pylint: disable=super-with-arguments
