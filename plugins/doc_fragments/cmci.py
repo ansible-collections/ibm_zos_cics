@@ -75,6 +75,7 @@ options:
       - The value of I(context) must contain no spaces. I(context) is not
         case-sensitive.
     type: str
+    required: true
   scope:
     description:
       - Specifies the name of a CICSplex, CICS region group, CICS region, or
@@ -214,6 +215,7 @@ options:
       each operation?  E.g. might be easier to show how to find the parameters for an action distinct from create...
       TODO Provide an example of how to use flag style parameters
     type: list
+    elements: dict
     suboptions:
       name:
         description: Parameter name

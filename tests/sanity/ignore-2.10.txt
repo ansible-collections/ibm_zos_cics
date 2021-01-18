@@ -6,6 +6,9 @@ plugins/modules/cmci_get.py validate-modules:doc-default-does-not-match-spec
 plugins/modules/cmci_get.py validate-modules:missing-suboption-docs
 plugins/modules/cmci_get.py validate-modules:parameter-type-not-in-doc
 plugins/modules/cmci_get.py validate-modules:undocumented-parameter
+plugins/modules/cmci_get.py validate-modules:doc-elements-mismatch
+plugins/modules/cmci_get.py validate-modules:mutually_exclusive-unknown
+plugins/modules/cmci_get.py validate-modules:required_one_of-unknown
 plugins/modules/cmci_action.py validate-modules:missing-gplv3-license
 plugins/modules/cmci_action.py validate-modules:invalid-documentation
 plugins/modules/cmci_action.py validate-modules:doc-choices-do-not-match-spec
@@ -13,6 +16,9 @@ plugins/modules/cmci_action.py validate-modules:doc-default-does-not-match-spec
 plugins/modules/cmci_action.py validate-modules:missing-suboption-docs
 plugins/modules/cmci_action.py validate-modules:parameter-type-not-in-doc
 plugins/modules/cmci_action.py validate-modules:undocumented-parameter
+plugins/modules/cmci_action.py validate-modules:doc-elements-mismatch
+plugins/modules/cmci_action.py validate-modules:mutually_exclusive-unknown
+plugins/modules/cmci_action.py validate-modules:required_one_of-unknown
 plugins/modules/cmci_create.py validate-modules:missing-gplv3-license
 plugins/modules/cmci_create.py validate-modules:invalid-documentation
 plugins/modules/cmci_delete.py validate-modules:missing-gplv3-license
@@ -22,6 +28,9 @@ plugins/modules/cmci_delete.py validate-modules:doc-default-does-not-match-spec
 plugins/modules/cmci_delete.py validate-modules:missing-suboption-docs
 plugins/modules/cmci_delete.py validate-modules:parameter-type-not-in-doc
 plugins/modules/cmci_delete.py validate-modules:undocumented-parameter
+plugins/modules/cmci_delete.py validate-modules:doc-elements-mismatch
+plugins/modules/cmci_delete.py validate-modules:mutually_exclusive-unknown
+plugins/modules/cmci_delete.py validate-modules:required_one_of-unknown
 plugins/modules/cmci_update.py validate-modules:missing-gplv3-license
 plugins/modules/cmci_update.py validate-modules:invalid-documentation
 plugins/modules/cmci_update.py validate-modules:doc-choices-do-not-match-spec
@@ -29,3 +38,6 @@ plugins/modules/cmci_update.py validate-modules:doc-default-does-not-match-spec
 plugins/modules/cmci_update.py validate-modules:missing-suboption-docs
 plugins/modules/cmci_update.py validate-modules:parameter-type-not-in-doc
 plugins/modules/cmci_update.py validate-modules:undocumented-parameter
+plugins/modules/cmci_update.py validate-modules:doc-elements-mismatch
+plugins/modules/cmci_update.py validate-modules:mutually_exclusive-unknown
+plugins/modules/cmci_update.py validate-modules:required_one_of-unknown

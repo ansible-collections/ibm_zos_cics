@@ -25,11 +25,11 @@
 
     - name: debug
       debug:
-        msg: '{{ result.msg[:-14] }}'
+        msg: '{{ result.msg[:89] }}'
 
     - name: assert
       assert:
         that:
           - result.failed is false
-          - '{{  result.msg[:-14] == "Error performing CMCI request: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify
-           failed: self signed certificate in certificate chain" }}'
+          - '{{  result.msg[:89] == "Error performing CMCI request: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify
+           failed" }}'
