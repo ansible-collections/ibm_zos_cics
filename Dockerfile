@@ -2,7 +2,7 @@
 #                   Docker Image for Testing Environment                       #
 # ---------------------------------------------------------------------------- #
 FROM python:3.8-buster
-ENV APPDIR=/usr/src/app
+ENV APPDIR=/var/lib/jenkins/workspace
 WORKDIR ${APPDIR}
 RUN apt-get update && apt-get install -y gnupg2 git python-pip python3-pip openssh-client && python2.7 -m pip install virtualenv
 ENV CMCI_PYTHON_27=${APPDIR}/venv2
