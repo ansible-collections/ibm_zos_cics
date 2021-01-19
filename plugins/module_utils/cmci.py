@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # Copyright (c) IBM Corporation 2020
@@ -174,8 +173,8 @@ class AnsibleCMCIModule(object):
                 default_quote_plus = urllib.quote_plus
                 urllib.quote_plus = urllib.quote
                 self._url = self._url + \
-                            "?" + \
-                            urllib.urlencode(requests.utils.to_key_val_list(request_params))
+                    "?" + \
+                    urllib.urlencode(requests.utils.to_key_val_list(request_params))
                 urllib.quote_plus = default_quote_plus
             else:
                 # If running at python 3 and above
@@ -203,7 +202,7 @@ class AnsibleCMCIModule(object):
             },
             CMCI_PORT: {
                 'required': True,
-                'type': int
+                'type': 'int'
             },
             CMCI_USER: {
                 'type': 'str',
@@ -291,7 +290,6 @@ class AnsibleCMCIModule(object):
             if not re.match(regex, value, flags=0):
                 self._fail('Parameter "{0}" with value "{1}" was not valid.  Expected {2}'.format(name, value, message))
 
-
     def init_body(self):  # type: () -> Optional[Dict]
         return None
 
@@ -325,11 +323,10 @@ class AnsibleCMCIModule(object):
                 if resource_type in records_node:
                     records = records_node[resource_type]
                     # Copy records in result, stripping @ from attributes
-                    self.result['records'] = \
-                        [
-                            {k[1:]: v for k, v in record.items()}
-                            for record in records
-                        ]
+                    self.result['records'] = [
+                        {k[1:]: v for k, v in record.items()}
+                        for record in records
+                    ]
 
             # Non-OK CPSM responses fail the module
             if cpsm_response_code != 1024:
@@ -427,7 +424,7 @@ class AnsibleCMCIModule(object):
             if user is not None and user.strip() != '' and passwd is not None and passwd.strip() != '':
                 session.auth = user.strip(), passwd.strip()
 
-        return session  # type: requests.Session
+        return session
 
     def _do_request(self):  # type: () -> Dict
         try:

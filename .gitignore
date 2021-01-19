@@ -2,9 +2,8 @@
 docs/build/
 .idea
 __pycache__
-env
+venv2
+venv3
 tests/output
-
-ibm-ibm_zos_cics-1.0.0.tar.gz
-
+ibm-ibm_zos_cics-*.tar.gz
 tests/integration/targets/cics_cmci/cmci-variables.yml

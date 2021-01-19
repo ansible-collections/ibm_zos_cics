@@ -1,8 +1,0 @@
-# Copyright (c) IBM Corporation 2020
-# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
-pytestzsystem:
-  hosts:
-    zvm:
-      ansible_host: winmvs2c.hursley.ibm.com
-      ansible_user: stewf
-      ansible_python_interpreter: /python/v361/python-2017-04-12-py36/python36/bin/python

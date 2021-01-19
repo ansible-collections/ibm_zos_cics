@@ -40,5 +40,14 @@ issues: https://github.com/ansible-collections/ibm_zos_cics/issues
 # Ignore files and directories matching the following patterns
 build_ignore:
   - Dockerfile
-  - Jenkinsfile
   - yamllint.yaml
+  - venv2
+  - venv3
+  - .pytest_cache
+  - .idea
+  - .gitignore
+  - .ansible-test
+  - tests
+  - docs
+  - CONTRIBUTING.md
+  - build.sh

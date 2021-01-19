@@ -91,8 +91,8 @@
           - name: 'CSD'
       register: result
 
-
-    - assert:
+    - name: assert 1
+      assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
@@ -114,7 +114,8 @@
               value: '{{ csdgroup }}'
       register: result
 
-    - assert:
+    - name: assert 2
+      assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
@@ -135,7 +136,8 @@
               value: '{{ csdgroup }}'
       register: result
 
-    - assert:
+    - name: assert 3
+      assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
@@ -153,14 +155,16 @@
       until: result is not failed
       register: result
 
-    - assert:
+    - name: assert 4
+      assert:
         that:
           - result is not changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].program == program
 
-    - debug:
+    - name: debug 1
+      debug:
         msg: "{{ result }}"
 
     - name: 'disable program'
@@ -173,9 +177,13 @@
           filter:
             PROGRAM: '{{ program }}'
       register: result
-    - debug:
+
+    - name: debug 2
+      debug:
         msg: "{{ result }}"
-    - assert:
+
+    - name: assert 5
+      assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
@@ -193,7 +201,8 @@
             PROGRAM: '{{ program }}'
       register: result
 
-    - assert:
+    - name: assert 6
+      assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
@@ -213,7 +222,8 @@
               value: '{{ csdgroup }}'
       register: result
 
-    - assert:
+    - name: assert 7
+      assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'

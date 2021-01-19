@@ -18,11 +18,10 @@ description:
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
     For information about how to compose DELETE requests, see L(CMCI DELETE requests,
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_delete.html).
-author: "IBM"
+author: IBM
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.cmci.COMMON
   - ibm.ibm_zos_cics.cmci.RESOURCES
-  - ibm.ibm_zos_cics.cmci.PARAMETERS
 '''
 
 
@@ -44,7 +43,7 @@ EXAMPLES = r"""
     context: 'iyk3z0r9'
     option: 'delete'
     type: CICSDefinitionBundle
-    resource: 
+    resource:
       filter:
         name: 'PONGALT'
       parameters:
@@ -68,21 +67,21 @@ connect_version:
   type: str
 cpsm_reason:
   description:
-    - The character value of the REASON code returned by each CICSPlex SM API command. 
-      For a list of REASON character values, see 
+    - The character value of the REASON code returned by each CICSPlex SM API command.
+      For a list of REASON character values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ky.html.
   returned: success
   type: str
 cpsm_reason_code:
   description:
-    - The numeric value of the REASON code returned by each CICSPlex SM API command. 
-      For a list of REASON numeric values, see 
+    - The numeric value of the REASON code returned by each CICSPlex SM API command.
+      For a list of REASON numeric values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kw.html.
   returned: success
   type: int
 cpsm_response:
   description:
-    - The character value of the RESPONSE code returned by each CICSPlex SM API command. 
+    - The character value of the RESPONSE code returned by each CICSPlex SM API command.
       For a list of RESPONSE character values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kx.html.
   returned: success
@@ -113,7 +112,7 @@ records:
   description:
     - A list of the returned records.
   returned: success
-  type: list 
+  type: list
   elements: dict
   sample:
     - _keydata: "C1D5E2C9E3C5E2E3"
@@ -212,9 +211,11 @@ from typing import Dict, Optional
 
 class AnsibleCMCIDeleteModule(AnsibleCMCIModule):
     def __init__(self):
+        # pylint: disable=super-with-arguments
         super(AnsibleCMCIDeleteModule, self).__init__('DELETE')
 
     def init_argument_spec(self):  # type: () -> Dict
+        # pylint: disable=super-with-arguments
         argument_spec = super(AnsibleCMCIDeleteModule, self).init_argument_spec()
         argument_spec.update(RESOURCES_ARGUMENT)
         return argument_spec

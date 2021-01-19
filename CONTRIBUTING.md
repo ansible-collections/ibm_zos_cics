@@ -98,15 +98,15 @@ conventions.  For details, see [this issue](https://github.com/ansible/ansible/i
 
 ### Create a new virtual environment
 
-Create a virtual environment in the checked out repository.  The dir `env` is gitignored, and the rest of this
+Create a virtual environment in the checked out repository.  The dir `venv3` is gitignored, and the rest of this
 documentation assumes you'll be using that as the name for your virtual environment:
 
-```
-# Create a new venv called env
-python3 -m venv env
+```bash
+# Create a new venv called venv3
+python3 -m venv venv3
 
-# Activate env
-source env/bin/activate
+# Activate venv3
+source venv3/bin/activate
 
 # Install requirements
 pip install -r requirements.txt
@@ -115,7 +115,7 @@ pip install -r requirements.txt
 #### Running the unit tests
 
 You can use the `ansible-test` command to run all of the unit tests:
-```
+```bash
 # Run unit tests
 ansible-test units --python=3.8
 ```
@@ -124,7 +124,7 @@ ansible-test units --python=3.8
 
 You can also use the `ansible-test` command to run all of the integration tests:
 
-```
+```bash
 # Run integration tests
 ansible-test integration --python=3.8
 ```
@@ -147,6 +147,40 @@ Set the virtual environment as the default Python interpreter:
 
  - `Preferences > Project: cics-ansible > Python Interpreter > Top dropdown box > Select interpreter you just imported > Apply`
 
+#### Python 2 support
+
+The CMCI modules support running on Python 2.7.  To ensure we maintain python 2.7 compatibility, you will also want to
+configure a Python 2.7 virtualenv:
+
+```bash
+# Ensure virtualenv is installed
+python2.7 -m pip install virtualenv
+ 
+# Create a new virtualenv called venv2
+python2.7 -m virtualenv venv2
+
+# Activate venv2
+source venv2/bin/activate
+
+# Install requirements
+pip install -r requirements.txt
+```
+
+Note that a slightly different set of requirements is installed for python 2.7, as most of the static analysis tools in
+the automated build are run in python 3.8, so are not requirements for the python 2.7 environment.
+
+#### Running the build, tests and static analysis locally
+
+A bash script is provided to automate running the static analysis, and tests in both python 2.7 and python 3.8
+environments.  You will need to have set up `venv`s as described above, with the requirements pre-installed.  You will 
+then be able to run the build, passing the locations of the python 2.7 and python 3.8 `venv`s as environment variables:
+
+```bash
+CMCI_PYTHON_38=./venv3 CMCI_PYTHON_27=./venv2 ./build.sh
+```
+
+If you are running on Windows, you will need to run the automated build in a docker container produced by building the `Dockerfile` in this repository
+
 #### Configure PyCharm to be able to run Ansible collection unit tests
 
 First, add the `ansible_pytest_collections` plugin to `PYTHONPATH` for your python interpreter.  This will be in your
@@ -157,7 +191,7 @@ venv if you installed the dependencies using the requirements file:
    add the path to the 'ansible_test' 'pytest' plugin in your python environment`
 
    - For the sample path:
-     `.../ibm_zos_cics/ansible_collections/ibm/ibm_zos_cics/env/lib/python3.8/site-packages/ansible_test/_data/pytest/plugins`
+     `.../ibm_zos_cics/ansible_collections/ibm/ibm_zos_cics/venv3/lib/python3.8/site-packages/ansible_test/_data/pytest/plugins`
 
 Next, you'll need to set some default environment variables for pytest launches, to enable the
 `ansible_pytest_collections` plugin, and successfully resolve the `ibm_zos_cics` collection locally.

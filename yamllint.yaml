@@ -4,6 +4,10 @@
 # Based on ansible-lint config
 extends: default
 
+ignore: |
+  venv2
+  venv3
+
 rules:
   braces: {max-spaces-inside: 1, level: error}
   brackets: {max-spaces-inside: 1, level: error}
