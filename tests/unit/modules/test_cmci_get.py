@@ -93,7 +93,7 @@ def test_unknown_host(monkeypatch):
     exp = \
         'Error performing CMCI request: <[^>]*>: Failed to establish a new connection: ' \
         '\\[Errno 8\\] nodename nor servname provided, or not known'
-    assert re.match(exp, exc_info.value.args[0]['msg'])
+    assert re.match(exp, exc_info.value.args[0]['msg']), exc_info.value.args[0]['msg'] + " didn't match"
 
 
 def test_invalid_port_type(cmci_module):  # type: (CMCITestHelper) -> None
