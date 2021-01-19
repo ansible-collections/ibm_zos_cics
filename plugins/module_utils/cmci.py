@@ -166,25 +166,24 @@ class AnsibleCMCIModule(object):
 
         request_params = self.init_request_params()
 
-        if version_info.major <= 2:
-            # This is a workaround for python 2, where we can't specify the encoding as a parameter in urlencode
-            # Store the quote_plus setting, then override it with quote, so that spaces will be encoded as %20 instead of +
-            # Then set the quote_plus value back so we haven't changed the behaviour long term
-            default_quote_plus = urllib.quote_plus
-            urllib.quote_plus = urllib.quote
-            if request_params:
+        if request_params:
+            if version_info.major <= 2:
+                # This is a workaround for python 2, where we can't specify the encoding as a parameter in urlencode
+                # Store the quote_plus setting, then override it with quote, so that spaces will be encoded as %20 instead of +
+                # Then set the quote_plus value back so we haven't changed the behaviour long term
+                default_quote_plus = urllib.quote_plus
+                urllib.quote_plus = urllib.quote
                 self._url = self._url + \
                             "?" + \
                             urllib.urlencode(requests.utils.to_key_val_list(request_params))
                 urllib.quote_plus = default_quote_plus
-        else:
-            # If running at python 3 and above
-            if request_params:
+            else:
+                # If running at python 3 and above
                 self._url = self._url + \
                             "?" + \
                             urllib.parse.urlencode(requests.utils.to_key_val_list(request_params),
                                                    quote_via=urllib.parse.quote)
-
+            self._url = self._url.replace('%C2%AC%3D', '%AC%3D')
 
         result_request = {
             'url': self._url,
