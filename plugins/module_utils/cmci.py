@@ -183,6 +183,8 @@ class AnsibleCMCIModule(object):
                             "?" + \
                             urllib.parse.urlencode(requests.utils.to_key_val_list(request_params),
                                                    quote_via=urllib.parse.quote)
+                
+            #url encoding means that the != filter operator is encoded as %C2%AC%3D, which CMCI doesn't accept
             self._url = self._url.replace('%C2%AC%3D', '%AC%3D')
 
         result_request = {
