@@ -33,7 +33,7 @@ def test_csd_install(cmci_module):  # type: (CMCITestHelper) -> None
         ))
     )
 
-    cmci_module.expect(result(
+    cmci_module.expect(ok_result(
         'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
         'cicsdefinitionbundle/CICSEX56/IYCWEMW2?PARAMETER=CSDGROUP%28%2A%29',
         record,
@@ -72,7 +72,7 @@ def test_bas_install(cmci_module):  # type: (CMCITestHelper) -> None
         ))
     )
 
-    cmci_module.expect(result(
+    cmci_module.expect(ok_result(
         'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/',
         record,
         '<request><action name="INSTALL"></action></request>'
@@ -111,7 +111,7 @@ def test_install_csd_criteria_parameter(cmci_module):  # type: (CMCITestHelper) 
         ))
     )
 
-    cmci_module.expect(result(
+    cmci_module.expect(ok_result(
         'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram/'
         'CICSEX56/IYCWEMW2?CRITERIA=%28NAME%3D%27DUMMY%27%29%20AND%20%28DEFVER%3D%270%27%29%20AND'
         '%20%28CSDGROUP%3D%27DUMMY%27%29&PARAMETER=CSDGROUP%28DUMMY%29',
@@ -151,6 +151,7 @@ def test_bas_install_params(cmci_module):  # type: (CMCITestHelper) -> None
         bundledir='/u/bundles/bloop',
         csdgroup='bat'
     )
+
     cmci_module.stub_records(
         'PUT',
         'cicsdefinitionbundle',
@@ -174,7 +175,7 @@ def test_bas_install_params(cmci_module):  # type: (CMCITestHelper) -> None
         ))
     )
 
-    cmci_module.expect(result(
+    cmci_module.expect(ok_result(
         'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/',
         record,
         '<request><action name="INSTALL">'
@@ -196,7 +197,76 @@ def test_bas_install_params(cmci_module):  # type: (CMCITestHelper) -> None
     })
 
 
-def result(url, record, body):
+def test_non_ok_response(cmci_module):
+    record = dict(
+        name='bar',
+        bundledir='/u/bundles/bloop',
+        csdgroup='bat'
+    )
+
+    cmci_module.stub_non_ok_records(
+        'PUT',
+        'cicsresourcedescription',
+        record,
+        scope=SCOPE,
+        parameters="?CRITERIA=%28RESDESC%3D%27BASICB1%27%29",
+        additional_matcher=body_matcher(od(
+            ('request', od(
+                ('action', od(
+                    ('@name', 'INSTALL')
+                ))
+            ))
+        ))
+    )
+
+    cmci_module.expect(fail_result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsresourcedescription/'
+        'CICSEX56/IYCWEMW2?CRITERIA=%28RESDESC%3D%27BASICB1%27%29',
+        '<request><action name="INSTALL"></action></request>',
+        'TABLEERROR',
+        1038,
+        'DATAERROR',
+        1361,
+        'CMCI request failed with response "TABLEERROR" reason "DATAERROR"'
+    ))
+
+    cmci_module.run(cmci_action, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': SCOPE,
+        'type': 'cicsresourcedescription',
+        'action_name': 'INSTALL',
+        'resources': {
+            'filter': {
+                'RESDESC': 'BASICB1'
+            }
+        }
+    })
+
+
+def fail_result(url, body, cpsm_response, cpsm_response_code, cpsm_reason, cpsm_reason_code, msg):
+    return {
+        'msg': msg,
+        'failed': True,
+        'changed': False,
+        'connect_version': '0560',
+        'cpsm_reason': cpsm_reason,
+        'cpsm_reason_code': cpsm_reason_code,
+        'cpsm_response': cpsm_response,
+        'cpsm_response_code': cpsm_response_code,
+        'http_status': 'OK',
+        'http_status_code': 200,
+        'request': {
+            'url': url,
+            'method': 'PUT',
+            'body': body
+        },
+        'record_count': 3
+    }
+
+
+def ok_result(url, record, body):
     return {
         'changed': True,
         'connect_version': '0560',

@@ -50,6 +50,15 @@ class CMCITestHelper:
             **kwargs
         )
 
+    def stub_non_ok_records(self, method, resource_type, feedback, *args, **kwargs):
+        return self.stub_cmci(
+            method,
+            resource_type,
+            *args,
+            response_dict=create_feedback_response(feedback),
+            **kwargs
+        )
+
     def stub_cmci(self, method, resource_type, scheme='https', host=HOST, port=PORT,
                   context=CONTEXT, scope=None, parameters='', response_dict=None,
                   headers=None, status_code=200, reason='OK',
@@ -172,6 +181,21 @@ def create_records_response(resource_type, records):  # type: (str, List) -> Ord
             )
         ))
     )
+
+
+def create_feedback_response(errors):  # type: (str, List) -> OrderedDict
+    # Convert to ordered dict, with @ sign for attribute prefix
+    return create_cmci_response(
+        ('resultsummary', od(
+            ('@api_response1', '1038'),
+            ('@api_response2', '1361'),
+            ('@api_response1_alt', 'TABLEERROR'),
+            ('@api_response2_alt', 'DATAERROR'),
+            ('@recordcount', str(len(errors))),
+            ('@displayed_recordcount', str(len(errors)))
+        ))
+    )
+
 
 
 def create_cmci_response(*args):  # type () -> OrderedDict
