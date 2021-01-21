@@ -72,7 +72,7 @@
                 value: '{{ program }}'
               - attribute: CSDGROUP
                 value: '{{ csdgroup }}'
-          parameters:
+          get_parameters:
             - name: 'CSDGROUP'
               value: '{{ csdgroup }}'
       register: result
@@ -87,7 +87,7 @@
         attributes:
           name: '{{ program }}'
           csdgroup: '{{ csdgroup }}'
-        parameters:
+        create_parameters:
           - name: 'CSD'
       register: result
 
@@ -109,7 +109,7 @@
         resources:
           filter:
             NAME: '{{ program }}'
-          parameters:
+          get_parameters:
             - name: 'CSDGROUP'
               value: '{{ csdgroup }}'
       register: result
@@ -131,7 +131,7 @@
         resources:
           filter:
             NAME: '{{ program }}'
-          parameters:
+          get_parameters:
             - name: 'CSDGROUP'
               value: '{{ csdgroup }}'
       register: result
@@ -217,7 +217,7 @@
         resources:
           filter:
             NAME: '{{ program }}'
-          parameters:
+          get_parameters:
             - name: 'CSDGROUP'
               value: '{{ csdgroup }}'
       register: result

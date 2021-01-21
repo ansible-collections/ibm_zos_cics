@@ -48,7 +48,7 @@ def test_csd_install(cmci_module):  # type: (CMCITestHelper) -> None
         'type': 'cicsdefinitionbundle',
         'action_name': 'CSDINSTALL',
         'resources': {
-            'parameters': [{'name': 'CSDGROUP', 'value': '*'}]
+            'get_parameters': [{'name': 'CSDGROUP', 'value': '*'}]
         }
     })
 
@@ -140,7 +140,7 @@ def test_install_csd_criteria_parameter(cmci_module):  # type: (CMCITestHelper) 
                     }
                 ]
             },
-            'parameters': [{'name': 'CSDGROUP', 'value': 'DUMMY'}]
+            'get_parameters': [{'name': 'CSDGROUP', 'value': 'DUMMY'}]
         }
     })
 
@@ -190,7 +190,7 @@ def test_bas_install_params(cmci_module):  # type: (CMCITestHelper) -> None
         'context': CONTEXT,
         'type': 'cicsdefinitionbundle',
         'action_name': 'INSTALL',
-        'parameters': [
+        'action_parameters': [
             {'name': 'FORCEINS', 'value': 'NO'},
             {'name': 'USAGE', 'value': 'LOCAL'}
         ]

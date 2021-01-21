@@ -22,7 +22,6 @@ author: IBM
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.cmci.COMMON
   - ibm.ibm_zos_cics.cmci.RESOURCES
-  - ibm.ibm_zos_cics.cmci.PARAMETERS
 options:
   action_name:
     description: >
@@ -32,6 +31,25 @@ options:
       U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html)
     type: str
     required: true
+  action_parameters:
+    description: >
+      A list of one or more parameters for the action.  Eligible actions and  parameters for the target action are
+      listed in the PERFORM SET operation section found in the resource table reference for the target resource type.
+      For example, the valid parameters for identifying a PROGDEF CSDCOPY action are AS_RESOURCE, DUPACTION and
+      TO_CSDGROUP, as found in the L(PROGDEF resource table reference,
+      https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
+    type: list
+    elements: dict
+    suboptions:
+      name:
+        description: Parameter name
+        required: true
+        type: str
+      value:
+        description: Parameter value if any.  Can be omitted for flag-style parameters
+        required: false
+        type: str
+    required: false
 '''
 
 
@@ -217,7 +235,7 @@ request:
 
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
-    AnsibleCMCIModule, RESOURCES_ARGUMENT, PARAMETERS_ARGUMENT
+    AnsibleCMCIModule, RESOURCES_ARGUMENT, parameters_argument
 )
 
 from typing import Dict, Optional
@@ -225,6 +243,7 @@ from collections import OrderedDict
 
 
 ACTION_NAME = 'action_name'
+ACTION_PARAMETERS = 'action_parameters'
 
 
 class AnsibleCMCIInstallModule(AnsibleCMCIModule):
@@ -242,13 +261,13 @@ class AnsibleCMCIInstallModule(AnsibleCMCIModule):
             }
         })
         argument_spec.update(RESOURCES_ARGUMENT)
-        argument_spec.update(PARAMETERS_ARGUMENT)
+        argument_spec.update(parameters_argument(ACTION_PARAMETERS))
         return argument_spec
 
     def init_body(self):  # type: () -> Optional[Dict]
 
         action = OrderedDict({'@name': self._p.get(ACTION_NAME)})
-        self.append_parameters(action)
+        self.append_parameters(ACTION_PARAMETERS, action)
         return {
             'request': {
                 'action': action

@@ -6,9 +6,8 @@ from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 
-
 from ansible.module_utils.basic import AnsibleModule, missing_required_lib, env_fallback
-from typing import Optional, Dict
+from typing import Optional, Dict, Any
 from itertools import chain
 from collections import OrderedDict
 from sys import version_info
@@ -39,7 +38,6 @@ SCOPE = 'scope'
 RESOURCES = 'resources'
 TYPE = 'type'
 ATTRIBUTES = 'attributes'
-PARAMETERS = 'parameters'
 NAME = 'name'
 VALUE = 'value'
 FILTER = 'filter'
@@ -47,23 +45,7 @@ COMPLEX_FILTER = 'complex_filter'
 SCHEME = 'scheme'
 INSECURE = 'insecure'
 
-PARAMETERS_ARGUMENT = {
-    PARAMETERS: {
-        'type': 'list',
-        'required': False,
-        'elements': 'dict',
-        'options': {
-            NAME: {
-                'type': 'str',
-                'required': True
-            },
-            # Value is not required for flag-type parameters like CSD
-            VALUE: {
-                'type': 'str'
-            }
-        }
-    }
-}
+GET_PARAMETERS = 'get_parameters'
 
 ATTRIBUTE_ARGUMENTS = {
     'attribute': {
@@ -83,7 +65,7 @@ ATTRIBUTE_ARGUMENTS = {
 }
 
 
-def _cf_child(children):
+def _cf_child(children):  # type: (dict[str, Any]) -> dict[str, Any]
     return {
         'required': False,
         'required_together': [('attribute', 'value')],
@@ -104,6 +86,7 @@ def _cf_options(children):
         'elements': 'dict',
     }
 
+    # These warnings are a PyCharm bug: https://youtrack.jetbrains.com/issue/PY-43664
     and_list = {'and': dict(chain(basic_list_dict.items(), _cf_child(children).items()))}
     or_list = {'or': dict(chain(basic_list_dict.items(), _cf_child(children).items()))}
     return dict(chain(ATTRIBUTE_ARGUMENTS.items(), and_list.items(), or_list.items()))
@@ -112,7 +95,28 @@ def _cf_options(children):
 def _complex_filter():
     children = _cf_child(_cf_options(_cf_options(_cf_options(ATTRIBUTE_ARGUMENTS))))
     base_type = {'type': 'dict'}
+    # This warning is a PyCharm bug: https://youtrack.jetbrains.com/issue/PY-43664
     return dict(chain(children.items(), base_type.items()))
+
+
+def parameters_argument(name):  # type: (str) -> Dict[str, Any]
+    return {
+        name: {
+            'type': 'list',
+            'required': False,
+            'elements': 'dict',
+            'options': {
+                NAME: {
+                    'type': 'str',
+                    'required': True
+                },
+                # Value is not required for flag-type parameters like CSD
+                VALUE: {
+                    'type': 'str'
+                }
+            }
+        }
+    }
 
 
 RESOURCES_ARGUMENT = {
@@ -125,7 +129,7 @@ RESOURCES_ARGUMENT = {
                 'required': False
             },
             COMPLEX_FILTER: _complex_filter(),
-            PARAMETERS: PARAMETERS_ARGUMENT.get(PARAMETERS)
+            GET_PARAMETERS: parameters_argument(GET_PARAMETERS).get(GET_PARAMETERS)
         }
     }
 }
@@ -158,7 +162,7 @@ class AnsibleCMCIModule(object):
         self._p = self.init_p()  # type: dict
         self._session = self.init_session()  # type: requests.Session
         self._url = self.init_url()  # type: str
-        # TODO: can this fail?
+
         # full_document=False suppresses the xml prolog, which CMCI doesn't like
         body_dict = self.init_body()
         self._body = xmltodict.unparse(self.init_body(), full_document=False) if body_dict else None  # type: str
@@ -168,8 +172,8 @@ class AnsibleCMCIModule(object):
         if request_params:
             if version_info.major <= 2:
                 # This is a workaround for python 2, where we can't specify the encoding as a parameter in urlencode
-                # Store the quote_plus setting, then override it with quote, so that spaces will be encoded as %20 instead of +
-                # Then set the quote_plus value back so we haven't changed the behaviour long term
+                # Store the quote_plus setting, then override it with quote, so that spaces will be encoded as %20
+                # instead of + Then set the quote_plus value back so we haven't changed the behaviour long term
                 default_quote_plus = urllib.quote_plus
                 urllib.quote_plus = urllib.quote
                 self._url = self._url + \
@@ -179,11 +183,10 @@ class AnsibleCMCIModule(object):
             else:
                 # If running at python 3 and above
                 self._url = self._url + \
-                            "?" + \
-                            urllib.parse.urlencode(requests.utils.to_key_val_list(request_params),
-                                                   quote_via=urllib.parse.quote)
-                
-            #url encoding means that the != filter operator is encoded as %C2%AC%3D, which CMCI doesn't accept
+                    "?" + \
+                    urllib.parse.urlencode(requests.utils.to_key_val_list(request_params), quote_via=urllib.parse.quote)
+
+            # url encoding means that the != filter operator is encoded as %C2%AC%3D, which CMCI doesn't accept
             self._url = self._url.replace('%C2%AC%3D', '%AC%3D')
 
         result_request = {
@@ -284,7 +287,6 @@ class AnsibleCMCIModule(object):
     def validate(self, name, regex, message):  # type: (str, str, str) -> None
         value = self._module.params.get(name)
         if value:
-            pattern = re.compile(regex)
 
             # Emulate python-3.4 re.fullmatch()
             if not re.match(regex, value, flags=0):
@@ -316,7 +318,6 @@ class AnsibleCMCIModule(object):
             if '@successcount' in result_summary:
                 self.result['success_count'] = int(result_summary['@successcount'])
 
-            # TODO: maybe only allow this bit in results that will definitely include records
             if 'records' in response_node:
                 records_node = response_node['records']
                 resource_type = self._p[TYPE].lower()
@@ -399,7 +400,7 @@ class AnsibleCMCIModule(object):
 
                 request_params['CRITERIA'] = complex_filter_string
 
-            parameters = resources.get(PARAMETERS)
+            parameters = resources.get(GET_PARAMETERS)
             if parameters:
                 def mapper(p):
                     return p.get('name') + '(' + p.get('value') + ')' if p.get('value') else p.get('name')
@@ -493,9 +494,9 @@ class AnsibleCMCIModule(object):
                 traceback.format_exc()
             )
 
-    def append_parameters(self, element):
+    def append_parameters(self, name, element):  # type: (str, OrderedDict) -> None
         # Parameters are <parameter name="pname" value="pvalue" />
-        parameters = self._p.get(PARAMETERS)
+        parameters = self._p.get(name)
         if parameters:
             ps = []
             for p in parameters:

@@ -126,7 +126,7 @@ context
   The value of *context* must contain no spaces. *context* is not case-sensitive.
 
 
-  | **required**: false
+  | **required**: True
   | **type**: str
 
 
@@ -137,35 +137,6 @@ insecure
 
   | **required**: False
   | **type**: bool
-
-
-     
-parameters
-  A list of one or more parameters for the target operation.  TODO should we document this parameter separately for each operation?  E.g. might be easier to show how to find the parameters for an action distinct from create... TODO Provide an example of how to use flag style parameters
-
-
-
-  | **required**: False
-  | **type**: list
-
-
-     
-  name
-    Parameter name
-
-
-    | **required**: True
-    | **type**: str
-
-
-     
-  value
-    Parameter value if any
-
-
-    | **required**: False
-    | **type**: str
-
 
 
      
@@ -187,7 +158,7 @@ resources
 
 
     | **required**: False
-    | **type**: str
+    | **type**: dict
 
 
      
@@ -203,7 +174,7 @@ resources
 
      
     operator
-      These operators are accepted: ``<`` or ``LT`` (less than), ``<=`` or ``LE`` (less than or equal to), ``=`` or ``EQ`` (equal to), ``>`` or ``GT`` (greater than), ``>=`` or ``GE`` (greater than or equal to), ``==`` or ``IS`` (is), ``¬=``, ``!=``, or ``NE`` (not equal to). 
+      These operators are accepted: ``<`` or ``LT`` (less than), ``<=`` or ``LE`` (less than or equal to), ``=`` or ``EQ`` (equal to), ``>`` or ``GT`` (greater than), ``>=`` or ``GE`` (greater than or equal to), ``==`` or ``IS`` (is), ``¬=``, ``!=``, or ``NE`` (not equal to).
 
 
 
@@ -237,12 +208,12 @@ resources
 
 
     | **required**: False
-    | **type**: str
+    | **type**: dict
 
 
      
-  parameters
-    A list of one or more parameters with optional values used to identify the resources for this request. Eligible parameters for identifying the target resources can be found in the resource table reference for the  target resource type, as valid parameters for the GET operation in the "Valid CPSM operations" table.  For example, the valid parameters for identifying a PROGDEF resource are CICSSYS, CSDGROUP and RESGROUP, as found in the `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
+  get_parameters
+    A list of one or more parameters with optional values used to identify the resources for this request. Eligible parameters for identifying the target resources can be found in the resource table reference for the target resource type, as valid parameters for the GET operation in the "Valid CPSM operations" table. For example, the valid parameters for identifying a PROGDEF resource are CICSSYS, CSDGROUP and RESGROUP, as found in the `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
 
 
 
@@ -303,6 +274,35 @@ type
 
   | **required**: True
   | **type**: str
+
+
+     
+update_parameters
+  A list of one or more parameters for the update operation.  Eligible parameters for the UPDATE operation can be found in the resource table reference for the target resource type, as valid parameters for the UPDATE operation in the "Valid CPSM operations" table. For example, the valid parameters for a PROGDEF resource UPDATE are CSD and RESGROUP, as found in the `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
+
+
+
+  | **required**: False
+  | **type**: list
+
+
+     
+  name
+    Parameter name
+
+
+    | **required**: True
+    | **type**: str
+
+
+     
+  value
+    Parameter value if any.  Can be omitted for flag-style parameters
+
+
+    | **required**: False
+    | **type**: str
+
 
 
 

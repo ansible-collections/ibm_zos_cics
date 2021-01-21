@@ -56,7 +56,7 @@ def test_csd_update(cmci_module):  # type: (CMCITestHelper) -> None
         'context': CONTEXT,
         'scope': SCOPE,
         'type': 'cicsdefinitionprogram',
-        'parameters': [{
+        'update_parameters': [{
             'name': 'CSD'
         }],
         'attributes': {
@@ -66,7 +66,7 @@ def test_csd_update(cmci_module):  # type: (CMCITestHelper) -> None
             'filter': {
                 'NAME': 'DUMMY'
             },
-            'parameters': [{'name': 'CSDGROUP', 'value': 'DUMMY'}]
+            'get_parameters': [{'name': 'CSDGROUP', 'value': 'DUMMY'}]
         }
     })
 
