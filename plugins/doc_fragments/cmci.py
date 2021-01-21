@@ -174,7 +174,7 @@ options:
                 resource table reference, for example, L(PROGDEF resource table reference,
                 https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
             required: false
-      parameters:
+      get_parameters:
         description: >
           A list of one or more parameters with optional values used to identify the resources for this request.
           Eligible parameters for identifying the target resources can be found in the resource table reference for the
@@ -204,26 +204,5 @@ options:
         target resource type, for example, L(PROGDEF resource table reference,
         https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
     type: dict
-    required: false
-'''
-
-    PARAMETERS = r'''
-options:
-  parameters:
-    description: >
-      A list of one or more parameters for the target operation.  TODO should we document this parameter separately for
-      each operation?  E.g. might be easier to show how to find the parameters for an action distinct from create...
-      TODO Provide an example of how to use flag style parameters
-    type: list
-    elements: dict
-    suboptions:
-      name:
-        description: Parameter name
-        required: true
-        type: str
-      value:
-        description: Parameter value if any
-        required: false
-        type: str
     required: false
 '''

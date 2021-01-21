@@ -23,7 +23,26 @@ extends_documentation_fragment:
   - ibm.ibm_zos_cics.cmci.COMMON
   - ibm.ibm_zos_cics.cmci.RESOURCES
   - ibm.ibm_zos_cics.cmci.ATTRIBUTES
-  - ibm.ibm_zos_cics.cmci.PARAMETERS
+options:
+  update_parameters:
+    description: >
+      A list of one or more parameters for the update operation.  Eligible parameters for the UPDATE operation can be
+      found in the resource table reference for the target resource type, as valid parameters for the UPDATE operation
+      in the "Valid CPSM operations" table. For example, the valid parameters for a PROGDEF resource UPDATE are CSD and
+      RESGROUP, as found in the L(PROGDEF resource table reference,
+      https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
+    type: list
+    elements: dict
+    suboptions:
+      name:
+        description: Parameter name
+        required: true
+        type: str
+      value:
+        description: Parameter value if any.  Can be omitted for flag-style parameters
+        required: false
+        type: str
+    required: false
 '''
 
 
@@ -194,10 +213,12 @@ request:
 
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
-    AnsibleCMCIModule, RESOURCES_ARGUMENT, PARAMETERS_ARGUMENT, ATTRIBUTES_ARGUMENT
+    AnsibleCMCIModule, RESOURCES_ARGUMENT, parameters_argument, ATTRIBUTES_ARGUMENT
 )
 from typing import Optional, Dict
 from collections import OrderedDict
+
+UPDATE_PARAMETERS = 'update_parameters'
 
 
 class AnsibleCMCIUpdateModule(AnsibleCMCIModule):
@@ -209,13 +230,13 @@ class AnsibleCMCIUpdateModule(AnsibleCMCIModule):
         # pylint: disable=super-with-arguments
         argument_spec = super(AnsibleCMCIUpdateModule, self).init_argument_spec()
         argument_spec.update(RESOURCES_ARGUMENT)
-        argument_spec.update(PARAMETERS_ARGUMENT)
+        argument_spec.update(parameters_argument(UPDATE_PARAMETERS))
         argument_spec.update(ATTRIBUTES_ARGUMENT)
         return argument_spec
 
     def init_body(self):  # type: () -> Optional[Dict]
         update = OrderedDict({})
-        self.append_parameters(update)
+        self.append_parameters(UPDATE_PARAMETERS, update)
         self.append_attributes(update)
 
         return {

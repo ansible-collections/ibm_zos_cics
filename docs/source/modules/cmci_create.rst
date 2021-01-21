@@ -126,22 +126,13 @@ context
   The value of *context* must contain no spaces. *context* is not case-sensitive.
 
 
-  | **required**: false
+  | **required**: True
   | **type**: str
 
 
      
-insecure
-  When set to ``true``, disables SSL certificate trust chain verification when using HTTPS.
-
-
-  | **required**: False
-  | **type**: bool
-
-
-     
-parameters
-  A list of one or more parameters for the target operation.  TODO should we document this parameter separately for each operation?  E.g. might be easier to show how to find the parameters for an action distinct from create... TODO Provide an example of how to use flag style parameters
+create_parameters
+  A list of one or more parameters for the create operation.  Eligible parameters for the CREATE operation can be found in the resource table reference for the target resource type, as valid parameters for the CREATE operation in the "Valid CPSM operations" table. For example, the only valid parameter for a PROGDEF resource CREATE is CSD, as found in the `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
 
 
 
@@ -160,12 +151,21 @@ parameters
 
      
   value
-    Parameter value if any
+    Parameter value if any.  Can be omitted for flag-style parameters
 
 
     | **required**: False
     | **type**: str
 
+
+
+     
+insecure
+  When set to ``true``, disables SSL certificate trust chain verification when using HTTPS.
+
+
+  | **required**: False
+  | **type**: bool
 
 
      

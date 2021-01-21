@@ -425,7 +425,7 @@ def test_query_parameter(cmci_module):  # type: (CMCITestHelper) -> None
         'scope': 'IYCWEMW2',
         'type': 'cicsdefinitionfile',
         'resources': {
-            'parameters': [{
+            'get_parameters': [{
                 'name': 'CSDGROUP',
                 'value': '*'
             }]
@@ -456,7 +456,7 @@ def test_query_parameters(cmci_module):  # type: (CMCITestHelper) -> None
         'scope': 'IYCWEMW2',
         'type': 'cicsdefinitionfile',
         'resources': {
-            'parameters': [{
+            'get_parameters': [{
                 'name': 'CSDGROUP',
                 'value': '*'
             }, {
@@ -493,7 +493,7 @@ def test_query_parameter_criteria(cmci_module):  # type: (CMCITestHelper) -> Non
         'scope': 'IYCWEMW2',
         'type': 'cicsdefinitionfile',
         'resources': {
-            'parameters': [{'name': 'CSDGROUP', 'value': '*'}],
+            'get_parameters': [{'name': 'CSDGROUP', 'value': '*'}],
             'filter': {
                 'FOO': 'BAR'
             }

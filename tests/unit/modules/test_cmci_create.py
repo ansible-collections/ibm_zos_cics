@@ -58,7 +58,7 @@ def test_csd_create(cmci_module):  # type: (CMCITestHelper) -> None
         context=CONTEXT,
         scope='IYCWEMW2',
         type='cicsdefinitionbundle',
-        parameters=[dict(
+        create_parameters=[dict(
             name='CSD'
         )],
         attributes=record
@@ -110,7 +110,7 @@ def test_bas_create(cmci_module):  # type: (CMCITestHelper) -> None
         context=CONTEXT,
         scope='IYCWEMW2',
         type='cicsdefinitionbundle',
-        parameters=[dict(
+        create_parameters=[dict(
             name='BAS'
         )],
         attributes=record
