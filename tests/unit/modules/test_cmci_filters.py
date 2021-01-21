@@ -138,11 +138,11 @@ def test_complex_filter_or(cmci_module):  # type: (CMCITestHelper) -> None
 def test_complex_filter_operator(cmci_module):  # type: (CMCITestHelper) -> None
     records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
     cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE,
-                             parameters='?CRITERIA=%28FOO%AC%3D%27BAR%27%29')
+                             parameters='?CRITERIA=%28NOT%28FOO%3D%3D%27BAR%27%29%29')
 
     cmci_module.expect(result(
         'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
-        'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=%28FOO%AC%3D%27BAR%27%29',
+        'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=%28NOT%28FOO%3D%3D%27BAR%27%29%29',
         records=records
     ))
 
