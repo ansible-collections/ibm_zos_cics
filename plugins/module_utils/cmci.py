@@ -173,7 +173,7 @@ class AnsibleCMCIModule(object):
             if version_info.major <= 2:
                 # This is a workaround for python 2, where we can't specify the encoding as a parameter in urlencode
                 # Store the quote_plus setting, then override it with quote, so that spaces will be encoded as %20
-                # instead of + Then set the quote_plus value back so we haven't changed the behaviour long term
+                # instead of +. Then set the quote_plus value back so we haven't changed the behaviour long term
                 default_quote_plus = urllib.quote_plus
                 urllib.quote_plus = urllib.quote
                 self._url = self._url + \
@@ -186,8 +186,6 @@ class AnsibleCMCIModule(object):
                     "?" + \
                     urllib.parse.urlencode(requests.utils.to_key_val_list(request_params), quote_via=urllib.parse.quote)
 
-            # url encoding means that the != filter operator is encoded as %C2%AC%3D, which CMCI doesn't accept
-            self._url = self._url.replace('%C2%AC%3D', '%AC%3D')
 
         result_request = {
             'url': self._url,
@@ -395,8 +393,15 @@ class AnsibleCMCIModule(object):
                 if attribute_item is not None:
                     operator = _convert_filter_operator(complex_filter['operator'])
                     value = complex_filter['value']
-                    complex_filter_string = _append_filter_string(complex_filter_string,
-                                                                  attribute_item + operator + '\'' + value + '\'')
+
+                    if operator == '¬=':
+                        #provides a filter string in the format NOT(FOO=='BAR')
+                        complex_filter_string = _append_filter_string(complex_filter_string,
+                                                                      'NOT(' + attribute_item + '==' + '\'' +
+                                                                      value + '\'' + ')')
+                    else:
+                        complex_filter_string = _append_filter_string(complex_filter_string,
+                                                                      attribute_item + operator + '\'' + value + '\'')
 
                 request_params['CRITERIA'] = complex_filter_string
 
