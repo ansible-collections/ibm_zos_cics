@@ -41,6 +41,15 @@ class CMCITestHelper:
             **kwargs
         )
 
+    def stub_non_ok_delete(self, resource_type, error_count, *args, **kwargs):
+        return self.stub_cmci(
+            'DELETE',
+            resource_type,
+            response_dict=create_delete_bad_response(error_count),
+            *args,
+            **kwargs
+        )
+
     def stub_records(self, method, resource_type, records, *args, **kwargs):
         return self.stub_cmci(
             method,
@@ -158,6 +167,19 @@ def create_delete_response(success_count):  # type: (int) -> OrderedDict
             ('@api_response2_alt', ''),
             ('@recordcount', str(success_count)),
             ('@successcount', str(success_count))
+        ))
+    )
+
+
+def create_delete_bad_response(error_count):  # type: (str, List) -> OrderedDict
+    return create_cmci_response(
+        ('resultsummary', od(
+            ('@api_response1', '1038'),
+            ('@api_response2', '1361'),
+            ('@api_response1_alt', 'TABLEERROR'),
+            ('@api_response2_alt', 'DATAERROR'),
+            ('@recordcount', str(error_count)),
+            ('@displayed_recordcount', str(error_count))
         ))
     )
 
