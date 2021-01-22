@@ -180,6 +180,57 @@ def test_delete_csd(cmci_module):  # type: (CMCITestHelper) -> None
     })
 
 
+def test_non_ok_delete(cmci_module):
+    cmci_module.stub_non_ok_delete(
+        'cicsresourcedescription',
+        3,
+        parameters="?CRITERIA=%28RESDESC%3D%27BASICB1%27%29"
+    )
+
+    cmci_module.expect(fail_result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsresourcedescription/'
+        'CICSEX56/?CRITERIA=%28RESDESC%3D%27BASICB1%27%29',
+        'TABLEERROR',
+        1038,
+        'DATAERROR',
+        1361,
+        'CMCI request failed with response "TABLEERROR" reason "DATAERROR"'
+    ))
+
+    cmci_module.run(cmci_delete, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicsresourcedescription',
+        'resources': {
+            'filter': {
+                'RESDESC': 'BASICB1'
+            }
+        }
+    })
+
+
+def fail_result(url, cpsm_response, cpsm_response_code, cpsm_reason, cpsm_reason_code, msg):
+    return {
+        'msg': msg,
+        'failed': True,
+        'changed': False,
+        'connect_version': '0560',
+        'cpsm_reason': cpsm_reason,
+        'cpsm_reason_code': cpsm_reason_code,
+        'cpsm_response': cpsm_response,
+        'cpsm_response_code': cpsm_response_code,
+        'http_status': 'OK',
+        'http_status_code': 200,
+        'request': {
+            'url': url,
+            'method': 'DELETE',
+            'body': None
+        },
+        'record_count': 3
+    }
+
+
 def result(url, success_count):
     return {
         'changed': True,
