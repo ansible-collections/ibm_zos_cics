@@ -4,3 +4,4 @@
 set -eux # This is important to ensure that return codes from failing tests are propagated
 ansible-playbook -e "@cmci-variables.yml" playbooks/cics_cmci.yml
 ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_insecure_false.yml
+ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_incorrect_port.yml

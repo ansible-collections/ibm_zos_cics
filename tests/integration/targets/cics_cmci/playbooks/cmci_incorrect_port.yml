@@ -1,0 +1,32 @@
+# Copyright (c) IBM Corporation 2020
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name:  CMCI Integration Test
+  collections:
+   - ibm.ibm_zos_cics
+  hosts: 'localhost'
+  gather_facts: 'false'
+
+  tasks:
+    - name: test incorrect port
+      ibm.ibm_zos_cics.cmci_get:
+        cmci_host: '{{ cmci_host }}'
+        cmci_port: 12345
+        cmci_user: '{{ cmci_user }}'
+        cmci_password: '{{ cmci_password }}'
+        context: '{{ context }}'
+        scope: '{{ scope }}'
+        type: 'cicsprogram'
+      failed_when: false
+      register: result
+
+    - name: debug
+      debug:
+        msg: '{{ result.msg[:76] }} ... {{ result.msg[94:] }}'
+
+    - name: assert
+      assert:
+        that:
+          - result.failed is false
+          - '{{  result.msg[:76] == "Error performing CMCI request: <urllib3.connection.HTTPSConnection object at" }}'
+          - '{{  result.msg[94:] == "Failed to establish a new connection: [Errno 61] Connection refused" }}'
