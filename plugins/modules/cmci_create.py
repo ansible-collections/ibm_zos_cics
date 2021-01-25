@@ -26,20 +26,22 @@ extends_documentation_fragment:
 options:
   create_parameters:
     description: >
-      A list of one or more parameters for the create operation.  Eligible parameters for the CREATE operation can be
-      found in the resource table reference for the target resource type, as valid parameters for the CREATE operation
-      in the "Valid CPSM operations" table. For example, the only valid parameter for a PROGDEF resource CREATE is CSD,
-      as found in the L(PROGDEF resource table reference,
+      A list of one or more parameters that control the I(create) operation. Eligible parameters for the CREATE operation
+      can be found in the resource table reference for the target resource type, as listed in the CREATE operation
+      section of the "Valid CPSM operations" table. For example, the only valid parameter for a PROGDEF CREATE operation
+      is CSD, as found in the L(PROGDEF resource table reference,
       https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
     type: list
     elements: dict
     suboptions:
       name:
-        description: Parameter name
+        description: Parameter name for the CREATE operation.
         required: true
         type: str
       value:
-        description: Parameter value if any.  Can be omitted for flag-style parameters
+        description: Parameter value if any. Can be omitted if the parameter requires no value to be supplied, as shown
+          in the resource table reference. For example, the CSD parameter for the PROGDEF CREATE operation 
+          doesn't require a value.
         required: false
         type: str
     required: false
