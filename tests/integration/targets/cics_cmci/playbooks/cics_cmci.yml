@@ -176,6 +176,19 @@
         resources:
           filter:
             PROGRAM: '{{ program }}'
+          complex_filter:
+            and:
+              - attribute: 'PROGRAM'
+                operator: '='
+                value: '{{ program }}'
+              - or:
+                  - attribute: 'USECOUNT'
+                    operator: '!='
+                    value: '0'
+                  - attribute: 'USECOUNT'
+                    operator: 'LT'
+                    value: '1'
+
       register: result
 
     - name: debug 2
