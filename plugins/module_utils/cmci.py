@@ -395,7 +395,7 @@ class AnsibleCMCIModule(object):
                     value = complex_filter['value']
 
                     if operator == '¬=':
-                        #provides a filter string in the format NOT(FOO=='BAR')
+                        # Provides a filter string in the format NOT(FOO=='BAR')
                         complex_filter_string = _append_filter_string(complex_filter_string,
                                                                       'NOT(' + attribute_item + '==' + '\'' +
                                                                       value + '\'' + ')')
@@ -558,7 +558,13 @@ def _get_filter(list_of_filters, complex_filter_string, joiner):
         if attribute is not None:
             operator = _convert_filter_operator(i.get('operator'))
             value = i.get('value')
-            attribute_filter_string = attribute + operator + '\'' + value + '\''
+
+            if operator == '¬=':
+                # Provides a filter string in the format NOT(FOO=='BAR')
+                attribute_filter_string = 'NOT(' + attribute + '==' + '\'' + value + '\'' + ')'
+            else:
+                attribute_filter_string = attribute + operator + '\'' + value + '\''
+
             complex_filter_string = _append_filter_string(complex_filter_string, attribute_filter_string, joiner)
 
     return complex_filter_string
