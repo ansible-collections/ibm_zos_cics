@@ -445,17 +445,7 @@ class AnsibleCMCIModule(object):
             self.result['http_status_code'] = response.status_code
             self.result['http_status'] = response.reason if response.reason else str(response.status_code)
 
-            # TODO: in OK responses CPSM sometimes returns error feedback information.
-
-            # TODO: in non-OK responses CPSM returns a body with error information
-            #  Can recreate this by supplying a malformed body with a create request.
-            #  We should surface this error information somehow.  Not sure what content type we get.
             if response.status_code != 200:
-                # TODO: <?xml version=\"1.0\" encoding=\"UTF-8\"?> \r\n<error message_id=\"DFHWU4007\" connect_version=
-                #  \"0560\">\r\n\t<title> 400 CICS management client interface HTTP Error</title>\r\n\t<short>An error
-                #  has occurred in the CICS management client interface. The request cannot be processed.</short>\r\n\t
-                #  <full> The body of the HTTP request was not specified correctly.</full> \r\n</error>
-                #  This sort of thing's probably relevant for warning count errors too
                 self._fail('CMCI request returned non-OK status: {0}'.format(self.result.get('http_status')))
 
             # Try and parse the XML response body into a dict
