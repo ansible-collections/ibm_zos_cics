@@ -1,0 +1,32 @@
+# Copyright (c) IBM Corporation 2020
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name:  CMCI Integration Test
+  collections:
+   - ibm.ibm_zos_cics
+  hosts: 'localhost'
+  gather_facts: 'false'
+
+  tasks:
+    - name: test invalid scope
+      ibm.ibm_zos_cics.cmci_get:
+        cmci_host: '{{ cmci_host }}'
+        cmci_port: '{{ cmci_port }}'
+        cmci_user: '{{ cmci_user }}'
+        cmci_password: '{{ cmci_password }}'
+        insecure: true
+        context: '{{ context }}'
+        scope: 'invalid'
+        type: 'cicsprogram'
+      failed_when: false
+      register: result
+
+    - name: debug
+      debug:
+        msg: '{{ result.msg }}'
+
+    - name: assert
+      assert:
+        that:
+          - result.failed is false
+          - result.msg == "CMCI request failed with response \"INVALIDPARM\" reason \"SCOPE\""
