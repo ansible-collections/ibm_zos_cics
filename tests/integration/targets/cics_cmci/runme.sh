@@ -8,3 +8,4 @@ ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_incorrect_port.yml
 ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_incorrect_host.yml
 ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_invalid_credentials.yml
 ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_incorrect_scope.yml
+ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_incorrect_context.yml
