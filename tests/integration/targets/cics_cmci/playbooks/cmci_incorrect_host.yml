@@ -23,7 +23,7 @@
 
     - name: debug
       debug:
-        msg: '{{ result.msg }}'
+        msg: '{{ result.msg[:76] }} ... {{ result.msg[91:] }}'
 
     - name: assert
       assert:

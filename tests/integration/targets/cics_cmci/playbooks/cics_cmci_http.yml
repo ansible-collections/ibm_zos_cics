@@ -1,0 +1,251 @@
+# Copyright (c) IBM Corporation 2020
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name:  CMCI Integration Test
+  collections:
+   - ibm.ibm_zos_cics
+  hosts: 'localhost'
+  gather_facts: 'false'
+  vars:
+    csdgroup: 'HTTPTEST'
+    program: 'HTTPTEST'
+    http_port: 28953
+    http_scope: IYCWEMW1
+
+  module_defaults:
+    ibm.ibm_zos_cics.cmci_get:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ http_port }}'
+      cmci_user: '{{ cmci_user }}'
+      cmci_password: '{{ cmci_password }}'
+      context: '{{ context }}'
+      scope: '{{ http_scope }}'
+      insecure: true
+      scheme: 'http'
+
+
+    ibm.ibm_zos_cics.cmci_update:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ http_port }}'
+      cmci_user: '{{ cmci_user }}'
+      cmci_password: '{{ cmci_password }}'
+      context: '{{ context }}'
+      scope: '{{ http_scope }}'
+      insecure: true
+      scheme: 'http'
+
+
+    ibm.ibm_zos_cics.cmci_delete:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ http_port }}'
+      cmci_user: '{{ cmci_user }}'
+      cmci_password: '{{ cmci_password }}'
+      context: '{{ context }}'
+      scope: '{{ http_scope }}'
+      insecure: true
+      scheme: 'http'
+
+
+    ibm.ibm_zos_cics.cmci_action:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ http_port }}'
+      cmci_user: '{{ cmci_user }}'
+      cmci_password: '{{ cmci_password }}'
+      context: '{{ context }}'
+      scope: '{{ http_scope }}'
+      insecure: true
+      scheme: 'http'
+
+
+    ibm.ibm_zos_cics.cmci_create:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ http_port }}'
+      cmci_user: '{{ cmci_user }}'
+      cmci_password: '{{ cmci_password }}'
+      context: '{{ context }}'
+      scope: '{{ http_scope }}'
+      insecure: true
+      scheme: 'http'
+
+  tasks:
+    - name: 'HTTP Delete progdef'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_delete:
+        type: 'CICSDefinitionProgram'
+        resources:
+          complex_filter:
+            and:
+              - attribute: NAME
+                value: '{{ program }}'
+              - attribute: CSDGROUP
+                value: '{{ csdgroup }}'
+          get_parameters:
+            - name: 'CSDGROUP'
+              value: '{{ csdgroup }}'
+      register: result
+      failed_when: >
+        'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
+
+
+    - name: 'HTTP Create progdef'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_create:
+        type: 'CICSDefinitionProgram'
+        attributes:
+          name: '{{ program }}'
+          csdgroup: '{{ csdgroup }}'
+        create_parameters:
+          - name: 'CSD'
+      register: result
+
+    - name: assert 1
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].name == program
+
+
+    - name: 'HTTP Update progdef'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_update:
+        type: 'CICSDefinitionProgram'
+        attributes:
+          description: 'foo'
+        resources:
+          filter:
+            NAME: '{{ program }}'
+          get_parameters:
+            - name: 'CSDGROUP'
+              value: '{{ csdgroup }}'
+      register: result
+
+    - name: assert 2
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].description == 'foo'
+
+
+    - name: 'HTTP Install program'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_action:
+        type: 'CICSDefinitionProgram'
+        action_name: 'CSDINSTALL'
+        resources:
+          filter:
+            NAME: '{{ program }}'
+          get_parameters:
+            - name: 'CSDGROUP'
+              value: '{{ csdgroup }}'
+      register: result
+
+    - name: assert 3
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+
+
+    - name: 'HTTP Check program was installed'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_get:
+        type: 'CICSProgram'
+        resources:
+          filter:
+            PROGRAM: '{{ program }}'
+      retries: 3  # May take a while to install, so give it a chance!
+      until: result is not failed
+      register: result
+
+    - name: assert 4
+      assert:
+        that:
+          - result is not changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].program == program
+
+    - name: debug 1
+      debug:
+        msg: "{{ result }}"
+
+    - name: 'HTTP Disable program'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_update:
+        type: 'CICSProgram'
+        attributes:
+          status: 'disabled'
+        resources:
+          filter:
+            PROGRAM: '{{ program }}'
+          complex_filter:
+            and:
+              - attribute: 'PROGRAM'
+                operator: '='
+                value: '{{ program }}'
+              - or:
+                  - attribute: 'USECOUNT'
+                    operator: '!='
+                    value: '0'
+                  - attribute: 'USECOUNT'
+                    operator: 'LT'
+                    value: '1'
+
+      register: result
+
+    - name: debug 2
+      debug:
+        msg: "{{ result }}"
+
+    - name: assert 5
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].program == program
+          - result.records[0].status == 'DISABLED'
+
+
+    - name: 'HTTP Delete program'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_delete:
+        type: 'CICSProgram'
+        resources:
+          filter:
+            PROGRAM: '{{ program }}'
+      register: result
+
+    - name: assert 6
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.success_count == 1
+
+
+    - name: 'HTTP Delete progdef'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_delete:
+        type: 'CICSDefinitionProgram'
+        resources:
+          filter:
+            NAME: '{{ program }}'
+          get_parameters:
+            - name: 'CSDGROUP'
+              value: '{{ csdgroup }}'
+      register: result
+
+    - name: assert 7
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.success_count == 1
