@@ -22,11 +22,11 @@
 
     - name: debug
       debug:
-        msg: '{{ result.msg[:76] }} ... {{ result.msg[94:] }}'
+        msg: '{{ result.msg[:76] }} ... {{ result.msg[-67:] }}'
 
     - name: assert
       assert:
         that:
           - result.failed is false
           - '{{  result.msg[:76] == "Error performing CMCI request: <urllib3.connection.HTTPSConnection object at" }}'
-          - '{{  result.msg[94:] == "Failed to establish a new connection: [Errno 61] Connection refused" }}'
+          - '{{  result.msg[-67:] == "Failed to establish a new connection: [Errno 61] Connection refused" }}'
