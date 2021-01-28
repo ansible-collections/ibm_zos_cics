@@ -10,3 +10,4 @@ ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_invalid_credentials.yml
 ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_incorrect_scope.yml
 ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_incorrect_context.yml
 ansible-playbook -e "@cmci-variables.yml" playbooks/cics_cmci_http.yml
+ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_create_bundle_failure.yml
