@@ -1,10 +1,4 @@
-# How to contribute
-
-Thank you for contributing to this project.
-
-We welcome bug reports and discussions about new function in the issue tracker, and we also welcome proposed new features or bug fixes via pull requests.
-
-You should read these guidelines to help you contribute.
+# Developer guide
 
 ## Reporting a bug
 

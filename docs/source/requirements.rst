@@ -11,8 +11,7 @@ The nodes listed below require these specific versions of software:
 Control node
 ------------
 
-A control node is any machine with Ansible® installed. From the control node,
-you can run commands and playbooks from a laptop, desktop, or server. The following software must be installed on the control node.
+A control node is any machine with Ansible® installed. You can run commands and playbooks from a control noede, be it a laptop, desktop, or server. The following software must be installed on the control node.
 
 .. note:: The IBM® z/OS® CICS® collection cannot run on a Windows system.
 
@@ -33,7 +32,7 @@ you can run commands and playbooks from a laptop, desktop, or server. The follow
 Managed node
 ------------
 
-The CMCI tasks in the IBM z/OS CICS collection interact with the managed node over an HTTP connection by leveraging the `CMCI REST API`_. Therefore, you don't need to run the CMCI tasks on the managed node. You need, in this case, to delegate Ansible tasks to run on the local control node, for example, by specifying ``delegate_to: 'localhost'`` for the tasks in the playbook. For detailed requirements, see :doc:`requirements_managed`.
+The CMCI tasks in the IBM z/OS CICS collection interact with the managed node over an HTTP connection by leveraging the `CMCI REST API`_. Therefore, an SSH connection is not necessary. Instead, you can delegate the CMCI tasks to run on the control node directly, for example, by specifying ``delegate_to: 'localhost'`` for the tasks in the playbook. For detailed requirements, see :doc:`requirements_managed`.
 
 
 .. toctree::

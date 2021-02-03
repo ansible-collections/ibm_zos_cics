@@ -6,13 +6,19 @@
 Contributing
 ============
 
-Thank you for contributing to this project.
+We are not currently accepting community contributions. However, we encourage you to open `git issues`_ for bugs, comments or feature requests.
 
-We welcome bug reports and discussions about new function in the issue tracker, and we also welcome proposed new features or bug fixes via pull requests.
+Review this content periodically to learn when and how to make contributions in the future. For the latest information on open issues, see: `git issues`_.
 
-For contribution guidelines, see `How to contribute`_.
 
-.. _How to contribute:
+Development
+===========
+
+For a developer guide on how to develop and run test cases for IBM® z/OS® CICS® collection, see `Developer guide`_.
+
+.. _git issues:
+   https://github.com/ansible-collections/ibm_zos_cics/issues
+.. _Developer guide:
    https://github.com/ansible-collections/ibm_zos_cics/tree/master/CONTRIBUTING.md
 
 

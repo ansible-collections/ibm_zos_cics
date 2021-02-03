@@ -10,11 +10,11 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: cmci_create
-short_description: Create CICS and CICSPlex SM definitions in CSD and BAS repositories
+short_description: Create CICS and CICSPlex SM definitions
 description:
-  - Create definitional CICS® or CICSPlex® SM resources in CICS
-    regions, by initiating POST requests via the CMCI REST API. The CMCI REST API can be configured in CICSPlex SM
-    or stand-alone regions (SMSS). For information about the API, see
+  - Create definitional CICS® or CICSPlex® SM resources in CSD and BAS repositories, 
+    by initiating POST requests via the CMCI REST API. The CMCI REST API can be configured
+    in CICSPlex SM or stand-alone regions (SMSS). For information about the API, see
     L(CMCI REST API,
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
     For information about how to compose POST requests, see L(CMCI POST requests,

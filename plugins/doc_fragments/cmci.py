@@ -65,7 +65,7 @@ options:
     description:
       - If CMCI is installed in a CICSPlex® SM environment, I(context) is the
         name of the CICSplex or CMAS associated with the request, for example,
-        C(PLEX1). to determine whether a CMAS can be specified as I(context),
+        C(PLEX1). To determine whether a CMAS can be specified as I(context),
         see the B(CMAS context) entry in the CICSPlex SM resource table reference of a resource.
         For example, according to the L(PROGRAM resource table,
         https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html),
