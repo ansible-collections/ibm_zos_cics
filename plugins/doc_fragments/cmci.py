@@ -187,19 +187,19 @@ options:
             description:
               - The value by which you are to filter the resource attributes.
               - The value must be a valid one for the resource table attribute
-                as documented in the resource table reference, for example, 
+                as documented in the resource table reference, for example,
                 L(PROGDEF resource table reference,
                 https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
             required: false
       get_parameters:
         description: >
-          A list of one or more parameters with optional values used to 
+          A list of one or more parameters with optional values used to
           identify the resources for this request.
-          Eligible parameters for identifying the target resources can be 
+          Eligible parameters for identifying the target resources can be
           found in the resource table reference for the
-          target resource type, as valid parameters for the GET operation in 
-          the "Valid CPSM operations" table. For example, the valid parameters 
-          for identifying a PROGDEF resource are CICSSYS, CSDGROUP and 
+          target resource type, as valid parameters for the GET operation in
+          the "Valid CPSM operations" table. For example, the valid parameters
+          for identifying a PROGDEF resource are CICSSYS, CSDGROUP and
           RESGROUP, as found in the L(PROGDEF resource table reference,
           https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
         type: list

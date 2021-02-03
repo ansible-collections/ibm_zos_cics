@@ -13,7 +13,7 @@ module: cmci_get
 short_description: Query CICS and CICSPlex SM resources
 description:
   - Get information about installed and definitional CICS® and CICSPlex® SM
-    resources from CICS regions, by initiating GET requests via the 
+    resources from CICS regions, by initiating GET requests via the
     CMCI REST API. The CMCI REST API can be configured in CICSPlex SM or
     stand-alone regions (SMSS). For information about the API,
     see L(CMCI REST API,
@@ -29,10 +29,10 @@ options:
     description:
       - Identifies a subset of records in the results cache, starting either
         from the first record in the results cache or from the record specified
-        by the index parameter. If not specified, all the records are returned 
+        by the index parameter. If not specified, all the records are returned
         by default.
       - A negative number indicates a count back from the last record; for
-        example, C(-1) means the last record, C(-2) the last record but one, 
+        example, C(-1) means the last record, C(-2) the last record but one,
         and so on.
       - The count value must be an integer; a value of zero is not permitted.
     type: int

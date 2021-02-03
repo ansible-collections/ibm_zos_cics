@@ -12,8 +12,10 @@ DOCUMENTATION = r'''
 module: cmci_action
 short_description: Install CICS and CICSPlex SM definitions
 description:
-  - Perform actions on CICS® or CICSPlex® SM definitions and resources, by initiating PUT requests via the CMCI REST API.
-    The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API,
+  - Perform actions on CICS® or CICSPlex® SM definitions and resources,
+    by initiating PUT requests via the CMCI REST API.
+    The CMCI REST API can be configured in CICSPlex SM or stand-alone
+    regions (SMSS). For information about the API,
     see L(CMCI REST API,
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
     For information about how to compose PUT requests, see L(CMCI PUT requests,
@@ -25,19 +27,23 @@ extends_documentation_fragment:
 options:
   action_name:
     description: >
-      The name of the target action. To find the name of the appropriate action, consult the CICSPlex SM resource
-      tables for the target resource type. For example, the L(PROGRAM resource table reference,
+      The name of the target action. To find the name of the appropriate
+      action, consult the CICSPlex SM resource tables for the target resource
+      type. For example, the L(PROGRAM resource table reference,
       https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html)
       lists the eligible actions for CICS programs.
     type: str
     required: true
   action_parameters:
     description: >
-      A list of one or more parameters that control the I(action) operation. Eligible actions and 
-      corresponding parameters for the target operation can be found in the resource table reference 
-      for the target resource type, as listed in the PERFORM SET operation section of the "Valid CPSM operations" table.
-      For example, the valid parameters for a PROGDEF CSDCOPY action are AS_RESOURCE, DUPACTION and
-      TO_CSDGROUP, as found in the L(PROGDEF resource table reference,
+      A list of one or more parameters that control the I(action) operation.
+      Eligible actions and corresponding parameters for the target operation
+      can be found in the resource table reference for the target resource
+      type, as listed in the PERFORM SET operation section of the
+      "Valid CPSM operations" table.
+      For example, the valid parameters for a PROGDEF CSDCOPY action are
+      AS_RESOURCE, DUPACTION and TO_CSDGROUP, as found in the
+      L(PROGDEF resource table reference,
       https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
     type: list
     elements: dict
@@ -48,8 +54,9 @@ options:
         type: str
       value:
         description: > 
-          Parameter value if any. Can be omitted if the parameter requires no value to be supplied, as shown
-          in the resource table reference. For example, the OVERRIDE parameter for the PROGDEF INSTALL action 
+          Parameter value if any. Can be omitted if the parameter requires no
+          value to be supplied, as shown in the resource table reference.
+          For example, the OVERRIDE parameter for the PROGDEF INSTALL action
           doesn't require a value.
         required: false
         type: str
