@@ -77,7 +77,7 @@
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
-          - result.records[0].name == 'ANSIBUND'
+          - result.records[0].name == bunddef
 
     - name: 'install bundle def'
       delegate_to: 'localhost'
