@@ -1,0 +1,65 @@
+# Copyright (c) IBM Corporation 2020
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name:  CMCI Integration Test
+  collections:
+   - ibm.ibm_zos_cics
+  hosts: 'localhost'
+  gather_facts: 'false'
+  vars:
+    http_port: 28953
+    http_scope: IYCWEMW1
+
+  tasks:
+    - name: test https with incorrect scheme
+      ibm.ibm_zos_cics.cmci_get:
+        cmci_host: '{{ cmci_host }}'
+        cmci_port: '{{ cmci_port }}'
+        cmci_user: '{{ cmci_user }}'
+        cmci_password: '{{ cmci_password }}'
+
+        context: '{{ context }}'
+        scope: '{{ scope }}'
+        type: 'cicsprogram'
+        scheme: 'http'
+        insecure: true
+      failed_when: false
+      register: result
+
+    - name: debug https
+      debug:
+        msg: '{{ result.msg }}'
+
+    - name: assert https
+      assert:
+        that:
+          - result.failed is false
+          - result.msg == "Error performing CMCI request: (\"Connection aborted.\",
+                          RemoteDisconnected(\"Remote end closed connection without response\"))"
+
+
+    - name: test http with incorrect scheme
+      ibm.ibm_zos_cics.cmci_get:
+        cmci_host: '{{ cmci_host }}'
+        cmci_port: '{{ http_port }}'
+        cmci_user: '{{ cmci_user }}'
+        cmci_password: '{{ cmci_password }}'
+
+        context: '{{ context }}'
+        scope: '{{ http_scope }}'
+        type: 'cicsprogram'
+        scheme: 'https'
+        insecure: true
+      failed_when: false
+      register: result
+
+    - name: debug http
+      debug:
+        msg: '{{ result.msg }}'
+
+    - name: assert http
+      assert:
+        that:
+          - result.failed is false
+          - result.msg == "Error performing CMCI request: (\"Connection aborted.\",
+              RemoteDisconnected(\"Remote end closed connection without response\"))"

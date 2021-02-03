@@ -12,3 +12,4 @@ ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_incorrect_context.yml
 ansible-playbook -e "@cmci-variables.yml" playbooks/cics_cmci_http.yml
 ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_install_bundle_failure.yml
 ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_create_pipeline_failure.yml
+ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_incorrect_scheme.yml
