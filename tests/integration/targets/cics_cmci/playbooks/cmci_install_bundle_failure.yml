@@ -1,0 +1,128 @@
+# Copyright (c) IBM Corporation 2020
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name:  CMCI Integration Test
+  collections:
+   - ibm.ibm_zos_cics
+  hosts: 'localhost'
+  gather_facts: 'false'
+  vars:
+    csdgroup: 'ANSITEST'
+    bunddef: 'ANSIBUND'
+
+  module_defaults:
+    ibm.ibm_zos_cics.cmci_delete:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      cmci_user: '{{ cmci_user }}'
+      cmci_password: '{{ cmci_password }}'
+      context: '{{ context }}'
+      scope: '{{ scope }}'
+      insecure: true
+
+    ibm.ibm_zos_cics.cmci_action:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      cmci_user: '{{ cmci_user }}'
+      cmci_password: '{{ cmci_password }}'
+      context: '{{ context }}'
+      scope: '{{ scope }}'
+      insecure: true
+
+    ibm.ibm_zos_cics.cmci_create:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      cmci_user: '{{ cmci_user }}'
+      cmci_password: '{{ cmci_password }}'
+      context: '{{ context }}'
+      scope: '{{ scope }}'
+      insecure: true
+
+
+  tasks:
+    - name: 'delete bundle def'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_delete:
+        type: 'CICSDefinitionBundle'
+        resources:
+          complex_filter:
+            and:
+              - attribute: NAME
+                value: '{{ bunddef }}'
+              - attribute: CSDGROUP
+                value: '{{ csdgroup }}'
+          get_parameters:
+            - name: 'CSDGROUP'
+              value: '{{ csdgroup }}'
+      register: result
+      failed_when: >
+        'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
+
+
+    - name: 'create bundle def'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_create:
+        type: 'CICSDefinitionBundle'
+        create_parameters:
+          - name: 'CSD'
+        attributes:
+          name: '{{ bunddef }}'
+          csdgroup: '{{ csdgroup }}'
+          bundledir: "/invalid"
+      register: result
+
+    - name: assert created
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].name == bunddef
+
+    - name: 'install bundle def'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_action:
+        type: 'CICSDefinitionBundle'
+        action_name: 'CSDINSTALL'
+        resources:
+          filter:
+            NAME: '{{ bunddef }}'
+          get_parameters:
+            - name: 'CSDGROUP'
+              value: '{{ csdgroup }}'
+      failed_when: false
+      register: result
+
+    - name: debug
+      debug:
+        msg: '{{ result }}'
+
+    - name: assert installed
+      assert:
+        that:
+          - result.failed is false
+            # This will need updating when we pull out more specific error messages from the CMCI response.
+            # Expecting the error to contain 'EXEC CICS command(CSD INSTALL) RESP(INVREQ) RESP2(633)'
+            # Where RESP2(633) is 'Installation of BUNDLE resource resource failed because the resource had no manifest'
+          - result.msg == "CMCI request failed with response \"TABLEERROR\" reason \"DATAERROR\""
+
+
+    - name: 'delete bundle def'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_delete:
+        type: 'CICSDefinitionBundle'
+        resources:
+          filter:
+            NAME: '{{ bunddef }}'
+          get_parameters:
+            - name: 'CSDGROUP'
+              value: '{{ csdgroup }}'
+      register: result
+
+    - name: assert deleted
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.success_count == 1
