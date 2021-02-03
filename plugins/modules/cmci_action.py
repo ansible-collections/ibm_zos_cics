@@ -103,28 +103,32 @@ connect_version:
   type: str
 cpsm_reason:
   description:
-    - The character value of the REASON code returned by each CICSPlex SM API command.
+    - The character value of the REASON code returned by each CICSPlex SM API 
+      command.
       For a list of REASON character values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ky.html.
   returned: success
   type: str
 cpsm_reason_code:
   description:
-    - The numeric value of the REASON code returned by each CICSPlex SM API command.
+    - The numeric value of the REASON code returned by each CICSPlex SM API 
+      command.
       For a list of REASON numeric values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kw.html.
   returned: success
   type: int
 cpsm_response:
   description:
-    - The character value of the RESPONSE code returned by each CICSPlex SM API command.
+    - The character value of the RESPONSE code returned by each CICSPlex SM
+      API command.
       For a list of RESPONSE character values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kx.html.
   returned: success
   type: str
 cpsm_response_code:
   description:
-    - The numeric value of the RESPONSE code returned by each CICSPlex SM API command.
+    - The numeric value of the RESPONSE code returned by each CICSPlex SM
+      API command.
       For a list of RESPONSE numeric values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kv.html.
   returned: success
@@ -215,7 +219,8 @@ records:
       usecount: "0"
       usefetch: "0.000"
 success_count:
-    description: The number of resources for which the action completed successfully.
+    description: 
+      - The number of resources for which the action completed successfully.
     returned: success
     type: int
 request:

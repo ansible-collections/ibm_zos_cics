@@ -12,11 +12,14 @@ DOCUMENTATION = r'''
 module: cmci_delete
 short_description: Delete CICS and CICSPlex SM resources
 description:
-  - Remove or discard definitional or installed CICS® and CICSPlex® SM resources from CICS
-    regions, by initiating DELETE requests via the CMCI REST API. The CMCI REST API can be configured
-    in CICSPlex SM or stand-alone regions (SMSS). For information about the API, see L(CMCI REST API,
+  - Remove or discard definitional or installed CICS® and CICSPlex® SM 
+    resources from CICS regions, by initiating DELETE requests via 
+    the CMCI REST API. The CMCI REST API can be configured in CICSPlex SM
+    or stand-alone regions (SMSS). For information about the API, see L(CMCI
+    REST API,
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
-    For information about how to compose DELETE requests, see L(CMCI DELETE requests,
+    For information about how to compose DELETE requests, 
+    see L(CMCI DELETE requests,
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_delete.html).
 author: IBM
 extends_documentation_fragment:
@@ -67,29 +70,29 @@ connect_version:
   type: str
 cpsm_reason:
   description:
-    - The character value of the REASON code returned by each CICSPlex SM API command.
-      For a list of REASON character values, see
+    - The character value of the REASON code returned by each CICSPlex SM API
+      command. For a list of REASON character values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ky.html.
   returned: success
   type: str
 cpsm_reason_code:
   description:
-    - The numeric value of the REASON code returned by each CICSPlex SM API command.
-      For a list of REASON numeric values, see
+    - The numeric value of the REASON code returned by each CICSPlex SM API
+      command. For a list of REASON numeric values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kw.html.
   returned: success
   type: int
 cpsm_response:
   description:
-    - The character value of the RESPONSE code returned by each CICSPlex SM API command.
-      For a list of RESPONSE character values, see
+    - The character value of the RESPONSE code returned by each CICSPlex SM API
+      command. For a list of RESPONSE character values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kx.html.
   returned: success
   type: str
 cpsm_response_code:
   description:
-    - The numeric value of the RESPONSE code returned by each CICSPlex SM API command.
-      For a list of RESPONSE numeric values, see
+    - The numeric value of the RESPONSE code returned by each CICSPlex SM API
+      command. For a list of RESPONSE numeric values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kv.html.
   returned: success
   type: str
@@ -179,7 +182,8 @@ records:
       usecount: "0"
       usefetch: "0.000"
 success_count:
-    description: The number of resources for which the action completed successfully.
+    description: 
+      - The number of resources for which the action completed successfully.
     returned: success
     type: int
 request:

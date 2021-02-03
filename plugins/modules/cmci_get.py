@@ -12,9 +12,11 @@ DOCUMENTATION = r'''
 module: cmci_get
 short_description: Query CICS and CICSPlex SM resources
 description:
-  - Get information about installed and definitional CICS® and CICSPlex® SM resources from CICS regions,
-    by initiating GET requests via the CMCI REST API. The CMCI REST API can be configured in CICSPlex SM or
-    stand-alone regions (SMSS). For information about the API, see L(CMCI REST API,
+  - Get information about installed and definitional CICS® and CICSPlex® SM
+    resources from CICS regions, by initiating GET requests via the 
+    CMCI REST API. The CMCI REST API can be configured in CICSPlex SM or
+    stand-alone regions (SMSS). For information about the API,
+    see L(CMCI REST API,
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
     For information about how to compose GET requests, see L(CMCI GET requests,
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_get.html).
@@ -25,12 +27,13 @@ extends_documentation_fragment:
 options:
   record_count:
     description:
-      - Identifies a subset of records in the results cache, starting either from the
-        first record in the results cache or from the record specified
-        by the index parameter. If not specified, all the records are returned by default.
+      - Identifies a subset of records in the results cache, starting either
+        from the first record in the results cache or from the record specified
+        by the index parameter. If not specified, all the records are returned 
+        by default.
       - A negative number indicates a count back from the last record; for
-        example, C(-1) means the last record, C(-2) the last record but one, and so
-        on.
+        example, C(-1) means the last record, C(-2) the last record but one, 
+        and so on.
       - The count value must be an integer; a value of zero is not permitted.
     type: int
     required: false
@@ -98,28 +101,32 @@ connect_version:
   type: str
 cpsm_reason:
   description:
-    - The character value of the REASON code returned by each CICSPlex SM API command.
+    - The character value of the REASON code returned by each CICSPlex SM API
+      command.
       For a list of REASON character values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ky.html.
   returned: success
   type: str
 cpsm_reason_code:
   description:
-    - The numeric value of the REASON code returned by each CICSPlex SM API command.
+    - The numeric value of the REASON code returned by each CICSPlex SM API
+      command.
       For a list of REASON numeric values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kw.html.
   returned: success
   type: int
 cpsm_response:
   description:
-    - The character value of the RESPONSE code returned by each CICSPlex SM API command.
+    - The character value of the RESPONSE code returned by each CICSPlex SM API
+      command.
       For a list of RESPONSE character values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kx.html.
   returned: success
   type: str
 cpsm_response_code:
   description:
-    - The numeric value of the RESPONSE code returned by each CICSPlex SM API command.
+    - The numeric value of the RESPONSE code returned by each CICSPlex SM API
+      command.
       For a list of RESPONSE numeric values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kv.html.
   returned: success
