@@ -8,8 +8,8 @@
 .. _cmci_create_module:
 
 
-cmci_create -- Create CICS and CICSPlex SM definitions in CSD and BAS repositories
-==================================================================================
+cmci_create -- Create CICS and CICSPlex SM definitions
+======================================================
 
 
 
@@ -20,7 +20,7 @@ cmci_create -- Create CICS and CICSPlex SM definitions in CSD and BAS repositori
 
 Synopsis
 --------
-- Create definitional CICS® or CICSPlex® SM resources in CICS regions, by initiating POST requests via the CMCI REST API. The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API, see `CMCI REST API <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html>`_. For information about how to compose POST requests, see `CMCI POST requests <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_post.html>`_.
+- Create definitional CICS® or CICSPlex® SM resources in CSD and BAS repositories, by initiating POST requests via the CMCI REST API. The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API, see `CMCI REST API <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html>`_. For information about how to compose POST requests, see `CMCI POST requests <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_post.html>`_.
 
 
 
@@ -119,7 +119,7 @@ cmci_user
 
      
 context
-  If CMCI is installed in a CICSPlex® SM environment, *context* is the name of the CICSplex or CMAS associated with the request, for example, ``PLEX1``. to determine whether a CMAS can be specified as *context*, see the **CMAS context** entry in the CICSPlex SM resource table reference of a resource. For example, according to the `PROGRAM resource table <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html>`_, CMAS context is not supported for PROGRAM.
+  If CMCI is installed in a CICSPlex® SM environment, *context* is the name of the CICSplex or CMAS associated with the request, for example, ``PLEX1``. To determine whether a CMAS can be specified as *context*, see the **CMAS context** entry in the CICSPlex SM resource table reference of a resource. For example, according to the `PROGRAM resource table <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html>`_, CMAS context is not supported for PROGRAM.
 
   If CMCI is installed in a single region (SMSS), *context* is the APPLID of the CICS region associate with the request.
 

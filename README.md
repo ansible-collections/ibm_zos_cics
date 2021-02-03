@@ -4,9 +4,7 @@ IBM z/OS CICS collection
 The **IBM® z/OS® CICS® collection**, also represented as **ibm\_zos\_cics**
 in this document, is part of the broader initiative to bring Ansible® Automation to IBM Z® through the offering **Red Hat® Ansible Certified Content for IBM Z**. The IBM z/OS CICS collection supports management of CICS resources and definitions via the CMCI REST API provided by CICS.
 
-This CICS collection can work independently from other IBM z/OS modules on Ansible to perform tasks in CICS. You can, however, use it in conjunction with other IBM z/OS collections such as the 
-[IBM z/OS core collection](https://github.com/ansible-collections/ibm_zos_core) 
-to deliver a solution that will enable you to automate tasks on z/OS.
+This CICS collection can work in conjunction with or independently from other IBM z/OS collections on Ansible such as the [IBM z/OS core collection](https://github.com/ansible-collections/ibm_zos_core). When used alone, it performs automation tasks solely in CICS. When using it together with other z/OS collections, you can achieve a more powerful solution for automating tasks on z/OS.
 
 
 Red Hat Ansible Certified Content for IBM Z
@@ -23,17 +21,8 @@ Features
 
 The IBM CICS collection includes
 [modules](https://github.com/ansible-collections/ibm_zos_cics/tree/master/plugins/modules/),
-[sample playbooks](https://github.com/ansible-collections/ibm_zos_cics/tree/master/playbooks/),
+[sample playbooks](https://github.com/IBM/z_ansible_collections_samples),
 and ansible-doc to automate tasks in CICS.
-
-Contributing
-============
-
-Thank you for contributing to this project.
-
-We welcome bug reports and discussions about new function in the issue tracker, and we also welcome proposed new features or bug fixes via pull requests.
-
-For contribution guidelines, see [How to contribute](https://github.com/ansible-collections/ibm_zos_cics/tree/master/CONTRIBUTING.md).
 
 
 Copyright

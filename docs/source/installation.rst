@@ -9,28 +9,6 @@ Always check that your control node has fulfilled the :doc:`requirements` before
 
 Then, follow the guidance to install the collection from Ansible® Galaxy or a custom Galaxy server. More ways to install an Ansible collection are documented at `installing collections`_.
 
-.. note:: Python module dependencies are not installed with the collection. To use the collection, you must install Python dependencies where the task will be running, in our case, the control node. See `Installing Python dependencies`_.
-
-Installing Python dependencies
--------------------------------
-You can use the supplied ``prod-requirements`` file to install the dependencies:
-
-.. code-block:: sh
-
-   pip install prod-requirements.txt
-
-
-Alternatively, you can install the dependencies manually:
-
-* `requests`_ package
-* `xmltodict`_ 0.12.0
-
-.. _requests:
-   https://pypi.org/project/requests/
-
-.. _xmltodict:
-   https://pypi.org/project/xmltodict/
-
 
 Installing from Ansible Galaxy
 ------------------------------
