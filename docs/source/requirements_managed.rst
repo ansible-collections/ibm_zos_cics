@@ -5,9 +5,13 @@
 Requirements of managed nodes
 =============================
 
-The CMCI tasks in the **IBM® z/OS® CICS® collection** interact with the managed node over an HTTP connection by leveraging the `CMCI REST API`_. Therefore, an SSH connection is not necessary. Instead, you can delegate Ansible tasks to run on the control node, for example, by specifying ``delegate_to: 'localhost'`` for the task in the playbook. For more ways of delegating tasks, see `Controlling where tasks run`_.
-
-Delegating tasks to run on the control node saves you the complexity of configuring an unnecessary SSH connection and installing module dependencies on the remote host.
+The CMCI tasks in the **IBM® z/OS® CICS® collection** interact
+with the managed node over an HTTP connection by leveraging the `CMCI REST API`_.
+Therefore, an SSH connection is not required. Instead, you can delegate
+Ansible tasks to run on the control node, for example, by specifying
+``delegate_to: 'localhost'`` for the task in the playbook. In this case, you
+install dependencies on your localhost instead of the managed node.
+For more ways of delegating tasks, see `Controlling where tasks run`_.
 
 The requirements of the managed node are as follows:
 
@@ -18,7 +22,8 @@ The requirements of the managed node are as follows:
   * `requests`_
   * `xmltodict`_
 
-  If you delegate the tasks to run on your localhost, the Python module dependencies need to be installed on your localhost instead. You can install them from CLI:
+  If you delegate the tasks to run on your localhost, the Python module dependencies
+  need to be installed on your localhost instead. You can install them from CLI:
 
   .. code-block:: sh
 

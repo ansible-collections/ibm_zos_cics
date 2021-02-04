@@ -32,7 +32,7 @@ A control node is any machine with Ansible® installed. You can run commands and
 Managed node
 ------------
 
-The CMCI tasks in the IBM z/OS CICS collection interact with the managed node over an HTTP connection by leveraging the `CMCI REST API`_. Therefore, an SSH connection is not necessary. Instead, you can delegate the CMCI tasks to run on the control node directly, for example, by specifying ``delegate_to: 'localhost'`` for the tasks in the playbook. For detailed requirements, see :doc:`requirements_managed`.
+For detailed requirements, see :doc:`requirements_managed`.
 
 
 .. toctree::

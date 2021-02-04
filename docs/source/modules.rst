@@ -6,15 +6,15 @@
 Modules
 =======
 
-Modules can be used in a playbook to automate tasks. Ansible® executes each module on the target node and returns the result back to the controller.
+Modules can be used in a playbook to automate tasks. Ansible® executes each
+module on the target node and returns the result back to the controller.
 
-The **IBM® z/OS® CICS® collection** contains these modules. For each module, the accepted parameters, return values, and examples are provided in the documentation.
+The **IBM® z/OS® CICS® collection** contains these modules. For each module,
+the accepted parameters, return values, and examples are provided in the
+documentation.
 
 .. toctree::
    :maxdepth: 1
    :glob:
 
    modules/*
-
-
-
