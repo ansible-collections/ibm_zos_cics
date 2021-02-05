@@ -33,7 +33,15 @@ echo "/* -----------------------------------------------------------------------
 echo "/* -------------------------------------------------------------------------- */"
 echo "/*                          Integration tests Python 3.8                      */"
 echo "/* -------------------------------------------------------------------------- */"
-(set -x; ansible-test integration --python 3.8)
+(set -x; ansible-test integration cics_cmci --python 3.8)
+
+echo "/* -------------------------------------------------------------------------- */"
+echo "/*               Integration tests for missing libraries Python 3.8           */"
+echo "/* -------------------------------------------------------------------------- */"
+(set -x; pip uninstall xmltodict -y)
+(set -x; ansible-test integration cics_cmci_missing_libraries --python 3.8)
+(set -x; pip install -r prod-requirements.txt)
+
 echo $?
 deactivate
 
