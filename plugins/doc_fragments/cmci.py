@@ -117,10 +117,18 @@ options:
     suboptions:
       filter:
         description:
-          - A string containing basic logical expressions that filter the resource table records
-            in the data returned on the request.
-          - Supports only the equal logic when filtering attribute values.
-          - Can contain one or more filters.
+          - A dictionary with attribute names as keys, and target values, to be used as criteria to filter the set of
+            resources returned from CICSPlex SM.
+          - Filters implicitly use the C(=) operator
+          - Filters for C(string) type attributes can use the C(*) and C(+) wildcard operators
+          - C(*) is a wildcard representing an unknown number of characters, and must appear at the end of the value
+          - C(+) is a wildcard representing a single character, and can appear in any place in the value, potentially
+            multiple times.
+          - To use more complicated filter expressions, including a range of different filter operators, and the ability
+            to compose filters with C(and) and C(or) operators, see the C(complex_filter) parameter.
+          - For examples, see M(ibm.ibm_zos_cics.cmci_get)
+          - For more details, see L(How to build a filter expression,
+            https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1a0.html). 
           - For supported attributes of different resource types, see their resource table reference,
             for example, L(PROGDEF resource table reference,
             https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
@@ -128,16 +136,36 @@ options:
         required: false
       complex_filter:
         description:
-          - A string containing logical expressions that filter the resource table records
-            in the data returned on the request.
+          - A dictionary representing a complex filter expression. Complex filters are composed of filter expressions,
+            represented as dictionaries.
+            Each dictionary can specify either an attribute expression, a list of filter expressions to be
+            composed with the C(and) operator, or a list of filter expressions to be composed with the C(or) operator.
+          - The C(attribute), C(and) and C(or) options are mutually exclusive with each other.
           - Can contain one or more filters. Multiple filters must be combined using C(and) or C(or) logical operators.
           - Filters can be nested. At most four nesting layers are allowed.
+          - When supplying the C(attribute) option, you must also supply a C(value) for the filter.  You can also
+            override the default operator with the C(=) option.
+          - For examples, see M(ibm.ibm_zos_cics.cmci_get)
         type: dict
         required: false
         suboptions:
+          and:
+            description:
+              - A list of filter expressions to be combined with an C(and) operation.
+              - Filter expressions are nested C(complex_filter) elements.  Each nested filter expression can be either
+                an C(attribute), C(and) or C(or) complex filter expression.
+            type: list
+            required: false
+          or:
+            description:
+              - A list of filter expressions to be combined with an C(or) operation.
+              - Filter expressions are nested C(complex_filter) elements.  Each nested filter expression can be either
+                an C(attribute), C(and) or C(or) complex filter expression.
+            type: list
+            required: false
           attribute:
             description:
-              - The resource table attributes to be filtered.
+              - The name of a resource table attribute on which to filter.
               - For supported attributes of different resource types, see their resource table reference,
                 for example, L(PROGDEF resource table reference,
                 https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).

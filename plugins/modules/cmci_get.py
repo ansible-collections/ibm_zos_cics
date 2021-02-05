@@ -83,6 +83,27 @@ EXAMPLES = r"""
         - name: csdgroup
           value: MYGRP
     record_count: 1
+    
+- name: Using complex_filter to combine filter expressions and change operators
+  cmci_get:
+    cmci_host: 'winmvs2c.hursley.ibm.com'
+    cmci_port: '10080'
+    cmci_cert: './sec/ansible.pem'
+    cmci_key: './sec/ansible.key'
+    context: 'iyk3z0r9'
+    type: 'CICSRegion'
+    resource:
+      complex_filter:
+        or: [{
+          attribute: 'currtasks',
+          value: '10',
+          operator: '<'
+        }, {
+          attribute: 'currtasks',
+          value: '100',
+          operator: '>'
+        }]
+    record_count: 1
 """
 
 
