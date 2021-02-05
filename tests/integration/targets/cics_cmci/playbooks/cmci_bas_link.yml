@@ -1,0 +1,302 @@
+# Copyright (c) IBM Corporation 2020
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name:  CMCI Integration Test
+  #Sets Up a Basic BAS Resource Description with one Resource Group containing one program definition and then cleans up
+
+  collections:
+   - ibm.ibm_zos_cics
+  hosts: 'localhost'
+  gather_facts: 'false'
+  vars:
+    program: 'ANSIPROG'
+    resource_description: 'ANSIBAS'
+    resource_group: 'ANSIGRP'
+    resource_scope: 'IYCWEMM1'
+    def_ver: '1'
+
+
+  module_defaults:
+    ibm.ibm_zos_cics.cmci_get:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      cmci_user: '{{ cmci_user }}'
+      cmci_password: '{{ cmci_password }}'
+      context: '{{ context }}'
+      scope: '{{ scope }}'
+      insecure: true
+
+    ibm.ibm_zos_cics.cmci_update:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      cmci_user: '{{ cmci_user }}'
+      cmci_password: '{{ cmci_password }}'
+      context: '{{ context }}'
+      scope: '{{ scope }}'
+      insecure: true
+
+
+    ibm.ibm_zos_cics.cmci_delete:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      cmci_user: '{{ cmci_user }}'
+      cmci_password: '{{ cmci_password }}'
+      context: '{{ context }}'
+      scope: '{{ scope }}'
+      insecure: true
+
+
+    ibm.ibm_zos_cics.cmci_action:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      cmci_user: '{{ cmci_user }}'
+      cmci_password: '{{ cmci_password }}'
+      context: '{{ context }}'
+      scope: '{{ scope }}'
+      insecure: true
+
+
+    ibm.ibm_zos_cics.cmci_create:
+      cmci_host: '{{ cmci_host }}'
+      cmci_port: '{{ cmci_port }}'
+      cmci_user: '{{ cmci_user }}'
+      cmci_password: '{{ cmci_password }}'
+      context: '{{ context }}'
+      scope: '{{ scope }}'
+      insecure: true
+
+
+  tasks:
+    - name: 'Delete progdef'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_delete:
+        type: 'CICSDefinitionProgram'
+        resources:
+          complex_filter:
+            and:
+              - attribute: NAME
+                value: '{{ program }}'
+              - attribute: DEFVER
+                value: '{{ def_ver }}'
+      register: result
+      failed_when: >
+        'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
+
+
+    - name: 'Delete resource group'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_delete:
+        type: 'CICSResourceGroup'
+        resources:
+          filter:
+            resgroup: '{{ resource_group }}'
+      register: result
+      failed_when: >
+        'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
+
+
+    - name: 'Delete resource description'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_delete:
+        type: 'CICSResourceDescription'
+        resources:
+          filter:
+            resdesc: '{{ resource_description }}'
+      register: result
+      failed_when: >
+        'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
+
+
+    - name: 'Create progdef'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_create:
+        type: 'CICSDefinitionProgram'
+        attributes:
+          name: '{{ program }}'
+          defver: '{{ def_ver }}'
+      register: result
+
+    - name: assert progdef created
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].name == program
+
+
+    - name: 'Create Resource Group'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_create:
+        type: 'CICSResourceGroup'
+        attributes:
+          resgroup: '{{ resource_group }}'
+      register: result
+
+    - name: assert create resource group
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].resgroup == resource_group
+
+
+    - name: 'Add progdef to resource group'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_action:
+        type: 'CICSDefinitionProgram'
+        action_name: 'ADDTOGRP'
+        resources:
+          filter:
+            NAME: '{{ program }}'
+            DEFVER: '{{ def_ver }}'
+        action_parameters:
+          - name: 'RESGROUP'
+            value: '{{ resource_group }}'
+      register: result
+
+    - name: assert progdef added to resource group
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].name == program
+
+
+    - name: 'Create Resource Description'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_create:
+        type: 'CICSResourceDescription'
+        attributes:
+          resdesc: '{{ resource_description }}'
+          rgscope: '{{ resource_scope }}'
+      register: result
+
+    - name: assert create resource description
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].resdesc == resource_description
+
+
+    - name: 'Add resource group to resource description'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_action:
+        type: 'CICSResourceGroup'
+        action_name: 'ADDTODSC'
+        resources:
+          filter:
+            resgroup: '{{ resource_group }}'
+        action_parameters:
+          - name: 'RESDESC'
+            value: '{{ resource_description }}'
+      register: result
+
+
+    - name: assert resource group added to resource description
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].resgroup == resource_group
+
+
+    - name: 'Get Resource Groups in Resource Description'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_get:
+        type: 'CICSResourceGroupInDescription'
+        resources:
+          filter:
+            resdesc: '{{ resource_description }}'
+      register: result
+
+
+    - name: assert resource group is in resource description
+      assert:
+        that:
+          - result is not changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].resgroup == resource_group
+
+
+    - name: 'Get Programs in Resource Group'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_get:
+        type: 'CICSResourceInGroup'
+        resources:
+          filter:
+            resgroup: '{{ result.records[0].resgroup }}'
+      register: result
+
+    - name: assert program is in resource group
+      assert:
+        that:
+          - result is not changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].resgroup == resource_group
+          - result.records[0].deftype == 'PROGDEF'
+          - result.records[0].defname == program
+
+
+    - name: 'Delete progdef'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_delete:
+        type: 'CICSDefinitionProgram'
+        resources:
+          filter:
+            NAME: '{{ program }}'
+          get_parameters:
+            - name: 'RESGROUP'
+              value: '{{ resource_group }}'
+      register: result
+
+    - name: assert deleted progdef
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.success_count == 1
+
+
+    - name: 'Delete resource group'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_delete:
+        type: 'CICSResourceGroup'
+        resources:
+          filter:
+            resgroup: '{{ resource_group }}'
+      register: result
+
+    - name: assert deleted resource group
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.success_count == 1
+
+
+    - name: 'Delete resource description'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_delete:
+        type: 'CICSResourceDescription'
+        resources:
+          filter:
+            resdesc: '{{ resource_description }}'
+      register: result
+
+    - name: assert deleted resource description
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.success_count == 1
