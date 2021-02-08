@@ -126,7 +126,7 @@ options:
             multiple times.
           - To use more complicated filter expressions, including a range of different filter operators, and the ability
             to compose filters with C(and) and C(or) operators, see the C(complex_filter) parameter.
-          - For examples, see M(ibm.ibm_zos_cics.cmci_get)
+          - For examples, see M(cmci_get)
           - For more details, see L(How to build a filter expression,
             https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1a0.html). 
           - For supported attributes of different resource types, see their resource table reference,
@@ -145,7 +145,7 @@ options:
           - Filters can be nested. At most four nesting layers are allowed.
           - When supplying the C(attribute) option, you must also supply a C(value) for the filter.  You can also
             override the default operator with the C(=) option.
-          - For examples, see M(ibm.ibm_zos_cics.cmci_get)
+          - For examples, see M(cmci_get)
         type: dict
         required: false
         suboptions:
