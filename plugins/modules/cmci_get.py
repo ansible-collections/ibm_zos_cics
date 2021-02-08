@@ -10,7 +10,7 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: cmci_get
-short_description: Query CICS and CICSPlex SM resources
+short_description: Query CICS and CICSPlex SM resources and definitions
 description:
   - Get information about installed and definitional CICS® and CICSPlex® SM resources from CICS regions,
     by initiating GET requests via the CMCI REST API. The CMCI REST API can be configured in CICSPlex SM or

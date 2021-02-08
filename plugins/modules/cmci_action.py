@@ -10,7 +10,7 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: cmci_action
-short_description: Install CICS and CICSPlex SM definitions
+short_description: Perform actions on CICS and CICSPlex SM resources
 description:
   - Perform actions on CICS® or CICSPlex® SM definitions and resources, by initiating PUT requests via the CMCI REST API.
     The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API,
