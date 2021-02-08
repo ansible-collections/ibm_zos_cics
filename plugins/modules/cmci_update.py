@@ -12,8 +12,10 @@ DOCUMENTATION = r'''
 module: cmci_update
 short_description: Update CICS and CICSPlex resources and definitions
 description:
-  - Make changes to CICS® and CICSPlex® SM resources in CICS regions, by initiating PUT requests via the CMCI REST API.
-    The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API,
+  - Make changes to CICS® and CICSPlex® SM resources in CICS regions, by
+    initiating PUT requests via the CMCI REST API. The CMCI REST API can be
+    configured in CICSPlex SM or stand-alone regions (SMSS). For information
+    about the API,
     see L(CMCI REST API,
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
     For information about how to compose PUT requests, see L(CMCI PUT requests,
@@ -29,10 +31,12 @@ extends_documentation_fragment:
 options:
   update_parameters:
     description: >
-      A list of one or more parameters that control the I(update) operation. Eligible parameters for the UPDATE
-      operation can be found in the resource table reference for the target resource type, as listed in the UPDATE
-      operation section of the "Valid CPSM operations" table. For example, the only valid parameter for a PROGDEF
-      UPDATE operation is CSD, as found in the L(PROGDEF resource table reference,
+      A list of one or more parameters that control the I(update) operation.
+      Eligible parameters for the UPDATE operation can be found in the resource
+      table reference for the target resource type, as listed in the UPDATE
+      operation section of the "Valid CPSM operations" table. For example, the
+      only valid parameter for a PROGDEF UPDATE operation is CSD, as found in
+      the L(PROGDEF resource table reference,
       https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
     type: list
     elements: dict
@@ -42,9 +46,10 @@ options:
         required: true
         type: str
       value:
-        description: Parameter value if any. Can be omitted if the parameter requires no value to be supplied, as shown
-          in the resource table reference. For example, the CSD parameter for the PROGDEF UPDATE operation 
-          doesn't require a value.
+        description: Parameter value if any. Can be omitted if the parameter
+          requires no value to be supplied, as shown in the resource table
+          reference. For example, the CSD parameter for the PROGDEF UPDATE
+          operation doesn't require a value.
         required: false
         type: str
     required: false
@@ -86,29 +91,29 @@ connect_version:
   type: str
 cpsm_reason:
   description:
-    - The character value of the REASON code returned by each CICSPlex SM API command.
-      For a list of REASON character values, see
+    - The character value of the REASON code returned by each CICSPlex SM API
+      command. For a list of REASON character values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ky.html.
   returned: success
   type: str
 cpsm_reason_code:
   description:
-    - The numeric value of the REASON code returned by each CICSPlex SM API command.
-      For a list of REASON numeric values, see
+    - The numeric value of the REASON code returned by each CICSPlex SM API
+      command. For a list of REASON numeric values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kw.html.
   returned: success
   type: int
 cpsm_response:
   description:
-    - The character value of the RESPONSE code returned by each CICSPlex SM API command.
-      For a list of RESPONSE character values, see
+    - The character value of the RESPONSE code returned by each CICSPlex SM API
+      command. For a list of RESPONSE character values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kx.html.
   returned: success
   type: str
 cpsm_response_code:
   description:
-    - The numeric value of the RESPONSE code returned by each CICSPlex SM API command.
-      For a list of RESPONSE numeric values, see
+    - The numeric value of the RESPONSE code returned by each CICSPlex SM API
+      command. For a list of RESPONSE numeric values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kv.html.
   returned: success
   type: str
@@ -218,7 +223,8 @@ request:
 
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
-    AnsibleCMCIModule, RESOURCES_ARGUMENT, parameters_argument, ATTRIBUTES_ARGUMENT
+    AnsibleCMCIModule, RESOURCES_ARGUMENT, parameters_argument,
+    ATTRIBUTES_ARGUMENT
 )
 from typing import Optional, Dict
 from collections import OrderedDict
@@ -233,7 +239,8 @@ class AnsibleCMCIUpdateModule(AnsibleCMCIModule):
 
     def init_argument_spec(self):  # type: () -> Dict
         # pylint: disable=super-with-arguments
-        argument_spec = super(AnsibleCMCIUpdateModule, self).init_argument_spec()
+        argument_spec = super(AnsibleCMCIUpdateModule, self)\
+            .init_argument_spec()
         argument_spec.update(RESOURCES_ARGUMENT)
         argument_spec.update(parameters_argument(UPDATE_PARAMETERS))
         argument_spec.update(ATTRIBUTES_ARGUMENT)
