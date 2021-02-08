@@ -48,73 +48,75 @@ INSECURE = 'insecure'
 
 GET_PARAMETERS = 'get_parameters'
 
-ATTRIBUTE_ARGUMENTS = {
-    'attribute': {
-        'type': 'str',
-        'required': False
-    },
-    'operator': {
-        'type': 'str',
-        'required': False,
-        'default': 'EQ',
-        'choices': ['<', '<=', '=', '>', '>=', '¬=', '==', '!=', 'EQ', 'NE',
-                    'LT', 'LE', 'GE', 'GT', 'IS']
-    },
-    'value': {
-        'type': 'str',
-        'required': False
-    }
-}
+
+def _attribute_arguments(required):
+    return [
+        ('attribute', {
+            'type': 'str',
+            'required': required
+        }),
+        ('operator', {
+            'type': 'str',
+            'required': False,
+            'default': 'EQ',
+            'choices': ['<', '<=', '=', '>', '>=', '¬=', '==', '!=', 'EQ', 'NE',
+                        'LT', 'LE', 'GE', 'GT', 'IS']
+        }),
+        ('value', {
+            'type': 'str',
+            'required': required
+        })
+    ]
 
 
-def _cf_child(children):  # type: (dict[str, Any]) -> dict[str, Any]
-    return {
-        'required': False,
-        'required_together': [('attribute', 'value')],
-        'required_one_of': [('attribute', 'and', 'or')],
-        'mutually_exclusive': [('attribute', 'and', 'or'),
-                               ('and', 'operator'),
-                               ('and', 'value'),
-                               ('or', 'operator'),
-                               ('or', 'value')
-                               ],
-        'options': children
-    }
+def _cf_node(options):  # type: ([(str, Any)]) -> [(str, Any)]
 
+    sub = dict(chain(
+        options,
+        [
+            ('type', 'list'),
+            ('elements', 'dict')
+        ]
+    ))
 
-def _cf_options(children):
-    basic_list_dict = {
-        'type': 'list',
-        'elements': 'dict',
-    }
-
-    # These warnings are a PyCharm bug:
-    # https://youtrack.jetbrains.com/issue/PY-43664
-    and_list = {'and': dict(
-        chain(basic_list_dict.items(), _cf_child(children).items())
-    )}
-    or_list = {'or': dict(
-        chain(basic_list_dict.items(), _cf_child(children).items())
-    )}
-    return dict(
-        chain(ATTRIBUTE_ARGUMENTS.items(), and_list.items(), or_list.items())
-    )
+    return [
+        ('required', False),
+        ('required_together', [
+            ('attribute', 'value')
+        ]),
+        ('required_one_of', [
+            ('attribute', 'and', 'or')
+        ]),
+        ('mutually_exclusive', [
+            ('attribute', 'and', 'or'),
+            ('and', 'operator'),
+            ('and', 'value'),
+            ('or', 'operator'),
+            ('or', 'value')
+        ]),
+        ('options', dict(chain(
+            _attribute_arguments(False),
+            [
+                ('and', sub),
+                ('or', sub)
+            ]
+        )))
+    ]
 
 
 def _complex_filter():
-    children = _cf_child(
-        _cf_options(
-            _cf_options(
-                _cf_options(
-                    ATTRIBUTE_ARGUMENTS
+    return dict(chain(
+        _cf_node(
+            _cf_node(
+                _cf_node(
+                    _cf_node([
+                        ('options', dict(_attribute_arguments(True)))
+                    ])
                 )
             )
-        )
-    )
-    base_type = {'type': 'dict'}
-    # This warning is a PyCharm bug:
-    # https://youtrack.jetbrains.com/issue/PY-43664
-    return dict(chain(children.items(), base_type.items()))
+        ),
+        [('type', 'dict')]
+    ))
 
 
 def parameters_argument(name):  # type: (str) -> Dict[str, Any]
