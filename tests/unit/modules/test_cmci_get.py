@@ -62,7 +62,7 @@ def test_401_fails(cmci_module):  # type: (CMCITestHelper) -> None
 
 def test_invalid_host(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': 'Parameter "cmci_host" with value "^*.99.99.199" was not valid.  Expected an IP address or host name.',
+        'msg': 'Parameter "cmci_host" with value "^*.99.99.199" was not valid. Expected an IP address or host name.',
         'changed': False,
         'failed': True
     })
@@ -171,8 +171,8 @@ def test_invalid_port_high(cmci_module):  # type: (CMCITestHelper) -> None
 
 def test_invalid_context(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': 'Parameter "context" with value "^&iyk3z0r9" was not valid.  Expected a CPSM context name.  CPSM '
-               'context names are max 8 characters.  Valid characters are A-Z a-z 0-9.',
+        'msg': 'Parameter "context" with value "^&iyk3z0r9" was not valid. Expected a CPSM context name.  CPSM '
+               'context names are max 8 characters. Valid characters are A-Z a-z 0-9.',
         'changed': False,
         'failed': True
     })
@@ -188,8 +188,8 @@ def test_invalid_context(cmci_module):  # type: (CMCITestHelper) -> None
 
 def test_invalid_scope(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': 'Parameter "scope" with value "&^iyk3z0r8" was not valid.  Expected a CPSM scope name.  CPSM scope '
-               'names are max 8 characters.  Valid characters are A-Z a-z 0-9.',
+        'msg': 'Parameter "scope" with value "&^iyk3z0r8" was not valid. Expected a CPSM scope name. CPSM scope '
+               'names are max 8 characters. Valid characters are A-Z a-z 0-9.',
         'changed': False,
         'failed': True
     })

@@ -102,7 +102,15 @@ def _cf_options(children):
 
 
 def _complex_filter():
-    children = _cf_child(_cf_options(_cf_options(_cf_options(ATTRIBUTE_ARGUMENTS))))
+    children = _cf_child(
+        _cf_options(
+            _cf_options(
+                _cf_options(
+                    ATTRIBUTE_ARGUMENTS
+                )
+            )
+        )
+    )
     base_type = {'type': 'dict'}
     # This warning is a PyCharm bug:
     # https://youtrack.jetbrains.com/issue/PY-43664

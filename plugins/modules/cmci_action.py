@@ -54,7 +54,7 @@ options:
         required: true
         type: str
       value:
-        description: > 
+        description: >
           Parameter value if any. Can be omitted if the parameter requires no
           value to be supplied, as shown in the resource table reference. For
           example, the OVERRIDE parameter for the PROGDEF INSTALL action doesn't

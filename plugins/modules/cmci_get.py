@@ -85,7 +85,7 @@ EXAMPLES = r"""
         - name: csdgroup
           value: MYGRP
     record_count: 1
-    
+
 - name: Using complex_filter to combine filter expressions and change operators
   cmci_get:
     cmci_host: 'winmvs2c.hursley.ibm.com'

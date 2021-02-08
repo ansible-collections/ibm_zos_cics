@@ -1,43 +1,38 @@
-docs/make.bat line-endings!skip
-plugins/modules/cmci_get.py validate-modules:missing-gplv3-license
-plugins/modules/cmci_get.py validate-modules:invalid-documentation
-plugins/modules/cmci_get.py validate-modules:doc-choices-do-not-match-spec
-plugins/modules/cmci_get.py validate-modules:doc-default-does-not-match-spec
-plugins/modules/cmci_get.py validate-modules:missing-suboption-docs
-plugins/modules/cmci_get.py validate-modules:parameter-type-not-in-doc
-plugins/modules/cmci_get.py validate-modules:undocumented-parameter
-plugins/modules/cmci_get.py validate-modules:doc-elements-mismatch
-plugins/modules/cmci_get.py validate-modules:mutually_exclusive-unknown
-plugins/modules/cmci_get.py validate-modules:required_one_of-unknown
-plugins/modules/cmci_action.py validate-modules:missing-gplv3-license
-plugins/modules/cmci_action.py validate-modules:invalid-documentation
-plugins/modules/cmci_action.py validate-modules:doc-choices-do-not-match-spec
-plugins/modules/cmci_action.py validate-modules:doc-default-does-not-match-spec
-plugins/modules/cmci_action.py validate-modules:missing-suboption-docs
-plugins/modules/cmci_action.py validate-modules:parameter-type-not-in-doc
-plugins/modules/cmci_action.py validate-modules:undocumented-parameter
-plugins/modules/cmci_action.py validate-modules:doc-elements-mismatch
-plugins/modules/cmci_action.py validate-modules:mutually_exclusive-unknown
-plugins/modules/cmci_action.py validate-modules:required_one_of-unknown
-plugins/modules/cmci_create.py validate-modules:missing-gplv3-license
-plugins/modules/cmci_create.py validate-modules:invalid-documentation
-plugins/modules/cmci_delete.py validate-modules:missing-gplv3-license
-plugins/modules/cmci_delete.py validate-modules:invalid-documentation
-plugins/modules/cmci_delete.py validate-modules:doc-choices-do-not-match-spec
-plugins/modules/cmci_delete.py validate-modules:doc-default-does-not-match-spec
-plugins/modules/cmci_delete.py validate-modules:missing-suboption-docs
-plugins/modules/cmci_delete.py validate-modules:parameter-type-not-in-doc
-plugins/modules/cmci_delete.py validate-modules:undocumented-parameter
-plugins/modules/cmci_delete.py validate-modules:doc-elements-mismatch
-plugins/modules/cmci_delete.py validate-modules:mutually_exclusive-unknown
-plugins/modules/cmci_delete.py validate-modules:required_one_of-unknown
-plugins/modules/cmci_update.py validate-modules:missing-gplv3-license
-plugins/modules/cmci_update.py validate-modules:invalid-documentation
-plugins/modules/cmci_update.py validate-modules:doc-choices-do-not-match-spec
-plugins/modules/cmci_update.py validate-modules:doc-default-does-not-match-spec
-plugins/modules/cmci_update.py validate-modules:missing-suboption-docs
-plugins/modules/cmci_update.py validate-modules:parameter-type-not-in-doc
-plugins/modules/cmci_update.py validate-modules:undocumented-parameter
-plugins/modules/cmci_update.py validate-modules:doc-elements-mismatch
-plugins/modules/cmci_update.py validate-modules:mutually_exclusive-unknown
-plugins/modules/cmci_update.py validate-modules:required_one_of-unknown
+docs/make.bat line-endings!skip # Windows batch file requires windows line endings
+plugins/modules/cmci_get.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
+plugins/modules/cmci_get.py validate-modules:doc-choices-do-not-match-spec # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_get.py validate-modules:doc-default-does-not-match-spec # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_get.py validate-modules:missing-suboption-docs # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_get.py validate-modules:parameter-type-not-in-doc # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_get.py validate-modules:undocumented-parameter # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_get.py validate-modules:doc-elements-mismatch # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_get.py validate-modules:mutually_exclusive-unknown # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_get.py validate-modules:required_one_of-unknown # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_action.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
+plugins/modules/cmci_action.py validate-modules:doc-choices-do-not-match-spec # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_action.py validate-modules:doc-default-does-not-match-spec # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_action.py validate-modules:missing-suboption-docs # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_action.py validate-modules:parameter-type-not-in-doc # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_action.py validate-modules:undocumented-parameter # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_action.py validate-modules:doc-elements-mismatch # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_action.py validate-modules:mutually_exclusive-unknown # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_action.py validate-modules:required_one_of-unknown # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_create.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
+plugins/modules/cmci_delete.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
+plugins/modules/cmci_delete.py validate-modules:doc-choices-do-not-match-spec # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_delete.py validate-modules:doc-default-does-not-match-spec # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_delete.py validate-modules:missing-suboption-docs # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_delete.py validate-modules:parameter-type-not-in-doc # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_delete.py validate-modules:undocumented-parameter # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_delete.py validate-modules:doc-elements-mismatch # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_delete.py validate-modules:mutually_exclusive-unknown # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_delete.py validate-modules:required_one_of-unknown # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_update.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
+plugins/modules/cmci_update.py validate-modules:doc-choices-do-not-match-spec # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_update.py validate-modules:doc-default-does-not-match-spec # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_update.py validate-modules:missing-suboption-docs # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_update.py validate-modules:parameter-type-not-in-doc # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_update.py validate-modules:undocumented-parameter # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_update.py validate-modules:doc-elements-mismatch # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_update.py validate-modules:mutually_exclusive-unknown # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error
+plugins/modules/cmci_update.py validate-modules:required_one_of-unknown # We have a complex_filter DSL as part of our plugin YAML.  The same config is accepted 4 levels deep.  We only include the (quite long) documentation for this at the highest level, which causes this error

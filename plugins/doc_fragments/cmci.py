@@ -141,7 +141,7 @@ options:
             C(and) and C(or) operators, see the C(complex_filter) parameter.
           - For examples, see M(cmci_get)
           - For more details, see L(How to build a filter expression,
-            https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1a0.html). 
+            https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1a0.html).
           - For supported attributes of different resource types, see their
             resource table reference, for example,
             L(PROGDEF resource table reference,

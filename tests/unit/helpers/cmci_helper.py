@@ -219,7 +219,6 @@ def create_feedback_response(errors):  # type: (str, List) -> OrderedDict
     )
 
 
-
 def create_cmci_response(*args):  # type () -> OrderedDict
     return od(
         ('response', od(
