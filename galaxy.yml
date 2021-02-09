@@ -12,7 +12,9 @@ readme: README.md
 
 # Contributors
 authors:
-  - IBM
+  - Stewart Francis
+  - Tom Latham
+  - Sophie Green
 # Description
 description: The Red Hat Ansible Certified Content for IBM Z CICS collection includes connection plugins, action plugins, modules and sample playbooks to automate tasks for CICS
 

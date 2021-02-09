@@ -141,11 +141,17 @@ resources
 
      
   complex_filter
-    A string containing logical expressions that filter the resource table records in the data returned on the request.
+    A dictionary representing a complex filter expression. Complex filters are composed of filter expressions, represented as dictionaries. Each dictionary can specify either an attribute expression, a list of filter expressions to be composed with the ``and`` operator, or a list of filter expressions to be composed with the ``or`` operator.
+
+    The ``attribute``, ``and`` and ``or`` options are mutually exclusive with each other.
 
     Can contain one or more filters. Multiple filters must be combined using ``and`` or ``or`` logical operators.
 
     Filters can be nested. At most four nesting layers are allowed.
+
+    When supplying the ``attribute`` option, you must also supply a ``value`` for the filter.  You can also override the default operator with the ``=`` option.
+
+    For examples, see :ref:`ibm.ibm_zos_cics.cmci_get <ibm.ibm_zos_cics.cmci_get_module>`
 
 
     | **required**: False
@@ -153,8 +159,19 @@ resources
 
 
      
+    and
+      A list of filter expressions to be combined with an ``and`` operation.
+
+      Filter expressions are nested ``complex_filter`` elements.  Each nested filter expression can be either an ``attribute``, ``and`` or ``or`` complex filter expression.
+
+
+      | **required**: False
+      | **type**: list
+
+
+     
     attribute
-      The resource table attributes to be filtered.
+      The name of a resource table attribute on which to filter.
 
       For supported attributes of different resource types, see their resource table reference, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
 
@@ -176,6 +193,17 @@ resources
 
 
      
+    or
+      A list of filter expressions to be combined with an ``or`` operation.
+
+      Filter expressions are nested ``complex_filter`` elements.  Each nested filter expression can be either an ``attribute``, ``and`` or ``or`` complex filter expression.
+
+
+      | **required**: False
+      | **type**: list
+
+
+     
     value
       The value by which you are to filter the resource attributes.
 
@@ -189,11 +217,21 @@ resources
 
      
   filter
-    A string containing basic logical expressions that filter the resource table records in the data returned on the request.
+    A dictionary with attribute names as keys, and target values, to be used as criteria to filter the set of resources returned from CICSPlex SM.
 
-    Supports only the equal logic when filtering attribute values.
+    Filters implicitly use the ``=`` operator
 
-    Can contain one or more filters.
+    Filters for ``string`` type attributes can use the ``*`` and ``+`` wildcard operators
+
+    ``*`` is a wildcard representing an unknown number of characters, and must appear at the end of the value
+
+    ``+`` is a wildcard representing a single character, and can appear in any place in the value, potentially multiple times.
+
+    To use more complicated filter expressions, including a range of different filter operators, and the ability to compose filters with ``and`` and ``or`` operators, see the ``complex_filter`` parameter.
+
+    For examples, see :ref:`ibm.ibm_zos_cics.cmci_get <ibm.ibm_zos_cics.cmci_get_module>`
+
+    For more details, see `How to build a filter expression <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1a0.html>`_.
 
     For supported attributes of different resource types, see their resource table reference, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
 

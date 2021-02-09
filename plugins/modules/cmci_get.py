@@ -18,7 +18,10 @@ description:
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
     For information about how to compose GET requests, see L(CMCI GET requests,
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_get.html).
-author: IBM
+author:
+  - Stewart Francis (@stewartfrancis)
+  - Tom Latham (@Tom-Latham)
+  - Sophie Green (@sophiegreen)
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.cmci.COMMON
   - ibm.ibm_zos_cics.cmci.RESOURCES
@@ -79,6 +82,27 @@ EXAMPLES = r"""
       parameters:
         - name: csdgroup
           value: MYGRP
+    record_count: 1
+    
+- name: Using complex_filter to combine filter expressions and change operators
+  cmci_get:
+    cmci_host: 'winmvs2c.hursley.ibm.com'
+    cmci_port: '10080'
+    cmci_cert: './sec/ansible.pem'
+    cmci_key: './sec/ansible.key'
+    context: 'iyk3z0r9'
+    type: 'CICSRegion'
+    resource:
+      complex_filter:
+        or: [{
+          attribute: 'currtasks',
+          value: '10',
+          operator: '<'
+        }, {
+          attribute: 'currtasks',
+          value: '100',
+          operator: '>'
+        }]
     record_count: 1
 """
 
