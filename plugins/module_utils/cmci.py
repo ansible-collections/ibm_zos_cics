@@ -8,8 +8,7 @@ __metaclass__ = type
 
 from ansible.module_utils.basic import AnsibleModule, missing_required_lib,\
     env_fallback
-from typing import Optional, Dict, Any
-from itertools import chain
+from typing import Optional, Dict, Any, List
 from collections import OrderedDict
 from sys import version_info
 import re
@@ -49,74 +48,49 @@ INSECURE = 'insecure'
 GET_PARAMETERS = 'get_parameters'
 
 
-def _attribute_arguments(required):
-    return [
-        ('attribute', {
-            'type': 'str',
-            'required': required
-        }),
-        ('operator', {
-            'type': 'str',
-            'required': False,
-            'default': 'EQ',
-            'choices': ['<', '<=', '=', '>', '>=', '¬=', '==', '!=', 'EQ', 'NE',
-                        'LT', 'LE', 'GE', 'GT', 'IS']
-        }),
-        ('value', {
-            'type': 'str',
-            'required': required
-        })
-    ]
-
-
-def _cf_node(options):  # type: ([(str, Any)]) -> [(str, Any)]
-
-    sub = dict(chain(
-        options,
-        [
-            ('type', 'list'),
-            ('elements', 'dict')
-        ]
-    ))
-
-    return [
-        ('required', False),
-        ('required_together', [
-            ('attribute', 'value')
-        ]),
-        ('required_one_of', [
-            ('attribute', 'and', 'or')
-        ]),
-        ('mutually_exclusive', [
-            ('attribute', 'and', 'or'),
-            ('and', 'operator'),
-            ('and', 'value'),
-            ('or', 'operator'),
-            ('or', 'value')
-        ]),
-        ('options', dict(chain(
-            _attribute_arguments(False),
-            [
-                ('and', sub),
-                ('or', sub)
-            ]
-        )))
-    ]
-
-
 def _complex_filter():
-    return dict(chain(
-        _cf_node(
-            _cf_node(
-                _cf_node(
-                    _cf_node([
-                        ('options', dict(_attribute_arguments(True)))
-                    ])
-                )
-            )
-        ),
-        [('type', 'dict')]
-    ))
+    return {
+        'type': 'dict',
+        'required': False,
+        'required_together': [
+            ('attribute', 'value')
+        ],
+        'required_one_of': [
+            ('attribute', 'and', 'or')
+        ],
+        'required_by': {
+            'operator': 'attribute'
+        },
+        'mutually_exclusive': [
+            ('attribute', 'and', 'or')
+        ],
+        'options': {
+            'attribute': {
+                'type': 'str',
+                'required': False
+            },
+            'operator': {
+                'type': 'str',
+                'required': False,
+                'choices': ['<', '<=', '=', '>', '>=', '¬=', '==', '!=', 'EQ',
+                            'NE', 'LT', 'LE', 'GE', 'GT', 'IS']
+            },
+            'value': {
+                'type': 'str',
+                'required': False
+            },
+            'and': {
+                'type': 'list',
+                'elements': 'dict',
+                'required': False
+            },
+            'or': {
+                'type': 'list',
+                'elements': 'dict',
+                'required': False
+            }
+        }
+    }
 
 
 def parameters_argument(name):  # type: (str) -> Dict[str, Any]
@@ -410,6 +384,7 @@ class AnsibleCMCIModule(object):
     def init_request_params(self):  # type: () -> Optional[Dict[str, str]]
         return None
 
+    # TODO: why do we have this and/or parsing twice?
     def get_resources_request_params(self):  # type: () -> Dict[str, str]
         # get, delete, put will all need CRITERIA{}
         request_params = OrderedDict({})
@@ -440,17 +415,19 @@ class AnsibleCMCIModule(object):
                 attribute_item = complex_filter['attribute']
 
                 if and_item is not None:
-                    complex_filter_string = _get_filter(
+                    complex_filter_string = self._get_filter(
                         and_item,
                         complex_filter_string,
-                        ' AND '
+                        ' AND ',
+                        ' -> and'
                     )
 
                 if or_item is not None:
-                    complex_filter_string = _get_filter(
+                    complex_filter_string = self._get_filter(
                         or_item,
                         complex_filter_string,
-                        ' OR '
+                        ' OR ',
+                        ' -> or'
                     )
 
                 if attribute_item is not None:
@@ -605,6 +582,74 @@ class AnsibleCMCIModule(object):
                 {'@' + key: value for key, value in items}
             )
 
+    def _get_filter(self, list_of_filters, complex_filter_string, joiner, path):
+        #  type: (List[Dict], str, str, str) -> str
+        for i in list_of_filters:
+            and_item = i.get('and')
+            or_item = i.get('or')
+            attribute = i.get('attribute')
+            op = i.get('operator')
+
+            if op and not attribute:
+                self._fail(
+                    "missing parameter(s) required by 'operator': attribute"
+                )
+
+            # Validate mutually exclusive parameters
+            if (and_item and or_item) or (and_item and attribute) or \
+                    (or_item and attribute):
+                self._fail(
+                    'parameters are mutually exclusive: attribute|and|or found '
+                    'in resources -> complex_filter' + path
+                )
+
+            if and_item is not None:
+                and_filter_string = self._get_filter(
+                    and_item,
+                    '',
+                    ' AND ',
+                    path + ' -> and'
+                )
+                complex_filter_string = _append_filter_string(
+                    complex_filter_string,
+                    and_filter_string, joiner
+                )
+            if or_item is not None:
+                or_filter_string = self._get_filter(
+                    or_item,
+                    '',
+                    ' OR ',
+                    path + ' -> or'
+                )
+                complex_filter_string = _append_filter_string(
+                    complex_filter_string,
+                    or_filter_string, joiner
+                )
+            if attribute is not None:
+                operator = _convert_filter_operator(op)
+                value = i.get('value')
+
+                if value is None:
+                    self._fail(
+                        'parameters are required together: attribute, value '
+                        'found in resources -> complex_filter' + path)
+
+                if operator == '¬=':
+                    # Provides a filter string in the format NOT(FOO=='BAR')
+                    attribute_filter_string = \
+                        'NOT(' + attribute + '==' + '\'' + value + '\'' + ')'
+                else:
+                    attribute_filter_string = \
+                        attribute + operator + '\'' + value + '\''
+
+                complex_filter_string = _append_filter_string(
+                    complex_filter_string,
+                    attribute_filter_string,
+                    joiner
+                )
+
+        return complex_filter_string
+
     def _fail(self, msg):  # type: (str) -> None
         self._module.fail_json(msg=msg, **self.result)
 
@@ -617,7 +662,7 @@ def _convert_filter_operator(operator):
         return '<'
     if operator in ['<=', 'LE']:
         return '<='
-    if operator in ['=', 'EQ']:
+    if operator in ['=', 'EQ', None]:
         return '='
     if operator in ['>=', 'GE']:
         return '>='
@@ -627,45 +672,6 @@ def _convert_filter_operator(operator):
         return '¬='
     if operator in ['==', 'IS']:
         return '=='
-
-
-def _get_filter(list_of_filters, complex_filter_string, joiner):
-    for i in list_of_filters:
-        and_item = i.get('and')
-        or_item = i.get('or')
-        attribute = i.get('attribute')
-
-        if and_item is not None:
-            and_filter_string = _get_filter(and_item, '', ' AND ')
-            complex_filter_string = _append_filter_string(
-                complex_filter_string,
-                and_filter_string, joiner
-            )
-        if or_item is not None:
-            or_filter_string = _get_filter(or_item, '', ' OR ')
-            complex_filter_string = _append_filter_string(
-                complex_filter_string,
-                or_filter_string, joiner
-            )
-        if attribute is not None:
-            operator = _convert_filter_operator(i.get('operator'))
-            value = i.get('value')
-
-            if operator == '¬=':
-                # Provides a filter string in the format NOT(FOO=='BAR')
-                attribute_filter_string =\
-                    'NOT(' + attribute + '==' + '\'' + value + '\'' + ')'
-            else:
-                attribute_filter_string = \
-                    attribute + operator + '\'' + value + '\''
-
-            complex_filter_string = _append_filter_string(
-                complex_filter_string,
-                attribute_filter_string,
-                joiner
-            )
-
-    return complex_filter_string
 
 
 def _append_filter_string(existing, to_append, joiner=' AND '):

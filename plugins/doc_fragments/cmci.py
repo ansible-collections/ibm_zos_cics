@@ -163,7 +163,7 @@ options:
           - Filters can be nested. At most four nesting layers are allowed.
           - When supplying the C(attribute) option, you must also supply a
             C(value) for the filter.  You can also override the default operator
-            with the C(=) option.
+            of C(=) with the C(operator) option.
           - For examples, see M(cmci_get)
         type: dict
         required: false
@@ -176,6 +176,7 @@ options:
                 nested filter expression can be either an C(attribute), C(and)
                 or C(or) complex filter expression.
             type: list
+            elements: dict
             required: false
           or:
             description:
@@ -185,6 +186,7 @@ options:
                 nested filter expression can be either an C(attribute), C(and)
                 or C(or) complex filter expression.
             type: list
+            elements: dict
             required: false
           attribute:
             description:
@@ -227,6 +229,7 @@ options:
                 as documented in the resource table reference, for example,
                 L(PROGDEF resource table reference,
                 https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
+            type: str
             required: false
       get_parameters:
         description: >
@@ -239,6 +242,7 @@ options:
           as found in the L(PROGDEF resource table reference,
           https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
         type: list
+        elements: dict
         suboptions:
           name:
             description: Parameter name available for the GET operation.
