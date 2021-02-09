@@ -6,7 +6,8 @@ from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 
-from ansible.module_utils.basic import AnsibleModule, missing_required_lib, env_fallback
+from ansible.module_utils.basic import AnsibleModule, missing_required_lib,\
+    env_fallback
 from typing import Optional, Dict, Any
 from itertools import chain
 from collections import OrderedDict
@@ -56,7 +57,8 @@ ATTRIBUTE_ARGUMENTS = {
         'type': 'str',
         'required': False,
         'default': 'EQ',
-        'choices': ['<', '<=', '=', '>', '>=', '¬=', '==', '!=', 'EQ', 'NE', 'LT', 'LE', 'GE', 'GT', 'IS']
+        'choices': ['<', '<=', '=', '>', '>=', '¬=', '==', '!=', 'EQ', 'NE',
+                    'LT', 'LE', 'GE', 'GT', 'IS']
     },
     'value': {
         'type': 'str',
@@ -86,16 +88,32 @@ def _cf_options(children):
         'elements': 'dict',
     }
 
-    # These warnings are a PyCharm bug: https://youtrack.jetbrains.com/issue/PY-43664
-    and_list = {'and': dict(chain(basic_list_dict.items(), _cf_child(children).items()))}
-    or_list = {'or': dict(chain(basic_list_dict.items(), _cf_child(children).items()))}
-    return dict(chain(ATTRIBUTE_ARGUMENTS.items(), and_list.items(), or_list.items()))
+    # These warnings are a PyCharm bug:
+    # https://youtrack.jetbrains.com/issue/PY-43664
+    and_list = {'and': dict(
+        chain(basic_list_dict.items(), _cf_child(children).items())
+    )}
+    or_list = {'or': dict(
+        chain(basic_list_dict.items(), _cf_child(children).items())
+    )}
+    return dict(
+        chain(ATTRIBUTE_ARGUMENTS.items(), and_list.items(), or_list.items())
+    )
 
 
 def _complex_filter():
-    children = _cf_child(_cf_options(_cf_options(_cf_options(ATTRIBUTE_ARGUMENTS))))
+    children = _cf_child(
+        _cf_options(
+            _cf_options(
+                _cf_options(
+                    ATTRIBUTE_ARGUMENTS
+                )
+            )
+        )
+    )
     base_type = {'type': 'dict'}
-    # This warning is a PyCharm bug: https://youtrack.jetbrains.com/issue/PY-43664
+    # This warning is a PyCharm bug:
+    # https://youtrack.jetbrains.com/issue/PY-43664
     return dict(chain(children.items(), base_type.items()))
 
 
@@ -129,7 +147,8 @@ RESOURCES_ARGUMENT = {
                 'required': False
             },
             COMPLEX_FILTER: _complex_filter(),
-            GET_PARAMETERS: parameters_argument(GET_PARAMETERS).get(GET_PARAMETERS)
+            GET_PARAMETERS:
+                parameters_argument(GET_PARAMETERS).get(GET_PARAMETERS)
         }
     }
 }
@@ -148,7 +167,10 @@ class AnsibleCMCIModule(object):
     def __init__(self, method):
         self._module = AnsibleModule(
             argument_spec=self.init_argument_spec(),
-            required_together=[(CMCI_USER, CMCI_PASSWORD), (CMCI_CERT, CMCI_KEY)]
+            required_together=[
+                (CMCI_USER, CMCI_PASSWORD),
+                (CMCI_CERT, CMCI_KEY)
+            ]
         )  # type: AnsibleModule
         self.result = dict(changed=False)  # type: dict
 
@@ -165,27 +187,34 @@ class AnsibleCMCIModule(object):
 
         # full_document=False suppresses the xml prolog, which CMCI doesn't like
         body_dict = self.init_body()
-        self._body = xmltodict.unparse(self.init_body(), full_document=False) if body_dict else None  # type: str
+        self._body = xmltodict.unparse(self.init_body(), full_document=False)\
+            if body_dict else None  # type: str
 
         request_params = self.init_request_params()
 
         if request_params:
             if version_info.major <= 2:
-                # This is a workaround for python 2, where we can't specify the encoding as a parameter in urlencode
-                # Store the quote_plus setting, then override it with quote, so that spaces will be encoded as %20
-                # instead of +. Then set the quote_plus value back so we haven't changed the behaviour long term
+                # This is a workaround for python 2, where we can't specify the
+                # encoding as a parameter in urlencode. Store the quote_plus
+                # setting, then override it with quote, so that spaces will be
+                # encoded as %20 instead of +. Then set the quote_plus value
+                # back so we haven't changed the behaviour long term
                 default_quote_plus = urllib.quote_plus
                 urllib.quote_plus = urllib.quote
                 self._url = self._url + \
                     "?" + \
-                    urllib.urlencode(requests.utils.to_key_val_list(request_params))
+                    urllib.urlencode(
+                        requests.utils.to_key_val_list(request_params)
+                    )
                 urllib.quote_plus = default_quote_plus
             else:
                 # If running at python 3 and above
                 self._url = self._url + \
                     "?" + \
-                    urllib.parse.urlencode(requests.utils.to_key_val_list(request_params), quote_via=urllib.parse.quote)
-
+                    urllib.parse.urlencode(
+                        requests.utils.to_key_val_list(request_params),
+                        quote_via=urllib.parse.quote
+                    )
 
         result_request = {
             'url': self._url,
@@ -255,8 +284,10 @@ class AnsibleCMCIModule(object):
         self.validate(
             CMCI_HOST,
             '^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.)'
-            '{3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|((([a-zA-Z0-9]|[a-zA-Z0-9]'
-            '[a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*'
+            '{3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|'
+            '((([a-zA-Z0-9]|[a-zA-Z0-9]'
+            '[a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*'
+            '([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*'
             '[A-Za-z0-9]))$',
             'an IP address or host name.'
         )
@@ -264,20 +295,23 @@ class AnsibleCMCIModule(object):
         port = self._module.params.get(CMCI_PORT)
         if port < 0 or port > 65535:
             self._fail(
-                'Parameter "{0}" with value "{1}" was not valid.  Expected a port number 0-65535.'
+                'Parameter "{0}" with value "{1}" was not valid.  Expected a '
+                'port number 0-65535.'
                 .format(CMCI_PORT, str(port))
             )
 
         self.validate(
             CONTEXT,
             '^([A-Za-z0-9]{1,8})$',
-            'a CPSM context name.  CPSM context names are max 8 characters.  Valid characters are A-Z a-z 0-9.'
+            'a CPSM context name.  CPSM context names are max 8 characters. '
+            'Valid characters are A-Z a-z 0-9.'
         )
 
         self.validate(
             SCOPE,
             '^([A-Za-z0-9]{1,8})$',
-            'a CPSM scope name.  CPSM scope names are max 8 characters.  Valid characters are A-Z a-z 0-9.'
+            'a CPSM scope name. CPSM scope names are max 8 characters. '
+            'Valid characters are A-Z a-z 0-9.'
         )
 
         return self._module.params
@@ -288,7 +322,11 @@ class AnsibleCMCIModule(object):
 
             # Emulate python-3.4 re.fullmatch()
             if not re.match(regex, value, flags=0):
-                self._fail('Parameter "{0}" with value "{1}" was not valid.  Expected {2}'.format(name, value, message))
+                self._fail(
+                    'Parameter "{0}" with value "{1}" was not valid. '
+                    'Expected {2}'
+                    .format(name, value, message)
+                )
 
     def init_body(self):  # type: () -> Optional[Dict]
         return None
@@ -297,7 +335,8 @@ class AnsibleCMCIModule(object):
         try:
             response_node = response_dict['response']
 
-            self.result['connect_version'] = response_node.get('@connect_version')
+            self.result['connect_version'] = response_node\
+                .get('@connect_version')
 
             result_summary = response_node['resultsummary']
             cpsm_response_code = int(result_summary['@api_response1'])
@@ -311,10 +350,14 @@ class AnsibleCMCIModule(object):
             self.result['cpsm_reason_code'] = cpsm_reason_code
 
             if '@recordcount' in result_summary:
-                self.result['record_count'] = int(result_summary['@recordcount'])
+                self.result['record_count'] = int(
+                    result_summary['@recordcount']
+                )
 
             if '@successcount' in result_summary:
-                self.result['success_count'] = int(result_summary['@successcount'])
+                self.result['success_count'] = int(
+                    result_summary['@successcount']
+                )
 
             if 'records' in response_node:
                 records_node = response_node['records']
@@ -329,15 +372,22 @@ class AnsibleCMCIModule(object):
 
             # Non-OK CPSM responses fail the module
             if cpsm_response_code != 1024:
-                self._fail('CMCI request failed with response "{0}" reason "{1}"'.format(
-                    cpsm_response, cpsm_reason if cpsm_reason else cpsm_response_code
-                ))
+                self._fail(
+                    'CMCI request failed with response "{0}" reason "{1}"'
+                    .format(
+                        cpsm_response,
+                        cpsm_reason if cpsm_reason else cpsm_response_code
+                    )
+                )
 
             if self._method != 'GET':
                 self.result['changed'] = True
         except KeyError as e:
             # CMCI response parse error
-            self._fail('Could not parse CMCI response: missing node "{0}"'.format(e.args[0]))
+            self._fail(
+                'Could not parse CMCI response: missing node "{0}"'
+                .format(e.args[0])
+            )
 
     def init_url(self):  # type: () -> str
         t = self._p.get(TYPE).lower()
@@ -365,13 +415,16 @@ class AnsibleCMCIModule(object):
         if resources:
             f = resources.get(FILTER)
             if f:
-                # AND basic filters together, and use the = operator for each one
+                # AND basic filters together and use the = operator for each one
                 filter_string = ''
                 if not request_params:
                     request_params = OrderedDict({})
                 for key, value in f.items():
-                    filter_string = _append_filter_string(filter_string, key + '=' + '\'' + value + '\'',
-                                                          joiner=' AND ')
+                    filter_string = _append_filter_string(
+                        filter_string,
+                        key + '=' + '\'' + value + '\'',
+                        joiner=' AND '
+                    )
                 request_params['CRITERIA'] = filter_string
 
             complex_filter = resources.get(COMPLEX_FILTER)
@@ -385,30 +438,46 @@ class AnsibleCMCIModule(object):
                 attribute_item = complex_filter['attribute']
 
                 if and_item is not None:
-                    complex_filter_string = _get_filter(and_item, complex_filter_string, ' AND ')
+                    complex_filter_string = _get_filter(
+                        and_item,
+                        complex_filter_string,
+                        ' AND '
+                    )
 
                 if or_item is not None:
-                    complex_filter_string = _get_filter(or_item, complex_filter_string, ' OR ')
+                    complex_filter_string = _get_filter(
+                        or_item,
+                        complex_filter_string,
+                        ' OR '
+                    )
 
                 if attribute_item is not None:
-                    operator = _convert_filter_operator(complex_filter['operator'])
+                    operator = _convert_filter_operator(
+                        complex_filter['operator']
+                    )
                     value = complex_filter['value']
 
                     if operator == '¬=':
                         # Provides a filter string in the format NOT(FOO=='BAR')
-                        complex_filter_string = _append_filter_string(complex_filter_string,
-                                                                      'NOT(' + attribute_item + '==' + '\'' +
-                                                                      value + '\'' + ')')
+                        complex_filter_string = _append_filter_string(
+                            complex_filter_string,
+                            'NOT('
+                            + attribute_item + '==' + '\'' + value + '\''
+                            + ')'
+                        )
                     else:
-                        complex_filter_string = _append_filter_string(complex_filter_string,
-                                                                      attribute_item + operator + '\'' + value + '\'')
+                        complex_filter_string = _append_filter_string(
+                            complex_filter_string,
+                            attribute_item + operator + '\'' + value + '\''
+                        )
 
                 request_params['CRITERIA'] = complex_filter_string
 
             parameters = resources.get(GET_PARAMETERS)
             if parameters:
                 def mapper(p):
-                    return p.get('name') + '(' + p.get('value') + ')' if p.get('value') else p.get('name')
+                    return p.get('name') + '(' + p.get('value') + ')'\
+                        if p.get('value') else p.get('name')
 
                 request_params['PARAMETER'] = ' '.join(map(mapper, parameters))
         return request_params
@@ -419,15 +488,24 @@ class AnsibleCMCIModule(object):
         # Try cert auth first
         cmci_cert = self._p.get(CMCI_CERT)
         cmci_key = self._p.get(CMCI_KEY)
-        if cmci_cert is not None and cmci_cert.strip() != '' and cmci_key is not None and cmci_key.strip() != '':
+        if cmci_cert is not None \
+                and cmci_cert.strip() != '' \
+                and cmci_key is not None \
+                and cmci_key.strip() != '':
             if self._p.get(SCHEME) == 'http':
-                self._fail('scheme can not be set to http if you are using certificate auth')
+                self._fail(
+                    'scheme can not be set to http '
+                    'if you are using certificate auth'
+                )
             session.cert = cmci_cert.strip(), cmci_key.strip()
         else:
             # If we didn't get valid cert info, try basic auth
             user = self._p.get(CMCI_USER)
             passwd = self._p.get(CMCI_PASSWORD)
-            if user is not None and user.strip() != '' and passwd is not None and passwd.strip() != '':
+            if user is not None \
+                    and user.strip() != '' \
+                    and passwd is not None \
+                    and passwd.strip() != '':
                 session.auth = user.strip(), passwd.strip()
 
         return session
@@ -443,17 +521,26 @@ class AnsibleCMCIModule(object):
             )
 
             self.result['http_status_code'] = response.status_code
-            self.result['http_status'] = response.reason if response.reason else str(response.status_code)
+            self.result['http_status'] = response.reason \
+                if response.reason else str(response.status_code)
 
             if response.status_code != 200:
-                self._fail('CMCI request returned non-OK status: {0}'.format(self.result.get('http_status')))
+                self._fail(
+                    'CMCI request returned non-OK status: {0}'
+                    .format(self.result.get('http_status'))
+                )
 
             # Try and parse the XML response body into a dict
             content_type = response.headers.get('content-type')
-            # Content type header may include the encoding.  Just look at the first segment if so
+            # Content type header may include the encoding.
+            # Just look at the first segment if so
             content_type = content_type.split(';')[0]
             if content_type != 'application/xml':
-                self._fail('CMCI request returned a non application/xml content type: {0}'.format(content_type))
+                self._fail(
+                    'CMCI request returned a non application/xml content type:'
+                    ' {0}'
+                    .format(content_type)
+                )
 
             # Missing content
             if not response.content:
@@ -477,19 +564,24 @@ class AnsibleCMCIModule(object):
             cause = e
             if isinstance(cause, requests.exceptions.ConnectionError):
                 cause = cause.args[0]
-            if isinstance(cause, requests.packages.urllib3.exceptions.MaxRetryError):
+            if isinstance(
+                    cause, requests.packages.urllib3.exceptions.MaxRetryError):
                 cause = cause.reason
-            # Can't use self._fail_tb here, because we'll end up with tb for RequestException, not the cause
-            #  which invalidates our attempts to clean up the message
+            # Can't use self._fail_tb here, because we'll end up with tb for
+            # RequestException, not the cause which invalidates our attempts to
+            # clean up the message
             self._fail('Error performing CMCI request: {0}'.format(cause))
         except xmltodict.expat.ExpatError as e:
             # Content couldn't be parsed as XML
             self._fail_tb(
-                'CMCI response XML document could not be successfully parsed: {0}'.format(e),
+                'CMCI response XML document could not be successfully parsed: '
+                '{0}'
+                .format(e),
                 traceback.format_exc()
             )
 
-    def append_parameters(self, name, element):  # type: (str, OrderedDict) -> None
+    def append_parameters(self, name, element):
+        # type: (str, OrderedDict) -> None
         # Parameters are <parameter name="pname" value="pvalue" />
         parameters = self._p.get(name)
         if parameters:
@@ -507,7 +599,9 @@ class AnsibleCMCIModule(object):
         attributes = self._p.get(ATTRIBUTES)
         if attributes:
             items = attributes.items()
-            element['attributes'] = OrderedDict({'@' + key: value for key, value in items})
+            element['attributes'] = OrderedDict(
+                {'@' + key: value for key, value in items}
+            )
 
     def _fail(self, msg):  # type: (str) -> None
         self._module.fail_json(msg=msg, **self.result)
@@ -541,31 +635,43 @@ def _get_filter(list_of_filters, complex_filter_string, joiner):
 
         if and_item is not None:
             and_filter_string = _get_filter(and_item, '', ' AND ')
-            complex_filter_string = _append_filter_string(complex_filter_string, and_filter_string, joiner)
+            complex_filter_string = _append_filter_string(
+                complex_filter_string,
+                and_filter_string, joiner
+            )
         if or_item is not None:
             or_filter_string = _get_filter(or_item, '', ' OR ')
-            complex_filter_string = _append_filter_string(complex_filter_string, or_filter_string, joiner)
+            complex_filter_string = _append_filter_string(
+                complex_filter_string,
+                or_filter_string, joiner
+            )
         if attribute is not None:
             operator = _convert_filter_operator(i.get('operator'))
             value = i.get('value')
 
             if operator == '¬=':
                 # Provides a filter string in the format NOT(FOO=='BAR')
-                attribute_filter_string = 'NOT(' + attribute + '==' + '\'' + value + '\'' + ')'
+                attribute_filter_string =\
+                    'NOT(' + attribute + '==' + '\'' + value + '\'' + ')'
             else:
-                attribute_filter_string = attribute + operator + '\'' + value + '\''
+                attribute_filter_string = \
+                    attribute + operator + '\'' + value + '\''
 
-            complex_filter_string = _append_filter_string(complex_filter_string, attribute_filter_string, joiner)
+            complex_filter_string = _append_filter_string(
+                complex_filter_string,
+                attribute_filter_string,
+                joiner
+            )
 
     return complex_filter_string
 
 
-def _append_filter_string(existing_filter_string, filter_string_to_append, joiner=' AND '):
+def _append_filter_string(existing, to_append, joiner=' AND '):
     # joiner is ' AND ' or ' OR '
-    if not existing_filter_string:
+    if not existing:
         # if the existing string is empty, just return the new filter string
-        return '(' + filter_string_to_append + ')'
-    if existing_filter_string.endswith(joiner):
-        return existing_filter_string + '(' + filter_string_to_append + ')'
+        return '(' + to_append + ')'
+    if existing.endswith(joiner):
+        return existing + '(' + to_append + ')'
     else:
-        return existing_filter_string + joiner + '(' + filter_string_to_append + ')'
+        return existing + joiner + '(' + to_append + ')'

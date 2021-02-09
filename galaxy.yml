@@ -5,7 +5,7 @@ namespace: ibm
 name: ibm_zos_cics
 
 # The collection version
-version: 1.0.0
+version: 0.0.1
 
 # Collection README file
 readme: README.md
@@ -22,7 +22,7 @@ description: The Red Hat Ansible Certified Content for IBM Z CICS collection inc
 license: L(Apache License, Version 2.0, https://spdx.org/licenses/Apache-2.0.html)
 
 # Tags
-tags: [ibm, z, zos, z_os, cics, red_hat_ansible_certified_cotent_for_ibm_z, cmci]
+tags: [ibm, z, zos, z_os, cics, cmci]
 
 # Collections that this collection requires to be installed for it to be usable.
 # dependencies: {} # This collection depends on no other collections
@@ -31,10 +31,10 @@ tags: [ibm, z, zos, z_os, cics, red_hat_ansible_certified_cotent_for_ibm_z, cmci
 repository: https://github.com/ansible-collections/ibm_zos_cics
 
 # The URL to any online docs
-documentation: https://github.com/ansible-collections/ibm_zos_cics/wiki 
+documentation: https://ibm.github.io/z_ansible_collections_doc
 
 # The URL to the homepage of the collection/project
-# homepage: https://www.ibm.com/it-infrastructure/z/
+homepage: https://www.ibm.com/support/z-content-solutions/ansible/
 
 # The URL to the collection issue tracker
 issues: https://github.com/ansible-collections/ibm_zos_cics/issues

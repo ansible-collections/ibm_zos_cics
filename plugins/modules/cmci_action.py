@@ -10,11 +10,12 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: cmci_action
-short_description: Install CICS and CICSPlex SM definitions
+short_description: Perform actions on CICS and CICSPlex SM resources
 description:
-  - Perform actions on CICS® or CICSPlex® SM definitions and resources, by initiating PUT requests via the CMCI REST API.
-    The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API,
-    see L(CMCI REST API,
+  - Perform actions on CICS® or CICSPlex® SM definitions and resources, by
+    initiating PUT requests via the CMCI REST API. The CMCI REST API can be
+    configured in CICSPlex SM or stand-alone regions (SMSS). For information
+    about the API, see L(CMCI REST API,
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
     For information about how to compose PUT requests, see L(CMCI PUT requests,
     https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_put.html).
@@ -28,19 +29,22 @@ extends_documentation_fragment:
 options:
   action_name:
     description: >
-      The name of the target action. To find the name of the appropriate action, consult the CICSPlex SM resource
-      tables for the target resource type. For example, the L(PROGRAM resource table reference,
+      The name of the target action. To find the name of the appropriate action,
+      consult the CICSPlex SM resource tables for the target resource type. For
+      example, the L(PROGRAM resource table reference,
       https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html)
       lists the eligible actions for CICS programs.
     type: str
     required: true
   action_parameters:
     description: >
-      A list of one or more parameters that control the I(action) operation. Eligible actions and 
-      corresponding parameters for the target operation can be found in the resource table reference 
-      for the target resource type, as listed in the PERFORM SET operation section of the "Valid CPSM operations" table.
-      For example, the valid parameters for a PROGDEF CSDCOPY action are AS_RESOURCE, DUPACTION and
-      TO_CSDGROUP, as found in the L(PROGDEF resource table reference,
+      A list of one or more parameters that control the I(action) operation.
+      Eligible actions and corresponding parameters for the target operation can
+      be found in the resource table reference for the target resource type, as
+      listed in the PERFORM SET operation section of the "Valid CPSM operations"
+      table. For example, the valid parameters for a PROGDEF CSDCOPY action are
+      C(AS_RESOURCE), C(DUPACTION) and C(TO_CSDGROUP), as found in the
+      L(PROGDEF resource table reference,
       https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
     type: list
     elements: dict
@@ -50,10 +54,11 @@ options:
         required: true
         type: str
       value:
-        description: > 
-          Parameter value if any. Can be omitted if the parameter requires no value to be supplied, as shown
-          in the resource table reference. For example, the OVERRIDE parameter for the PROGDEF INSTALL action 
-          doesn't require a value.
+        description: >
+          Parameter value if any. Can be omitted if the parameter requires no
+          value to be supplied, as shown in the resource table reference. For
+          example, the OVERRIDE parameter for the PROGDEF INSTALL action doesn't
+          require a value.
         required: false
         type: str
     required: false
@@ -106,29 +111,29 @@ connect_version:
   type: str
 cpsm_reason:
   description:
-    - The character value of the REASON code returned by each CICSPlex SM API command.
-      For a list of REASON character values, see
+    - The character value of the REASON code returned by each CICSPlex SM API
+      command. For a list of REASON character values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ky.html.
   returned: success
   type: str
 cpsm_reason_code:
   description:
-    - The numeric value of the REASON code returned by each CICSPlex SM API command.
-      For a list of REASON numeric values, see
+    - The numeric value of the REASON code returned by each CICSPlex SM API
+      command. For a list of REASON numeric values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kw.html.
   returned: success
   type: int
 cpsm_response:
   description:
-    - The character value of the RESPONSE code returned by each CICSPlex SM API command.
-      For a list of RESPONSE character values, see
+    - The character value of the RESPONSE code returned by each CICSPlex SM API
+      command. For a list of RESPONSE character values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kx.html.
   returned: success
   type: str
 cpsm_response_code:
   description:
-    - The numeric value of the RESPONSE code returned by each CICSPlex SM API command.
-      For a list of RESPONSE numeric values, see
+    - The numeric value of the RESPONSE code returned by each CICSPlex SM API
+      command. For a list of RESPONSE numeric values, see
       https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kv.html.
   returned: success
   type: str
@@ -218,7 +223,8 @@ records:
       usecount: "0"
       usefetch: "0.000"
 success_count:
-    description: The number of resources for which the action completed successfully.
+    description:
+      - The number of resources for which the action completed successfully.
     returned: success
     type: int
 request:
@@ -260,7 +266,8 @@ class AnsibleCMCIInstallModule(AnsibleCMCIModule):
 
     def init_argument_spec(self):  # type: () -> Dict
         # pylint: disable=super-with-arguments
-        argument_spec = super(AnsibleCMCIInstallModule, self).init_argument_spec()
+        argument_spec = super(AnsibleCMCIInstallModule, self)\
+            .init_argument_spec()
         argument_spec.update({
             'action_name': {
                 'type': 'str',

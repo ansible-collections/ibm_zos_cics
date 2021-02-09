@@ -160,7 +160,7 @@ resources
 
     When supplying the ``attribute`` option, you must also supply a ``value`` for the filter.  You can also override the default operator with the ``=`` option.
 
-    For examples, see :ref:`ibm.ibm_zos_cics.cmci_get <ibm.ibm_zos_cics.cmci_get_module>`
+    For examples, see :ref:`cmci_get <cmci_get_module>`
 
 
     | **required**: False
@@ -238,7 +238,7 @@ resources
 
     To use more complicated filter expressions, including a range of different filter operators, and the ability to compose filters with ``and`` and ``or`` operators, see the ``complex_filter`` parameter.
 
-    For examples, see :ref:`ibm.ibm_zos_cics.cmci_get <ibm.ibm_zos_cics.cmci_get_module>`
+    For examples, see :ref:`cmci_get <cmci_get_module>`
 
     For more details, see `How to build a filter expression <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1a0.html>`_.
 

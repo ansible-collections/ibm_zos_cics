@@ -32,7 +32,7 @@ ibm_zos_cics:
 	mkdir build
 	mkdir -p source/modules
 	# mv ../plugins/modules/__init__.py ../plugins/modules/__init__.py.skip
-	ansible-doc-extractor --template templates/module.rst.j2 source/modules ../plugins/modules/*.py
+	python ansible-doc-extractor-collections.py
 	echo "Completed restructured text generation, run 'make html'"
 	# mv ../plugins/modules/__init__.py.skip ../plugins/modules/__init__.py
 view:
