@@ -39,7 +39,10 @@ echo "/* -----------------------------------------------------------------------
 echo "/*               Integration tests for missing libraries Python 3.8           */"
 echo "/* -------------------------------------------------------------------------- */"
 (set -x; pip uninstall xmltodict -y)
-(set -x; ansible-test integration cics_cmci_missing_libraries --python 3.8)
+(set -x; ansible-test integration cics_cmci_missing_xmltodict_library --python 3.8)
+(set -x; pip install -r prod-requirements.txt)
+(set -x; pip uninstall requests -y)
+(set -x; ansible-test integration cics_cmci_missing_requests_library --python 3.8)
 (set -x; pip install -r prod-requirements.txt)
 
 echo $?
