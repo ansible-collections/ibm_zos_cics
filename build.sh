@@ -59,7 +59,7 @@ pip install -r requirements.txt
 echo "/* -------------------------------------------------------------------------- */"
 echo "/*                          Integration tests Python 2.7                      */"
 echo "/* -------------------------------------------------------------------------- */"
-(set -x; ansible-test integration --python 2.7)
+(set -x; ansible-test integration cics_cmci --python 2.7)
 deactivate
 
 source "$CMCI_PYTHON_38/bin/activate"

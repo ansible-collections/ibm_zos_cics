@@ -8,8 +8,7 @@ __metaclass__ = type
 
 from ansible.module_utils.basic import AnsibleModule, missing_required_lib,\
     env_fallback
-from typing import Optional, Dict, Any
-from itertools import chain
+from typing import Optional, Dict, Any, List
 from collections import OrderedDict
 from sys import version_info
 import re
@@ -48,74 +47,6 @@ INSECURE = 'insecure'
 
 GET_PARAMETERS = 'get_parameters'
 
-ATTRIBUTE_ARGUMENTS = {
-    'attribute': {
-        'type': 'str',
-        'required': False
-    },
-    'operator': {
-        'type': 'str',
-        'required': False,
-        'default': 'EQ',
-        'choices': ['<', '<=', '=', '>', '>=', '¬=', '==', '!=', 'EQ', 'NE',
-                    'LT', 'LE', 'GE', 'GT', 'IS']
-    },
-    'value': {
-        'type': 'str',
-        'required': False
-    }
-}
-
-
-def _cf_child(children):  # type: (dict[str, Any]) -> dict[str, Any]
-    return {
-        'required': False,
-        'required_together': [('attribute', 'value')],
-        'required_one_of': [('attribute', 'and', 'or')],
-        'mutually_exclusive': [('attribute', 'and', 'or'),
-                               ('and', 'operator'),
-                               ('and', 'value'),
-                               ('or', 'operator'),
-                               ('or', 'value')
-                               ],
-        'options': children
-    }
-
-
-def _cf_options(children):
-    basic_list_dict = {
-        'type': 'list',
-        'elements': 'dict',
-    }
-
-    # These warnings are a PyCharm bug:
-    # https://youtrack.jetbrains.com/issue/PY-43664
-    and_list = {'and': dict(
-        chain(basic_list_dict.items(), _cf_child(children).items())
-    )}
-    or_list = {'or': dict(
-        chain(basic_list_dict.items(), _cf_child(children).items())
-    )}
-    return dict(
-        chain(ATTRIBUTE_ARGUMENTS.items(), and_list.items(), or_list.items())
-    )
-
-
-def _complex_filter():
-    children = _cf_child(
-        _cf_options(
-            _cf_options(
-                _cf_options(
-                    ATTRIBUTE_ARGUMENTS
-                )
-            )
-        )
-    )
-    base_type = {'type': 'dict'}
-    # This warning is a PyCharm bug:
-    # https://youtrack.jetbrains.com/issue/PY-43664
-    return dict(chain(children.items(), base_type.items()))
-
 
 def parameters_argument(name):  # type: (str) -> Dict[str, Any]
     return {
@@ -137,6 +68,14 @@ def parameters_argument(name):  # type: (str) -> Dict[str, Any]
     }
 
 
+OPERATORS = ['<', '<=', '=', '>', '>=', '¬=', '==', '!=', 'EQ', 'NE', 'LT',
+             'LE', 'GE', 'GT', 'IS']
+
+ATTRIBUTE = 'attribute'
+AND = 'and'
+OR = 'or'
+OPERATOR = 'operator'
+
 RESOURCES_ARGUMENT = {
     RESOURCES: {
         'type': 'dict',
@@ -146,7 +85,47 @@ RESOURCES_ARGUMENT = {
                 'type': 'dict',
                 'required': False
             },
-            COMPLEX_FILTER: _complex_filter(),
+            COMPLEX_FILTER: {
+                'type': 'dict',
+                'required': False,
+                'required_together': [
+                    (ATTRIBUTE, VALUE)
+                ],
+                'required_one_of': [
+                    (ATTRIBUTE, AND, OR)
+                ],
+                'required_by': {
+                    OPERATOR: ATTRIBUTE
+                },
+                'mutually_exclusive': [
+                    (ATTRIBUTE, AND, OR)
+                ],
+                'options': {
+                    ATTRIBUTE: {
+                        'type': 'str',
+                        'required': False
+                    },
+                    OPERATOR: {
+                        'type': 'str',
+                        'required': False,
+                        'choices': OPERATORS
+                    },
+                    VALUE: {
+                        'type': 'str',
+                        'required': False
+                    },
+                    AND: {
+                        'type': 'list',
+                        'elements': 'dict',
+                        'required': False
+                    },
+                    OR: {
+                        'type': 'list',
+                        'elements': 'dict',
+                        'required': False
+                    }
+                }
+            },
             GET_PARAMETERS:
                 parameters_argument(GET_PARAMETERS).get(GET_PARAMETERS)
         }
@@ -417,8 +396,6 @@ class AnsibleCMCIModule(object):
             if f:
                 # AND basic filters together and use the = operator for each one
                 filter_string = ''
-                if not request_params:
-                    request_params = OrderedDict({})
                 for key, value in f.items():
                     filter_string = _append_filter_string(
                         filter_string,
@@ -429,49 +406,10 @@ class AnsibleCMCIModule(object):
 
             complex_filter = resources.get(COMPLEX_FILTER)
             if complex_filter:
-                complex_filter_string = ''
-                if not request_params:
-                    request_params = OrderedDict({})
-
-                and_item = complex_filter['and']
-                or_item = complex_filter['or']
-                attribute_item = complex_filter['attribute']
-
-                if and_item is not None:
-                    complex_filter_string = _get_filter(
-                        and_item,
-                        complex_filter_string,
-                        ' AND '
-                    )
-
-                if or_item is not None:
-                    complex_filter_string = _get_filter(
-                        or_item,
-                        complex_filter_string,
-                        ' OR '
-                    )
-
-                if attribute_item is not None:
-                    operator = _convert_filter_operator(
-                        complex_filter['operator']
-                    )
-                    value = complex_filter['value']
-
-                    if operator == '¬=':
-                        # Provides a filter string in the format NOT(FOO=='BAR')
-                        complex_filter_string = _append_filter_string(
-                            complex_filter_string,
-                            'NOT('
-                            + attribute_item + '==' + '\'' + value + '\''
-                            + ')'
-                        )
-                    else:
-                        complex_filter_string = _append_filter_string(
-                            complex_filter_string,
-                            attribute_item + operator + '\'' + value + '\''
-                        )
-
-                request_params['CRITERIA'] = complex_filter_string
+                request_params['CRITERIA'] = self._get_complex_filter(
+                    complex_filter,
+                    "resources -> complex_filter"
+                )
 
             parameters = resources.get(GET_PARAMETERS)
             if parameters:
@@ -603,67 +541,127 @@ class AnsibleCMCIModule(object):
                 {'@' + key: value for key, value in items}
             )
 
+    def _get_filter(self, list_of_filters, joiner, path):
+        #  type: (List[Dict], str, str) -> str
+
+        if not isinstance(list_of_filters, list):
+            self._fail(
+                "nested filters must be a list, was: %s found in %s"
+                % (type(list_of_filters), path)
+            )
+        complex_filter_string = ''
+        for i in list_of_filters:
+            complex_filter_string = _append_filter_string(
+                complex_filter_string,
+                self._get_complex_filter(i, path),
+                joiner
+            )
+        return complex_filter_string
+
+    def _get_complex_filter(self, i, path):
+        if not isinstance(i, dict):
+            self._fail(
+                "nested filter must be of type dict, was: %s found in %s"
+                % (type(i), path)
+            )
+
+        valid_keys = [AND, ATTRIBUTE, OPERATOR, OR, VALUE]
+        diff = set(i.keys()) - set(valid_keys)
+        if len(diff) != 0:
+            self._fail(
+                "Unsupported parameters for (basic.py) module: %s found"
+                " in %s. Supported parameters include: %s"
+                % (", ".join(diff), path, ", ".join(valid_keys))
+            )
+
+        # Validate required_one_of
+        and_item = i.get(AND)
+        or_item = i.get(OR)
+        attribute = i.get(ATTRIBUTE)
+
+        if not and_item and not or_item and not attribute:
+            self._fail(
+                "one of the following is required: %s found in %s"
+                % (", ".join([ATTRIBUTE, AND, OR]), path)
+            )
+
+        # Validate required_by
+        op = i.get(OPERATOR)
+
+        if op and not attribute:
+            self._fail(
+                "missing parameter(s) required by '%s': %s"
+                % (OPERATOR, ATTRIBUTE)
+            )
+
+        value = i.get(VALUE)
+
+        if (value and not attribute) or (attribute and not value):
+            self._fail(
+                'parameters are required together: %s, %s found in %s'
+                % (ATTRIBUTE, VALUE, path)
+            )
+
+        # Validate mutually exclusive parameters
+        if (and_item and or_item) or (and_item and attribute) or \
+                (or_item and attribute):
+            self._fail(
+                'parameters are mutually exclusive: %s|%s|%s found in %s'
+                % (ATTRIBUTE, AND, OR, path)
+            )
+
+        if and_item is not None:
+            return self._get_filter(and_item, ' AND ', '%s -> %s' % (path, AND))
+        if or_item is not None:
+            return self._get_filter(or_item, ' OR ', '%s -> %s' % (path, OR))
+        if attribute is not None:
+            operator = self._convert_filter_operator(op, path)
+
+            # Validate attribute type
+            if not isinstance(attribute, str):
+                self._fail(
+                    "%s must be of type str, was: %s found in %s"
+                    % (ATTRIBUTE, type(attribute), path)
+                )
+
+            # Validate value type
+            if not isinstance(value, str):
+                self._fail(
+                    "%s must be of type str, was: %s found in %s"
+                    % (VALUE, type(value), path)
+                )
+
+            if operator == '¬=':
+                # Provides a filter string in the format NOT(FOO=='BAR')
+                return 'NOT(' + attribute + '==' + '\'' + value + '\'' + ')'
+            else:
+                return attribute + operator + '\'' + value + '\''
+
+    def _convert_filter_operator(self, operator, path):
+        if operator in ['<', 'LT']:
+            return '<'
+        if operator in ['<=', 'LE']:
+            return '<='
+        if operator in ['=', 'EQ', None]:
+            return '='
+        if operator in ['>=', 'GE']:
+            return '>='
+        if operator in ['>', 'GT']:
+            return '>'
+        if operator in ['¬=', '!=', 'NE']:
+            return '¬='
+        if operator in ['==', 'IS']:
+            return '=='
+        self._fail(
+            'value of operator must be one of: %s, got: %s found in %s'
+            % (", ".join(OPERATORS), operator, path)
+        )
+
     def _fail(self, msg):  # type: (str) -> None
         self._module.fail_json(msg=msg, **self.result)
 
     def _fail_tb(self, msg, tb):  # type: (str, str) -> None
         self._module.fail_json(msg=msg, exception=tb, **self.result)
-
-
-def _convert_filter_operator(operator):
-    if operator in ['<', 'LT']:
-        return '<'
-    if operator in ['<=', 'LE']:
-        return '<='
-    if operator in ['=', 'EQ']:
-        return '='
-    if operator in ['>=', 'GE']:
-        return '>='
-    if operator in ['>', 'GT']:
-        return '>'
-    if operator in ['¬=', '!=', 'NE']:
-        return '¬='
-    if operator in ['==', 'IS']:
-        return '=='
-
-
-def _get_filter(list_of_filters, complex_filter_string, joiner):
-    for i in list_of_filters:
-        and_item = i.get('and')
-        or_item = i.get('or')
-        attribute = i.get('attribute')
-
-        if and_item is not None:
-            and_filter_string = _get_filter(and_item, '', ' AND ')
-            complex_filter_string = _append_filter_string(
-                complex_filter_string,
-                and_filter_string, joiner
-            )
-        if or_item is not None:
-            or_filter_string = _get_filter(or_item, '', ' OR ')
-            complex_filter_string = _append_filter_string(
-                complex_filter_string,
-                or_filter_string, joiner
-            )
-        if attribute is not None:
-            operator = _convert_filter_operator(i.get('operator'))
-            value = i.get('value')
-
-            if operator == '¬=':
-                # Provides a filter string in the format NOT(FOO=='BAR')
-                attribute_filter_string =\
-                    'NOT(' + attribute + '==' + '\'' + value + '\'' + ')'
-            else:
-                attribute_filter_string = \
-                    attribute + operator + '\'' + value + '\''
-
-            complex_filter_string = _append_filter_string(
-                complex_filter_string,
-                attribute_filter_string,
-                joiner
-            )
-
-    return complex_filter_string
 
 
 def _append_filter_string(existing, to_append, joiner=' AND '):
