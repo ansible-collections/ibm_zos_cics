@@ -455,7 +455,8 @@ def test_complex_filter_invalid_and_attribute_root(cmci_module):  # type: (CMCIT
 def test_complex_filter_invalid_and_attribute_and(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
         'msg': 'parameters are mutually exclusive: attribute|and|or found in resources -> complex_filter -> and',
-        'failed': True
+        'failed': True,
+        'changed': False
     })
 
     cmci_module.run(cmci_get, {
@@ -485,7 +486,7 @@ def test_complex_filter_invalid_and_attribute_and(cmci_module):  # type: (CMCITe
 
 def test_complex_filter_invalid_and_attribute_or(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': 'parameters are mutually exclusive: attribute|and|or, and|value found in resources -> complex_filter',
+        'msg': 'parameters are mutually exclusive: attribute|and|or found in resources -> complex_filter',
         'failed': True
     })
 
@@ -657,12 +658,69 @@ def test_extra_attributes_root(cmci_module):
     })
 
 
-def test_and_string_invalid(cmci_module):
+def test_extra_attributes_and(cmci_module):
     # type: (CMCITestHelper) -> None
     cmci_module.expect({
         'msg': "Unsupported parameters for (basic.py) module: orange found in "
-               "resources -> complex_filter. Supported parameters include: and,"
-               " attribute, operator, or, value",
+               "resources -> complex_filter -> and. Supported parameters "
+               "include: and, attribute, operator, or, value",
+        'failed': True,
+        'changed': False
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'and': [{
+                    "attribute": "foo",
+                    "value": "bar",
+                    "orange": "red"
+                }]
+            }
+        }
+    })
+
+
+def test_extra_attributes_or(cmci_module):
+    # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': "Unsupported parameters for (basic.py) module: orange found in "
+               "resources -> complex_filter -> or. Supported parameters "
+               "include: and, attribute, operator, or, value",
+        'failed': True,
+        'changed': False
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'or': [{
+                    "attribute": "foo",
+                    "value": "bar",
+                    "orange": "red"
+                }]
+            }
+        }
+    })
+
+
+def test_and_string_invalid(cmci_module):
+    # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': "Elements value for option and found in 'resources -> "
+               "complex_filter' is of type <class 'str'> and we were unable to "
+               "convert to dict: dictionary requested, could not parse JSON or"
+               " key=value",
         'failed': True
     })
 
@@ -683,9 +741,10 @@ def test_and_string_invalid(cmci_module):
 def test_and_list_of_strings_invalid(cmci_module):
     # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': "Unsupported parameters for (basic.py) module: orange found in "
-               "resources -> complex_filter. Supported parameters include: and,"
-               " attribute, operator, or, value",
+        'msg': "Elements value for option and found in 'resources -> "
+               "complex_filter' is of type <class 'str'> and we were unable to "
+               "convert to dict: dictionary requested, could not parse JSON or "
+               "key=value",
         'failed': True
     })
 
@@ -705,42 +764,282 @@ def test_and_list_of_strings_invalid(cmci_module):
     })
 
 
-def test_extra_attributes_and():
-    pass
+def test_and_and_string_invalid(cmci_module):
+    # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': "nested filters must be a list, was: <class 'str'> found in "
+               "resources -> complex_filter -> and -> and",
+        'failed': True,
+        'changed': False
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'and': [{
+                    "and": "foo"
+                }]
+            }
+        }
+    })
 
 
-def test_extra_attributes_or():
-    pass
+def test_and_and_list_of_strings_invalid(cmci_module):
+    # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': "nested filter must be of type dict, was: <class 'str'> found "
+               "in resources -> complex_filter -> and -> and",
+        'failed': True,
+        'changed': False
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'and': [{
+                    "and": ["foo", "bar"]
+                }]
+            }
+        }
+    })
 
 
-def test_required_together_root():
-    pass
+def test_and_or_string_invalid(cmci_module):
+    # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': "nested filters must be a list, was: <class 'str'> found in "
+               "resources -> complex_filter -> and -> or",
+        'failed': True,
+        'changed': False
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'and': [{
+                    "or": "foo"
+                }]
+            }
+        }
+    })
 
 
-def test_required_together_and():
-    pass
+def test_and_or_list_of_strings_invalid(cmci_module):
+    # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': "nested filter must be of type dict, was: <class 'str'> found "
+               "in resources -> complex_filter -> and -> or",
+        'failed': True,
+        'changed': False
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'and': [{
+                    "or": ["foo", "bar"]
+                }]
+            }
+        }
+    })
 
 
-def test_required_together_or():
-    pass
+def test_empty_list_invalid_and(cmci_module):
+    # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': "nested filter must be of type dict, was: <class 'str'> found "
+               "in resources -> complex_filter -> and -> or",
+        'failed': True,
+        'changed': False
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'and': []
+            }
+        }
+    })
 
 
-def test_required_one_of_root():
-    pass
+def test_empty_list_invalid_or(cmci_module):
+    # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': "nested filter must be of type dict, was: <class 'str'> found "
+               "in resources -> complex_filter -> and -> or",
+        'failed': True,
+        'changed': False
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'and': []
+            }
+        }
+    })
 
 
-def test_required_one_of_and():
-    pass
+def test_operator_choice_root(cmci_module):
+    # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': 'value of operator must be one of: <, <=, =, >, >=, ¬=, ==, !=, '
+               'EQ, NE, LT, LE, GE, GT, IS, got: banana found in resources -> '
+               'complex_filter',
+        'failed': True
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'attribute': 'FOO',
+                'value': 'BAR',
+                'operator': 'banana'
+            }
+        }
+    })
+
+
+def test_operator_choice_and(cmci_module):
+    # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': 'value of operator must be one of: <, <=, =, >, >=, ¬=, ==, !=, '
+               'EQ, NE, LT, LE, GE, GT, IS, got: banana found in resources -> '
+               'complex_filter -> and',
+        'failed': True,
+        'changed': False
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'and': [{
+                    'attribute': 'FOO',
+                    'value': 'BAR',
+                    'operator': 'banana'
+                }]
+            }
+        }
+    })
+
+
+def test_operator_choice_or(cmci_module):
+    # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': 'value of operator must be one of: <, <=, =, >, >=, ¬=, ==, !=, '
+               'EQ, NE, LT, LE, GE, GT, IS, got: banana found in resources -> '
+               'complex_filter -> or',
+        'failed': True,
+        'changed': False
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'or': [{
+                    'attribute': 'FOO',
+                    'value': 'BAR',
+                    'operator': 'banana'
+                }]
+            }
+        }
+    })
+
+
+def test_required_one_of_root(cmci_module):
+    # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': 'one of the following is required: attribute, and, or found in '
+               'resources -> complex_filter',
+        'failed': True
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+            }
+        }
+    })
+
+
+def test_required_one_of_and(cmci_module):
+    # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': 'one of the following is required: attribute, and, or found in '
+               'resources -> complex_filter',
+        'failed': True
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'and': [{}]
+            }
+        }
+    })
 
 
 def test_required_one_of_or():
     pass
 
-
 # attribute type
 # value type
-# operator is valid choice
-# and/or are lists of dicts
+
 
 def result(url, records, http_status='OK', http_status_code=200):
     return {

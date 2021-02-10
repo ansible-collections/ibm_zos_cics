@@ -48,51 +48,6 @@ INSECURE = 'insecure'
 GET_PARAMETERS = 'get_parameters'
 
 
-def _complex_filter():
-    return {
-        'type': 'dict',
-        'required': False,
-        'required_together': [
-            ('attribute', 'value')
-        ],
-        'required_one_of': [
-            ('attribute', 'and', 'or')
-        ],
-        'required_by': {
-            'operator': 'attribute'
-        },
-        'mutually_exclusive': [
-            ('attribute', 'and', 'or')
-        ],
-        'options': {
-            'attribute': {
-                'type': 'str',
-                'required': False
-            },
-            'operator': {
-                'type': 'str',
-                'required': False,
-                'choices': ['<', '<=', '=', '>', '>=', '¬=', '==', '!=', 'EQ',
-                            'NE', 'LT', 'LE', 'GE', 'GT', 'IS']
-            },
-            'value': {
-                'type': 'str',
-                'required': False
-            },
-            'and': {
-                'type': 'list',
-                'elements': 'dict',
-                'required': False
-            },
-            'or': {
-                'type': 'list',
-                'elements': 'dict',
-                'required': False
-            }
-        }
-    }
-
-
 def parameters_argument(name):  # type: (str) -> Dict[str, Any]
     return {
         name: {
@@ -113,6 +68,9 @@ def parameters_argument(name):  # type: (str) -> Dict[str, Any]
     }
 
 
+OPERATORS = ['<', '<=', '=', '>', '>=', '¬=', '==', '!=', 'EQ', 'NE', 'LT',
+             'LE', 'GE', 'GT', 'IS']
+
 RESOURCES_ARGUMENT = {
     RESOURCES: {
         'type': 'dict',
@@ -122,7 +80,47 @@ RESOURCES_ARGUMENT = {
                 'type': 'dict',
                 'required': False
             },
-            COMPLEX_FILTER: _complex_filter(),
+            COMPLEX_FILTER: {
+                'type': 'dict',
+                'required': False,
+                'required_together': [
+                    ('attribute', 'value')
+                ],
+                'required_one_of': [
+                    ('attribute', 'and', 'or')
+                ],
+                'required_by': {
+                    'operator': 'attribute'
+                },
+                'mutually_exclusive': [
+                    ('attribute', 'and', 'or')
+                ],
+                'options': {
+                    'attribute': {
+                        'type': 'str',
+                        'required': False
+                    },
+                    'operator': {
+                        'type': 'str',
+                        'required': False,
+                        'choices': OPERATORS
+                    },
+                    'value': {
+                        'type': 'str',
+                        'required': False
+                    },
+                    'and': {
+                        'type': 'list',
+                        'elements': 'dict',
+                        'required': False
+                    },
+                    'or': {
+                        'type': 'list',
+                        'elements': 'dict',
+                        'required': False
+                    }
+                }
+            },
             GET_PARAMETERS:
                 parameters_argument(GET_PARAMETERS).get(GET_PARAMETERS)
         }
@@ -431,8 +429,9 @@ class AnsibleCMCIModule(object):
                     )
 
                 if attribute_item is not None:
-                    operator = _convert_filter_operator(
-                        complex_filter['operator']
+                    operator = self._convert_filter_operator(
+                        complex_filter['operator'],
+                        ""
                     )
                     value = complex_filter['value']
 
@@ -584,11 +583,34 @@ class AnsibleCMCIModule(object):
 
     def _get_filter(self, list_of_filters, complex_filter_string, joiner, path):
         #  type: (List[Dict], str, str, str) -> str
+
+        if not isinstance(list_of_filters, list):
+            self._fail(
+                "nested filters must be a list, was: %s found in "
+                "resources -> complex_filter%s"
+                % (type(list_of_filters), path)
+            )
         for i in list_of_filters:
+            if not isinstance(i, dict):
+                self._fail(
+                    "nested filter must be of type dict, was: %s found in "
+                    "resources -> complex_filter%s" % (type(i), path)
+                )
+
             and_item = i.get('and')
             or_item = i.get('or')
             attribute = i.get('attribute')
             op = i.get('operator')
+
+            valid_keys = ['and', 'attribute', 'operator', 'or', 'value']
+            diff = set(i.keys()) - set(valid_keys)
+            if len(diff) != 0:
+                self._fail(
+                    "Unsupported parameters for (basic.py) module: %s found"
+                    " in resources -> complex_filter%s. Supported parameters "
+                    "include: %s"
+                    % (", ".join(diff), path, ", ".join(valid_keys))
+                )
 
             if op and not attribute:
                 self._fail(
@@ -600,7 +622,7 @@ class AnsibleCMCIModule(object):
                     (or_item and attribute):
                 self._fail(
                     'parameters are mutually exclusive: attribute|and|or found '
-                    'in resources -> complex_filter' + path
+                    'in resources -> complex_filter%s' % path
                 )
 
             if and_item is not None:
@@ -626,13 +648,13 @@ class AnsibleCMCIModule(object):
                     or_filter_string, joiner
                 )
             if attribute is not None:
-                operator = _convert_filter_operator(op)
+                operator = self._convert_filter_operator(op, path)
                 value = i.get('value')
 
                 if value is None:
                     self._fail(
                         'parameters are required together: attribute, value '
-                        'found in resources -> complex_filter' + path)
+                        'found in resources -> complex_filter%s' % path)
 
                 if operator == '¬=':
                     # Provides a filter string in the format NOT(FOO=='BAR')
@@ -650,28 +672,32 @@ class AnsibleCMCIModule(object):
 
         return complex_filter_string
 
+    def _convert_filter_operator(self, operator, path):
+        if operator in ['<', 'LT']:
+            return '<'
+        if operator in ['<=', 'LE']:
+            return '<='
+        if operator in ['=', 'EQ', None]:
+            return '='
+        if operator in ['>=', 'GE']:
+            return '>='
+        if operator in ['>', 'GT']:
+            return '>'
+        if operator in ['¬=', '!=', 'NE']:
+            return '¬='
+        if operator in ['==', 'IS']:
+            return '=='
+        self._fail(
+            'value of operator must be one of: %s, got: %s found in '
+            'resources -> complex_filter%s'
+            % (", ".join(OPERATORS), operator, path)
+        )
+
     def _fail(self, msg):  # type: (str) -> None
         self._module.fail_json(msg=msg, **self.result)
 
     def _fail_tb(self, msg, tb):  # type: (str, str) -> None
         self._module.fail_json(msg=msg, exception=tb, **self.result)
-
-
-def _convert_filter_operator(operator):
-    if operator in ['<', 'LT']:
-        return '<'
-    if operator in ['<=', 'LE']:
-        return '<='
-    if operator in ['=', 'EQ', None]:
-        return '='
-    if operator in ['>=', 'GE']:
-        return '>='
-    if operator in ['>', 'GT']:
-        return '>'
-    if operator in ['¬=', '!=', 'NE']:
-        return '¬='
-    if operator in ['==', 'IS']:
-        return '=='
 
 
 def _append_filter_string(existing, to_append, joiner=' AND '):
