@@ -33,7 +33,7 @@ as **certified** and **IBM supported** for
 **Red Hat® Ansible Automation Platform subscribers**. 
 
 
-For guides and reference, please review the {[documentation](https://ibm.github.io/z_ansible_collections_doc/index.html)
+For guides and reference, please review the [documentation](https://ibm.github.io/z_ansible_collections_doc/index.html).
 
 Features
 ========
