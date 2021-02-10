@@ -202,7 +202,8 @@ options:
               These operators are accepted: C(<) or C(LT) (less than), C(<=) or
               C(LE) (less than or equal to), C(=) or C(EQ) (equal to), C(>) or
               C(GT) (greater than), C(>=) or C(GE) (greater than or equal to),
-              C(==) or C(IS) (is), C(¬=), C(!=), or C(NE) (not equal to).
+              C(==) or C(IS) (is), C(¬=), C(!=), or C(NE) (not equal to).  If
+              not supplied when 'attribute' is used, C(EQ) will be assumed.
             type: str
             required: false
             choices:
@@ -221,7 +222,6 @@ options:
               - LE
               - NE
               - IS
-            default: EQ
           value:
             description:
               - The value by which you are to filter the resource attributes.

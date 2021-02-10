@@ -71,6 +71,12 @@ def parameters_argument(name):  # type: (str) -> Dict[str, Any]
 OPERATORS = ['<', '<=', '=', '>', '>=', '¬=', '==', '!=', 'EQ', 'NE', 'LT',
              'LE', 'GE', 'GT', 'IS']
 
+ATTRIBUTE = 'attribute'
+AND = 'and'
+OR = 'or'
+OPERATOR = 'operator'
+VALUE = 'value'
+
 RESOURCES_ARGUMENT = {
     RESOURCES: {
         'type': 'dict',
@@ -84,37 +90,37 @@ RESOURCES_ARGUMENT = {
                 'type': 'dict',
                 'required': False,
                 'required_together': [
-                    ('attribute', 'value')
+                    (ATTRIBUTE, VALUE)
                 ],
                 'required_one_of': [
-                    ('attribute', 'and', 'or')
+                    (ATTRIBUTE, AND, OR)
                 ],
                 'required_by': {
-                    'operator': 'attribute'
+                    OPERATOR: ATTRIBUTE
                 },
                 'mutually_exclusive': [
-                    ('attribute', 'and', 'or')
+                    (ATTRIBUTE, AND, OR)
                 ],
                 'options': {
-                    'attribute': {
+                    ATTRIBUTE: {
                         'type': 'str',
                         'required': False
                     },
-                    'operator': {
+                    OPERATOR: {
                         'type': 'str',
                         'required': False,
                         'choices': OPERATORS
                     },
-                    'value': {
+                    VALUE: {
                         'type': 'str',
                         'required': False
                     },
-                    'and': {
+                    AND: {
                         'type': 'list',
                         'elements': 'dict',
                         'required': False
                     },
-                    'or': {
+                    OR: {
                         'type': 'list',
                         'elements': 'dict',
                         'required': False
@@ -408,16 +414,16 @@ class AnsibleCMCIModule(object):
                 if not request_params:
                     request_params = OrderedDict({})
 
-                and_item = complex_filter['and']
-                or_item = complex_filter['or']
-                attribute_item = complex_filter['attribute']
+                and_item = complex_filter[AND]
+                or_item = complex_filter[OR]
+                attribute_item = complex_filter[ATTRIBUTE]
 
                 if and_item is not None:
                     complex_filter_string = self._get_filter(
                         and_item,
                         complex_filter_string,
                         ' AND ',
-                        ' -> and'
+                        ' -> ' + AND
                     )
 
                 if or_item is not None:
@@ -425,15 +431,15 @@ class AnsibleCMCIModule(object):
                         or_item,
                         complex_filter_string,
                         ' OR ',
-                        ' -> or'
+                        ' -> ' + OR
                     )
 
                 if attribute_item is not None:
                     operator = self._convert_filter_operator(
-                        complex_filter['operator'],
+                        complex_filter[OPERATOR],
                         ""
                     )
-                    value = complex_filter['value']
+                    value = complex_filter[VALUE]
 
                     if operator == '¬=':
                         # Provides a filter string in the format NOT(FOO=='BAR')
@@ -597,12 +603,7 @@ class AnsibleCMCIModule(object):
                     "resources -> complex_filter%s" % (type(i), path)
                 )
 
-            and_item = i.get('and')
-            or_item = i.get('or')
-            attribute = i.get('attribute')
-            op = i.get('operator')
-
-            valid_keys = ['and', 'attribute', 'operator', 'or', 'value']
+            valid_keys = [AND, ATTRIBUTE, OPERATOR, OR, VALUE]
             diff = set(i.keys()) - set(valid_keys)
             if len(diff) != 0:
                 self._fail(
@@ -612,17 +613,33 @@ class AnsibleCMCIModule(object):
                     % (", ".join(diff), path, ", ".join(valid_keys))
                 )
 
+            # Validate required_one_of
+            and_item = i.get(AND)
+            or_item = i.get(OR)
+            attribute = i.get(ATTRIBUTE)
+
+            if not and_item and not or_item and not attribute:
+                self._fail(
+                    "one of the following is required: %s found"
+                    " in resources -> complex_filter%s"
+                    % (", ".join([ATTRIBUTE, AND, OR]), path)
+                )
+
+            # Validate required_by
+            op = i.get(OPERATOR)
+
             if op and not attribute:
                 self._fail(
-                    "missing parameter(s) required by 'operator': attribute"
+                    "missing parameter(s) required by '%s': %s"
+                    % (OPERATOR, ATTRIBUTE)
                 )
 
             # Validate mutually exclusive parameters
             if (and_item and or_item) or (and_item and attribute) or \
                     (or_item and attribute):
                 self._fail(
-                    'parameters are mutually exclusive: attribute|and|or found '
-                    'in resources -> complex_filter%s' % path
+                    'parameters are mutually exclusive: %s|%s|%s found in '
+                    'resources -> complex_filter%s' % (ATTRIBUTE, AND, OR, path)
                 )
 
             if and_item is not None:
@@ -630,7 +647,7 @@ class AnsibleCMCIModule(object):
                     and_item,
                     '',
                     ' AND ',
-                    path + ' -> and'
+                    '%s -> %s' % (path, AND)
                 )
                 complex_filter_string = _append_filter_string(
                     complex_filter_string,
@@ -641,7 +658,7 @@ class AnsibleCMCIModule(object):
                     or_item,
                     '',
                     ' OR ',
-                    path + ' -> or'
+                    '%s -> %s' % (path, OR)
                 )
                 complex_filter_string = _append_filter_string(
                     complex_filter_string,
@@ -649,12 +666,31 @@ class AnsibleCMCIModule(object):
                 )
             if attribute is not None:
                 operator = self._convert_filter_operator(op, path)
-                value = i.get('value')
+
+                # Validate attribute type
+                if not isinstance(attribute, str):
+                    self._fail(
+                        "%s must be of type str, was: %s found in "
+                        "resources -> complex_filter%s"
+                        % (ATTRIBUTE, type(attribute), path)
+                    )
+
+                value = i.get(VALUE)
 
                 if value is None:
                     self._fail(
-                        'parameters are required together: attribute, value '
-                        'found in resources -> complex_filter%s' % path)
+                        'parameters are required together: %s, %s found in '
+                        'resources -> complex_filter%s'
+                        % (ATTRIBUTE, VALUE, path)
+                    )
+
+                # Validate value type
+                if not isinstance(value, str):
+                    self._fail(
+                        "%s must be of type str, was: %s found in "
+                        "resources -> complex_filter%s"
+                        % (VALUE, type(value), path)
+                    )
 
                 if operator == '¬=':
                     # Provides a filter string in the format NOT(FOO=='BAR')
