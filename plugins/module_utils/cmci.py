@@ -75,7 +75,6 @@ ATTRIBUTE = 'attribute'
 AND = 'and'
 OR = 'or'
 OPERATOR = 'operator'
-VALUE = 'value'
 
 RESOURCES_ARGUMENT = {
     RESOURCES: {
@@ -634,6 +633,15 @@ class AnsibleCMCIModule(object):
                     % (OPERATOR, ATTRIBUTE)
                 )
 
+            value = i.get(VALUE)
+
+            if (value and not attribute) or (attribute and not value):
+                self._fail(
+                    'parameters are required together: %s, %s found in '
+                    'resources -> complex_filter%s'
+                    % (ATTRIBUTE, VALUE, path)
+                )
+
             # Validate mutually exclusive parameters
             if (and_item and or_item) or (and_item and attribute) or \
                     (or_item and attribute):
@@ -673,15 +681,6 @@ class AnsibleCMCIModule(object):
                         "%s must be of type str, was: %s found in "
                         "resources -> complex_filter%s"
                         % (ATTRIBUTE, type(attribute), path)
-                    )
-
-                value = i.get(VALUE)
-
-                if value is None:
-                    self._fail(
-                        'parameters are required together: %s, %s found in '
-                        'resources -> complex_filter%s'
-                        % (ATTRIBUTE, VALUE, path)
                     )
 
                 # Validate value type

@@ -1121,7 +1121,88 @@ def test_value_type_or(cmci_module):
     })
 
 
-# value type
+def test_value_no_attribute_root(cmci_module):
+    # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': "parameters are required together: attribute, value found in "
+               "resources -> complex_filter",
+        'failed': True
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'value': '456a',
+                'and': [{
+                    'attribute': '123',
+                    'value': '678a'
+                }]
+            }
+        }
+    })
+
+
+def test_value_no_attribute_and(cmci_module):
+    # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': "parameters are required together: attribute, value found in "
+               "resources -> complex_filter -> and",
+        'failed': True,
+        'changed': False
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'and': [{
+                    'value': '456',
+                    'and': [{
+                        'attribute': '123',
+                        'value': '678'
+                    }]
+                }]
+            }
+        }
+    })
+
+
+def test_value_no_attribute_or(cmci_module):
+    # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': "parameters are required together: attribute, value found in "
+               "resources -> complex_filter -> or",
+        'failed': True,
+        'changed': False
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'or': [{
+                    'value': '456',
+                    'or': [{
+                        'attribute': '123',
+                        'value': '678'
+                    }]
+                }]
+            }
+        }
+    })
 
 
 def result(url, records, http_status='OK', http_status_code=200):
