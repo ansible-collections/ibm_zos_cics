@@ -24,6 +24,7 @@ author:
   - Stewart Francis (@stewartfrancis)
   - Tom Latham (@Tom-Latham)
   - Sophie Green (@sophiegreen)
+  - Ya Qing Chen (@vera-chan)
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.cmci.COMMON
   - ibm.ibm_zos_cics.cmci.RESOURCES
