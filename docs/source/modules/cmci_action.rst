@@ -42,7 +42,7 @@ action_name
 
      
 action_parameters
-  A list of one or more parameters that control the *action* operation. Eligible actions and  corresponding parameters for the target operation can be found in the resource table reference  for the target resource type, as listed in the PERFORM SET operation section of the "Valid CPSM operations" table. For example, the valid parameters for a PROGDEF CSDCOPY action are AS_RESOURCE, DUPACTION and TO_CSDGROUP, as found in the `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
+  A list of one or more parameters that control the *action* operation. Eligible actions and corresponding parameters for the target operation can be found in the resource table reference for the target resource type, as listed in the PERFORM SET operation section of the "Valid CPSM operations" table. For example, the valid parameters for a PROGDEF CSDCOPY action are ``AS_RESOURCE``, ``DUPACTION`` and ``TO_CSDGROUP``, as found in the `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
 
 
 
@@ -61,7 +61,7 @@ action_parameters
 
      
   value
-    Parameter value if any. Can be omitted if the parameter requires no value to be supplied, as shown in the resource table reference. For example, the OVERRIDE parameter for the PROGDEF INSTALL action  doesn't require a value.
+    Parameter value if any. Can be omitted if the parameter requires no value to be supplied, as shown in the resource table reference. For example, the OVERRIDE parameter for the PROGDEF INSTALL action doesn't require a value.
 
 
 
@@ -189,7 +189,7 @@ resources
 
     Filters can be nested. At most four nesting layers are allowed.
 
-    When supplying the ``attribute`` option, you must also supply a ``value`` for the filter.  You can also override the default operator with the ``=`` option.
+    When supplying the ``attribute`` option, you must also supply a ``value`` for the filter.  You can also override the default operator of ``=`` with the ``operator`` option.
 
     For examples, see :ref:`cmci_get <cmci_get_module>`
 
@@ -222,13 +222,12 @@ resources
 
      
     operator
-      These operators are accepted: ``<`` or ``LT`` (less than), ``<=`` or ``LE`` (less than or equal to), ``=`` or ``EQ`` (equal to), ``>`` or ``GT`` (greater than), ``>=`` or ``GE`` (greater than or equal to), ``==`` or ``IS`` (is), ``¬=``, ``!=``, or ``NE`` (not equal to).
+      These operators are accepted: ``<`` or ``LT`` (less than), ``<=`` or ``LE`` (less than or equal to), ``=`` or ``EQ`` (equal to), ``>`` or ``GT`` (greater than), ``>=`` or ``GE`` (greater than or equal to), ``==`` or ``IS`` (is), ``¬=``, ``!=``, or ``NE`` (not equal to).  If not supplied when 'attribute' is used, ``EQ`` will be assumed.
 
 
 
       | **required**: False
       | **type**: str
-      | **default**: EQ
       | **choices**: <, >, <=, >=, =, ==, !=, ¬=, EQ, GT, GE, LT, LE, NE, IS
 
 
