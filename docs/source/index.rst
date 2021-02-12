@@ -41,19 +41,6 @@ The IBM z/OS CICS collection includes `modules`_, `sample playbooks`_, and ansib
 .. _sample playbooks:
     https://github.com/ansible-collections/ibm_zos_cics/tree/master/playbooks/
 
-Contributing
-============
-
-Thank you for contributing to this project.
-
-We welcome bug reports and discussions about new function in the issue tracker, and we also welcome proposed new features or bug fixes via pull requests.
-
-For contribution guidelines, see `How to contribute`_.
-
-.. _How to contribute:
-   https://github.com/ansible-collections/ibm_zos_cics/tree/master/CONTRIBUTING.md
-
-
 
 Copyright
 =========
