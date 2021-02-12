@@ -30,6 +30,3 @@
         that:
           - result.failed is false
           - '{{  result.msg[:58] == "Failed to import the required Python library (encoder) on " }}'
-          - '{{  result.msg[-232:] == "Please read the module documentation and install it in the appropriate location.
-                  If the required library is installed, but Ansible is using the wrong Python interpreter, please
-                  consult the documentation on ansible_python_interpreter" }}'
