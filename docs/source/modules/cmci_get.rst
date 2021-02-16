@@ -162,7 +162,7 @@ resources
 
     Filters can be nested. At most four nesting layers are allowed.
 
-    When supplying the ``attribute`` option, you must also supply a ``value`` for the filter.  You can also override the default operator with the ``=`` option.
+    When supplying the ``attribute`` option, you must also supply a ``value`` for the filter.  You can also override the default operator of ``=`` with the ``operator`` option.
 
     For examples, see :ref:`cmci_get <cmci_get_module>`
 
@@ -195,13 +195,12 @@ resources
 
      
     operator
-      These operators are accepted: ``<`` or ``LT`` (less than), ``<=`` or ``LE`` (less than or equal to), ``=`` or ``EQ`` (equal to), ``>`` or ``GT`` (greater than), ``>=`` or ``GE`` (greater than or equal to), ``==`` or ``IS`` (is), ``¬=``, ``!=``, or ``NE`` (not equal to).
+      These operators are accepted: ``<`` or ``LT`` (less than), ``<=`` or ``LE`` (less than or equal to), ``=`` or ``EQ`` (equal to), ``>`` or ``GT`` (greater than), ``>=`` or ``GE`` (greater than or equal to), ``==`` or ``IS`` (is), ``¬=``, ``!=``, or ``NE`` (not equal to).  If not supplied when 'attribute' is used, ``EQ`` will be assumed.
 
 
 
       | **required**: False
       | **type**: str
-      | **default**: EQ
       | **choices**: <, >, <=, >=, =, ==, !=, ¬=, EQ, GT, GE, LT, LE, NE, IS
 
 
@@ -368,7 +367,7 @@ Examples
            - name: csdgroup
              value: MYGRP
        record_count: 1
-       
+
    - name: Using complex_filter to combine filter expressions and change operators
      cmci_get:
        cmci_host: 'winmvs2c.hursley.ibm.com'
