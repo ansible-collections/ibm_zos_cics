@@ -7,6 +7,13 @@
   hosts: 'localhost'
   gather_facts: 'true'
 
+  vars:
+    mac_message: >-
+      .*nodename nor servname provided, or not known$
+    linux_message: >-
+      .*Name or service not known$
+    error_message: "{{ mac_message if ansible_system == 'Darwin' else linux_message }}"
+
   tasks:
     - name: Print all available facts
       ansible.builtin.debug:
@@ -34,4 +41,4 @@
         that:
           - result.failed is false
           - '{{  result.msg[:76] == "Error performing CMCI request: <urllib3.connection.HTTPSConnection object at" }}'
-          - '{{  result.msg[-92:] == "Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known" }}'
+          - '{{  result.msg is match(error_message) }}'
