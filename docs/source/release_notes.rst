@@ -7,7 +7,7 @@
 Releases
 ========
 
-Version 0.0.3
+Version 1.0.0
 =============
 
 What's New
