@@ -15,10 +15,6 @@
     error_message: "{{ mac_message if ansible_system == 'Darwin' else linux_message }}"
 
   tasks:
-    - name: Print all available facts
-      ansible.builtin.debug:
-        var: ansible_system
-
     - name: test invalid host
       ibm.ibm_zos_cics.cmci_get:
         cmci_host: 'DOESNTEXIST'
