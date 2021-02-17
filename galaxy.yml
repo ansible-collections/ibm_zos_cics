@@ -5,7 +5,7 @@ namespace: ibm
 name: ibm_zos_cics
 
 # The collection version
-version: 0.0.2
+version: 0.0.3
 
 # Collection README file
 readme: README.md
@@ -20,7 +20,7 @@ authors:
 description: The Red Hat Ansible Certified Content for IBM Z CICS collection includes connection plugins, action plugins, modules and sample playbooks to automate tasks for CICS
 
 # License
-license: L(Apache License, Version 2.0, https://spdx.org/licenses/Apache-2.0.html)
+license: "Apache-2.0"
 
 # Tags
 tags: [ibm, z, zos, z_os, cics, cmci]
