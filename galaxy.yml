@@ -54,3 +54,6 @@ build_ignore:
   - docs
   - CONTRIBUTING.md
   - build.sh
+  - requirements.txt
+  - dev-requirements.txt
+  - devguide.md
