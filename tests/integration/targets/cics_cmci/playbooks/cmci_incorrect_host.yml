@@ -10,7 +10,7 @@
   tasks:
     - name: Print all available facts
       ansible.builtin.debug:
-        var: ansible_facts
+        var: ansible_system
 
     - name: test invalid host
       ibm.ibm_zos_cics.cmci_get:
