@@ -160,7 +160,7 @@ options:
             with each other.
           - Can contain one or more filters. Multiple filters must be combined
             using C(and) or C(or) logical operators.
-          - Filters can be nested. At most four nesting layers are allowed.
+          - Filters can be nested.
           - When supplying the C(attribute) option, you must also supply a
             C(value) for the filter. You can also override the default
             operator of C(=) with the C(operator) option.
