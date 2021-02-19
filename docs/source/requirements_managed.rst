@@ -23,13 +23,16 @@ The requirements of the managed node are as follows:
   * `xmltodict`_
 
   If you delegate the tasks to run on your localhost, the Python module dependencies
-  need to be installed on your localhost instead. You can install them from CLI:
+  need to be installed on your localhost instead.
+
+  You can install them from CLI:
 
   .. code-block:: sh
 
      pip install requests xmltodict
 
-  You can also install them using the playbook. See this sample (link to be added) for an example.
+  You can also install them using the playbook. For example, this `CICS
+  sample playbook`_ shows how you can ensure the pre-requisites are installed before the module is executed.
 
 .. _requests:
    https://pypi.org/project/requests/
@@ -37,8 +40,12 @@ The requirements of the managed node are as follows:
 .. _xmltodict:
    https://pypi.org/project/xmltodict/
 
+.. _CICS sample playbook:
+   https://github.com/IBM/z_ansible_collections_samples/tree/master/cics/cmci/reporting
 
-If you use the CICS collection in conjunction with other IBM z/OS collections, you won't be able to delegate all tasks to your localhost. In that case, your managed node must also follow the requirements of those collections, for example, `IBM z/OS core managed node requirements`_.
+
+If you use the CICS collection in conjunction with other IBM z/OS collections,
+your managed node must also follow the requirements of those collections, for example, `IBM z/OS core managed node requirements`_.
 
 If you use the CICS collection alone but don't delegate the CICS tasks to your localhost, your managed node must also follow the `IBM z/OS core managed node requirements`_ except that IBM Z Open Automation Utilities (ZOAU) is not required.
 

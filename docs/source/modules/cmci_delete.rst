@@ -149,9 +149,9 @@ resources
 
     Filters can be nested. At most four nesting layers are allowed.
 
-    When supplying the ``attribute`` option, you must also supply a ``value`` for the filter.  You can also override the default operator of ``=`` with the ``operator`` option.
+    When supplying the ``attribute`` option, you must also supply a ``value`` for the filter. You can also override the default operator of ``=`` with the ``operator`` option.
 
-    For examples, see :ref:`cmci_get <cmci_get_module>`
+    For examples, see "Examples" in :ref:`cmci_get <cmci_get_module>`.
 
 
     | **required**: False
@@ -162,7 +162,7 @@ resources
     and
       A list of filter expressions to be combined with an ``and`` operation.
 
-      Filter expressions are nested ``complex_filter`` elements.  Each nested filter expression can be either an ``attribute``, ``and`` or ``or`` complex filter expression.
+      Filter expressions are nested ``complex_filter`` elements. Each nested filter expression can be either an ``attribute``, ``and`` or ``or`` complex filter expression.
 
 
       | **required**: False
@@ -182,12 +182,13 @@ resources
 
      
     operator
-      These operators are accepted: ``<`` or ``LT`` (less than), ``<=`` or ``LE`` (less than or equal to), ``=`` or ``EQ`` (equal to), ``>`` or ``GT`` (greater than), ``>=`` or ``GE`` (greater than or equal to), ``==`` or ``IS`` (is), ``¬=``, ``!=``, or ``NE`` (not equal to).  If not supplied when 'attribute' is used, ``EQ`` will be assumed.
+      These operators are accepted: ``<`` or ``LT`` (less than), ``<=`` or ``LE`` (less than or equal to), ``=`` or ``EQ`` (equal to), ``>`` or ``GT`` (greater than), ``>=`` or ``GE`` (greater than or equal to), ``==`` or ``IS`` (is), ``¬=``, ``!=``, or ``NE`` (not equal to). If not supplied when ``attribute`` is used, ``EQ`` is assumed.
 
 
 
       | **required**: False
       | **type**: str
+      | **default**: EQ
       | **choices**: <, >, <=, >=, =, ==, !=, ¬=, EQ, GT, GE, LT, LE, NE, IS
 
 
@@ -195,7 +196,7 @@ resources
     or
       A list of filter expressions to be combined with an ``or`` operation.
 
-      Filter expressions are nested ``complex_filter`` elements.  Each nested filter expression can be either an ``attribute``, ``and`` or ``or`` complex filter expression.
+      Filter expressions are nested ``complex_filter`` elements. Each nested filter expression can be either an ``attribute``, ``and`` or ``or`` complex filter expression.
 
 
       | **required**: False
@@ -218,17 +219,17 @@ resources
   filter
     A dictionary with attribute names as keys, and target values, to be used as criteria to filter the set of resources returned from CICSPlex SM.
 
-    Filters implicitly use the ``=`` operator
+    Filters implicitly use the ``=`` operator.
 
-    Filters for ``string`` type attributes can use the ``*`` and ``+`` wildcard operators
+    Filters for ``string`` type attributes can use the ``*`` and ``+`` wildcard operators.
 
-    ``*`` is a wildcard representing an unknown number of characters, and must appear at the end of the value
+    ``*`` is a wildcard representing an unknown number of characters, and must appear at the end of the value.
 
     ``+`` is a wildcard representing a single character, and can appear in any place in the value, potentially multiple times.
 
     To use more complicated filter expressions, including a range of different filter operators, and the ability to compose filters with ``and`` and ``or`` operators, see the ``complex_filter`` parameter.
 
-    For examples, see :ref:`cmci_get <cmci_get_module>`
+    For examples, see "Examples" in :ref:`cmci_get <cmci_get_module>`.
 
     For more details, see `How to build a filter expression <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1a0.html>`_.
 
