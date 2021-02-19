@@ -206,7 +206,6 @@ options:
               not supplied when C(attribute) is used, C(EQ) is assumed.
             type: str
             required: false
-            default: EQ
             choices:
               - "<"
               - ">"

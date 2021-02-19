@@ -197,7 +197,6 @@ resources
 
       | **required**: False
       | **type**: str
-      | **default**: EQ
       | **choices**: <, >, <=, >=, =, ==, !=, ¬=, EQ, GT, GE, LT, LE, NE, IS
 
 
