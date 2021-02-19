@@ -156,7 +156,7 @@ resources
 
     Can contain one or more filters. Multiple filters must be combined using ``and`` or ``or`` logical operators.
 
-    Filters can be nested. At most four nesting layers are allowed.
+    Filters can be nested.
 
     When supplying the ``attribute`` option, you must also supply a ``value`` for the filter. You can also override the default operator of ``=`` with the ``operator`` option.
 
