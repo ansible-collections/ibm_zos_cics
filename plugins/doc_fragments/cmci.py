@@ -129,17 +129,17 @@ options:
           - A dictionary with attribute names as keys, and target values, to be
             used as criteria to filter the set of resources returned from
             CICSPlex SM.
-          - Filters implicitly use the C(=) operator
+          - Filters implicitly use the C(=) operator.
           - Filters for C(string) type attributes can use the C(*) and C(+)
-            wildcard operators
-          - C(*) is a wildcard representing an unknown number of characters, and
-            must appear at the end of the value
+            wildcard operators.
+          - C(*) is a wildcard representing an unknown number of characters,
+            and must appear at the end of the value.
           - C(+) is a wildcard representing a single character, and can appear
             in any place in the value, potentially multiple times.
           - To use more complicated filter expressions, including a range of
             different filter operators, and the ability to compose filters with
             C(and) and C(or) operators, see the C(complex_filter) parameter.
-          - For examples, see M(cmci_get)
+          - For examples, see "Examples" in M(cmci_get).
           - For more details, see L(How to build a filter expression,
             https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1a0.html).
           - For supported attributes of different resource types, see their
@@ -154,17 +154,17 @@ options:
             filters are composed of filter expressions, represented as
             dictionaries. Each dictionary can specify either an attribute
             expression, a list of filter expressions to be composed with the
-            C(and) operator, or a list of filter expressions to be composed with
-            the C(or) operator.
+            C(and) operator, or a list of filter expressions to be composed
+            with the C(or) operator.
           - The C(attribute), C(and) and C(or) options are mutually exclusive
             with each other.
           - Can contain one or more filters. Multiple filters must be combined
             using C(and) or C(or) logical operators.
           - Filters can be nested. At most four nesting layers are allowed.
           - When supplying the C(attribute) option, you must also supply a
-            C(value) for the filter.  You can also override the default operator
-            of C(=) with the C(operator) option.
-          - For examples, see M(cmci_get)
+            C(value) for the filter. You can also override the default
+            operator of C(=) with the C(operator) option.
+          - For examples, see "Examples" in M(cmci_get).
         type: dict
         required: false
         suboptions:
@@ -172,7 +172,7 @@ options:
             description:
               - A list of filter expressions to be combined with an C(and)
                 operation.
-              - Filter expressions are nested C(complex_filter) elements.  Each
+              - Filter expressions are nested C(complex_filter) elements. Each
                 nested filter expression can be either an C(attribute), C(and)
                 or C(or) complex filter expression.
             type: list
@@ -182,7 +182,7 @@ options:
             description:
               - A list of filter expressions to be combined with an C(or)
                 operation.
-              - Filter expressions are nested C(complex_filter) elements.  Each
+              - Filter expressions are nested C(complex_filter) elements. Each
                 nested filter expression can be either an C(attribute), C(and)
                 or C(or) complex filter expression.
             type: list
@@ -202,8 +202,8 @@ options:
               These operators are accepted: C(<) or C(LT) (less than), C(<=) or
               C(LE) (less than or equal to), C(=) or C(EQ) (equal to), C(>) or
               C(GT) (greater than), C(>=) or C(GE) (greater than or equal to),
-              C(==) or C(IS) (is), C(¬=), C(!=), or C(NE) (not equal to).  If
-              not supplied when 'attribute' is used, C(EQ) will be assumed.
+              C(==) or C(IS) (is), C(¬=), C(!=), or C(NE) (not equal to). If
+              not supplied when C(attribute) is used, C(EQ) is assumed.
             type: str
             required: false
             choices:
