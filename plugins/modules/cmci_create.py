@@ -15,11 +15,10 @@ description:
   - Create definitional CICS® or CICSPlex® SM resources in CSD and BAS
     repositories, by initiating POST requests via the CMCI REST API. The CMCI
     REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For
-    information about the API, see L(CMCI REST API,
-    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
+    information about the API, see
+    L(CMCI REST API,https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
     For information about how to compose POST requests, see
-    L(CMCI POST requests,
-    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_post.html).
+    L(CMCI POST requests,https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_post.html).
 author:
   - Stewart Francis (@stewartfrancis)
   - Tom Latham (@Tom-Latham)
@@ -36,8 +35,8 @@ options:
       table reference for the target resource type, as listed in the CREATE
       operation section of the "Valid CPSM operations" table. For example, the
       valid parameters for a PROGDEF CREATE operation are CSD and RESGROUP, as
-      found in the L(PROGDEF resource table reference,
-      https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
+      found in the
+      L(PROGDEF resource table reference,https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
     type: list
     elements: dict
     suboptions:

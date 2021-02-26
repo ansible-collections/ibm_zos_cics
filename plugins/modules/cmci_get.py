@@ -15,10 +15,10 @@ description:
   - Get information about installed and definitional CICS® and CICSPlex® SM
     resources from CICS regions, by initiating GET requests via the CMCI REST
     API. The CMCI REST API can be configured in CICSPlex SM or stand-alone
-    regions (SMSS). For information about the API, see L(CMCI REST API,
-    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
-    For information about how to compose GET requests, see L(CMCI GET requests,
-    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_get.html).
+    regions (SMSS). For information about the API, see
+    L(CMCI REST API,https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
+    For information about how to compose GET requests, see
+    L(CMCI GET requests,https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_get.html).
 author:
   - Stewart Francis (@stewartfrancis)
   - Tom Latham (@Tom-Latham)
