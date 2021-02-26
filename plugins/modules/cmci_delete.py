@@ -218,11 +218,9 @@ from typing import Dict, Optional
 
 class AnsibleCMCIDeleteModule(AnsibleCMCIModule):
     def __init__(self):
-        # pylint: disable=super-with-arguments
         super(AnsibleCMCIDeleteModule, self).__init__('DELETE')
 
     def init_argument_spec(self):  # type: () -> Dict
-        # pylint: disable=super-with-arguments
         argument_spec = super(AnsibleCMCIDeleteModule, self)\
             .init_argument_spec()
         argument_spec.update(RESOURCES_ARGUMENT)

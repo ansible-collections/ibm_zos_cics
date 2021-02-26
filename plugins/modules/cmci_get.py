@@ -268,11 +268,9 @@ _RECORD_COUNT = 'record_count'
 
 class AnsibleCMCIGetModule(AnsibleCMCIModule):
     def __init__(self):
-        # pylint: disable=super-with-arguments
         super(AnsibleCMCIGetModule, self).__init__('GET')
 
     def init_argument_spec(self):  # type: () -> Dict
-        # pylint: disable=super-with-arguments
         argument_spec = super(AnsibleCMCIGetModule, self).init_argument_spec()
         argument_spec.update({
             _RECORD_COUNT: {
@@ -286,7 +284,6 @@ class AnsibleCMCIGetModule(AnsibleCMCIModule):
         return self.get_resources_request_params()
 
     def init_url(self):  # type: () -> str
-        # pylint: disable=super-with-arguments
         url = super(AnsibleCMCIGetModule, self).init_url()
 
         if self._p.get(_RECORD_COUNT):

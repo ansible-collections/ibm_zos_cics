@@ -235,11 +235,9 @@ UPDATE_PARAMETERS = 'update_parameters'
 
 class AnsibleCMCIUpdateModule(AnsibleCMCIModule):
     def __init__(self):
-        # pylint: disable=super-with-arguments
         super(AnsibleCMCIUpdateModule, self).__init__('PUT')
 
     def init_argument_spec(self):  # type: () -> Dict
-        # pylint: disable=super-with-arguments
         argument_spec = super(AnsibleCMCIUpdateModule, self)\
             .init_argument_spec()
         argument_spec.update(RESOURCES_ARGUMENT)
