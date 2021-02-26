@@ -15,10 +15,10 @@ description:
   - Get information about installed and definitional CICS® and CICSPlex® SM
     resources from CICS regions, by initiating GET requests via the CMCI REST
     API. The CMCI REST API can be configured in CICSPlex SM or stand-alone
-    regions (SMSS). For information about the API, see L(CMCI REST API,
-    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
-    For information about how to compose GET requests, see L(CMCI GET requests,
-    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_get.html).
+    regions (SMSS). For information about the API, see
+    L(CMCI REST API,https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
+    For information about how to compose GET requests, see
+    L(CMCI GET requests,https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_get.html).
 author:
   - Stewart Francis (@stewartfrancis)
   - Tom Latham (@Tom-Latham)
@@ -268,11 +268,9 @@ _RECORD_COUNT = 'record_count'
 
 class AnsibleCMCIGetModule(AnsibleCMCIModule):
     def __init__(self):
-        # pylint: disable=super-with-arguments
         super(AnsibleCMCIGetModule, self).__init__('GET')
 
     def init_argument_spec(self):  # type: () -> Dict
-        # pylint: disable=super-with-arguments
         argument_spec = super(AnsibleCMCIGetModule, self).init_argument_spec()
         argument_spec.update({
             _RECORD_COUNT: {
@@ -286,7 +284,6 @@ class AnsibleCMCIGetModule(AnsibleCMCIModule):
         return self.get_resources_request_params()
 
     def init_url(self):  # type: () -> str
-        # pylint: disable=super-with-arguments
         url = super(AnsibleCMCIGetModule, self).init_url()
 
         if self._p.get(_RECORD_COUNT):

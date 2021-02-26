@@ -15,11 +15,10 @@ description:
   - Remove or discard definitional or installed CICS® and CICSPlex® SM resources
     from CICS regions, by initiating DELETE requests via the CMCI REST API. The
     CMCI REST API can be configured in CICSPlex SM or stand-alone regions
-    (SMSS). For information about the API, see L(CMCI REST API,
-    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
-    For information about how to compose DELETE requests, see L(CMCI DELETE
-    requests,
-    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_delete.html).
+    (SMSS). For information about the API, see
+    L(CMCI REST API,https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
+    For information about how to compose DELETE requests, see
+    L(CMCI DELETE requests, https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_delete.html).
 author:
   - Stewart Francis (@stewartfrancis)
   - Tom Latham (@Tom-Latham)
@@ -218,11 +217,9 @@ from typing import Dict, Optional
 
 class AnsibleCMCIDeleteModule(AnsibleCMCIModule):
     def __init__(self):
-        # pylint: disable=super-with-arguments
         super(AnsibleCMCIDeleteModule, self).__init__('DELETE')
 
     def init_argument_spec(self):  # type: () -> Dict
-        # pylint: disable=super-with-arguments
         argument_spec = super(AnsibleCMCIDeleteModule, self)\
             .init_argument_spec()
         argument_spec.update(RESOURCES_ARGUMENT)

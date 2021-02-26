@@ -21,6 +21,7 @@ The requirements of the managed node are as follows:
 
   * `requests`_
   * `xmltodict`_
+  * `typing`_ (For python versions < 3.5)
 
   If you delegate the tasks to run on your localhost, the Python module dependencies
   need to be installed on your localhost instead.
@@ -40,6 +41,9 @@ The requirements of the managed node are as follows:
 .. _xmltodict:
    https://pypi.org/project/xmltodict/
 
+.. _typing:
+   https://pypi.org/project/typing/
+   
 .. _CICS sample playbook:
    https://github.com/IBM/z_ansible_collections_samples/tree/master/cics/cmci/reporting
 

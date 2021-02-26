@@ -15,10 +15,10 @@ description:
   - Perform actions on CICS® or CICSPlex® SM definitions and resources, by
     initiating PUT requests via the CMCI REST API. The CMCI REST API can be
     configured in CICSPlex SM or stand-alone regions (SMSS). For information
-    about the API, see L(CMCI REST API,
-    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
-    For information about how to compose PUT requests, see L(CMCI PUT requests,
-    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_put.html).
+    about the API, see
+    L(CMCI REST API,https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
+    For information about how to compose PUT requests, see
+    L(CMCI PUT requests,https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_put.html).
 author:
   - Stewart Francis (@stewartfrancis)
   - Tom Latham (@Tom-Latham)
@@ -32,8 +32,8 @@ options:
     description: >
       The name of the target action. To find the name of the appropriate action,
       consult the CICSPlex SM resource tables for the target resource type. For
-      example, the L(PROGRAM resource table reference,
-      https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html)
+      example, the
+      L(PROGRAM resource table reference,https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html)
       lists the eligible actions for CICS programs.
     type: str
     required: true
@@ -45,8 +45,7 @@ options:
       listed in the PERFORM SET operation section of the "Valid CPSM operations"
       table. For example, the valid parameters for a PROGDEF CSDCOPY action are
       C(AS_RESOURCE), C(DUPACTION) and C(TO_CSDGROUP), as found in the
-      L(PROGDEF resource table reference,
-      https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
+      L(PROGDEF resource table reference,https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
     type: list
     elements: dict
     suboptions:
@@ -262,11 +261,9 @@ ACTION_PARAMETERS = 'action_parameters'
 
 class AnsibleCMCIInstallModule(AnsibleCMCIModule):
     def __init__(self):
-        # pylint: disable=super-with-arguments
         super(AnsibleCMCIInstallModule, self).__init__('PUT')
 
     def init_argument_spec(self):  # type: () -> Dict
-        # pylint: disable=super-with-arguments
         argument_spec = super(AnsibleCMCIInstallModule, self)\
             .init_argument_spec()
         argument_spec.update({

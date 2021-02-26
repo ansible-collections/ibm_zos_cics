@@ -15,11 +15,10 @@ description:
   - Make changes to CICS® and CICSPlex® SM resources in CICS regions, by
     initiating PUT requests via the CMCI REST API. The CMCI REST API can be
     configured in CICSPlex SM or stand-alone regions (SMSS). For information
-    about the API,
-    see L(CMCI REST API,
-    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
-    For information about how to compose PUT requests, see L(CMCI PUT requests,
-    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_put.html).
+    about the API, see
+    L(CMCI REST API, https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
+    For information about how to compose PUT requests, see
+    L(CMCI PUT requests,https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_put.html).
 author:
   - Stewart Francis (@stewartfrancis)
   - Tom Latham (@Tom-Latham)
@@ -37,8 +36,8 @@ options:
       table reference for the target resource type, as listed in the UPDATE
       operation section of the "Valid CPSM operations" table. For example, the
       only valid parameter for a PROGDEF UPDATE operation is CSD, as found in
-      the L(PROGDEF resource table reference,
-      https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
+      the
+      L(PROGDEF resource table reference,https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
     type: list
     elements: dict
     suboptions:
@@ -235,11 +234,9 @@ UPDATE_PARAMETERS = 'update_parameters'
 
 class AnsibleCMCIUpdateModule(AnsibleCMCIModule):
     def __init__(self):
-        # pylint: disable=super-with-arguments
         super(AnsibleCMCIUpdateModule, self).__init__('PUT')
 
     def init_argument_spec(self):  # type: () -> Dict
-        # pylint: disable=super-with-arguments
         argument_spec = super(AnsibleCMCIUpdateModule, self)\
             .init_argument_spec()
         argument_spec.update(RESOURCES_ARGUMENT)
