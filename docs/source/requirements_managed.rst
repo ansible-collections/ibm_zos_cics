@@ -21,16 +21,25 @@ The requirements of the managed node are as follows:
 
   * `requests`_
   * `xmltodict`_
-  * `typing`_ (For python versions < 3.5)
+  * `typing`_ (For Python versions < 3.5)
 
   If you delegate the tasks to run on your localhost, the Python module dependencies
   need to be installed on your localhost instead.
 
   You can install them from CLI:
 
-  .. code-block:: sh
+  * If your Python version is no less than 3.5:
 
-     pip install requests xmltodict
+    .. code-block:: sh
+
+       pip install requests xmltodict
+
+  * If your Python version < 3.5:
+
+    .. code-block:: sh
+
+       pip install requests xmltodict typing
+
 
   You can also install them using the playbook. For example, this `CICS
   sample playbook`_ shows how you can ensure the pre-requisites are installed before the module is executed.
