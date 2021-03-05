@@ -48,6 +48,7 @@ This collection can manage CICS and CICSPlex® SM resources and definitions by c
 Availability
 ------------
 
+* `Automation Hub`_
 * `Galaxy`_
 * `GitHub`_
 
@@ -56,6 +57,9 @@ Availability
 
 .. _Galaxy:
    https://galaxy.ansible.com/ibm/ibm_zos_cics
+
+.. _Automation Hub:
+   https://www.ansible.com/products/automation-hub
 
 
 Reference
