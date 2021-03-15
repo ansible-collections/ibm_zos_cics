@@ -58,16 +58,16 @@ options:
 EXAMPLES = r"""
 - name: define a BUNDLE in a CSD
   cmci_create:
-      cmci_host: 'winmvs2c.hursley.ibm.com'
-      cmci_port: '10080'
-      context: 'iyk3z0r9'
-      type: 'CICSDefinitionBundle'
-      attributes:
-        name: PONGALT
-        BUNDLEDIR: /u/ibmuser/bundle/pong/pongbundle_1.0.0
-        csdgroup: JVMGRP
-      parameters:
-        - name: 'csd'
+    cmci_host: 'winmvs2c.hursley.ibm.com'
+    cmci_port: 10080
+    context: 'iyk3z0r9'
+    type: 'CICSDefinitionBundle'
+    attributes:
+      name: PONGALT
+      bundledir: /u/ibmuser/bundle/pong/pongbundle_1.0.0
+      csdgroup: JVMGRP
+    create_parameters:
+      - name: 'csd'
 """
 
 

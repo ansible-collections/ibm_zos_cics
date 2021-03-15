@@ -65,12 +65,12 @@ EXAMPLES = r"""
     type: 'CICSDefinitionBundle'
     attributes:
       description: 'New description'
-    parameters:
-      csd: null
+    update_parameters:
+      - name: csd
     resource:
       filter:
         name: 'PONGALT'
-      parameters:
+      get_parameters:
         - name: csdgroup
           value: JVMGRP
 """
