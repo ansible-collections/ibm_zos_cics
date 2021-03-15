@@ -47,7 +47,7 @@ EXAMPLES = r"""
 - name: get 2 LOCFILEs from a CICSplex
   cmci_get:
     cmci_host: 'winmvs2c.hursley.ibm.com'
-    cmci_port: '10080'
+    cmci_port: 10080
     cmci_user: 'ibmuser'
     cmci_password: '123456'
     context: 'iyk3z0r9'
@@ -60,7 +60,7 @@ EXAMPLES = r"""
 - name: get a localfile in a CICS region
   cmci_get:
     cmci_host: 'winmvs2c.hursley.ibm.com'
-    cmci_port: '10080'
+    cmci_port: 10080
     cmci_cert: './sec/ansible.pem'
     cmci_key: './sec/ansible.key'
     context: 'iyk3z0r9'
@@ -74,7 +74,7 @@ EXAMPLES = r"""
 - name: get a progdef from a CSD
   cmci_get:
     cmci_host: 'winmvs2c.hursley.ibm.com'
-    cmci_port: '10080'
+    cmci_port: 10080
     cmci_cert: './sec/ansible.pem'
     cmci_key: './sec/ansible.key'
     context: 'iyk3z0r9'
@@ -82,7 +82,7 @@ EXAMPLES = r"""
     resource:
       filter:
         name: MYPROG
-      parameters:
+      get_parameters:
         - name: csdgroup
           value: MYGRP
     record_count: 1
@@ -90,7 +90,7 @@ EXAMPLES = r"""
 - name: Using complex_filter to combine filter expressions and change operators
   cmci_get:
     cmci_host: 'winmvs2c.hursley.ibm.com'
-    cmci_port: '10080'
+    cmci_port: 10080
     cmci_cert: './sec/ansible.pem'
     cmci_key: './sec/ansible.key'
     context: 'iyk3z0r9'
@@ -254,7 +254,6 @@ request:
       returned: success
       type: str
 """
-
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import (
     AnsibleCMCIModule, RESOURCES_ARGUMENT

@@ -69,14 +69,14 @@ EXAMPLES = r"""
 - name: Newcopy a program
   cmci_action:
     cmci_host: 'winmvs2c.hursley.ibm.com'
-    cmci_port: '10080'
+    cmci_port: 10080
     context: 'iyk3z0r9'
     type: 'CICSProgram'
     action_name: NEWCOPY
     resource:
       filter:
         name: 'PONGALT'
-      parameters:
+      get_parameters:
         - name: 'csdgroup'
           value: 'JVMGRP'
 
@@ -90,7 +90,7 @@ EXAMPLES = r"""
     resource:
       filter:
         name: 'PONGALT'
-    parameters:
+    action_parameters:
       - name: 'usage'
         value: 'local'
 """
