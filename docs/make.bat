@@ -1,3 +1,4 @@
+REM Copyright (c) IBM Corporation 2020
 @ECHO OFF
 
 pushd %~dp0
