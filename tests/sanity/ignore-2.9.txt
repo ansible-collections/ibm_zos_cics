@@ -1,4 +1,4 @@
-# Copyright (c) IBM Corporation 2020,2021
+# (c) Copyright IBM Corp. 2020,2021
 docs/make.bat line-endings!skip # Windows batch file requires windows line endings
 plugins/modules/cmci_get.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
 plugins/modules/cmci_action.py validate-modules:missing-gplv3-license # Licence is Apache-2.0

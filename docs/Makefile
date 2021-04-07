@@ -1,4 +1,4 @@
-# Copyright (c) IBM Corporation 2020,2021
+# (c) Copyright IBM Corp. 2020,2021
 # Minimal makefile for Sphinx documentation
 #
 
