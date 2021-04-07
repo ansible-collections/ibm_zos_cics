@@ -37,7 +37,7 @@ This collection can manage CICS and CICSPlex® SM resources and definitions by c
   * Sample playbooks are available at the `samples repository`_. Each playbook contains a README that explains what configurations must be made to run a sample playbook.
 
 .. _samples repository:
-   https://github.com/IBM/z_ansible_collections_samples/tree/master/cics/cmci
+   https://github.com/IBM/z_ansible_collections_samples/tree/master/zos_subsystems/cics
 
 .. _CMCI REST API:
    https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/fundamentals/cpsm/cpsm-cmci-restfulapi-overview.html
@@ -66,4 +66,3 @@ Reference
 ---------
 
 * Supported by IBM CICS V4.2 or later
-

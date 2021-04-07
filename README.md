@@ -39,7 +39,7 @@ Features
 ========
 
 The IBM CICS collection includes
-[modules](https://github.com/ansible-collections/ibm_zos_cics/tree/master/plugins/modules/),
+[modules](https://ibm.github.io/z_ansible_collections_doc/ibm_zos_cics/docs/source/modules.html),
 [sample playbooks](https://github.com/IBM/z_ansible_collections_samples),
 and ansible-doc to automate tasks in CICS.
 
