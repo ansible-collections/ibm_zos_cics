@@ -8,7 +8,7 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_get
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
-    HOST, PORT, CONTEXT, SCOPE, CMCITestHelper, cmci_module
+    HOST, PORT, CONTEXT, SCOPE, CMCITestHelper, cmci_module, encode_html_parameter
 )
 
 import sys
@@ -1199,6 +1199,71 @@ def test_value_no_attribute_or(cmci_module):
                         'attribute': '123',
                         'value': '678'
                     }]
+                }]
+            }
+        }
+    })
+
+
+def test_invalid_complex_filter_attribute(cmci_module):  # type: (CMCITestHelper) -> None
+    cmci_module.expect({
+        'msg': "Filter attribute with value Broken! was not valid. Valid characters are A-Z a-z 0-9.",
+        'failed': True,
+        'changed': False
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'and': [{
+                    'attribute': 'Broken!',
+                    'operator': '=',
+                    'value': 'BAR'
+                }, {
+                    'attribute': 'GOO',
+                    'operator': '=',
+                    'value': 'LAR'
+                }]
+            }
+        }
+    })
+
+
+def test_sanitise_complex_filter_value(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
+
+    encoded_criteria = encode_html_parameter({"CRITERIA": r"(FOO='++++++W+\') OR (jobname=\'*') AND (GOO='\'\'LAR\'\'')"})
+
+    cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE,
+                             parameters=encoded_criteria)
+
+    cmci_module.expect(result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'cicslocalfile/CICSEX56/IYCWEMW2' + encoded_criteria,
+        records=records
+    ))
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': 'IYCWEMW2',
+        'type': 'cicslocalfile',
+        'resources': {
+            'complex_filter': {
+                'and': [{
+                    'attribute': 'FOO',
+                    'operator': '=',
+                    'value': "++++++W+') OR (jobname='*"
+                }, {
+                    'attribute': 'GOO',
+                    'operator': '=',
+                    'value': "''LAR''"
                 }]
             }
         }

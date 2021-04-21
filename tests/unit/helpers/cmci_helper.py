@@ -11,6 +11,14 @@ from ansible.module_utils import basic
 from collections import OrderedDict
 from requests import PreparedRequest
 from typing import List
+from sys import version_info
+import urllib
+
+try:
+    import requests
+except ImportError:
+    requests = None
+
 
 import json
 import pytest
@@ -234,6 +242,23 @@ def create_cmci_response(*args):  # type () -> OrderedDict
             *args
         ))
     )
+
+
+def encode_html_parameter(unencoded_value):
+    if version_info.major <= 2:
+        # This is a workaround for python 2, where we can't specify the
+        # encoding as a parameter in urlencode. Store the quote_plus
+        # setting, then override it with quote, so that spaces will be
+        # encoded as %20 instead of +. Then set the quote_plus value
+        # back so we haven't changed the behaviour long term
+        default_quote_plus = urllib.quote_plus
+        urllib.quote_plus = urllib.quote
+        encoded = urllib.urlencode(requests.utils.to_key_val_list(unencoded_value))
+        urllib.quote_plus = default_quote_plus
+    else:
+        # If running at python 3 and above
+        encoded = urllib.parse.urlencode(requests.utils.to_key_val_list(unencoded_value), quote_via=urllib.parse.quote)
+    return "?" + encoded
 
 
 def body_matcher(expected):

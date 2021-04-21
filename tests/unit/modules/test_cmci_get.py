@@ -9,7 +9,7 @@ __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_get
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
     HOST, PORT, CONTEXT, SCOPE, AnsibleFailJson,
-    set_module_args, exit_json, fail_json, cmci_module, CMCITestHelper
+    set_module_args, exit_json, fail_json, cmci_module, CMCITestHelper, encode_html_parameter
 )
 from ansible.module_utils import basic
 
@@ -550,6 +550,219 @@ def test_ok_context_record_count(cmci_module):  # type: (CMCITestHelper) -> None
         'context': CONTEXT,
         'record_count': 1,
         'type': 'cicslocalfile'
+    })
+
+
+def test_sanitise_filter_value(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [{'applid': 'REGION1', 'cicsstaus': 'ACTIVE'}]
+
+    encoded_criteria = encode_html_parameter({"CRITERIA": r"(jobname='\'\'\'++++++W+\') OR (jobname=\'*')"})
+
+    cmci_module.stub_records(
+        'GET',
+        'cicsregion',
+        records,
+        parameters=encoded_criteria
+    )
+
+    cmci_module.expect(result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsregion/CICSEX56/' + encoded_criteria,
+        records=records
+    ))
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicsregion',
+        'resources': {
+            'filter': {
+                'jobname': "'''++++++W+') OR (jobname='*"
+            }
+        }
+    })
+
+
+def test_invalid_filter_key(cmci_module):  # type: (CMCITestHelper) -> None
+
+    cmci_module.expect({
+        'msg': "Filter key with value jobname++++++W+' ) OR (jobname was not valid. Valid characters are A-Z a-z 0-9.",
+        'changed': False,
+        'failed': True
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicsregion',
+        'resources': {
+            'filter': {
+                "jobname++++++W+' ) OR (jobname": "*"
+            }
+        }
+    })
+
+
+def test_invalid_parameter_value_mid_brackets(cmci_module):  # type: (CMCITestHelper) -> None
+
+    cmci_module.expect({
+        'msg': "Parameter value ++++++W+'%20%20) OR (csdgroup='* was not valid. Cannot contain '(' or ')'",
+        'changed': False,
+        'failed': True
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicsdefinitionfile',
+        'resources': {
+            'get_parameters': [{
+                'name': 'CSDGROUP',
+                'value': "++++++W+'%20%20) OR (csdgroup='*"
+            }]
+        }
+    })
+
+
+def test_invalid_parameter_value_outer_brackets(cmci_module):  # type: (CMCITestHelper) -> None
+
+    cmci_module.expect({
+        'msg': "Parameter value (++++++W+'%20%20 OR csdgroup='*) was not valid. Cannot contain '(' or ')'",
+        'changed': False,
+        'failed': True
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicsdefinitionfile',
+        'resources': {
+            'get_parameters': [{
+                'name': 'CSDGROUP',
+                'value': "(++++++W+'%20%20 OR csdgroup='*)"
+            }]
+        }
+    })
+
+
+def test_invalid_parameter_value_left_bracket(cmci_module):  # type: (CMCITestHelper) -> None
+
+    cmci_module.expect({
+        'msg': "Parameter value (++++++W+'%20%20 OR csdgroup='* was not valid. Cannot contain '(' or ')'",
+        'changed': False,
+        'failed': True
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicsdefinitionfile',
+        'resources': {
+            'get_parameters': [{
+                'name': 'CSDGROUP',
+                'value': "(++++++W+'%20%20 OR csdgroup='*"
+            }]
+        }
+    })
+
+
+def test_invalid_parameter_value_right_bracket(cmci_module):  # type: (CMCITestHelper) -> None
+
+    cmci_module.expect({
+        'msg': "Parameter value ++++++W+'%20%20 OR csdgroup='*) was not valid. Cannot contain '(' or ')'",
+        'changed': False,
+        'failed': True
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicsdefinitionfile',
+        'resources': {
+            'get_parameters': [{
+                'name': 'CSDGROUP',
+                'value': "++++++W+'%20%20 OR csdgroup='*)"
+            }]
+        }
+    })
+
+
+def test_invalid_parameter_value_multiple_brackets(cmci_module):  # type: (CMCITestHelper) -> None
+
+    cmci_module.expect({
+        'msg': "Parameter value ((++++++W+'%20%20) OR (csdgroup='*)) was not valid. Cannot contain '(' or ')'",
+        'changed': False,
+        'failed': True
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicsdefinitionfile',
+        'resources': {
+            'get_parameters': [{
+                'name': 'CSDGROUP',
+                'value': "((++++++W+'%20%20) OR (csdgroup='*))"
+            }]
+        }
+    })
+
+
+def test_invalid_parameter_name(cmci_module):  # type: (CMCITestHelper) -> None
+
+    cmci_module.expect({
+        'msg': "Parameter name with value ++++++W+'%20 ) OR (csdgroup='* was not valid. Valid characters are A-Z a-z 0-9.",
+        'changed': False,
+        'failed': True
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicsdefinitionfile',
+        'resources': {
+            'get_parameters': [{
+                'name': 'CSDGROUP',
+                'value': '*'
+            }, {
+                'name': 'FOO',
+                'value': 'BO BO'
+            }, {
+                'name': "++++++W+'%20 ) OR (csdgroup='*"
+            }]
+        }
+    })
+
+
+def test_invalid_cmci_type(cmci_module):  # type: (CMCITestHelper) -> None
+
+    cmci_module.expect({
+        'msg': "Parameter \"type\" with value \"?CICSDEFINITIONFILE!\" was not valid. Expected a CMCI resource type name. Valid characters are A-Z a-z 0-9.",
+        'changed': False,
+        'failed': True
+    })
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': '?cicsdefinitionfile!',
+        'resources': {
+            'get_parameters': [{
+                'name': 'CSDGROUP',
+                'value': '*'
+            }, {
+                'name': 'FOO',
+                'value': 'BO BO'
+            }]
+        }
     })
 
 

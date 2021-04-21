@@ -141,6 +141,16 @@ ATTRIBUTES_ARGUMENT = {
 }
 
 
+def escape_quotes(value):
+    # Escape all single quotes ' found in values
+    v = re.compile(r"\'", flags=0)
+    return v.sub(r"\'", value)
+
+
+def is_alphanumeric(value):
+    return re.match('^([A-Za-z0-9]{1,100})$', value, flags=0)
+
+
 class AnsibleCMCIModule(object):
 
     def __init__(self, method):
@@ -293,6 +303,13 @@ class AnsibleCMCIModule(object):
             'Valid characters are A-Z a-z 0-9.'
         )
 
+        self.validate(
+            TYPE,
+            '^([A-Za-z0-9]{0,100})$',
+            'a CMCI resource type name. '
+            'Valid characters are A-Z a-z 0-9.'
+        )
+
         return self._module.params
 
     def validate(self, name, regex, message):  # type: (str, str, str) -> None
@@ -397,6 +414,14 @@ class AnsibleCMCIModule(object):
                 # AND basic filters together and use the = operator for each one
                 filter_string = ''
                 for key, value in f.items():
+                    value = escape_quotes(value)
+
+                    if not is_alphanumeric(key):
+                        self._fail(
+                            "Filter key with value {0} was not valid. Valid characters are A-Z a-z 0-9."
+                            .format(key)
+                        )
+
                     filter_string = _append_filter_string(
                         filter_string,
                         key + '=' + '\'' + value + '\'',
@@ -414,6 +439,16 @@ class AnsibleCMCIModule(object):
             parameters = resources.get(GET_PARAMETERS)
             if parameters:
                 def mapper(p):
+                    if not is_alphanumeric(p.get('name')):
+                        self._fail(
+                            "Parameter name with value {0} was not valid. Valid characters are A-Z a-z 0-9."
+                            .format(p.get('name'))
+                        )
+                    if p.get('value') and re.search(r"[()]", p.get('value'), flags=0):
+                        self._fail(
+                            "Parameter value {0} was not valid. Cannot contain '(' or ')'"
+                            .format(p.get('value'))
+                        )
                     return p.get('name') + '(' + p.get('value') + ')'\
                         if p.get('value') else p.get('name')
 
@@ -631,11 +666,20 @@ class AnsibleCMCIModule(object):
                     % (VALUE, type(value), path)
                 )
 
+            if not is_alphanumeric(attribute):
+                self._fail(
+                    "Filter attribute with value {0} was not valid. Valid characters are A-Z a-z 0-9."
+                        .format(attribute)
+                )
+
+            value = escape_quotes(value)
+
             if operator == '¬=':
                 # Provides a filter string in the format NOT(FOO=='BAR')
                 return 'NOT(' + attribute + '==' + '\'' + value + '\'' + ')'
             else:
                 return attribute + operator + '\'' + value + '\''
+
 
     def _convert_filter_operator(self, operator, path):
         if operator in ['<', 'LT']:
