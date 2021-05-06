@@ -13,13 +13,7 @@ from requests import PreparedRequest
 from typing import List
 from sys import version_info
 import urllib
-
-try:
-    import requests
-except ImportError:
-    requests = None
-
-
+import requests
 import json
 import pytest
 import xmltodict
