@@ -1,0 +1,3 @@
+dependencies:
+  python: prod-requirements.txt
+version: 1
