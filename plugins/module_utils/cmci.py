@@ -44,6 +44,7 @@ FILTER = 'filter'
 COMPLEX_FILTER = 'complex_filter'
 SCHEME = 'scheme'
 INSECURE = 'insecure'
+TIMEOUT = 'timeout'
 
 GET_PARAMETERS = 'get_parameters'
 
@@ -261,6 +262,10 @@ class AnsibleCMCIModule(object):
             INSECURE: {
                 'type': 'bool',
                 'default': False
+            },
+            TIMEOUT: {
+                'type': 'int',
+                'default': 30
             }
         }
 
@@ -489,7 +494,7 @@ class AnsibleCMCIModule(object):
                 self._method,
                 self._url,
                 verify=not self._p[INSECURE],
-                timeout=30,
+                timeout=self._p[TIMEOUT],
                 data=self._body
             )
 
