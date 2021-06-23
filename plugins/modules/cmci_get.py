@@ -65,7 +65,7 @@ EXAMPLES = r"""
     cmci_key: './sec/ansible.key'
     context: 'iyk3z0r9'
     type: 'CICSLocalFile'
-    resource:
+    resources:
       filter:
         dsname: 'XIAOPIN*'
         file: 'DFH*'
@@ -79,7 +79,7 @@ EXAMPLES = r"""
     cmci_key: './sec/ansible.key'
     context: 'iyk3z0r9'
     type: cicsdefinitionprogram
-    resource:
+    resources:
       filter:
         name: MYPROG
       get_parameters:
@@ -95,7 +95,7 @@ EXAMPLES = r"""
     cmci_key: './sec/ansible.key'
     context: 'iyk3z0r9'
     type: 'CICSRegion'
-    resource:
+    resources:
       complex_filter:
         or: [{
           attribute: 'currtasks',
