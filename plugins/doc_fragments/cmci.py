@@ -113,6 +113,11 @@ options:
     type: bool
     required: false
     default: false
+  timeout:
+    description: HTTP request timeout in seconds
+    type: int
+    required: false
+    default: 30 
 '''
 
     RESOURCES = r'''
