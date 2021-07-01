@@ -101,10 +101,21 @@
       assert:
         that:
           - result.failed is false
-            # This will need updating when we pull out more specific error messages from the CMCI response.
-            # Expecting the error to contain 'EXEC CICS command(CSD INSTALL) RESP(INVREQ) RESP2(633)'
-            # Where RESP2(633) is 'Installation of BUNDLE resource resource failed because the resource had no manifest'
           - result.msg == "CMCI request failed with response \"TABLEERROR\" reason \"DATAERROR\""
+          - result.cpsm_reason == 'DATAERROR'
+          - result.cpsm_response == 'TABLEERROR'
+
+          - result.feedback[0].action == 'CSDINSTALL'
+          - result.feedback[0].attribute1 == 'NAME'
+          - result.feedback[0].errorcode == '31'
+
+          - result.feedback[1].action == 'CSDINSTALL'
+          - result.feedback[1].eibfn == 'A20E'
+          - result.feedback[1].eibfn_alt == 'CSD INSTALL'
+          - result.feedback[1].eyu_cicsname == cmci_scope
+          - result.feedback[1].resp == '16'
+          - result.feedback[1].resp2 == '633' #'Installation of BUNDLE resource resource failed because the resource had no manifest'
+          - result.feedback[1].resp_alt == 'INVREQ'
 
 
     - name: 'delete bundle def'

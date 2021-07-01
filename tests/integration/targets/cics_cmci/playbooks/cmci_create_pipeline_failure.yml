@@ -35,6 +35,10 @@
       assert:
         that:
           - result.failed is false
-            # This will need updating when we pull out more specific error messages from the CMCI response.
-            # Expecting the error to contain 'Attribute Configuration File (CONFIGFILE) Error(PIPEDEF_INV_DATA)'
           - result.msg == "CMCI request failed with response \"TABLEERROR\" reason \"DATAERROR\""
+          - result.cpsm_reason == 'DATAERROR'
+          - result.cpsm_response == 'TABLEERROR'
+
+          - result.feedback[0].action == 'CREATE'
+          - result.feedback[0].attribute1 == 'CONFIGFILE'
+          - result.feedback[0].errorcode == '1' #(PIPEDEF_INV_DATA)
