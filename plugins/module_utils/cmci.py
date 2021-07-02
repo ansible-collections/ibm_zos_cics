@@ -152,12 +152,24 @@ def is_alphanumeric(value):
     return re.match('^([A-Za-z0-9]{1,100})$', value, flags=0)
 
 
-def read_node(node):
+def read_node(node):    # type: (OrderedDict) -> List[OrderedDict]
+    # Reads a record node that can contain multiple lists of attributes
     result = [
         OrderedDict(
-            # Copy feedback from result, stripping @ from attributes
+            [get_attribute(k, v)
+             for k, v in n.items()]
+        ) for n in node
+    ]
+    return result
+
+
+def read_error_node(node): # type: (OrderedDict) -> List[OrderedDict]
+    # Reads an error node than can contain multiple lists of attributes that themselves contain
+    # multiple lists of attributes
+    result = [
+        OrderedDict(
             # Feedback nodes can contain error types with further information
-            [(k[1:], v) if k[0] == '@'
+            [get_attribute(k, v) if k[0] == '@'
              else read_error_detail(k, v)
              for k, v in n.items()]
         ) for n in node
@@ -165,7 +177,7 @@ def read_node(node):
     return result
 
 
-def read_error_detail(key, value):
+def read_error_detail(key, value): # type: (List[str, OrderedDict]) -> Tuple[str, List[OrderedDict]]
     # Xmltodict parses inner error types as Dicts when there is only one item in it even though it may well be a list
     # if multiple results were returned. If we find a dict here, wrap it in a list so we can account for only one result or many
     # being returned
@@ -177,6 +189,11 @@ def read_error_detail(key, value):
                 [(k[1:], v) for k, v in error.items()]
             ) for error in value
         ]
+
+
+def get_attribute(k, v):
+    #Return key, value pair stripping @ from the attributes key
+    return (k[1:], v)
 
 
 class AnsibleCMCIModule(object):
@@ -397,7 +414,7 @@ class AnsibleCMCIModule(object):
                 errors_node = response_node['errors']
                 if FEEDBACK in errors_node:
                     feedback = errors_node[FEEDBACK]
-                    self.result[FEEDBACK] = read_node(feedback)
+                    self.result[FEEDBACK] = read_error_node(feedback)
 
             # Non-OK CPSM responses fail the module
             if cpsm_response_code != 1024:
