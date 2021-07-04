@@ -1,0 +1,15 @@
+- name: 'Check if target {{ resource_type }} is installed in {{ context }}/{{ scope }}'
+  delegate_to: 'localhost'
+  ibm.ibm_zos_cics.cmci_get:
+    type: '{{ resource_type }}'
+    context: '{{ context }}'
+    scope: '{{ scope }}'
+    resources:
+      filter: '{{ attributes }}'
+  register: installed_result
+  failed_when: >
+    'cpsm_response' not in installed_result or installed_result.cpsm_response not in ['OK', 'NODATA']
+
+- name: 'Set exists for {{ resource_type }}'
+  set_fact:
+    exists: "{{ installed_result.cpsm_response == 'OK' }}"

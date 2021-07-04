@@ -1,7 +1,7 @@
 # (c) Copyright IBM Corp. 2020,2021
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name:  CMCI Integration Test
+- name:  CMCI HTTP Integration Test
   collections:
    - ibm.ibm_zos_cics
   hosts: 'localhost'
@@ -9,16 +9,15 @@
   vars:
     csdgroup: 'HTTPTEST'
     program: 'HTTPTEST'
-    http_port: 28953
     http_scope: IYCWEMW1
 
   module_defaults:
     ibm.ibm_zos_cics.cmci_get:
       cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ http_port }}'
+      cmci_port: '{{ cmci_port }}'
       cmci_user: '{{ cmci_user }}'
       cmci_password: '{{ cmci_password }}'
-      context: '{{ context }}'
+      context: '{{ cmci_context }}'
       scope: '{{ http_scope }}'
       insecure: true
       scheme: 'http'
@@ -26,10 +25,10 @@
 
     ibm.ibm_zos_cics.cmci_update:
       cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ http_port }}'
+      cmci_port: '{{ cmci_port }}'
       cmci_user: '{{ cmci_user }}'
       cmci_password: '{{ cmci_password }}'
-      context: '{{ context }}'
+      context: '{{ cmci_context }}'
       scope: '{{ http_scope }}'
       insecure: true
       scheme: 'http'
@@ -37,10 +36,10 @@
 
     ibm.ibm_zos_cics.cmci_delete:
       cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ http_port }}'
+      cmci_port: '{{ cmci_port }}'
       cmci_user: '{{ cmci_user }}'
       cmci_password: '{{ cmci_password }}'
-      context: '{{ context }}'
+      context: '{{ cmci_context }}'
       scope: '{{ http_scope }}'
       insecure: true
       scheme: 'http'
@@ -48,10 +47,10 @@
 
     ibm.ibm_zos_cics.cmci_action:
       cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ http_port }}'
+      cmci_port: '{{ cmci_port }}'
       cmci_user: '{{ cmci_user }}'
       cmci_password: '{{ cmci_password }}'
-      context: '{{ context }}'
+      context: '{{ cmci_context }}'
       scope: '{{ http_scope }}'
       insecure: true
       scheme: 'http'
@@ -59,10 +58,10 @@
 
     ibm.ibm_zos_cics.cmci_create:
       cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ http_port }}'
+      cmci_port: '{{ cmci_port }}'
       cmci_user: '{{ cmci_user }}'
       cmci_password: '{{ cmci_password }}'
-      context: '{{ context }}'
+      context: '{{ cmci_context }}'
       scope: '{{ http_scope }}'
       insecure: true
       scheme: 'http'

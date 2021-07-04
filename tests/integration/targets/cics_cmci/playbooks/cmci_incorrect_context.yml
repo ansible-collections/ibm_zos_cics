@@ -1,7 +1,7 @@
 # (c) Copyright IBM Corp. 2021
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name:  CMCI Integration Test
+- name:  CMCI Incorrect Context Integration Test
   collections:
    - ibm.ibm_zos_cics
   hosts: 'localhost'
@@ -11,12 +11,12 @@
     - name: test invalid context
       ibm.ibm_zos_cics.cmci_get:
         cmci_host: '{{ cmci_host }}'
-        cmci_port: '{{ cmci_port }}'
+        cmci_port: '{{ cmci_secure_port }}'
         cmci_user: '{{ cmci_user }}'
         cmci_password: '{{ cmci_password }}'
         insecure: true
         context: 'invalid'
-        scope: '{{ scope }}'
+        scope: '{{ cmci_scope }}'
         type: 'cicsprogram'
       failed_when: false
       register: result

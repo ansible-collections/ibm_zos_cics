@@ -15,3 +15,4 @@ ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_create_pipeline_failure
 ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_incorrect_scheme.yml
 ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_bas_link.yml
 ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_bas_install.yml
+ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_bas_install_error.yml

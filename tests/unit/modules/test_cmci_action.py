@@ -6,6 +6,8 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from collections import OrderedDict
+
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_action
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
     HOST, PORT, CONTEXT, SCOPE, od, body_matcher, cmci_module, CMCITestHelper
@@ -197,17 +199,37 @@ def test_bas_install_params(cmci_module):  # type: (CMCITestHelper) -> None
     })
 
 
-def test_non_ok_response(cmci_module):
-    record = dict(
-        name='bar',
-        bundledir='/u/bundles/bloop',
-        csdgroup='bat'
-    )
+def test_bas_install_error_detailed_feedback(cmci_module):
+    feedback = [
+        {
+            'action': 'INSTALL',
+            'installerror': [od(
+                ('eibfn', '3042'),
+                ('eibfn_alt', 'CREATE ATOMSERVICE'),
+                ('eyu_cicsname', 'IYCWEMI1'),
+                ('resp', '16'),
+                ('resp_alt', 'INVREQ'),
+                ('resp2', '627'),
+                ('errorcode', '4'),
+                ('resourcename', 'ASD2')
+            ), od(
+                ('eibfn', '3042'),
+                ('eibfn_alt', 'CREATE ATOMSERVICE'),
+                ('eyu_cicsname', 'IYCWEMJ1'),
+                ('resp', '16'),
+                ('resp_alt', 'INVREQ'),
+                ('resp2', '627'),
+                ('errorcode', '4'),
+                ('resourcename', 'ASD2')
+            )]
+        },
+        {'keydata': 'C2C1E2C9C3C2F140', 'errorcode': '29', 'attribute1': 'RESDESC'},
+    ]
 
     cmci_module.stub_non_ok_records(
         'PUT',
         'cicsresourcedescription',
-        record,
+        feedback,
         scope=SCOPE,
         parameters="?CRITERIA=%28RESDESC%3D%27BASICB1%27%29",
         additional_matcher=body_matcher(od(
@@ -222,7 +244,9 @@ def test_non_ok_response(cmci_module):
     cmci_module.expect(fail_result(
         'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsresourcedescription/'
         'CICSEX56/IYCWEMW2?CRITERIA=%28RESDESC%3D%27BASICB1%27%29',
-        '<request><action name="INSTALL"></action></request>',
+        '<request><action name="INSTALL">'
+        '</action></request>',
+        feedback,
         'TABLEERROR',
         1038,
         'DATAERROR',
@@ -245,7 +269,140 @@ def test_non_ok_response(cmci_module):
     })
 
 
-def fail_result(url, body, cpsm_response, cpsm_response_code, cpsm_reason, cpsm_reason_code, msg):
+def test_bas_install_non_ok_feedback_all_types(cmci_module):
+    # Testing that when each error type is de-serialised it comes out as a list
+    feedback = [
+        od(
+            ('action', 'INSTALL'),
+            ('inconsistentscope', [od(
+                ('eibfn', '3042'),
+                ('eibfn_alt', 'CREATE ATOMSERVICE'),
+                ('eyu_cicsname', 'IYCWEMI1'),
+                ('resp', '16'),
+                ('resp_alt', 'INVREQ'),
+                ('resp2', '627'),
+                ('errorcode', '4'),
+                ('resourcename', 'ASD2')
+            )]),
+            ('installerror', [od(
+                ('eibfn', '3042'),
+                ('eibfn_alt', 'CREATE ATOMSERVICE'),
+                ('eyu_cicsname', 'IYCWEMI1'),
+                ('resp', '16'),
+                ('resp_alt', 'INVREQ'),
+                ('resp2', '627'),
+                ('errorcode', '4'),
+                ('resourcename', 'ASD2')
+            )]),
+            ('inconsistentset', [od(
+                ('eibfn', '3042'),
+                ('eibfn_alt', 'CREATE ATOMSERVICE'),
+                ('eyu_cicsname', 'IYCWEMI1'),
+                ('resp', '16'),
+                ('resp_alt', 'INVREQ'),
+                ('resp2', '627'),
+                ('errorcode', '4'),
+                ('resourcename', 'ASD2')
+            )])
+        )
+    ]
+
+    cmci_module.stub_non_ok_records(
+        'PUT',
+        'cicsresourcedescription',
+        feedback,
+        scope=SCOPE,
+        parameters="?CRITERIA=%28RESDESC%3D%27BASICB1%27%29",
+        additional_matcher=body_matcher(od(
+            ('request', od(
+                ('action', od(
+                    ('@name', 'INSTALL')
+                ))
+            ))
+        ))
+    )
+
+    cmci_module.expect(fail_result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsresourcedescription/'
+        'CICSEX56/IYCWEMW2?CRITERIA=%28RESDESC%3D%27BASICB1%27%29',
+        '<request><action name="INSTALL">'
+        '</action></request>',
+        feedback,
+        'TABLEERROR',
+        1038,
+        'DATAERROR',
+        1361,
+        'CMCI request failed with response "TABLEERROR" reason "DATAERROR"'
+    ))
+
+    cmci_module.run(cmci_action, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': SCOPE,
+        'type': 'cicsresourcedescription',
+        'action_name': 'INSTALL',
+        'resources': {
+            'filter': {
+                'RESDESC': 'BASICB1'
+            }
+        }
+    })
+
+
+def test_bas_install_error_detailed_feedback(cmci_module):
+    feedback = [
+        {'keydata': 'C2C1E2C9C3C2F140', 'errorcode': '29', 'attribute1': 'RESDESC'},
+    ]
+
+    cmci_module.stub_non_ok_records(
+        'PUT',
+        'cicsresourcedescription',
+        feedback,
+        scope=SCOPE,
+        parameters="?CRITERIA=%28RESDESC%3D%27BASICB1%27%29",
+        additional_matcher=body_matcher(od(
+            ('request', od(
+                ('action', od(
+                    ('@name', 'INSTALL')
+                ))
+            ))
+        ))
+    )
+
+    cmci_module.expect(fail_result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsresourcedescription/'
+        'CICSEX56/IYCWEMW2?CRITERIA=%28RESDESC%3D%27BASICB1%27%29',
+        '<request><action name="INSTALL">'
+        '</action></request>',
+        feedback,
+        'TABLEERROR',
+        1038,
+        'DATAERROR',
+        1361,
+        'CMCI request failed with response "TABLEERROR" reason "DATAERROR"'
+    ))
+
+    cmci_module.run(cmci_action, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'scope': SCOPE,
+        'type': 'cicsresourcedescription',
+        'action_name': 'INSTALL',
+        'resources': {
+            'filter': {
+                'RESDESC': 'BASICB1'
+            }
+        }
+    })
+
+
+def od(*args):
+    return OrderedDict(args)
+
+
+def fail_result(url, body, feedback, cpsm_response, cpsm_response_code, cpsm_reason, cpsm_reason_code, msg):
     return {
         'msg': msg,
         'failed': True,
@@ -262,7 +419,8 @@ def fail_result(url, body, cpsm_response, cpsm_response_code, cpsm_reason, cpsm_
             'method': 'PUT',
             'body': body
         },
-        'record_count': 3
+        'feedback': feedback,
+        'record_count': 1
     }
 
 

@@ -2,8 +2,9 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
 cmci_host: winmvs28.hursley.ibm.com
-cmci_port: 28951
+cmci_port: 28953
+cmci_secure_port: 28951
 cmci_user: __user__
 cmci_password: __password__
-context: CICSEX56
-scope: IYCWEMW2
+cmci_context: CICSEX56
+cmci_scope: IYCWEMW2
