@@ -87,8 +87,8 @@ python3 -m venv venv3
 # Activate venv3
 source venv3/bin/activate
 
-# Install requirements
-pip install -r requirements.txt
+# Install dev-requirements
+pip install -r dev-requirements.txt
 ```
 
 #### Running the unit tests
@@ -141,17 +141,17 @@ python2.7 -m virtualenv venv2
 # Activate venv2
 source venv2/bin/activate
 
-# Install requirements
-pip install -r requirements.txt
+# Install dev-requirements
+pip install -r dev-requirements.txt
 ```
 
-Note that a slightly different set of requirements is installed for python 2.7, as most of the static analysis tools in
-the automated build are run in python 3.8, so are not requirements for the python 2.7 environment.
+Note that a slightly different set of dev requirements is installed for python 2.7, as most of the static analysis tools in
+the automated build are run in python 3.8, so are not dev requirements for the python 2.7 environment.
 
 #### Running the build, tests and static analysis locally
 
 A bash script is provided to automate running the static analysis, and tests in both python 2.7 and python 3.8
-environments.  You will need to have set up `venv`s as described above, with the requirements pre-installed.  You will 
+environments.  You will need to have set up `venv`s as described above, with the dev-requirements pre-installed.  You will 
 then be able to run the build, passing the locations of the python 2.7 and python 3.8 `venv`s as environment variables:
 
 ```bash
@@ -163,7 +163,7 @@ If you are running on Windows, you will need to run the automated build in a doc
 #### Configure PyCharm to be able to run Ansible collection unit tests
 
 First, add the `ansible_pytest_collections` plugin to `PYTHONPATH` for your python interpreter.  This will be in your
-venv if you installed the dependencies using the requirements file:
+venv if you installed the dependencies using the dev requirements file:
 
  - `Preferences > Project: cics-ansible > Python Interpreter > Cog menu > Show all > 
    Select your interpreter > Show paths for the selected interpreter (at the bottom) > Plus > 
