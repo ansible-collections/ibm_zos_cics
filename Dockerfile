@@ -3,7 +3,7 @@
 #                   Docker Image for Testing Environment                       #
 # ---------------------------------------------------------------------------- #
 FROM python:3.8-buster
-RUN apt-get update && apt-get install -y gnupg2 git python-pip python3-pip openssh-client && python2.7 -m pip install virtualenv backports.entry-points-selectable
+RUN apt-get update && apt-get install -y gnupg2 git python-pip python3-pip openssh-client && python2.7 -m pip install virtualenv==20.4.7
 # -------------------- Map UID and GID to Jenkins host IDs ------------------- #
 ARG UNAME=jenkins
 ARG UID=114
