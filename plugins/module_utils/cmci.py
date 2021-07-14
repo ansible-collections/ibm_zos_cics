@@ -152,7 +152,7 @@ def is_alphanumeric(value):
     return re.match('^([A-Za-z0-9]{1,100})$', value, flags=0)
 
 
-def read_node(node):    # type: (OrderedDict) -> List[OrderedDict]
+def read_node(node):  # type: (OrderedDict) -> List[OrderedDict]
     # Reads a record node that can contain multiple lists of attributes
     result = [
         OrderedDict(
@@ -195,7 +195,7 @@ def read_error_detail(key, value):
 
 def get_attribute(k, v):
     # Return key, value pair stripping @ from the attributes key
-    return k[1:], v
+    return (k[1:], v)
 
 
 class AnsibleCMCIModule(object):

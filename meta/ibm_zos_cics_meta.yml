@@ -1,5 +1,5 @@
 name: ibm_zos_cics
-version: "1.0.1"
+version: "1.0.2"
 managed_requirements:
   - name: "Python"
     version: ">=2.7"
