@@ -163,9 +163,9 @@ def read_node(node):    # type: (OrderedDict) -> List[OrderedDict]
     return result
 
 
-def read_error_node(node): # type: (OrderedDict) -> List[OrderedDict]
-    # Reads an error node than can contain multiple lists of attributes that themselves contain
-    # multiple lists of attributes
+def read_error_node(node):  # type: (OrderedDict) -> List[OrderedDict]
+    # Reads an error node than can contain multiple lists of attributes that
+    # themselves contain multiple lists of attributes
     result = [
         OrderedDict(
             # Feedback nodes can contain error types with further information
@@ -177,10 +177,12 @@ def read_error_node(node): # type: (OrderedDict) -> List[OrderedDict]
     return result
 
 
-def read_error_detail(key, value): # type: (List[str, OrderedDict]) -> Tuple[str, List[OrderedDict]]
-    # Xmltodict parses inner error types as Dicts when there is only one item in it even though it may well be a list
-    # if multiple results were returned. If we find a dict here, wrap it in a list so we can account for only one result or many
-    # being returned
+def read_error_detail(key, value):
+    # type: (List[str, OrderedDict]) -> Tuple[str, List[OrderedDict]]
+    # Xmltodict parses inner error types as Dicts when there is only one item in
+    # it even though it may well be a list if multiple results were returned. If
+    # we find a dict here, wrap it in a list so we can account for only one
+    # result or many being returned
     if not isinstance(value, list):
         value = [value]
     return key, \
@@ -192,8 +194,8 @@ def read_error_detail(key, value): # type: (List[str, OrderedDict]) -> Tuple[str
 
 
 def get_attribute(k, v):
-    #Return key, value pair stripping @ from the attributes key
-    return (k[1:], v)
+    # Return key, value pair stripping @ from the attributes key
+    return k[1:], v
 
 
 class AnsibleCMCIModule(object):

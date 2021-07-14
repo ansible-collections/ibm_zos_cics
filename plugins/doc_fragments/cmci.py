@@ -117,7 +117,7 @@ options:
     description: HTTP request timeout in seconds
     type: int
     required: false
-    default: 30 
+    default: 30
 '''
 
     RESOURCES = r'''
