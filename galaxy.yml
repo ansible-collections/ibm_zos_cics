@@ -7,7 +7,7 @@ namespace: ibm
 name: ibm_zos_cics
 
 # The collection version
-version: 1.0.2
+version: 1.0.3
 
 # Collection README file
 readme: README.md
