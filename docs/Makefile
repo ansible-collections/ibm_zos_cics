@@ -27,14 +27,13 @@ clean:
 
 	rm -rf source/modules
 	echo "Deleted directory source/modules"
-	echo "Completed HTML text generation, run 'make ibm_zos_cics'"
 
-ibm_zos_cics:
+html:
 	mkdir build
 	mkdir -p source/modules
-	# mv ../plugins/modules/__init__.py ../plugins/modules/__init__.py.skip
+	echo "Extract docs from modules"
 	python ansible-doc-extractor-collections.py
-	echo "Completed restructured text generation, run 'make html'"
-	# mv ../plugins/modules/__init__.py.skip ../plugins/modules/__init__.py
+	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
 view:
 	open build/html/index.html
