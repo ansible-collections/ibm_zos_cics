@@ -53,7 +53,7 @@ This collection can manage CICS and CICSPlex® SM resources and definitions by c
    https://github.com/IBM/z_ansible_collections_samples/tree/master/zos_subsystems/cics
 
 .. _CMCI REST API:
-   https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/fundamentals/cpsm/cpsm-cmci-restfulapi-overview.html
+   https://www.ibm.com/docs/en/cics-ts/latest?topic=cmci-how-it-works-rest-api
 
 .. _the documentation site:
    https://ibm.github.io/z_ansible_collections_doc/ibm_zos_cics/docs/ansible_content.html

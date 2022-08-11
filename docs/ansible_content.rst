@@ -21,7 +21,7 @@ the `CMCI REST API`_ of the CICS® management client interface (CMCI) for system
 management.
 
 .. _CMCI REST API:
-   https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/fundamentals/cpsm/cpsm-cmci-restfulapi-overview.html
+   https://www.ibm.com/docs/en/cics-ts/latest?topic=cmci-how-it-works-rest-api
 
 .. toctree::
    :maxdepth: 1
