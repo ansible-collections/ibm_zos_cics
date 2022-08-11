@@ -72,7 +72,7 @@ options:
         C(PLEX1). To determine whether a CMAS can be specified as I(context),
         see the B(CMAS context) entry in the CICSPlex SM resource table
         reference of a resource. For example, according to the
-        L(PROGRAM resource table,https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html),
+        L(PROGRAM resource table,https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-program-resource-table),
         CMAS context is not supported for PROGRAM.
       - If CMCI is installed in a single region (SMSS), I(context) is the
         APPLID of the CICS region associate with the request.
@@ -96,7 +96,7 @@ options:
       - The CMCI external resource name that maps to the target CICS or CICSPlex
         SM resource type.
         For a list of CMCI external resource names, see
-        L(CMCI resource names,https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_resources.html).
+        L(CMCI resource names,https://www.ibm.com/docs/en/cics-ts/latest?topic=reference-cmci-resource-names).
     type: str
     required: true
   scheme:
@@ -144,11 +144,11 @@ options:
             different filter operators, and the ability to compose filters with
             C(and) and C(or) operators, see the C(complex_filter) parameter.
           - For more details, see
-            L(How to build a filter expression,https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1a0.html).
+            L(How to build a filter expression,https://www.ibm.com/docs/en/cics-ts/latest?topic=expressions-how-build-filter-expression).
           - For examples, see M(cmci_get).
           - For supported attributes of different resource types, see their
             resource table reference, for example,
-            L(PROGDEF resource table reference,https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
+            L(PROGDEF resource table reference,https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table).
         type: dict
         required: false
       complex_filter:
@@ -196,7 +196,7 @@ options:
               - The name of a resource table attribute on which to filter.
               - For supported attributes of different resource types, see their
                 resource table reference, for example,
-                L(PROGDEF resource table reference, https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
+                L(PROGDEF resource table reference, https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table).
             type: str
             required: false
           operator:
@@ -229,7 +229,7 @@ options:
               - The value by which you are to filter the resource attributes.
               - The value must be a valid one for the resource table attribute
                 as documented in the resource table reference, for example,
-                L(PROGDEF resource table reference,https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
+                L(PROGDEF resource table reference,https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table).
             type: str
             required: false
       get_parameters:
@@ -241,7 +241,7 @@ options:
           the "Valid CPSM operations" table. For example, the valid parameters
           for identifying a PROGDEF resource are CICSSYS, CSDGROUP and RESGROUP,
           as found in the
-          L(PROGDEF resource table reference,https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
+          L(PROGDEF resource table reference,https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table).
         type: list
         elements: dict
         suboptions:
@@ -263,7 +263,7 @@ options:
       - The resource attributes to be created or updated. Available attributes
         can be found in the CICSPlex® SM resource table reference for the
         target resource type, for example,
-        L(PROGDEF resource table reference,https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html).
+        L(PROGDEF resource table reference,https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table).
     type: dict
     required: false
 '''

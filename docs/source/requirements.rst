@@ -26,7 +26,7 @@ A control node is any machine with Ansible® installed. You can run commands and
 .. _OpenSSH:
    https://www.openssh.com/
 .. _CMCI REST API:
-   https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/fundamentals/cpsm/cpsm-cmci-restfulapi-overview.html
+   https://www.ibm.com/docs/en/cics-ts/latest?topic=cmci-how-it-works-rest-api
 
 
 Managed node

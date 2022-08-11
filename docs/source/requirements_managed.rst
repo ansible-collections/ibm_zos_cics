@@ -63,13 +63,13 @@ your managed node must also follow the requirements of those collections, for ex
 If you use the CICS collection alone but don't delegate the CICS tasks to your localhost, your managed node must also follow the `IBM z/OS core managed node requirements`_ except that IBM Z Open Automation Utilities (ZOAU) is not required.
 
 .. _z/OS OpenSSH:
-   https://www.ibm.com/support/knowledgecenter/SSLTBW_2.2.0/com.ibm.zos.v2r2.e0za100/ch1openssh.htm
+   https://www.ibm.com/docs/en/zos/latest?topic=descriptions-zos-openssh
 
 .. _CMCI connection:
-   https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/configuring/cmci/clientapi_setup.html
+   https://www.ibm.com/docs/en/cics-ts/latest?topic=configuring-setting-up-cmci
 
 .. _CMCI REST API:
-   https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/fundamentals/cpsm/cpsm-cmci-restfulapi-overview.html
+   https://www.ibm.com/docs/en/cics-ts/latest?topic=cmci-how-it-works-rest-api
 
 .. _IBM z/OS core managed node requirements:
    https://ibm.github.io/z_ansible_collections_doc/ibm_zos_core/docs/source/requirements_managed.html

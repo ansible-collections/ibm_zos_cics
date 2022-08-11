@@ -16,9 +16,9 @@ description:
     from CICS regions, by initiating DELETE requests via the CMCI REST API. The
     CMCI REST API can be configured in CICSPlex SM or stand-alone regions
     (SMSS). For information about the API, see
-    L(CMCI REST API,https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html).
+    L(CMCI REST API,https://www.ibm.com/docs/en/cics-ts/latest?topic=programming-cmci-rest-api-reference).
     For information about how to compose DELETE requests, see
-    L(CMCI DELETE requests, https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_delete.html).
+    L(CMCI DELETE requests, https://www.ibm.com/docs/en/cics-ts/latest?topic=requests-cmci-delete).
 author:
   - Stewart Francis (@stewartfrancis)
   - Tom Latham (@Tom-Latham)
@@ -73,28 +73,28 @@ cpsm_reason:
   description:
     - The character value of the REASON code returned by each CICSPlex SM API
       command. For a list of REASON character values, see
-      https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ky.html.
+      https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-reason-in-alphabetical-order.
   returned: success
   type: str
 cpsm_reason_code:
   description:
     - The numeric value of the REASON code returned by each CICSPlex SM API
       command. For a list of REASON numeric values, see
-      https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kw.html.
+      https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-reason-in-numerical-order.
   returned: success
   type: int
 cpsm_response:
   description:
     - The character value of the RESPONSE code returned by each CICSPlex SM API
       command. For a list of RESPONSE character values, see
-      https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kx.html.
+      https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-response-in-alphabetical-order.
   returned: success
   type: str
 cpsm_response_code:
   description:
     - The numeric value of the RESPONSE code returned by each CICSPlex SM API
       command. For a list of RESPONSE numeric values, see
-      https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kv.html.
+      https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-response-in-numerical-order.
   returned: success
   type: str
 http_status:
