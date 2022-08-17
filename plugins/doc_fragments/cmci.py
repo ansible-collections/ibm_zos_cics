@@ -28,7 +28,7 @@ options:
       - Required if I(cmci_password) is specified.
       - Authentication prioritises certificate authentication if I(cmci_cert)
         and I(cmci_key) are provided, then basic authentication if I(cmci_user)
-        and (cmci_password) are provided, and then unauthenticated if none is
+        and I(cmci_password) are provided, and then unauthenticated if none is
         provided.
     type: str
   cmci_password:
@@ -38,7 +38,7 @@ options:
       - Required if I(cmci_user) is specified.
       - Authentication prioritises certificate authentication if I(cmci_cert)
         and I(cmci_key) are provided, then
-        basic authentication if I(cmci_user) and (cmci_password) are provided,
+        basic authentication if I(cmci_user) and I(cmci_password) are provided,
         and then unauthenticated if none is provided.
     type: str
   cmci_cert:
@@ -49,7 +49,7 @@ options:
       - Required if I(cmci_key) is specified.
       - Authentication prioritises certificate authentication if I(cmci_cert)
         and I(cmci_key) are provided, then basic authentication if I(cmci_user)
-        and (cmci_password) are provided, and then unauthenticated if none is
+        and I(cmci_password) are provided, and then unauthenticated if none is
         provided.
     required: false
     type: str
@@ -61,7 +61,7 @@ options:
       - Required if I(cmci_cert) is specified.
       - Authentication prioritises certificate authentication if I(cmci_cert)
         and I(cmci_key) are provided, then basic authentication if I(cmci_user)
-        and (cmci_password) are provided, and then unauthenticated if none is
+        and I(cmci_password) are provided, and then unauthenticated if none is
         provided.
     required: false
     type: str
