@@ -359,7 +359,7 @@ Examples
        context: 'iyk3z0r9'
        type: 'CICSProgram'
        action_name: NEWCOPY
-       resource:
+       resources:
          filter:
            name: 'PONGALT'
          get_parameters:
@@ -373,7 +373,7 @@ Examples
        context: 'iyk3z0r9'
        type: CICSBundle
        action_name: install
-       resource:
+       resources:
          filter:
            name: 'PONGALT'
        action_parameters:
