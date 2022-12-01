@@ -54,7 +54,7 @@ The requirements of the managed node are as follows:
    https://pypi.org/project/typing/
    
 .. _CICS sample playbook:
-   https://github.com/IBM/z_ansible_collections_samples/tree/master/cics/cmci/reporting
+   https://github.com/IBM/z_ansible_collections_samples/tree/main/zos_subsystems/cics/cmci/reporting
 
 
 If you use the CICS collection in conjunction with other IBM z/OS collections,
