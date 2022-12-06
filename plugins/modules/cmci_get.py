@@ -40,6 +40,15 @@ options:
       - The count value must be an integer; a value of zero is not permitted.
     type: int
     required: false
+  fail_on_nodata:
+    description:
+      - Specifies whether the module should fail if no data is returned by the
+        query. If set to true, the module will fail if no data is returned.
+      - Default behaviour is for the module to fail if no data is returned. When 
+        set to false, the module will return OK, just with no records.
+    type: bool
+    required: false
+    default: true
 '''
 
 
@@ -86,6 +95,23 @@ EXAMPLES = r"""
         - name: csdgroup
           value: MYGRP
     record_count: 1
+
+- name: pass module even if bundle definition is not found
+  cmci_get:
+    cmci_host: 'winmvs2c.hursley.ibm.com'
+    cmci_port: 10080
+    cmci_cert: './sec/ansible.pem'
+    cmci_key: './sec/ansible.key'
+    context: 'iyk3z0r9'
+    type: cicsdefinitionbundle
+    resources:
+          filter:
+            name: MYBUNDLE
+          get_parameters:
+            - name: csdgroup
+              value: MYGRP
+        record_count: 1
+        fail_on_nodata: "false"
 
 - name: Using complex_filter to combine filter expressions and change operators
   cmci_get:
@@ -496,6 +522,7 @@ from typing import Dict, Optional
 
 
 _RECORD_COUNT = 'record_count'
+_FAIL_ON_NODATA = 'fail_on_nodata'
 
 
 class AnsibleCMCIGetModule(AnsibleCMCIModule):
@@ -507,6 +534,10 @@ class AnsibleCMCIGetModule(AnsibleCMCIModule):
         argument_spec.update({
             _RECORD_COUNT: {
                 'type': 'int'
+            }, 
+            _FAIL_ON_NODATA: {
+                'type': 'bool',
+                'default': True
             }
         })
         argument_spec.update(RESOURCES_ARGUMENT)
@@ -522,6 +553,14 @@ class AnsibleCMCIGetModule(AnsibleCMCIModule):
             url = url + '//' + str(self._p.get(_RECORD_COUNT))
 
         return url
+    
+    def get_ok_cpsm_response_codes(self):
+        ok_codes = super(AnsibleCMCIGetModule, self).get_ok_cpsm_response_codes()
+
+        if not self._p.get(_FAIL_ON_NODATA):
+            ok_codes.append(1027)
+
+        return ok_codes
 
 
 def main():
