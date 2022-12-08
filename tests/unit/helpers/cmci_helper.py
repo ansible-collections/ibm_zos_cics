@@ -61,6 +61,15 @@ class CMCITestHelper:
             **kwargs
         )
 
+    def stub_nodata(self, method, resource_type, *args, **kwargs):
+        return self.stub_cmci(
+            method,
+            resource_type,
+            response_dict=create_nodata_response(),
+            *args,
+            **kwargs
+        )
+
     def stub_non_ok_records(self, method, resource_type, feedback, *args, **kwargs):
         return self.stub_cmci(
             method,
@@ -73,7 +82,7 @@ class CMCITestHelper:
     def stub_cmci(self, method, resource_type, scheme='https', host=HOST, port=PORT,
                   context=CONTEXT, scope=None, parameters='', response_dict=None,
                   headers=None, status_code=200, reason='OK',
-                  record_count=None, **kwargs):
+                  record_count=None, fail_on_nodata=True, **kwargs):
         if headers is None:
             headers = {'CONTENT-TYPE': 'application/xml'}
         url = '{0}://{1}:{2}/CICSSystemManagement/{3}/{4}/{5}{6}{7}'\
@@ -203,6 +212,17 @@ def create_records_response(resource_type, records):  # type: (str, List) -> Ord
                 resource_type.lower(),
                 [OrderedDict([('@' + key, value) for key, value in record.items()]) for record in records]
             )
+        ))
+    )
+
+def create_nodata_response(): # type: (str, List) -> OrderedDict
+    return create_cmci_response(
+        ('resultsummary', od(
+            ('@api_response1', '1027'),
+            ('@api_response2', '0'),
+            ('@api_response1_alt', 'NODATA'),
+            ('@api_response2_alt', ''),
+            ('@recordcount', '0')
         ))
     )
 

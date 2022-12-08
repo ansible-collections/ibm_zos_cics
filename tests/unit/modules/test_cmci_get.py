@@ -552,6 +552,117 @@ def test_ok_context_record_count(cmci_module):  # type: (CMCITestHelper) -> None
         'type': 'cicslocalfile'
     })
 
+def test_fail_on_nodata_false(cmci_module):  # type: (CMCITestHelper) -> None
+    cmci_module.stub_nodata('GET', 'cicslocalfile', fail_on_nodata=False)
+
+    cmci_module.expect(result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56/', 
+        records=None, 
+        cpsm_response='NODATA', 
+        cpsm_response_code=1027
+    ))
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicslocalfile',
+        'fail_on_nodata': False
+    })
+
+def test_fail_on_nodata_false_record_count(cmci_module):  # type: (CMCITestHelper) -> None
+    cmci_module.stub_nodata('GET', 'cicslocalfile', record_count=1, fail_on_nodata=False)
+
+    cmci_module.expect(result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56///1', 
+        records=None, 
+        cpsm_response='NODATA', 
+        cpsm_response_code=1027
+    ))
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicslocalfile',
+        'record_count': 1,
+        'fail_on_nodata': False
+    })
+
+def test_fail_on_nodata_false_with_data(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
+
+    cmci_module.stub_records('GET', 'cicslocalfile', records, fail_on_nodata=False)
+
+    cmci_module.expect(result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56/', 
+        records=records, 
+    ))
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicslocalfile',
+        'fail_on_nodata': False
+    })
+
+def test_fail_on_nodata_true_with_data(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
+
+    cmci_module.stub_records('GET', 'cicslocalfile', records, fail_on_nodata=True)
+
+    cmci_module.expect(result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56/', 
+        records=records, 
+    ))
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicslocalfile',
+        'fail_on_nodata': True
+    })
+
+def test_fail_on_nodata_true_with_data_record_count(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
+
+    cmci_module.stub_records('GET', 'cicslocalfile', records, record_count=1, fail_on_nodata=True)
+
+    cmci_module.expect(result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56///1', 
+        records=records, 
+    ))
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicslocalfile',
+        'record_count': 1,
+        'fail_on_nodata': True
+    })
+
+def test_fail_on_nodata_true(cmci_module):  # type: (CMCITestHelper) -> None
+    cmci_module.stub_nodata('GET', 'cicslocalfile', fail_on_nodata=True)
+
+    cmci_module.expect(result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/CICSEX56/', 
+        records=None,
+        cpsm_response='NODATA',
+        cpsm_response_code=1027,
+        failed=True,
+        msg='CMCI request failed with response "NODATA" reason "1027"'
+    ))
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': PORT,
+        'context': CONTEXT,
+        'type': 'cicslocalfile',
+        'fail_on_nodata': True
+    })
 
 def test_sanitise_filter_value(cmci_module):  # type: (CMCITestHelper) -> None
     records = [{'applid': 'REGION1', 'cicsstaus': 'ACTIVE'}]
@@ -765,22 +876,32 @@ def test_invalid_cmci_type(cmci_module):  # type: (CMCITestHelper) -> None
         }
     })
 
-
-def result(url, records, http_status='OK', http_status_code=200):
-    return {
+def result(url, records, http_status='OK', http_status_code=200, cpsm_response='OK', cpsm_response_code=1024, failed=False, msg=None):
+    result_dict = {
         'changed': False,
         'connect_version': '0560',
         'cpsm_reason': '',
         'cpsm_reason_code': 0,
-        'cpsm_response': 'OK',
-        'cpsm_response_code': 1024,
+        'cpsm_response': cpsm_response,
+        'cpsm_response_code': cpsm_response_code,
         'http_status': http_status,
         'http_status_code': http_status_code,
-        'record_count': len(records),
-        'records': records,
+        'record_count': 0,
         'request': {
             'url': url,
             'method': 'GET',
             'body': None
         }
     }
+
+    if records != None:
+        result_dict.update({
+            'records': records,
+            'record_count': len(records)
+        })
+    if failed == True and msg != None:
+        result_dict.update({
+            'failed': True,
+            'msg': msg
+        })
+    return result_dict

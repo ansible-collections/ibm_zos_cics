@@ -418,8 +418,8 @@ class AnsibleCMCIModule(object):
                     feedback = errors_node[FEEDBACK]
                     self.result[FEEDBACK] = read_error_node(feedback)
 
-            # Non-OK CPSM responses fail the module
-            if cpsm_response_code != 1024:
+            # If CPSM response code not in Valid List, fail the module
+            if self.get_ok_cpsm_response_codes().count(cpsm_response_code) == 0:
                 self._fail(
                     'CMCI request failed with response "{0}" reason "{1}"'
                     .format(
@@ -436,6 +436,9 @@ class AnsibleCMCIModule(object):
                 'Could not parse CMCI response: missing node "{0}"'
                 .format(e.args[0])
             )
+    
+    def get_ok_cpsm_response_codes(self):
+        return [1024]
 
     def init_url(self):  # type: () -> str
         t = self._p.get(TYPE).lower()
