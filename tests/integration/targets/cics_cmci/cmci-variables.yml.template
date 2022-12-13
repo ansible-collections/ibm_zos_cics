@@ -7,4 +7,7 @@ cmci_secure_port: 28951
 cmci_user: __user__
 cmci_password: __password__
 cmci_context: CICSEX56
-cmci_scope: IYCWEMW2
+cmci_scope_https: IYCWEMW2
+cmci_scope_http: IYCWEMW1
+cmci_scope_alternate_1: IYCWEML1
+cmci_scope_alternate_2: IYCWEMM1

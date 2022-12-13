@@ -9,7 +9,7 @@
   collections:
    - ibm.ibm_zos_cics
   hosts: 'localhost'
-  gather_facts: 'false'
+  gather_facts: false
   vars:
     res_def: 'ANSIFIL*'
     file1: 'ANSIFIL1'
@@ -19,8 +19,8 @@
     resource_assignment_type_target: 'CICSRemoteFile'
     resource_assignment_type_related: 'CICSLocalFile'
     resource_group: 'ANSIRGRP'
-    related_scope: 'IYCWEMW1'
-    target_scope: 'IYCWEML1'
+    related_scope: '{{ cmci_scope_http }}'
+    target_scope: '{{ cmci_scope_alternate_1 }}'
     def_ver: '1'
 
 
@@ -31,7 +31,7 @@
       cmci_user: '{{ cmci_user }}'
       cmci_password: '{{ cmci_password }}'
       context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope }}'
+      scope: '{{ cmci_scope_https }}'
       insecure: true
 
     ibm.ibm_zos_cics.cmci_update:
@@ -40,7 +40,7 @@
       cmci_user: '{{ cmci_user }}'
       cmci_password: '{{ cmci_password }}'
       context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope }}'
+      scope: '{{ cmci_scope_https }}'
       insecure: true
 
 
@@ -50,7 +50,7 @@
       cmci_user: '{{ cmci_user }}'
       cmci_password: '{{ cmci_password }}'
       context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope }}'
+      scope: '{{ cmci_scope_https }}'
       insecure: true
 
 
@@ -60,7 +60,7 @@
       cmci_user: '{{ cmci_user }}'
       cmci_password: '{{ cmci_password }}'
       context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope }}'
+      scope: '{{ cmci_scope_https }}'
       insecure: true
 
 
@@ -70,7 +70,7 @@
       cmci_user: '{{ cmci_user }}'
       cmci_password: '{{ cmci_password }}'
       context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope }}'
+      scope: '{{ cmci_scope_https }}'
       insecure: true
 
 
