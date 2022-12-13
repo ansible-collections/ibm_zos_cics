@@ -5,11 +5,12 @@
   collections:
    - ibm.ibm_zos_cics
   hosts: 'localhost'
-  gather_facts: 'false'
+  gather_facts: false
   vars:
     csdgroup: 'HTTPTEST'
     program: 'HTTPTEST'
-    http_scope: IYCWEMW1
+    program_2: 'HTTPTES2'
+    program_filter: 'HTTPTES*'
 
   module_defaults:
     ibm.ibm_zos_cics.cmci_get:
@@ -18,7 +19,7 @@
       cmci_user: '{{ cmci_user }}'
       cmci_password: '{{ cmci_password }}'
       context: '{{ cmci_context }}'
-      scope: '{{ http_scope }}'
+      scope: '{{ cmci_scope_http }}'
       insecure: true
       scheme: 'http'
 
@@ -29,7 +30,7 @@
       cmci_user: '{{ cmci_user }}'
       cmci_password: '{{ cmci_password }}'
       context: '{{ cmci_context }}'
-      scope: '{{ http_scope }}'
+      scope: '{{ cmci_scope_http }}'
       insecure: true
       scheme: 'http'
 
@@ -40,7 +41,7 @@
       cmci_user: '{{ cmci_user }}'
       cmci_password: '{{ cmci_password }}'
       context: '{{ cmci_context }}'
-      scope: '{{ http_scope }}'
+      scope: '{{ cmci_scope_http }}'
       insecure: true
       scheme: 'http'
 
@@ -51,7 +52,7 @@
       cmci_user: '{{ cmci_user }}'
       cmci_password: '{{ cmci_password }}'
       context: '{{ cmci_context }}'
-      scope: '{{ http_scope }}'
+      scope: '{{ cmci_scope_http }}'
       insecure: true
       scheme: 'http'
 
@@ -62,7 +63,7 @@
       cmci_user: '{{ cmci_user }}'
       cmci_password: '{{ cmci_password }}'
       context: '{{ cmci_context }}'
-      scope: '{{ http_scope }}'
+      scope: '{{ cmci_scope_http }}'
       insecure: true
       scheme: 'http'
 
@@ -169,9 +170,6 @@
           - result.record_count == 1
           - result.records[0].program == program
 
-    - name: debug 1
-      debug:
-        msg: "{{ result }}"
 
     - name: 'HTTP Disable program'
       delegate_to: 'localhost'
@@ -194,12 +192,7 @@
                   - attribute: 'USECOUNT'
                     operator: 'LT'
                     value: '1'
-
       register: result
-
-    - name: debug 2
-      debug:
-        msg: "{{ result }}"
 
     - name: assert 5
       assert:
@@ -227,6 +220,68 @@
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.success_count == 1
+    
+
+    - name: 'HTTP Create progdef 2'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_create:
+        type: 'CICSDefinitionProgram'
+        attributes:
+          name: '{{ program_2 }}'
+          csdgroup: '{{ csdgroup }}'
+        create_parameters:
+          - name: 'CSD'
+      register: result
+
+    - name: assert program_2 created
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].name == program_2
+
+    
+    - name: 'HTTP Check All Records Returned'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_get:
+        type: 'CICSDefinitionProgram'
+        resources:
+          filter:
+            name: '{{ program_filter }}'
+          get_parameters:
+            - name: 'CSDGROUP'
+              value: '{{ csdgroup }}'
+      register: result
+
+    - name: assert record_count is 2
+      assert:
+        that:
+          - result is not changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 2
+    
+
+    - name: 'HTTP Check record count attribute'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_get:
+        type: 'CICSDefinitionProgram'
+        record_count: 1
+        resources:
+          filter:
+            name: '{{ program_filter }}'
+          get_parameters:
+            - name: 'CSDGROUP'
+              value: '{{ csdgroup }}'
+      register: result
+    
+    - name: assert record_count attribute
+      assert:
+        that:
+          - result is not changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 2
+          - result.records|length == 1
 
 
     - name: 'HTTP Delete progdef'
@@ -248,3 +303,75 @@
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.success_count == 1
+
+
+    - name: 'HTTP Delete progdef2'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_delete:
+        type: 'CICSDefinitionProgram'
+        resources:
+          filter:
+            NAME: '{{ program_2 }}'
+          get_parameters:
+            - name: 'CSDGROUP'
+              value: '{{ csdgroup }}'
+      register: result
+    
+    - name: assert program_2 deleted
+      assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.success_count == 1
+
+
+    - name: 'HTTP fail_on_nodata default'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_get:
+        type: 'CICSDefinitionProgram'
+        resources:
+          filter:
+            name: '{{ program_filter }}'
+          get_parameters:
+            - name: 'CSDGROUP'
+              value: '{{ csdgroup }}'
+      register: result
+      failed_when: >
+        'cpsm_response_code' not in result or result.cpsm_response_code not in [1024, 1027]
+    
+    - name: assert fail_on_nodata attribute default
+      assert:
+        that:
+          - result is not changed
+          - result.failed == false
+          - result.cpsm_response == 'NODATA'
+          - result.cpsm_response_code == 1027
+          - result.record_count == 0
+          - result.msg is defined
+          - result.failed_when_result is defined
+
+
+    - name: 'HTTP fail_on_nodata'
+      delegate_to: 'localhost'
+      ibm.ibm_zos_cics.cmci_get:
+        type: 'CICSDefinitionProgram'
+        fail_on_nodata: False
+        resources:
+          filter:
+            name: '{{ program_filter }}'
+          get_parameters:
+            - name: 'CSDGROUP'
+              value: '{{ csdgroup }}'
+      register: result
+    
+    - name: assert fail_on_nodata attribute false
+      assert:
+        that:
+          - result is not changed
+          - result.failed == false
+          - result.cpsm_response == 'NODATA'
+          - result.cpsm_response_code == 1027
+          - result.record_count == 0
+          - result.msg is not defined
+          - result.failed_when_result is not defined

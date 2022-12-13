@@ -5,7 +5,7 @@
   collections:
    - ibm.ibm_zos_cics
   hosts: 'localhost'
-  gather_facts: 'false'
+  gather_facts: false
 
   tasks:
     - name: test invalid scope

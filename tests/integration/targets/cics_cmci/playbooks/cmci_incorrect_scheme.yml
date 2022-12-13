@@ -5,9 +5,8 @@
   collections:
    - ibm.ibm_zos_cics
   hosts: 'localhost'
-  gather_facts: 'true'
+  gather_facts: true
   vars:
-    http_scope: IYCWEMW1
     python_2_message: >-
       Error performing CMCI request{{ ':' }} ('Connection aborted.',
       BadStatusLine('No status line received - the server has closed the
@@ -26,7 +25,7 @@
         cmci_password: '{{ cmci_password }}'
 
         context: '{{ cmci_context }}'
-        scope: '{{ cmci_scope }}'
+        scope: '{{ cmci_scope_https }}'
         type: 'cicsprogram'
         scheme: 'http'
         insecure: true
@@ -56,7 +55,7 @@
         cmci_password: '{{ cmci_password }}'
 
         context: '{{ cmci_context }}'
-        scope: '{{ http_scope }}'
+        scope: '{{ cmci_scope_region_1 }}'
         type: 'cicsprogram'
         scheme: 'https'
         insecure: true
