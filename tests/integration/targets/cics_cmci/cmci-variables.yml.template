@@ -9,5 +9,5 @@ cmci_password: __password__
 cmci_context: CICSEX56
 cmci_scope_https: IYCWEMW2
 cmci_scope_http: IYCWEMW1
-cmci_scope_alternate_1: IYCWEML1
-cmci_scope_alternate_2: IYCWEMM1
+cmci_scope_region_1: IYCWEML1
+cmci_scope_region_2: IYCWEMM1

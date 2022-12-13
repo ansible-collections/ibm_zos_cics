@@ -55,7 +55,7 @@
         cmci_password: '{{ cmci_password }}'
 
         context: '{{ cmci_context }}'
-        scope: '{{ cmci_scope_alternate_1 }}'
+        scope: '{{ cmci_scope_region_1 }}'
         type: 'cicsprogram'
         scheme: 'https'
         insecure: true

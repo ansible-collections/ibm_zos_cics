@@ -15,8 +15,8 @@
     resource_assignment: 'ANSIGMNT'
     resource_group: 'ANSIRGRP'
     related_scope: '{{ cmci_scope_http }}'
-    region_one: '{{ cmci_scope_alternate_1 }}'
-    region_two: '{{ cmci_scope_alternate_2 }}'
+    region_one: '{{ cmci_scope_region_1 }}'
+    region_two: '{{ cmci_scope_region_2 }}'
     target_scope: 'ANSITARG'
     def_ver: '1'
 

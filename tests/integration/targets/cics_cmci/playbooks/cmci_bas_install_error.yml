@@ -20,7 +20,7 @@
     resource_assignment_type_related: 'CICSLocalFile'
     resource_group: 'ANSIRGRP'
     related_scope: '{{ cmci_scope_http }}'
-    target_scope: '{{ cmci_scope_alternate_1 }}'
+    target_scope: '{{ cmci_scope_region_1 }}'
     def_ver: '1'
 
 

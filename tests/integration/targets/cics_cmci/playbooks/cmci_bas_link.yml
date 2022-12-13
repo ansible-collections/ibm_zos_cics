@@ -12,7 +12,7 @@
     program: 'ANSIPROG'
     resource_description: 'ANSIBAS'
     resource_group: 'ANSIGRP'
-    resource_scope: '{{ cmci_scope_alternate_2 }}'
+    resource_scope: '{{ cmci_scope_region_2 }}'
     def_ver: '1'
 
 
