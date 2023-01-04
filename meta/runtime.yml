@@ -1,1 +1,8 @@
-requires_ansible: '>=2.10.7'
+requires_ansible: ">=2.10.7"
+action_groups:
+  cmci:
+    - cmci_action
+    - cmci_create
+    - cmci_delete
+    - cmci_get
+    - cmci_update

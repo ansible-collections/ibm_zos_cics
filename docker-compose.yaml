@@ -1,0 +1,16 @@
+version: '3.9'
+
+services:
+  python27:
+    build:
+      context: .
+      dockerfile: common.Dockerfile
+      args:
+        PYTHON_VERSION: 2.7.18
+
+  python38:
+    build:
+      context: .
+      dockerfile: common.Dockerfile
+      args:
+        PYTHON_VERSION: 3.8

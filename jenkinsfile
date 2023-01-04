@@ -1,0 +1,16 @@
+node {
+  stage("Main") {
+    docker.image('python:3.8').inside("-e PYTHON_VERSION=3.8") {
+      stage("Run tests") {
+        sh "ansible-test units --python 3.8"
+      }
+   }
+  }
+}
+
+//     agent {
+//         dockerfile {
+//             filename 'common.Dockerfile'
+//             additionalBuildArgs  '--build-arg PYTHON_VERSION=3.8'
+//         }
+//     }

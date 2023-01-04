@@ -544,7 +544,7 @@ def test_complex_filter_default_operator_root(cmci_module):
 def test_required_by_root(cmci_module):
     # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': "missing parameter(s) required by 'operator': attribute",
+        'msg': "missing parameter(s) required by 'operator': attribute found in resources -> complex_filter",
         'failed': True
     })
 
@@ -722,7 +722,7 @@ def test_extra_attributes_or(cmci_module):
 def test_and_string_invalid(cmci_module):
     # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': "Elements value for option and found in 'resources -> "
+        'msg': "Elements value for option 'and' found in 'resources -> "
                "complex_filter' is of type <%s 'str'> and we were unable to "
                "convert to dict: dictionary requested, could not parse JSON or"
                " key=value" % expected_type,
@@ -746,7 +746,7 @@ def test_and_string_invalid(cmci_module):
 def test_and_list_of_strings_invalid(cmci_module):
     # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': "Elements value for option and found in 'resources -> "
+        'msg': "Elements value for option 'and' found in 'resources -> "
                "complex_filter' is of type <%s 'str'> and we were unable to "
                "convert to dict: dictionary requested, could not parse JSON or "
                "key=value" % expected_type,
