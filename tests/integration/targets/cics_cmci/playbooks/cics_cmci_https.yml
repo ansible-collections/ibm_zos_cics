@@ -5,7 +5,6 @@
   collections:
     - ibm.ibm_zos_cics
   hosts: localhost
-  become: true
   gather_facts: false
   vars:
     csdgroup: ANSITEST
@@ -77,7 +76,6 @@
       register: result
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
-
 
     - name: create progdef
       delegate_to: localhost
