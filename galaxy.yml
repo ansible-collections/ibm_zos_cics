@@ -1,3 +1,4 @@
+---
 # (c) Copyright IBM Corp. 2020,2021
 
 # IBM collection namespace
@@ -19,14 +20,14 @@ authors:
   - Sophie Green
   - Ya Qing Chen
 # Description
-description: The Red Hat Ansible Certified Content for IBM Z CICS collection includes connection plugins, action plugins, modules and sample playbooks to automate tasks for CICS
+description:
+  The Red Hat Ansible Certified Content for IBM Z CICS collection includes connection plugins, action plugins,
+  modules and sample playbooks to automate tasks for CICS
 
 # License
-license: "Apache-2.0"
-
+license: [Apache-2.0]
 # Tags
 tags: [ibm, z, zos, z_os, cics, cmci]
-
 # Collections that this collection requires to be installed for it to be usable.
 # dependencies: {} # This collection depends on no other collections
 

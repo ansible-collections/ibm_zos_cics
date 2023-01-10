@@ -436,7 +436,7 @@ class AnsibleCMCIModule(object):
                 'Could not parse CMCI response: missing node "{0}"'
                 .format(e.args[0])
             )
-    
+
     def get_ok_cpsm_response_codes(self):
         return [1024]
 

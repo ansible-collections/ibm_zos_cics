@@ -1,16 +1,30 @@
-node {
-  stage("Main") {
-    docker.image('python:3.8').inside("-e PYTHON_VERSION=3.8") {
-      stage("Run tests") {
-        sh "ansible-test units --python 3.8"
+pipeline {
+
+  agent {
+    dockerfile {
+        filename 'common.Dockerfile'
+        additionalBuildArgs  '--build-arg PYTHON_VERSION=3.8'
+    }
+  }
+
+  stages {
+    stage('Unit Tests'){
+      steps {
+        sh 'cd  ${WORKSPACE}/ibm_zos_cics/ansible_collections/ibm/ibm_zos_cics && ansible-test units --python 3.8'
       }
-   }
+    }
+
+    stage('disc') {
+      steps {
+        sh 'ls -al && ls -al ${WORKSPACE}/ibm_zos_cics/ansible_collections/ibm'
+      }
+    }
+
+    stage('Integration Tests'){
+      steps {
+        sh 'cd  ${WORKSPACE}/ibm_zos_cics/ansible_collections/ibm/ibm_zos_cics && ansible-test integration cics_cmci --python 3.8'
+      }
+    }
+
   }
 }
-
-//     agent {
-//         dockerfile {
-//             filename 'common.Dockerfile'
-//             additionalBuildArgs  '--build-arg PYTHON_VERSION=3.8'
-//         }
-//     }

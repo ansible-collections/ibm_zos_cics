@@ -1,10 +1,10 @@
 # (c) Copyright IBM Corp. 2021
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name:  CMCI Incorrect Scope Integration Test
+- name: CMCI Incorrect Scope Integration Test
   collections:
-   - ibm.ibm_zos_cics
-  hosts: 'localhost'
+    - ibm.ibm_zos_cics
+  hosts: localhost
   gather_facts: true
   vars:
     python_2_message: >-
@@ -19,55 +19,54 @@
   tasks:
     - name: test https with incorrect scheme
       ibm.ibm_zos_cics.cmci_get:
-        cmci_host: '{{ cmci_host }}'
-        cmci_port: '{{ cmci_secure_port }}'
-        cmci_user: '{{ cmci_user }}'
-        cmci_password: '{{ cmci_password }}'
+        cmci_host: "{{ cmci_host }}"
+        cmci_port: "{{ cmci_secure_port }}"
+        cmci_user: "{{ cmci_user }}"
+        cmci_password: "{{ cmci_password }}"
 
-        context: '{{ cmci_context }}'
-        scope: '{{ cmci_scope_https }}'
-        type: 'cicsprogram'
-        scheme: 'http'
+        context: "{{ cmci_context }}"
+        scope: "{{ cmci_scope_https }}"
+        type: cicsprogram
+        scheme: http
         insecure: true
       failed_when: false
       register: result
 
     - name: debug https
-      debug:
-        msg: '{{ result.msg }}'
+      ansible.builtin.debug:
+        msg: "{{ result.msg }}"
 
     - name: debug https
-      debug:
-        msg: '{{ error_message }}'
+      ansible.builtin.debug:
+        msg: "{{ error_message }}"
 
     - name: assert https
-      assert:
+      ansible.builtin.assert:
         that:
           - result.failed is false
           - result.msg == error_message
 
-
     - name: test http with incorrect scheme
       ibm.ibm_zos_cics.cmci_get:
-        cmci_host: '{{ cmci_host }}'
-        cmci_port: '{{ cmci_port }}'
-        cmci_user: '{{ cmci_user }}'
-        cmci_password: '{{ cmci_password }}'
+        cmci_host: "{{ cmci_host }}"
+        cmci_port: "{{ cmci_port }}"
+        cmci_user: "{{ cmci_user }}"
+        cmci_password: "{{ cmci_password }}"
 
-        context: '{{ cmci_context }}'
-        scope: '{{ cmci_scope_region_1 }}'
-        type: 'cicsprogram'
-        scheme: 'https'
+        context: "{{ cmci_context }}"
+        scope: "{{ cmci_scope_region_1 }}"
+        type: cicsprogram
+        scheme: https
         insecure: true
       failed_when: false
       register: result
 
     - name: debug http
-      debug:
-        msg: '{{ result.msg }}'
+      ansible.builtin.debug:
+        msg: "{{ result.msg }}"
 
     - name: assert http
-      assert:
+      ansible.builtin.assert:
         that:
           - result.failed is false
           - result.msg[:79] == 'Error performing CMCI request{{ ":" }} [SSL{{ ":" }} WRONG_VERSION_NUMBER] wrong version number'

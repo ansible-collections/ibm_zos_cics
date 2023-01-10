@@ -2,10 +2,10 @@ ARG PYTHON_VERSION
 
 FROM python:${PYTHON_VERSION}
 
+USER root
+
 SHELL [ "/bin/bash", "-c" ]
 
-ENV PYTHON_VERSION_SET=${PYTHON_VERSION}
-RUN echo $PYTHON_VERSION_SET
 RUN apt-get update && apt upgrade -y
 
 COPY ./requirements.txt /ibm_zos_cics/ansible_collections/ibm/ibm_zos_cics/

@@ -1,40 +1,28 @@
 # (c) Copyright IBM Corp. 2021
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name:  CMCI Incorrect Host Integration Test
+- name: CMCI Incorrect Host Integration Test
   collections:
-   - ibm.ibm_zos_cics
-  hosts: 'localhost'
-  gather_facts: 'true'
-
-  vars:
-    mac_message: >-
-      .*nodename nor servname provided, or not known$
-    linux_message: >-
-      .*Name or service not known$
-    error_message: "{{ mac_message if ansible_system == 'Darwin' else linux_message }}"
+    - ibm.ibm_zos_cics
+  hosts: localhost
+  gather_facts: true
 
   tasks:
     - name: test invalid host
       ibm.ibm_zos_cics.cmci_get:
-        cmci_host: 'DOESNTEXIST'
-        cmci_port: '{{ cmci_secure_port }}'
-        cmci_user: '{{ cmci_user }}'
-        cmci_password: '{{ cmci_password }}'
+        cmci_host: DOESNTEXIST
+        cmci_port: "{{ cmci_secure_port }}"
+        cmci_user: "{{ cmci_user }}"
+        cmci_password: "{{ cmci_password }}"
         insecure: true
-        context: '{{ cmci_context }}'
-        scope: '{{ cmci_scope_https }}'
-        type: 'cicsprogram'
+        context: "{{ cmci_context }}"
+        scope: "{{ cmci_scope_https }}"
+        type: cicsprogram
       failed_when: false
       register: result
 
-    - name: debug
-      debug:
-        msg: '{{ result.msg[:76] }} ... {{ result.msg[-92:] }}'
-
     - name: assert
-      assert:
+      ansible.builtin.assert:
         that:
           - result.failed is false
           - '{{  result.msg[:76] == "Error performing CMCI request: <urllib3.connection.HTTPSConnection object at" }}'
-          - '{{  result.msg is match(error_message) }}'

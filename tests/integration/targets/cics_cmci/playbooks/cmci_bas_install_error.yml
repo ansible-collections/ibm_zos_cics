@@ -1,120 +1,115 @@
 # (c) Copyright IBM Corp. 2021
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name:  CMCI BAS Install Error Integration Test
+- name: CMCI BAS Install Error Integration Test
   # Sets Up a full BAS resource assignment deployment. Checks to see where files will be installed and then
   # installs to two regions with a target scope and one related scope. Then attempts to install again and checks an error
   # occured with feedback and nested installerrors. Uninstalls and deletes everything created after
 
   collections:
-   - ibm.ibm_zos_cics
-  hosts: 'localhost'
+    - ibm.ibm_zos_cics
+  hosts: localhost
   gather_facts: false
   vars:
-    res_def: 'ANSIFIL*'
-    file1: 'ANSIFIL1'
-    file2: 'ANSIFIL2'
-    resource_description: 'ANSIDESC'
-    resource_assignment: 'ANSIGMNT'
-    resource_assignment_type_target: 'CICSRemoteFile'
-    resource_assignment_type_related: 'CICSLocalFile'
-    resource_group: 'ANSIRGRP'
-    related_scope: '{{ cmci_scope_http }}'
-    target_scope: '{{ cmci_scope_region_1 }}'
-    def_ver: '1'
-
+    res_def: ANSIFIL*
+    file1: ANSIFIL1
+    file2: ANSIFIL2
+    resource_description: ANSIDESC
+    resource_assignment: ANSIGMNT
+    resource_assignment_type_target: CICSRemoteFile
+    resource_assignment_type_related: CICSLocalFile
+    resource_group: ANSIRGRP
+    related_scope: "{{ cmci_scope_http }}"
+    target_scope: "{{ cmci_scope_region_1 }}"
+    def_ver: "1"
 
   module_defaults:
     ibm.ibm_zos_cics.cmci_get:
-      cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ cmci_secure_port }}'
-      cmci_user: '{{ cmci_user }}'
-      cmci_password: '{{ cmci_password }}'
-      context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope_https }}'
+      cmci_host: "{{ cmci_host }}"
+      cmci_port: "{{ cmci_secure_port }}"
+      cmci_user: "{{ cmci_user }}"
+      cmci_password: "{{ cmci_password }}"
+      context: "{{ cmci_context }}"
+      scope: "{{ cmci_scope_https }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_update:
-      cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ cmci_secure_port }}'
-      cmci_user: '{{ cmci_user }}'
-      cmci_password: '{{ cmci_password }}'
-      context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope_https }}'
+      cmci_host: "{{ cmci_host }}"
+      cmci_port: "{{ cmci_secure_port }}"
+      cmci_user: "{{ cmci_user }}"
+      cmci_password: "{{ cmci_password }}"
+      context: "{{ cmci_context }}"
+      scope: "{{ cmci_scope_https }}"
       insecure: true
-
 
     ibm.ibm_zos_cics.cmci_delete:
-      cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ cmci_secure_port }}'
-      cmci_user: '{{ cmci_user }}'
-      cmci_password: '{{ cmci_password }}'
-      context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope_https }}'
+      cmci_host: "{{ cmci_host }}"
+      cmci_port: "{{ cmci_secure_port }}"
+      cmci_user: "{{ cmci_user }}"
+      cmci_password: "{{ cmci_password }}"
+      context: "{{ cmci_context }}"
+      scope: "{{ cmci_scope_https }}"
       insecure: true
-
 
     ibm.ibm_zos_cics.cmci_action:
-      cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ cmci_secure_port }}'
-      cmci_user: '{{ cmci_user }}'
-      cmci_password: '{{ cmci_password }}'
-      context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope_https }}'
+      cmci_host: "{{ cmci_host }}"
+      cmci_port: "{{ cmci_secure_port }}"
+      cmci_user: "{{ cmci_user }}"
+      cmci_password: "{{ cmci_password }}"
+      context: "{{ cmci_context }}"
+      scope: "{{ cmci_scope_https }}"
       insecure: true
-
 
     ibm.ibm_zos_cics.cmci_create:
-      cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ cmci_secure_port }}'
-      cmci_user: '{{ cmci_user }}'
-      cmci_password: '{{ cmci_password }}'
-      context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope_https }}'
+      cmci_host: "{{ cmci_host }}"
+      cmci_port: "{{ cmci_secure_port }}"
+      cmci_user: "{{ cmci_user }}"
+      cmci_password: "{{ cmci_password }}"
+      context: "{{ cmci_context }}"
+      scope: "{{ cmci_scope_https }}"
       insecure: true
-
 
   tasks:
     ##################################################################################
     # Initial cleanup
     ##################################################################################
-    - name: 'Delete resource assignment'
-      delegate_to: 'localhost'
+    - name: Delete resource assignment
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSResourceAssignmentDefinition'
+        type: CICSResourceAssignmentDefinition
         resources:
           filter:
-            resassgn: '{{ resource_assignment }}'
+            resassgn: "{{ resource_assignment }}"
       register: result
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
-    - name: 'Delete file1 definition'
-      delegate_to: 'localhost'
+    - name: Delete file1 definition
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSDefinitionFile'
+        type: CICSDefinitionFile
         resources:
           complex_filter:
             and:
               - attribute: NAME
-                value: '{{ file1 }}'
+                value: "{{ file1 }}"
               - attribute: DEFVER
-                value: '{{ def_ver }}'
+                value: "{{ def_ver }}"
       register: result
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
-    - name: 'Delete file2 definition'
-      delegate_to: 'localhost'
+    - name: Delete file2 definition
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSDefinitionFile'
+        type: CICSDefinitionFile
         resources:
           complex_filter:
             and:
               - attribute: NAME
-                value: '{{ file2 }}'
+                value: "{{ file2 }}"
               - attribute: DEFVER
-                value: '{{ def_ver }}'
+                value: "{{ def_ver }}"
       register: result
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
@@ -123,66 +118,65 @@
     ###
     # DISABLE AND DISCARD file1 and file2 in each region it may be installed
     ###
-    - name: 'Check if file1 is installed in target scope'
-      include_role:
+    - name: Check if file1 is installed in target scope
+      ansible.builtin.include_role:
         name: cmci_delete_if_exists
       vars:
-        resource_type: '{{ resource_assignment_type_target }}'
-        context: '{{ cmci_context }}'
-        scope: '{{ target_scope }}'
+        resource_type: "{{ resource_assignment_type_target }}"
+        context: "{{ cmci_context }}"
+        scope: "{{ target_scope }}"
         attributes:
-          FILE: '{{ file1 }}'
+          FILE: "{{ file1 }}"
 
-    - name: 'Check if file1 is installed in related scope'
-      include_role:
+    - name: Check if file1 is installed in related scope
+      ansible.builtin.include_role:
         name: cmci_disable_discard_if_exists
       vars:
-        resource_type: '{{ resource_assignment_type_related }}'
-        context: '{{ cmci_context }}'
-        scope: '{{ related_scope }}'
+        resource_type: "{{ resource_assignment_type_related }}"
+        context: "{{ cmci_context }}"
+        scope: "{{ related_scope }}"
         attributes:
-          FILE: '{{ file1 }}'
+          FILE: "{{ file1 }}"
 
-    - name: 'Check if file2 is installed in target scope'
-      include_role:
+    - name: Check if file2 is installed in target scope
+      ansible.builtin.include_role:
         name: cmci_delete_if_exists
       vars:
-        resource_type: '{{ resource_assignment_type_target }}'
-        context: '{{ cmci_context }}'
-        scope: '{{ target_scope }}'
+        resource_type: "{{ resource_assignment_type_target }}"
+        context: "{{ cmci_context }}"
+        scope: "{{ target_scope }}"
         attributes:
-          FILE: '{{ file2 }}'
+          FILE: "{{ file2 }}"
 
-    - name: 'Check if file2 is installed in related scope'
-      include_role:
+    - name: Check if file2 is installed in related scope
+      ansible.builtin.include_role:
         name: cmci_disable_discard_if_exists
       vars:
-        resource_type: '{{ resource_assignment_type_related }}'
-        context: '{{ cmci_context }}'
-        scope: '{{ related_scope }}'
+        resource_type: "{{ resource_assignment_type_related }}"
+        context: "{{ cmci_context }}"
+        scope: "{{ related_scope }}"
         attributes:
-          FILE: '{{ file2 }}'
+          FILE: "{{ file2 }}"
 
-
-    - name: 'Delete resource group'
-      delegate_to: 'localhost'
+    - name: Delete resource group
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSResourceGroup'
+        type: CICSResourceGroup
         resources:
           filter:
-            resgroup: '{{ resource_group }}'
+            resgroup: "{{ resource_group }}"
       register: result
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
 
-    - name: 'Delete resource description'
-      delegate_to: 'localhost'
+    - name: Delete resource description
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSResourceDescription'
+        type: CICSResourceDescription
         resources:
           filter:
-            resdesc: '{{ resource_description }}'
+            resdesc: "{{ resource_description }}"
       register: result
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
@@ -191,137 +185,131 @@
     ##################################################################################
     # Main Test
     ##################################################################################
-    - name: 'Create filedef1'
-      delegate_to: 'localhost'
+    - name: Create filedef1
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_create:
-        type: 'CICSDefinitionFile'
+        type: CICSDefinitionFile
         attributes:
-          name: '{{ file1 }}'
-          defver: '{{ def_ver }}'
+          name: "{{ file1 }}"
+          defver: "{{ def_ver }}"
       register: result
 
     - name: assert filedef created
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].name == file1
 
-
-    - name: 'Create filedef2'
-      delegate_to: 'localhost'
+    - name: Create filedef2
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_create:
-        type: 'CICSDefinitionFile'
+        type: CICSDefinitionFile
         attributes:
-          name: '{{ file2 }}'
-          defver: '{{ def_ver }}'
+          name: "{{ file2 }}"
+          defver: "{{ def_ver }}"
       register: result
 
     - name: assert filedef created
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].name == file2
 
-
-    - name: 'Create Resource Group'
-      delegate_to: 'localhost'
+    - name: Create Resource Group
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_create:
-        type: 'CICSResourceGroup'
+        type: CICSResourceGroup
         attributes:
-          resgroup: '{{ resource_group }}'
+          resgroup: "{{ resource_group }}"
       register: result
 
     - name: assert create resource group
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].resgroup == resource_group
 
-
-    - name: 'Add filedef1 to resource group'
-      delegate_to: 'localhost'
+    - name: Add filedef1 to resource group
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_action:
-        type: 'CICSDefinitionFile'
-        action_name: 'ADDTOGRP'
+        type: CICSDefinitionFile
+        action_name: ADDTOGRP
         resources:
           filter:
-            NAME: '{{ file1 }}'
-            DEFVER: '{{ def_ver }}'
+            NAME: "{{ file1 }}"
+            DEFVER: "{{ def_ver }}"
         action_parameters:
-          - name: 'RESGROUP'
-            value: '{{ resource_group }}'
+          - name: RESGROUP
+            value: "{{ resource_group }}"
       register: result
 
     - name: assert filedef added to resource group
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].name == file1
 
-
-    - name: 'Add filedef2 to resource group'
-      delegate_to: 'localhost'
+    - name: Add filedef2 to resource group
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_action:
-        type: 'CICSDefinitionFile'
-        action_name: 'ADDTOGRP'
+        type: CICSDefinitionFile
+        action_name: ADDTOGRP
         resources:
           filter:
-            NAME: '{{ file2 }}'
-            DEFVER: '{{ def_ver }}'
+            NAME: "{{ file2 }}"
+            DEFVER: "{{ def_ver }}"
         action_parameters:
-          - name: 'RESGROUP'
-            value: '{{ resource_group }}'
+          - name: RESGROUP
+            value: "{{ resource_group }}"
       register: result
 
     - name: assert filedef added to resource group
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].name == file2
 
-
-    - name: 'Create Resource Description'
-      delegate_to: 'localhost'
+    - name: Create Resource Description
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_create:
-        type: 'CICSResourceDescription'
+        type: CICSResourceDescription
         attributes:
-          resdesc: '{{ resource_description }}'
+          resdesc: "{{ resource_description }}"
       register: result
 
     - name: assert create resource description
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].resdesc == resource_description
 
-
-    - name: 'Create Resource Assignment'
-      delegate_to: 'localhost'
+    - name: Create Resource Assignment
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_create:
-        type: 'CICSResourceAssignmentDefinition'
+        type: CICSResourceAssignmentDefinition
         attributes:
-          resassgn: '{{ resource_assignment }}'
-          usage: 'remote'
-          rscope: '{{ related_scope }}'
-          tscope: '{{ target_scope }}'
-          resgroup: '{{ resource_group }}'
-          rdeftype: 'filedef'
+          resassgn: "{{ resource_assignment }}"
+          usage: remote
+          rscope: "{{ related_scope }}"
+          tscope: "{{ target_scope }}"
+          resgroup: "{{ resource_group }}"
+          rdeftype: filedef
       register: result
 
     - name: assert create resource assignment
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
@@ -333,62 +321,59 @@
           - result.records[0].resgroup == resource_group
           - result.records[0].rdeftype == 'FILEDEF'
 
-
-    - name: 'Add resource assignment to resource description'
-      delegate_to: 'localhost'
+    - name: Add resource assignment to resource description
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_action:
-        type: 'CICSResourceAssignmentDefinition'
-        action_name: 'ADDTODSC'
+        type: CICSResourceAssignmentDefinition
+        action_name: ADDTODSC
         resources:
           filter:
-            resassgn: '{{ resource_assignment }}'
+            resassgn: "{{ resource_assignment }}"
         action_parameters:
-          - name: 'RESDESC'
-            value: '{{ resource_description }}'
+          - name: RESDESC
+            value: "{{ resource_description }}"
       register: result
 
     - name: assert resource assignment added to resource description
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].resassgn == resource_assignment
 
-
-    - name: 'Install resource description'
-      delegate_to: 'localhost'
+    - name: Install resource description
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_action:
-        type: 'CICSResourceDescription'
-        action_name: 'INSTALL'
+        type: CICSResourceDescription
+        action_name: INSTALL
         resources:
           filter:
-            resdesc: '{{ resource_description }}'
+            resdesc: "{{ resource_description }}"
       register: result
 
     - name: assert install ok
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
 
-
-    - name: 'Check file where filedef will be deployed by resource assignmnet'
-      delegate_to: 'localhost'
+    - name: Check file where filedef will be deployed by resource assignmnet
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_get:
-        type: 'CICSResourceByDescription'
+        type: CICSResourceByDescription
         resources:
           filter:
-            resdesc: '{{ resource_description }}'
-            resdef: '{{ res_def }}'
+            resdesc: "{{ resource_description }}"
+            resdef: "{{ res_def }}"
           get_parameters:
-            - name: 'RESDESC'
-              value: '{{ resource_description }}'
+            - name: RESDESC
+              value: "{{ resource_description }}"
       register: result
 
     - name: assert where filedef will be installed
-      assert:
+      ansible.builtin.assert:
         that:
           - result is not changed
           - result.cpsm_response == 'OK'
@@ -418,83 +403,80 @@
           - result.records[3].resgroup == resource_group
           - result.records[3].tscope == target_scope
 
-
-    - name: 'Check file1 was installed in target region'
-      delegate_to: 'localhost'
+    - name: Check file1 was installed in target region
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_get:
-        type: 'CICSRemoteFile'
-        scope: '{{ target_scope }}'
+        type: CICSRemoteFile
+        scope: "{{ target_scope }}"
         resources:
           filter:
-            file: '{{ file1 }}'
+            file: "{{ file1 }}"
       retries: 3
       until: result is not failed
       register: result
 
     - name: assert file1 was installed in target region
-      assert:
+      ansible.builtin.assert:
         that:
           - result is not changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].remotename == file1
 
-
-    - name: 'Check file2 was installed in target region'
-      delegate_to: 'localhost'
+    - name: Check file2 was installed in target region
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_get:
-        type: 'CICSRemoteFile'
-        scope: '{{ target_scope }}'
+        type: CICSRemoteFile
+        scope: "{{ target_scope }}"
         resources:
           filter:
-            file: '{{ file2 }}'
+            file: "{{ file2 }}"
       retries: 3
       until: result is not failed
       register: result
 
     - name: assert file2 was installed in target scope
-      assert:
+      ansible.builtin.assert:
         that:
           - result is not changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].remotename == file2
 
-
-    - name: 'Check file1 was installed in related scope'
-      delegate_to: 'localhost'
+    - name: Check file1 was installed in related scope
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_get:
-        type: 'CICSLocalFile'
-        scope: '{{ related_scope }}'
+        type: CICSLocalFile
+        scope: "{{ related_scope }}"
         resources:
           filter:
-            file: '{{ file1 }}'
+            file: "{{ file1 }}"
       retries: 3
       until: result is not failed
       register: result
 
     - name: assert file1 was installed in related scope
-      assert:
+      ansible.builtin.assert:
         that:
           - result is not changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].file == file1
 
-    - name: 'Check file2 was installed in related scope'
-      delegate_to: 'localhost'
+    - name: Check file2 was installed in related scope
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_get:
-        type: 'CICSLocalFile'
-        scope: '{{ related_scope }}'
+        type: CICSLocalFile
+        scope: "{{ related_scope }}"
         resources:
           filter:
-            file: '{{ file2 }}'
+            file: "{{ file2 }}"
       retries: 3
       until: result is not failed
       register: result
 
     - name: assert file2 was installed in related scope
-      assert:
+      ansible.builtin.assert:
         that:
           - result is not changed
           - result.cpsm_response == 'OK'
@@ -504,19 +486,19 @@
     #####################################################
     # Test correct feedback given on installation error #
     #####################################################
-    - name: 'Install resource description again'
-      delegate_to: 'localhost'
+    - name: Install resource description again
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_action:
-        type: 'CICSResourceDescription'
-        action_name: 'INSTALL'
+        type: CICSResourceDescription
+        action_name: INSTALL
         resources:
           filter:
-            resdesc: '{{ resource_description }}'
+            resdesc: "{{ resource_description }}"
       register: result
       failed_when: false
 
     - name: assert feedback error is correct
-      assert:
+      ansible.builtin.assert:
         that:
           - result.cpsm_response == 'TABLEERROR'
           - result.cpsm_reason == 'DATAERROR'
@@ -544,142 +526,136 @@
           - result.feedback[1].attribute1 == 'RESDESC'
           - result.feedback[1].errorcode == '29'
 
-
     ##################################################################################
     # Tear down
     ##################################################################################
-    - name: 'Delete resource assignment'
-      delegate_to: 'localhost'
+    - name: Delete resource assignment
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSResourceAssignmentDefinition'
+        type: CICSResourceAssignmentDefinition
         resources:
           filter:
-            resassgn: '{{ resource_assignment }}'
+            resassgn: "{{ resource_assignment }}"
       register: result
 
     - name: assert deleted resource assignment
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.success_count == 1
 
-
-    - name: 'Delete filedef1'
-      delegate_to: 'localhost'
+    - name: Delete filedef1
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSDefinitionFile'
+        type: CICSDefinitionFile
         resources:
           filter:
-            name: '{{ file1 }}'
+            name: "{{ file1 }}"
           get_parameters:
-            - name: 'RESGROUP'
-              value: '{{ resource_group }}'
+            - name: RESGROUP
+              value: "{{ resource_group }}"
       register: result
 
     - name: assert deleted filedef1
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.success_count == 1
 
-
-    - name: 'Delete filedef2'
-      delegate_to: 'localhost'
+    - name: Delete filedef2
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSDefinitionFile'
+        type: CICSDefinitionFile
         resources:
           filter:
-            name: '{{ file2 }}'
+            name: "{{ file2 }}"
           get_parameters:
-            - name: 'RESGROUP'
-              value: '{{ resource_group }}'
+            - name: RESGROUP
+              value: "{{ resource_group }}"
       register: result
 
     - name: assert deleted filedef2
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.success_count == 1
 
-
-    - name: 'Delete resource group'
-      delegate_to: 'localhost'
+    - name: Delete resource group
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSResourceGroup'
+        type: CICSResourceGroup
         resources:
           filter:
-            resgroup: '{{ resource_group }}'
+            resgroup: "{{ resource_group }}"
       register: result
 
     - name: assert deleted resource group
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.success_count == 1
 
-
-    - name: 'Delete resource description'
-      delegate_to: 'localhost'
+    - name: Delete resource description
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSResourceDescription'
+        type: CICSResourceDescription
         resources:
           filter:
-            resdesc: '{{ resource_description }}'
+            resdesc: "{{ resource_description }}"
       register: result
 
     - name: assert deleted resource description
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.success_count == 1
 
-
-    - name: 'Check if file1 is installed in target scope'
-      include_role:
+    - name: Check if file1 is installed in target scope
+      ansible.builtin.include_role:
         name: cmci_delete_if_exists
       vars:
-        resource_type: '{{ resource_assignment_type_target }}'
-        context: '{{ cmci_context }}'
-        scope: '{{ target_scope }}'
+        resource_type: "{{ resource_assignment_type_target }}"
+        context: "{{ cmci_context }}"
+        scope: "{{ target_scope }}"
         attributes:
-          FILE: '{{ file1 }}'
+          FILE: "{{ file1 }}"
 
-    - name: 'Check if file1 is installed in related scope'
-      include_role:
+    - name: Check if file1 is installed in related scope
+      ansible.builtin.include_role:
         name: cmci_disable_discard_if_exists
       vars:
-        resource_type: '{{ resource_assignment_type_related }}'
-        context: '{{ cmci_context }}'
-        scope: '{{ related_scope }}'
+        resource_type: "{{ resource_assignment_type_related }}"
+        context: "{{ cmci_context }}"
+        scope: "{{ related_scope }}"
         attributes:
-          FILE: '{{ file1 }}'
+          FILE: "{{ file1 }}"
 
-    - name: 'Check if file2 is installed in target scope'
-      include_role:
+    - name: Check if file2 is installed in target scope
+      ansible.builtin.include_role:
         name: cmci_delete_if_exists
       vars:
-        resource_type: '{{ resource_assignment_type_target }}'
-        context: '{{ cmci_context }}'
-        scope: '{{ target_scope }}'
+        resource_type: "{{ resource_assignment_type_target }}"
+        context: "{{ cmci_context }}"
+        scope: "{{ target_scope }}"
         attributes:
-          FILE: '{{ file2 }}'
+          FILE: "{{ file2 }}"
 
-    - name: 'Check if file2 is installed in related scope'
-      include_role:
+    - name: Check if file2 is installed in related scope
+      ansible.builtin.include_role:
         name: cmci_disable_discard_if_exists
       vars:
-        resource_type: '{{ resource_assignment_type_related }}'
-        context: '{{ cmci_context }}'
-        scope: '{{ related_scope }}'
+        resource_type: "{{ resource_assignment_type_related }}"
+        context: "{{ cmci_context }}"
+        scope: "{{ related_scope }}"
         attributes:
-          FILE: '{{ file2 }}'
+          FILE: "{{ file2 }}"

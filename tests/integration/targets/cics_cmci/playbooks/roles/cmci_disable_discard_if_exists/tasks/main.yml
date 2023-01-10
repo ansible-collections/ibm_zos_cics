@@ -1,8 +1,9 @@
-- name: 'Check if target {{ resource_type }} is installed in {{ context }}/{{ scope }}'
-  include_role:
+---
+- name: Check if target {{ resource_type }} is installed in {{ context }}/{{ scope }}
+  ansible.builtin.include_role:
     name: cmci_check_exists
 
-- name: 'Disable and discard {{ resource_type }} if it exists'
-  include_role:
+- name: Disable and discard {{ resource_type }} if it exists
+  ansible.builtin.include_role:
     name: cmci_disable_discard
   when: exists

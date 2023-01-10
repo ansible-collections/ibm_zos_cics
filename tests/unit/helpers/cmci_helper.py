@@ -30,6 +30,7 @@ class CMCITestHelper:
     def __init__(self, requests_mock=None):
         self.requests_mock = requests_mock
         self.expected = {}
+        self.expected_list = False
 
     def stub_request(self, *args, **kwargs):
         self.requests_mock.request(complete_qs=True, *args, **kwargs)
@@ -102,6 +103,12 @@ class CMCITestHelper:
     def expect(self, expected):
         self.expected = expected
 
+    def expect_list(self, chars_before_list, chars_after_list, string_containing_list='msg'):
+        self.expected_list = True
+        self.chars_before_list = chars_before_list
+        self.chars_after_list = chars_after_list
+        self.string_containing_list = string_containing_list
+
     def run(self, module, config):
         # upper-case the resource name, so it definitely doesn't match the CMCI response, to ensure
         # we don't rely on them matching
@@ -115,6 +122,20 @@ class CMCITestHelper:
 
         assert isinstance(self.expected, dict)
         assert isinstance(result, dict)
+
+        if self.expected_list:
+            # get list of items from a string in the result dict - comma separated text between 2 points in string
+            actual_list = result.get(self.string_containing_list)[self.chars_before_list:-self.chars_after_list].split(", ")
+            # sort alphabetically
+            actual_list.sort()
+            # get the text before the list in the string
+            before_list = result.get(self.string_containing_list)[:self.chars_before_list]
+            # get the text after the list in the string
+            after_list = result.get(self.string_containing_list)[-self.chars_after_list:]
+            # put the text before and after the list together with the newly ordered list
+            concat = before_list + ", ".join(actual_list) + after_list
+            # update the result dict to use the string with the ordered list of items
+            result.update({self.string_containing_list: concat})
 
         if self.expected != result:
             standard_msg = '%s != %s' % (repr(self.expected), repr(result))
@@ -215,7 +236,8 @@ def create_records_response(resource_type, records):  # type: (str, List) -> Ord
         ))
     )
 
-def create_nodata_response(): # type: (str, List) -> OrderedDict
+
+def create_nodata_response():  # type: (str, List) -> OrderedDict
     return create_cmci_response(
         ('resultsummary', od(
             ('@api_response1', '1027'),

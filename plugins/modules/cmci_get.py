@@ -44,7 +44,7 @@ options:
     description:
       - Specifies whether the module should fail if no data is returned by the
         query. If set to true, the module will fail if no data is returned.
-      - Default behaviour is for the module to fail if no data is returned. When 
+      - Default behaviour is for the module to fail if no data is returned. When
         set to false, the module will return OK, just with no records.
     type: bool
     required: false
@@ -534,7 +534,7 @@ class AnsibleCMCIGetModule(AnsibleCMCIModule):
         argument_spec.update({
             _RECORD_COUNT: {
                 'type': 'int'
-            }, 
+            },
             _FAIL_ON_NODATA: {
                 'type': 'bool',
                 'default': True
@@ -553,7 +553,7 @@ class AnsibleCMCIGetModule(AnsibleCMCIModule):
             url = url + '//' + str(self._p.get(_RECORD_COUNT))
 
         return url
-    
+
     def get_ok_cpsm_response_codes(self):
         ok_codes = super(AnsibleCMCIGetModule, self).get_ok_cpsm_response_codes()
 

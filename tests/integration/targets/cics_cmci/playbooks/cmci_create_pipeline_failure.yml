@@ -1,38 +1,38 @@
 # (c) Copyright IBM Corp. 2021
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name:  CMCI Create Pipeline Failure Integration Test
+- name: CMCI Create Pipeline Failure Integration Test
   collections:
-   - ibm.ibm_zos_cics
-  hosts: 'localhost'
+    - ibm.ibm_zos_cics
+  hosts: localhost
   gather_facts: false
 
   tasks:
     - name: test create pipeline failure
       ibm.ibm_zos_cics.cmci_create:
-        cmci_host: '{{ cmci_host }}'
-        cmci_port: '{{ cmci_secure_port }}'
-        cmci_user: '{{ cmci_user }}'
-        cmci_password: '{{ cmci_password }}'
+        cmci_host: "{{ cmci_host }}"
+        cmci_port: "{{ cmci_secure_port }}"
+        cmci_user: "{{ cmci_user }}"
+        cmci_password: "{{ cmci_password }}"
         insecure: true
-        context: '{{ cmci_context }}'
-        scope: '{{ cmci_scope_https }}'
-        type: 'CICSDefinitionPipeline'
+        context: "{{ cmci_context }}"
+        scope: "{{ cmci_scope_https }}"
+        type: CICSDefinitionPipeline
         create_parameters:
-          - name: 'CSD'
+          - name: CSD
         attributes:
-          name: 'ANSIBUND'
-          csdgroup: 'ANDITEST'
-          configfile: "invalid"
+          name: ANSIBUND
+          csdgroup: ANDITEST
+          configfile: invalid
       failed_when: false
       register: result
 
     - name: debug
-      debug:
-        msg: '{{ result }}'
+      ansible.builtin.debug:
+        msg: "{{ result }}"
 
     - name: assert
-      assert:
+      ansible.builtin.assert:
         that:
           - result.failed is false
           - result.msg == "CMCI request failed with response \"TABLEERROR\" reason \"DATAERROR\""
@@ -41,4 +41,4 @@
 
           - result.feedback[0].action == 'CREATE'
           - result.feedback[0].attribute1 == 'CONFIGFILE'
-          - result.feedback[0].errorcode == '1' #(PIPEDEF_INV_DATA)
+          - result.feedback[0].errorcode == '1' # (PIPEDEF_INV_DATA)

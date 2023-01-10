@@ -1,195 +1,189 @@
 # (c) Copyright IBM Corp. 2021
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name:  CMCI HTTPS Integration Test
+- name: CMCI HTTPS Integration Test
   collections:
-   - ibm.ibm_zos_cics
-  hosts: 'localhost'
+    - ibm.ibm_zos_cics
+  hosts: localhost
+  become: true
   gather_facts: false
   vars:
-    csdgroup: 'ANSITEST'
-    program: 'ANSITEST'
-    program_2: 'ANSITES2'
-    program_filter: 'ANSITES*'
+    csdgroup: ANSITEST
+    program: ANSITEST
+    program_2: ANSITES2
+    program_filter: ANSITES*
 
   module_defaults:
     ibm.ibm_zos_cics.cmci_get:
-      cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ cmci_secure_port }}'
-      cmci_user: '{{ cmci_user }}'
-      cmci_password: '{{ cmci_password }}'
-      context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope_https }}'
+      cmci_host: "{{ cmci_host }}"
+      cmci_port: "{{ cmci_secure_port }}"
+      cmci_user: "{{ cmci_user }}"
+      cmci_password: "{{ cmci_password }}"
+      context: "{{ cmci_context }}"
+      scope: "{{ cmci_scope_https }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_update:
-      cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ cmci_secure_port }}'
-      cmci_user: '{{ cmci_user }}'
-      cmci_password: '{{ cmci_password }}'
-      context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope_https }}'
+      cmci_host: "{{ cmci_host }}"
+      cmci_port: "{{ cmci_secure_port }}"
+      cmci_user: "{{ cmci_user }}"
+      cmci_password: "{{ cmci_password }}"
+      context: "{{ cmci_context }}"
+      scope: "{{ cmci_scope_https }}"
       insecure: true
-
 
     ibm.ibm_zos_cics.cmci_delete:
-      cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ cmci_secure_port }}'
-      cmci_user: '{{ cmci_user }}'
-      cmci_password: '{{ cmci_password }}'
-      context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope_https }}'
+      cmci_host: "{{ cmci_host }}"
+      cmci_port: "{{ cmci_secure_port }}"
+      cmci_user: "{{ cmci_user }}"
+      cmci_password: "{{ cmci_password }}"
+      context: "{{ cmci_context }}"
+      scope: "{{ cmci_scope_https }}"
       insecure: true
-
 
     ibm.ibm_zos_cics.cmci_action:
-      cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ cmci_secure_port }}'
-      cmci_user: '{{ cmci_user }}'
-      cmci_password: '{{ cmci_password }}'
-      context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope_https }}'
+      cmci_host: "{{ cmci_host }}"
+      cmci_port: "{{ cmci_secure_port }}"
+      cmci_user: "{{ cmci_user }}"
+      cmci_password: "{{ cmci_password }}"
+      context: "{{ cmci_context }}"
+      scope: "{{ cmci_scope_https }}"
       insecure: true
 
-
     ibm.ibm_zos_cics.cmci_create:
-      cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ cmci_secure_port }}'
-      cmci_user: '{{ cmci_user }}'
-      cmci_password: '{{ cmci_password }}'
-      context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope_https }}'
+      cmci_host: "{{ cmci_host }}"
+      cmci_port: "{{ cmci_secure_port }}"
+      cmci_user: "{{ cmci_user }}"
+      cmci_password: "{{ cmci_password }}"
+      context: "{{ cmci_context }}"
+      scope: "{{ cmci_scope_https }}"
       insecure: true
 
   tasks:
-    - name: 'Delete progdef'
-      delegate_to: 'localhost'
+    - name: Delete progdef
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSDefinitionProgram'
+        type: CICSDefinitionProgram
         resources:
           complex_filter:
             and:
               - attribute: NAME
-                value: '{{ program }}'
+                value: "{{ program }}"
               - attribute: CSDGROUP
-                value: '{{ csdgroup }}'
+                value: "{{ csdgroup }}"
           get_parameters:
-            - name: 'CSDGROUP'
-              value: '{{ csdgroup }}'
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
       register: result
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
 
-    - name: 'create progdef'
-      delegate_to: 'localhost'
+    - name: create progdef
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_create:
-        type: 'CICSDefinitionProgram'
+        type: CICSDefinitionProgram
         attributes:
-          name: '{{ program }}'
-          csdgroup: '{{ csdgroup }}'
+          name: "{{ program }}"
+          csdgroup: "{{ csdgroup }}"
         create_parameters:
-          - name: 'CSD'
+          - name: CSD
       register: result
 
     - name: assert 1
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].name == program
 
-
-    - name: 'update progdef'
-      delegate_to: 'localhost'
+    - name: update progdef
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_update:
-        type: 'CICSDefinitionProgram'
+        type: CICSDefinitionProgram
         attributes:
-          description: 'foo'
+          description: foo
         resources:
           filter:
-            NAME: '{{ program }}'
+            NAME: "{{ program }}"
           get_parameters:
-            - name: 'CSDGROUP'
-              value: '{{ csdgroup }}'
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
       register: result
 
     - name: assert 2
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].description == 'foo'
 
-
-    - name: 'install program'
-      delegate_to: 'localhost'
+    - name: install program
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_action:
-        type: 'CICSDefinitionProgram'
-        action_name: 'CSDINSTALL'
+        type: CICSDefinitionProgram
+        action_name: CSDINSTALL
         resources:
           filter:
-            NAME: '{{ program }}'
+            NAME: "{{ program }}"
           get_parameters:
-            - name: 'CSDGROUP'
-              value: '{{ csdgroup }}'
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
       register: result
 
     - name: assert 3
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
 
-
-    - name: 'check program was installed'
-      delegate_to: 'localhost'
+    - name: check program was installed
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_get:
-        type: 'CICSProgram'
+        type: CICSProgram
         resources:
           filter:
-            PROGRAM: '{{ program }}'
-      retries: 3  # May take a while to install, so give it a chance!
+            PROGRAM: "{{ program }}"
+      retries: 3 # May take a while to install, so give it a chance!
       until: result is not failed
       register: result
 
     - name: assert 4
-      assert:
+      ansible.builtin.assert:
         that:
           - result is not changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].program == program
 
-
-    - name: 'disable program'
-      delegate_to: 'localhost'
+    - name: disable program
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_update:
-        type: 'CICSProgram'
+        type: CICSProgram
         attributes:
-          status: 'disabled'
+          status: disabled
         resources:
           filter:
-            PROGRAM: '{{ program }}'
+            PROGRAM: "{{ program }}"
           complex_filter:
             and:
-              - attribute: 'PROGRAM'
-                operator: '='
-                value: '{{ program }}'
+              - attribute: PROGRAM
+                operator: "="
+                value: "{{ program }}"
               - or:
-                  - attribute: 'USECOUNT'
-                    operator: '!='
-                    value: '0'
-                  - attribute: 'USECOUNT'
-                    operator: 'LT'
-                    value: '1'
+                  - attribute: USECOUNT
+                    operator: "!="
+                    value: "0"
+                  - attribute: USECOUNT
+                    operator: LT
+                    value: "1"
       register: result
 
     - name: assert 5
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
@@ -197,145 +191,138 @@
           - result.records[0].program == program
           - result.records[0].status == 'DISABLED'
 
-
-    - name: 'delete program'
-      delegate_to: 'localhost'
+    - name: delete program
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSProgram'
+        type: CICSProgram
         resources:
           filter:
-            PROGRAM: '{{ program }}'
+            PROGRAM: "{{ program }}"
       register: result
 
     - name: assert 6
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.success_count == 1
 
-    
-    - name: 'create progdef2'
-      delegate_to: 'localhost'
+    - name: create progdef2
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_create:
-        type: 'CICSDefinitionProgram'
+        type: CICSDefinitionProgram
         attributes:
-          name: '{{ program_2 }}'
-          csdgroup: '{{ csdgroup }}'
+          name: "{{ program_2 }}"
+          csdgroup: "{{ csdgroup }}"
         create_parameters:
-          - name: 'CSD'
+          - name: CSD
       register: result
 
     - name: assert program_2 created
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].name == program_2
-    
 
-    - name: 'Check All Records Returned'
-      delegate_to: 'localhost'
+    - name: Check All Records Returned
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_get:
-        type: 'CICSDefinitionProgram'
+        type: CICSDefinitionProgram
         resources:
           filter:
-            name: '{{ program_filter }}'
+            name: "{{ program_filter }}"
           get_parameters:
-            - name: 'CSDGROUP'
-              value: '{{ csdgroup }}'
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
       register: result
 
     - name: assert record_count is 2
-      assert:
+      ansible.builtin.assert:
         that:
           - result is not changed
           - result.cpsm_response == 'OK'
           - result.record_count == 2
-    
 
-    - name: 'Check record count attribute'
-      delegate_to: 'localhost'
+    - name: Check record count attribute
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_get:
-        type: 'CICSDefinitionProgram'
+        type: CICSDefinitionProgram
         record_count: 1
         resources:
           filter:
-            name: '{{ program_filter }}'
+            name: "{{ program_filter }}"
           get_parameters:
-            - name: 'CSDGROUP'
-              value: '{{ csdgroup }}'
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
       register: result
-    
+
     - name: assert record_count attribute
-      assert:
+      ansible.builtin.assert:
         that:
           - result is not changed
           - result.cpsm_response == 'OK'
           - result.record_count == 2
           - result.records|length == 1
 
-
-    - name: 'delete progdef'
-      delegate_to: 'localhost'
+    - name: delete progdef
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSDefinitionProgram'
+        type: CICSDefinitionProgram
         resources:
           filter:
-            NAME: '{{ program }}'
+            NAME: "{{ program }}"
           get_parameters:
-            - name: 'CSDGROUP'
-              value: '{{ csdgroup }}'
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
       register: result
 
     - name: assert 7
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.success_count == 1
-    
 
-    - name: 'Delete progdef2'
-      delegate_to: 'localhost'
+    - name: Delete progdef2
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSDefinitionProgram'
+        type: CICSDefinitionProgram
         resources:
           filter:
-            NAME: '{{ program_2 }}'
+            NAME: "{{ program_2 }}"
           get_parameters:
-            - name: 'CSDGROUP'
-              value: '{{ csdgroup }}'
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
       register: result
-    
+
     - name: assert program_2 deleted
-      assert:
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.success_count == 1
 
-
-    - name: 'fail_on_nodata default'
-      delegate_to: 'localhost'
+    - name: fail_on_nodata default
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_get:
-        type: 'CICSDefinitionProgram'
+        type: CICSDefinitionProgram
         resources:
           filter:
-            name: '{{ program_filter }}'
+            name: "{{ program_filter }}"
           get_parameters:
-            - name: 'CSDGROUP'
-              value: '{{ csdgroup }}'
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
       register: result
       failed_when: >
         'cpsm_response_code' not in result or result.cpsm_response_code not in [1024, 1027]
-    
+
     - name: assert fail_on_nodata attribute default
-      assert:
+      ansible.builtin.assert:
         that:
           - result is not changed
           - result.failed == false
@@ -345,22 +332,21 @@
           - result.msg is defined # Present when ansible task fails - exception caught by 'failed_when' attribute for testing
           - result.failed_when_result is defined
 
-
-    - name: 'fail_on_nodata False'
-      delegate_to: 'localhost'
+    - name: fail_on_nodata False
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_get:
-        type: 'CICSDefinitionProgram'
-        fail_on_nodata: False
+        type: CICSDefinitionProgram
+        fail_on_nodata: false
         resources:
           filter:
-            name: '{{ program_filter }}'
+            name: "{{ program_filter }}"
           get_parameters:
-            - name: 'CSDGROUP'
-              value: '{{ csdgroup }}'
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
       register: result
-    
+
     - name: assert fail_on_nodata attribute false
-      assert:
+      ansible.builtin.assert:
         that:
           - result is not changed
           - result.failed == false

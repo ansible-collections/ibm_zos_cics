@@ -640,10 +640,19 @@ def test_extra_attributes_root(cmci_module):
     if sys.version_info.major <= 2:
         extension = "pyc"
 
+    before_list = "Unsupported parameters for (basic.%s) module: resources.complex_filter.orange. Supported parameters include: " % extension
+    sorted_list = ["cmci_cert", "cmci_host", "cmci_key", "cmci_password",
+                                "cmci_port", "cmci_user", "context", "fail_on_nodata", "insecure",
+                                "record_count", "resources", "scheme", "scope", "timeout", "type"]
+    after_list = "."
+
+    cmci_module.expect_list(
+        chars_before_list=len(before_list),
+        chars_after_list=len(after_list),
+        string_containing_list='msg'
+    )
     cmci_module.expect({
-        'msg': "Unsupported parameters for (basic.%s) module: orange found in "
-               "resources -> complex_filter. Supported parameters include: and,"
-               " attribute, operator, or, value" % extension,
+        'msg': before_list + ", ".join(sorted_list) + after_list,
         'failed': True
     })
 
