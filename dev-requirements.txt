@@ -1,7 +1,8 @@
 # (c) Copyright IBM Corp. 2020,2021
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 -r requirements.txt
-ansible==2.10.7
+ansible-core==2.13.7; python_version >= '3'
+ansible-core==2.11.12; python_version < '3'
 junit-xml==1.9  # To get JUnit xml report from ansible-test
 pytest_mock==1.12.1
 mock==3.0.5

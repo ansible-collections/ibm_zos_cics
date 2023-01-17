@@ -16,3 +16,4 @@ ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_incorrect_scheme.yml
 ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_bas_link.yml
 ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_bas_install.yml
 ansible-playbook -e "@cmci-variables.yml" playbooks/cmci_bas_install_error.yml
+ansible-playbook -e "@cmci-variables.yml" playbooks/cics_cmci_module_defaults.yml
