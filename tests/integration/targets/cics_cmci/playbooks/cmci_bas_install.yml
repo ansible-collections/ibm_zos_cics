@@ -81,7 +81,6 @@
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
-
     - name: Delete program definition
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
@@ -97,7 +96,6 @@
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
-
     - name: Delete program in region one
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
@@ -109,7 +107,6 @@
       register: result
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
-
 
     - name: Delete program in region two
       delegate_to: localhost
@@ -123,7 +120,6 @@
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
-
     - name: Delete program in related scope
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
@@ -136,7 +132,6 @@
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
-
     - name: Delete resource group
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
@@ -147,7 +142,6 @@
       register: result
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
-
 
     - name: Delete resource description
       delegate_to: localhost
@@ -160,7 +154,6 @@
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
-
     - name: Delete system group target scope
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
@@ -171,7 +164,6 @@
       register: result
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
-
 
     ##################################################################################
     # Main Test
@@ -185,7 +177,7 @@
           defver: "{{ def_ver }}"
       register: result
 
-    - name: assert progdef created
+    - name: Assert progdef created
       ansible.builtin.assert:
         that:
           - result is changed
@@ -201,7 +193,7 @@
           resgroup: "{{ resource_group }}"
       register: result
 
-    - name: assert create resource group
+    - name: Assert create resource group
       ansible.builtin.assert:
         that:
           - result is changed
@@ -223,7 +215,7 @@
             value: "{{ resource_group }}"
       register: result
 
-    - name: assert progdef added to resource group
+    - name: Assert progdef added to resource group
       ansible.builtin.assert:
         that:
           - result is changed
@@ -239,7 +231,7 @@
           group: "{{ target_scope }}"
       register: result
 
-    - name: assert create system group
+    - name: Assert create system group
       ansible.builtin.assert:
         that:
           - result is changed
@@ -256,7 +248,7 @@
           cicsname: "{{ region_one }}"
       register: result
 
-    - name: assert region one added to system group
+    - name: Assert region one added to system group
       ansible.builtin.assert:
         that:
           - result is changed
@@ -274,7 +266,7 @@
           cicsname: "{{ region_two }}"
       register: result
 
-    - name: assert region two added to system group
+    - name: Assert region two added to system group
       ansible.builtin.assert:
         that:
           - result is changed
@@ -291,7 +283,7 @@
           resdesc: "{{ resource_description }}"
       register: result
 
-    - name: assert create resource description
+    - name: Assert create resource description
       ansible.builtin.assert:
         that:
           - result is changed
@@ -312,7 +304,7 @@
           rdeftype: progdef
       register: result
 
-    - name: assert create resource assignment
+    - name: Assert create resource assignment
       ansible.builtin.assert:
         that:
           - result is changed
@@ -338,7 +330,7 @@
             value: "{{ resource_description }}"
       register: result
 
-    - name: assert resource assignment added to resource description
+    - name: Assert resource assignment added to resource description
       ansible.builtin.assert:
         that:
           - result is changed
@@ -356,7 +348,7 @@
             resdesc: "{{ resource_description }}"
       register: result
 
-    - name: assert install ok
+    - name: Assert install ok
       ansible.builtin.assert:
         that:
           - result is changed
@@ -376,7 +368,7 @@
               value: "{{ resource_description }}"
       register: result
 
-    - name: assert where program will be installed
+    - name: Assert where program will be installed
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -413,7 +405,7 @@
       until: result is not failed
       register: result
 
-    - name: assert program was installed in region one
+    - name: Assert program was installed in region one
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -433,7 +425,7 @@
       until: result is not failed
       register: result
 
-    - name: assert program was installed in region two
+    - name: Assert program was installed in region two
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -453,11 +445,7 @@
       until: result is not failed
       register: result
 
-    - name: debug 2
-      ansible.builtin.debug:
-        msg: "{{ result }}"
-
-    - name: assert program was installed in related scope
+    - name: Assert program was installed in related scope
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -477,7 +465,7 @@
             resassgn: "{{ resource_assignment }}"
       register: result
 
-    - name: assert deleted resource assignment
+    - name: Assert deleted resource assignment
       ansible.builtin.assert:
         that:
           - result is changed
@@ -497,7 +485,7 @@
               value: "{{ resource_group }}"
       register: result
 
-    - name: assert deleted progdef
+    - name: Assert deleted progdef
       ansible.builtin.assert:
         that:
           - result is changed
@@ -514,7 +502,7 @@
             resgroup: "{{ resource_group }}"
       register: result
 
-    - name: assert deleted resource group
+    - name: Assert deleted resource group
       ansible.builtin.assert:
         that:
           - result is changed
@@ -531,7 +519,7 @@
             resdesc: "{{ resource_description }}"
       register: result
 
-    - name: assert deleted resource description
+    - name: Assert deleted resource description
       ansible.builtin.assert:
         that:
           - result is changed
@@ -548,7 +536,7 @@
             group: "{{ target_scope }}"
       register: result
 
-    - name: assert deleted system group target scope
+    - name: Assert deleted system group target scope
       ansible.builtin.assert:
         that:
           - result is changed
@@ -566,7 +554,7 @@
             program: "{{ program }}"
       register: result
 
-    - name: assert program deleted in region one
+    - name: Assert program deleted in region one
       ansible.builtin.assert:
         that:
           - result is changed
@@ -584,7 +572,7 @@
             program: "{{ program }}"
       register: result
 
-    - name: assert program deleted in region two
+    - name: Assert program deleted in region two
       ansible.builtin.assert:
         that:
           - result is changed
@@ -602,7 +590,7 @@
             program: "{{ program }}"
       register: result
 
-    - name: assert program deleted in related scope
+    - name: Assert program deleted in related scope
       ansible.builtin.assert:
         that:
           - result is changed

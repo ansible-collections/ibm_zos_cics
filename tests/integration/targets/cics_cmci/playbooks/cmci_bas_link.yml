@@ -77,7 +77,6 @@
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
-
     - name: Delete resource group
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
@@ -88,7 +87,6 @@
       register: result
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
-
 
     - name: Delete resource description
       delegate_to: localhost
@@ -101,7 +99,6 @@
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
-
     - name: Create progdef
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_create:
@@ -111,7 +108,7 @@
           defver: "{{ def_ver }}"
       register: result
 
-    - name: assert progdef created
+    - name: Assert progdef created
       ansible.builtin.assert:
         that:
           - result is changed
@@ -127,7 +124,7 @@
           resgroup: "{{ resource_group }}"
       register: result
 
-    - name: assert create resource group
+    - name: Assert create resource group
       ansible.builtin.assert:
         that:
           - result is changed
@@ -149,7 +146,7 @@
             value: "{{ resource_group }}"
       register: result
 
-    - name: assert progdef added to resource group
+    - name: Assert progdef added to resource group
       ansible.builtin.assert:
         that:
           - result is changed
@@ -166,7 +163,7 @@
           rgscope: "{{ resource_scope }}"
       register: result
 
-    - name: assert create resource description
+    - name: Assert create resource description
       ansible.builtin.assert:
         that:
           - result is changed
@@ -187,7 +184,7 @@
             value: "{{ resource_description }}"
       register: result
 
-    - name: assert resource group added to resource description
+    - name: Assert resource group added to resource description
       ansible.builtin.assert:
         that:
           - result is changed
@@ -204,7 +201,7 @@
             resdesc: "{{ resource_description }}"
       register: result
 
-    - name: assert resource group is in resource description
+    - name: Assert resource group is in resource description
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -221,7 +218,7 @@
             resgroup: "{{ result.records[0].resgroup }}"
       register: result
 
-    - name: assert program is in resource group
+    - name: Assert program is in resource group
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -243,7 +240,7 @@
               value: "{{ resource_group }}"
       register: result
 
-    - name: assert deleted progdef
+    - name: Assert deleted progdef
       ansible.builtin.assert:
         that:
           - result is changed
@@ -260,7 +257,7 @@
             resgroup: "{{ resource_group }}"
       register: result
 
-    - name: assert deleted resource group
+    - name: Assert deleted resource group
       ansible.builtin.assert:
         that:
           - result is changed
@@ -277,7 +274,7 @@
             resdesc: "{{ resource_description }}"
       register: result
 
-    - name: assert deleted resource description
+    - name: Assert deleted resource description
       ansible.builtin.assert:
         that:
           - result is changed

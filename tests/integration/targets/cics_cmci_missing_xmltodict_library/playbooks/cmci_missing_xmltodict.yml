@@ -8,7 +8,7 @@
   gather_facts: false
 
   tasks:
-    - name: test missing xmltodict library
+    - name: Test missing xmltodict library
       ibm.ibm_zos_cics.cmci_get:
         cmci_host: host
         cmci_port: "12345"
@@ -21,8 +21,8 @@
       failed_when: false
       register: result
 
-    - name: assert
+    - name: Assert
       ansible.builtin.assert:
         that:
           - result.failed is false
-          - '{{  result.msg[:58] == "Failed to import the required Python library (encoder) on " }}'
+          - '{{ result.msg[:58] == "Failed to import the required Python library (encoder) on " }}'

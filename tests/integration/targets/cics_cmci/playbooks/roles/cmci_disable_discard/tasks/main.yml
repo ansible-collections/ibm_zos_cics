@@ -29,7 +29,7 @@
   failed_when: >
     'cpsm_response' not in result or result.cpsm_response not in ['OK'] or result.records[0].enablestatus != 'DISABLED'
 
-- name: assert file1 was disabled in related region
+- name: Assert file1 was disabled in related region
   ansible.builtin.assert:
     that:
       - disabled_result is not changed
@@ -46,7 +46,7 @@
       filter: "{{ attributes }}"
   register: deleted_result
 
-- name: assert resource was discarded in scope
+- name: Assert resource was discarded in scope
   ansible.builtin.assert:
     that:
       - deleted_result is changed

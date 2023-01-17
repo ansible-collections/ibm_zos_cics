@@ -77,7 +77,7 @@
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
-    - name: create progdef
+    - name: Create progdef
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_create:
         type: CICSDefinitionProgram
@@ -88,7 +88,7 @@
           - name: CSD
       register: result
 
-    - name: assert 1
+    - name: Assert 1
       ansible.builtin.assert:
         that:
           - result is changed
@@ -96,7 +96,7 @@
           - result.record_count == 1
           - result.records[0].name == program
 
-    - name: update progdef
+    - name: Update progdef
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_update:
         type: CICSDefinitionProgram
@@ -110,7 +110,7 @@
               value: "{{ csdgroup }}"
       register: result
 
-    - name: assert 2
+    - name: Assert 2
       ansible.builtin.assert:
         that:
           - result is changed
@@ -118,7 +118,7 @@
           - result.record_count == 1
           - result.records[0].description == 'foo'
 
-    - name: install program
+    - name: Install program
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_action:
         type: CICSDefinitionProgram
@@ -131,14 +131,14 @@
               value: "{{ csdgroup }}"
       register: result
 
-    - name: assert 3
+    - name: Assert 3
       ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
 
-    - name: check program was installed
+    - name: Check program was installed
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_get:
         type: CICSProgram
@@ -149,7 +149,7 @@
       until: result is not failed
       register: result
 
-    - name: assert 4
+    - name: Assert 4
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -157,7 +157,7 @@
           - result.record_count == 1
           - result.records[0].program == program
 
-    - name: disable program
+    - name: Disable program
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_update:
         type: CICSProgram
@@ -180,7 +180,7 @@
                     value: "1"
       register: result
 
-    - name: assert 5
+    - name: Assert 5
       ansible.builtin.assert:
         that:
           - result is changed
@@ -189,7 +189,7 @@
           - result.records[0].program == program
           - result.records[0].status == 'DISABLED'
 
-    - name: delete program
+    - name: Delete program
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
         type: CICSProgram
@@ -198,7 +198,7 @@
             PROGRAM: "{{ program }}"
       register: result
 
-    - name: assert 6
+    - name: Assert 6
       ansible.builtin.assert:
         that:
           - result is changed
@@ -206,7 +206,7 @@
           - result.record_count == 1
           - result.success_count == 1
 
-    - name: create progdef2
+    - name: Create progdef2
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_create:
         type: CICSDefinitionProgram
@@ -217,7 +217,7 @@
           - name: CSD
       register: result
 
-    - name: assert program_2 created
+    - name: Assert program_2 created
       ansible.builtin.assert:
         that:
           - result is changed
@@ -237,7 +237,7 @@
               value: "{{ csdgroup }}"
       register: result
 
-    - name: assert record_count is 2
+    - name: Assert record_count is 2
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -257,7 +257,7 @@
               value: "{{ csdgroup }}"
       register: result
 
-    - name: assert record_count attribute
+    - name: Assert record_count attribute
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -265,7 +265,7 @@
           - result.record_count == 2
           - result.records|length == 1
 
-    - name: delete progdef
+    - name: Delete progdef
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
         type: CICSDefinitionProgram
@@ -277,7 +277,7 @@
               value: "{{ csdgroup }}"
       register: result
 
-    - name: assert 7
+    - name: Assert 7
       ansible.builtin.assert:
         that:
           - result is changed
@@ -297,7 +297,7 @@
               value: "{{ csdgroup }}"
       register: result
 
-    - name: assert program_2 deleted
+    - name: Assert program_2 deleted
       ansible.builtin.assert:
         that:
           - result is changed
@@ -305,7 +305,7 @@
           - result.record_count == 1
           - result.success_count == 1
 
-    - name: fail_on_nodata default
+    - name: Fail_on_nodata default
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_get:
         type: CICSDefinitionProgram
@@ -319,7 +319,7 @@
       failed_when: >
         'cpsm_response_code' not in result or result.cpsm_response_code not in [1024, 1027]
 
-    - name: assert fail_on_nodata attribute default
+    - name: Assert fail_on_nodata attribute default
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -330,7 +330,7 @@
           - result.msg is defined # Present when ansible task fails - exception caught by 'failed_when' attribute for testing
           - result.failed_when_result is defined
 
-    - name: fail_on_nodata False
+    - name: Fail_on_nodata False
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_get:
         type: CICSDefinitionProgram
@@ -343,7 +343,7 @@
               value: "{{ csdgroup }}"
       register: result
 
-    - name: assert fail_on_nodata attribute false
+    - name: Assert fail_on_nodata attribute false
       ansible.builtin.assert:
         that:
           - result is not changed

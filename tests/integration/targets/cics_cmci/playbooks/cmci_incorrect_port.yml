@@ -8,7 +8,7 @@
   gather_facts: false
 
   tasks:
-    - name: test incorrect port
+    - name: Test incorrect port
       ibm.ibm_zos_cics.cmci_get:
         cmci_host: "{{ cmci_host }}"
         cmci_port: 12345
@@ -20,13 +20,9 @@
       failed_when: false
       register: result
 
-    - name: debug
-      ansible.builtin.debug:
-        msg: "{{ result.msg[:76] }} ... {{ result.msg[-67:] }}"
-
-    - name: assert
+    - name: Assert
       ansible.builtin.assert:
         that:
           - result.failed is false
-          - '{{  result.msg[:76] == "Error performing CMCI request: <urllib3.connection.HTTPSConnection object at" }}'
-          - '{{  result.msg[-18:] == "Connection refused" }}'
+          - '{{ result.msg[:76] == "Error performing CMCI request: <urllib3.connection.HTTPSConnection object at" }}'
+          - '{{ result.msg[-18:] == "Connection refused" }}'

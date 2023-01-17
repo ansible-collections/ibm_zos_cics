@@ -44,7 +44,7 @@
       register: result
       failed_when: false
 
-    - name: assert
+    - name: Assert
       ansible.builtin.assert:
         that:
           - result.changed == false
@@ -63,7 +63,7 @@
       register: result
       failed_when: false
 
-    - name: assert 1 38
+    - name: Assert 1 38
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
       ansible.builtin.assert:
         that:
@@ -72,7 +72,7 @@
           - result.record_count == 1
           - result.records[0].name == program
 
-    - name: assert 1 27
+    - name: Assert 1 27
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
       ansible.builtin.assert:
         that:
@@ -95,7 +95,7 @@
       register: result
       failed_when: false
 
-    - name: assert 2 38
+    - name: Assert 2 38
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
       ansible.builtin.assert:
         that:
@@ -104,7 +104,7 @@
           - result.record_count == 1
           - result.records[0].description == 'foo'
 
-    - name: assert 2 27
+    - name: Assert 2 27
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
       ansible.builtin.assert:
         that:
@@ -126,7 +126,7 @@
       register: result
       failed_when: false
 
-    - name: assert 3 38
+    - name: Assert 3 38
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
       ansible.builtin.assert:
         that:
@@ -134,7 +134,7 @@
           - result.cpsm_response == 'OK'
           - result.record_count == 1
 
-    - name: assert 3 27
+    - name: Assert 3 27
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
       ansible.builtin.assert:
         that:
@@ -154,7 +154,7 @@
       register: result
       failed_when: false
 
-    - name: assert 4 38
+    - name: Assert 4 38
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
       ansible.builtin.assert:
         that:
@@ -163,7 +163,7 @@
           - result.record_count == 1
           - result.records[0].program == program
 
-    - name: assert 4 27
+    - name: Assert 4 27
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
       ansible.builtin.assert:
         that:
@@ -195,7 +195,7 @@
       register: result
       failed_when: false
 
-    - name: assert 5 38
+    - name: Assert 5 38
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
       ansible.builtin.assert:
         that:
@@ -205,7 +205,7 @@
           - result.records[0].program == program
           - result.records[0].status == 'DISABLED'
 
-    - name: assert 5 27
+    - name: Assert 5 27
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
       ansible.builtin.assert:
         that:
@@ -223,7 +223,7 @@
       register: result
       failed_when: false
 
-    - name: assert 6 38
+    - name: Assert 6 38
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
       ansible.builtin.assert:
         that:
@@ -232,7 +232,7 @@
           - result.record_count == 1
           - result.success_count == 1
 
-    - name: assert 6 27
+    - name: Assert 6 27
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
       ansible.builtin.assert:
         that:
@@ -252,7 +252,7 @@
       register: result
       failed_when: false
 
-    - name: assert program_2 created 38
+    - name: Assert program_2 created 38
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
       ansible.builtin.assert:
         that:
@@ -261,7 +261,7 @@
           - result.record_count == 1
           - result.records[0].name == program_2
 
-    - name: assert program_2 created 27
+    - name: Assert program_2 created 27
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
       ansible.builtin.assert:
         that:
@@ -282,7 +282,7 @@
       register: result
       failed_when: false
 
-    - name: assert record_count is 2 38
+    - name: Assert record_count is 2 38
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
       ansible.builtin.assert:
         that:
@@ -290,7 +290,7 @@
           - result.cpsm_response == 'OK'
           - result.record_count == 2
 
-    - name: assert record_count is 2 27
+    - name: Assert record_count is 2 27
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
       ansible.builtin.assert:
         that:
@@ -312,7 +312,7 @@
       register: result
       failed_when: false
 
-    - name: assert record_count attribute 38
+    - name: Assert record_count attribute 38
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
       ansible.builtin.assert:
         that:
@@ -321,7 +321,7 @@
           - result.record_count == 2
           - result.records|length == 1
 
-    - name: assert record_count attribute 27
+    - name: Assert record_count attribute 27
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
       ansible.builtin.assert:
         that:
@@ -342,7 +342,7 @@
       register: result
       failed_when: false
 
-    - name: assert 7 38
+    - name: Assert 7 38
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
       ansible.builtin.assert:
         that:
@@ -351,7 +351,7 @@
           - result.record_count == 1
           - result.success_count == 1
 
-    - name: assert 7 27
+    - name: Assert 7 27
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
       ansible.builtin.assert:
         that:
@@ -372,7 +372,7 @@
       register: result
       failed_when: false
 
-    - name: assert program_2 deleted 38
+    - name: Assert program_2 deleted 38
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
       ansible.builtin.assert:
         that:
@@ -381,7 +381,7 @@
           - result.record_count == 1
           - result.success_count == 1
 
-    - name: assert program_2 deleted 27
+    - name: Assert program_2 deleted 27
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
       ansible.builtin.assert:
         that:
@@ -402,7 +402,7 @@
       register: result
       failed_when: false
 
-    - name: assert fail_on_nodata attribute default 38
+    - name: Assert fail_on_nodata attribute default 38
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
       ansible.builtin.assert:
         that:
@@ -414,7 +414,7 @@
           - result.msg is defined
           - result.failed_when_result is defined
 
-    - name: assert fail_on_nodata attribute default 27
+    - name: Assert fail_on_nodata attribute default 27
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
       ansible.builtin.assert:
         that:
@@ -436,7 +436,7 @@
       register: result
       failed_when: false
 
-    - name: assert fail_on_nodata attribute false 38
+    - name: Assert fail_on_nodata attribute false 38
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
       ansible.builtin.assert:
         that:
@@ -448,7 +448,7 @@
           - result.msg is not defined
           - result.failed_when_result == false
 
-    - name: assert fail_on_nodata attribute false 27
+    - name: Assert fail_on_nodata attribute false 27
       when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
       ansible.builtin.assert:
         that:

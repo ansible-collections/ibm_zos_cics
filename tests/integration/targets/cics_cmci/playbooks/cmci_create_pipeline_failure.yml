@@ -8,7 +8,7 @@
   gather_facts: false
 
   tasks:
-    - name: test create pipeline failure
+    - name: Test create pipeline failure
       ibm.ibm_zos_cics.cmci_create:
         cmci_host: "{{ cmci_host }}"
         cmci_port: "{{ cmci_secure_port }}"
@@ -27,11 +27,7 @@
       failed_when: false
       register: result
 
-    - name: debug
-      ansible.builtin.debug:
-        msg: "{{ result }}"
-
-    - name: assert
+    - name: Assert
       ansible.builtin.assert:
         that:
           - result.failed is false

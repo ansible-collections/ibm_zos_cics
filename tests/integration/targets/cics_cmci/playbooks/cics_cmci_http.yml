@@ -82,7 +82,6 @@
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
-
     - name: HTTP Create progdef
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_create:
@@ -94,7 +93,7 @@
           - name: CSD
       register: result
 
-    - name: assert 1
+    - name: Assert 1
       ansible.builtin.assert:
         that:
           - result is changed
@@ -116,7 +115,7 @@
               value: "{{ csdgroup }}"
       register: result
 
-    - name: assert 2
+    - name: Assert 2
       ansible.builtin.assert:
         that:
           - result is changed
@@ -137,7 +136,7 @@
               value: "{{ csdgroup }}"
       register: result
 
-    - name: assert 3
+    - name: Assert 3
       ansible.builtin.assert:
         that:
           - result is changed
@@ -155,7 +154,7 @@
       until: result is not failed
       register: result
 
-    - name: assert 4
+    - name: Assert 4
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -186,7 +185,7 @@
                     value: "1"
       register: result
 
-    - name: assert 5
+    - name: Assert 5
       ansible.builtin.assert:
         that:
           - result is changed
@@ -204,7 +203,7 @@
             PROGRAM: "{{ program }}"
       register: result
 
-    - name: assert 6
+    - name: Assert 6
       ansible.builtin.assert:
         that:
           - result is changed
@@ -223,7 +222,7 @@
           - name: CSD
       register: result
 
-    - name: assert program_2 created
+    - name: Assert program_2 created
       ansible.builtin.assert:
         that:
           - result is changed
@@ -243,7 +242,7 @@
               value: "{{ csdgroup }}"
       register: result
 
-    - name: assert record_count is 2
+    - name: Assert record_count is 2
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -263,7 +262,7 @@
               value: "{{ csdgroup }}"
       register: result
 
-    - name: assert record_count attribute
+    - name: Assert record_count attribute
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -283,7 +282,7 @@
               value: "{{ csdgroup }}"
       register: result
 
-    - name: assert 7
+    - name: Assert 7
       ansible.builtin.assert:
         that:
           - result is changed
@@ -303,7 +302,7 @@
               value: "{{ csdgroup }}"
       register: result
 
-    - name: assert program_2 deleted
+    - name: Assert program_2 deleted
       ansible.builtin.assert:
         that:
           - result is changed
@@ -325,7 +324,7 @@
       failed_when: >
         'cpsm_response_code' not in result or result.cpsm_response_code not in [1024, 1027]
 
-    - name: assert fail_on_nodata attribute default
+    - name: Assert fail_on_nodata attribute default
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -349,7 +348,7 @@
               value: "{{ csdgroup }}"
       register: result
 
-    - name: assert fail_on_nodata attribute false
+    - name: Assert fail_on_nodata attribute false
       ansible.builtin.assert:
         that:
           - result is not changed

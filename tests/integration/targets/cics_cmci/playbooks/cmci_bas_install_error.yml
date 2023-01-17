@@ -114,7 +114,6 @@
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
-
     ###
     # DISABLE AND DISCARD file1 and file2 in each region it may be installed
     ###
@@ -169,7 +168,6 @@
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
-
     - name: Delete resource description
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
@@ -180,7 +178,6 @@
       register: result
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
-
 
     ##################################################################################
     # Main Test
@@ -194,7 +191,7 @@
           defver: "{{ def_ver }}"
       register: result
 
-    - name: assert filedef created
+    - name: Assert filedef created
       ansible.builtin.assert:
         that:
           - result is changed
@@ -211,7 +208,7 @@
           defver: "{{ def_ver }}"
       register: result
 
-    - name: assert filedef created
+    - name: Assert filedef created
       ansible.builtin.assert:
         that:
           - result is changed
@@ -227,7 +224,7 @@
           resgroup: "{{ resource_group }}"
       register: result
 
-    - name: assert create resource group
+    - name: Assert create resource group
       ansible.builtin.assert:
         that:
           - result is changed
@@ -249,7 +246,7 @@
             value: "{{ resource_group }}"
       register: result
 
-    - name: assert filedef added to resource group
+    - name: Assert filedef added to resource group
       ansible.builtin.assert:
         that:
           - result is changed
@@ -271,7 +268,7 @@
             value: "{{ resource_group }}"
       register: result
 
-    - name: assert filedef added to resource group
+    - name: Assert filedef added to resource group
       ansible.builtin.assert:
         that:
           - result is changed
@@ -287,7 +284,7 @@
           resdesc: "{{ resource_description }}"
       register: result
 
-    - name: assert create resource description
+    - name: Assert create resource description
       ansible.builtin.assert:
         that:
           - result is changed
@@ -308,7 +305,7 @@
           rdeftype: filedef
       register: result
 
-    - name: assert create resource assignment
+    - name: Assert create resource assignment
       ansible.builtin.assert:
         that:
           - result is changed
@@ -334,7 +331,7 @@
             value: "{{ resource_description }}"
       register: result
 
-    - name: assert resource assignment added to resource description
+    - name: Assert resource assignment added to resource description
       ansible.builtin.assert:
         that:
           - result is changed
@@ -352,7 +349,7 @@
             resdesc: "{{ resource_description }}"
       register: result
 
-    - name: assert install ok
+    - name: Assert install ok
       ansible.builtin.assert:
         that:
           - result is changed
@@ -372,7 +369,7 @@
               value: "{{ resource_description }}"
       register: result
 
-    - name: assert where filedef will be installed
+    - name: Assert where filedef will be installed
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -415,7 +412,7 @@
       until: result is not failed
       register: result
 
-    - name: assert file1 was installed in target region
+    - name: Assert file1 was installed in target region
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -435,7 +432,7 @@
       until: result is not failed
       register: result
 
-    - name: assert file2 was installed in target scope
+    - name: Assert file2 was installed in target scope
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -455,7 +452,7 @@
       until: result is not failed
       register: result
 
-    - name: assert file1 was installed in related scope
+    - name: Assert file1 was installed in related scope
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -475,7 +472,7 @@
       until: result is not failed
       register: result
 
-    - name: assert file2 was installed in related scope
+    - name: Assert file2 was installed in related scope
       ansible.builtin.assert:
         that:
           - result is not changed
@@ -497,7 +494,7 @@
       register: result
       failed_when: false
 
-    - name: assert feedback error is correct
+    - name: Assert feedback error is correct
       ansible.builtin.assert:
         that:
           - result.cpsm_response == 'TABLEERROR'
@@ -538,7 +535,7 @@
             resassgn: "{{ resource_assignment }}"
       register: result
 
-    - name: assert deleted resource assignment
+    - name: Assert deleted resource assignment
       ansible.builtin.assert:
         that:
           - result is changed
@@ -558,7 +555,7 @@
               value: "{{ resource_group }}"
       register: result
 
-    - name: assert deleted filedef1
+    - name: Assert deleted filedef1
       ansible.builtin.assert:
         that:
           - result is changed
@@ -578,7 +575,7 @@
               value: "{{ resource_group }}"
       register: result
 
-    - name: assert deleted filedef2
+    - name: Assert deleted filedef2
       ansible.builtin.assert:
         that:
           - result is changed
@@ -595,7 +592,7 @@
             resgroup: "{{ resource_group }}"
       register: result
 
-    - name: assert deleted resource group
+    - name: Assert deleted resource group
       ansible.builtin.assert:
         that:
           - result is changed
@@ -612,7 +609,7 @@
             resdesc: "{{ resource_description }}"
       register: result
 
-    - name: assert deleted resource description
+    - name: Assert deleted resource description
       ansible.builtin.assert:
         that:
           - result is changed
