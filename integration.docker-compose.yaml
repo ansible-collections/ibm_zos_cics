@@ -1,0 +1,65 @@
+---
+version: "3.9"
+
+services:
+  python27:
+    build:
+      context: .
+      dockerfile: common.Dockerfile
+      args:
+        PYTHON_VERSION_SET: 2.7
+    entrypoint: /bin/bash -c 'ansible-test integration cics_cmci --python 2.7'
+    volumes:
+      - ./:/root/ibm_zos_cics/ansible_collections/ibm/ibm_zos_cics
+
+  python38:
+    build:
+      context: .
+      dockerfile: common.Dockerfile
+      args:
+        PYTHON_VERSION_SET: 3.8
+    entrypoint: /bin/bash -c 'ansible-test integration cics_cmci --python 3.8'
+    volumes:
+      - ./:/root/ibm_zos_cics/ansible_collections/ibm/ibm_zos_cics
+    depends_on:
+      python27:
+        condition: service_completed_successfully
+
+  python39:
+    build:
+      context: .
+      dockerfile: common.Dockerfile
+      args:
+        PYTHON_VERSION_SET: "3.9"
+    entrypoint: /bin/bash -c 'ansible-test integration cics_cmci --python 3.9'
+    volumes:
+      - ./:/root/ibm_zos_cics/ansible_collections/ibm/ibm_zos_cics
+    depends_on:
+      python38:
+        condition: service_completed_successfully
+
+  python310:
+    build:
+      context: .
+      dockerfile: common.Dockerfile
+      args:
+        PYTHON_VERSION_SET: "3.10"
+    entrypoint: /bin/bash -c 'ansible-test integration cics_cmci --python 3.10'
+    volumes:
+      - ./:/root/ibm_zos_cics/ansible_collections/ibm/ibm_zos_cics
+    depends_on:
+      python39:
+        condition: service_completed_successfully
+
+  python311:
+    build:
+      context: .
+      dockerfile: common.Dockerfile
+      args:
+        PYTHON_VERSION_SET: "3.11"
+    entrypoint: /bin/bash -c 'ansible-test integration cics_cmci --python 3.11'
+    volumes:
+      - ./:/root/ibm_zos_cics/ansible_collections/ibm/ibm_zos_cics
+    depends_on:
+      python310:
+        condition: service_completed_successfully
