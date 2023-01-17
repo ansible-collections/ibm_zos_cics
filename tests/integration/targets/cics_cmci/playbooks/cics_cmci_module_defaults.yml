@@ -16,7 +16,7 @@
     error_msg: "{{ error_msg_27 if lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7' else error_msg_38 }}"
 
   module_defaults:
-    group/ibm.ibm_zos_cics.cmci:
+    group/ibm.ibm_zos_cics.cmci_group:
       cmci_host: "{{ cmci_host }}"
       cmci_port: "{{ cmci_port }}"
       cmci_user: "{{ cmci_user }}"
