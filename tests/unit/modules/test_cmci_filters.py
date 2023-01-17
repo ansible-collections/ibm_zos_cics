@@ -640,6 +640,10 @@ def test_extra_attributes_root(cmci_module):
     if sys.version_info.major <= 2:
         extension = "pyc"
 
+    # Order that Ansible returns supported parameters is not consistent everytime
+    # expect_list ensures expected and actual output are compared after sorting the 
+    # list first. This means passing tests if all expected attributes are listed, but not caring about
+    # the order. 
     before_list = "Unsupported parameters for (basic.%s) module: resources.complex_filter.orange. Supported parameters include: " % extension
     sorted_list = ["cmci_cert", "cmci_host", "cmci_key", "cmci_password",
                                 "cmci_port", "cmci_user", "context", "fail_on_nodata", "insecure",

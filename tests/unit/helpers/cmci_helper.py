@@ -123,18 +123,14 @@ class CMCITestHelper:
         assert isinstance(self.expected, dict)
         assert isinstance(result, dict)
 
+        # when a list of items is expected but the order varies, this block intecepts the actual result and sorts
+        # the list, allowing the expected and actual output to be compared in the same order
         if self.expected_list:
-            # get list of items from a string in the result dict - comma separated text between 2 points in string
             actual_list = result.get(self.string_containing_list)[self.chars_before_list:-self.chars_after_list].split(", ")
-            # sort alphabetically
             actual_list.sort()
-            # get the text before the list in the string
             before_list = result.get(self.string_containing_list)[:self.chars_before_list]
-            # get the text after the list in the string
             after_list = result.get(self.string_containing_list)[-self.chars_after_list:]
-            # put the text before and after the list together with the newly ordered list
             concat = before_list + ", ".join(actual_list) + after_list
-            # update the result dict to use the string with the ordered list of items
             result.update({self.string_containing_list: concat})
 
         if self.expected != result:
