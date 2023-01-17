@@ -30,6 +30,7 @@ class CMCITestHelper:
     def __init__(self, requests_mock=None):
         self.requests_mock = requests_mock
         self.expected = {}
+        self.expected_list = False
 
     def stub_request(self, *args, **kwargs):
         self.requests_mock.request(complete_qs=True, *args, **kwargs)
@@ -102,6 +103,12 @@ class CMCITestHelper:
     def expect(self, expected):
         self.expected = expected
 
+    def expect_list(self, chars_before_list, chars_after_list, string_containing_list='msg'):
+        self.expected_list = True
+        self.chars_before_list = chars_before_list
+        self.chars_after_list = chars_after_list
+        self.string_containing_list = string_containing_list
+
     def run(self, module, config):
         # upper-case the resource name, so it definitely doesn't match the CMCI response, to ensure
         # we don't rely on them matching
@@ -115,6 +122,16 @@ class CMCITestHelper:
 
         assert isinstance(self.expected, dict)
         assert isinstance(result, dict)
+
+        # when a list of items is expected but the order varies, this block intecepts the actual result and sorts
+        # the list, allowing the expected and actual output to be compared in the same order
+        if self.expected_list:
+            actual_list = result.get(self.string_containing_list)[self.chars_before_list:-self.chars_after_list].split(", ")
+            actual_list.sort()
+            before_list = result.get(self.string_containing_list)[:self.chars_before_list]
+            after_list = result.get(self.string_containing_list)[-self.chars_after_list:]
+            concat = before_list + ", ".join(actual_list) + after_list
+            result.update({self.string_containing_list: concat})
 
         if self.expected != result:
             standard_msg = '%s != %s' % (repr(self.expected), repr(result))

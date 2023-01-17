@@ -102,7 +102,7 @@ def test_invalid_port_type(cmci_module):  # type: (CMCITestHelper) -> None
         expected_type = 'type'
 
     cmci_module.expect({
-        'msg': "argument cmci_port is of type <" + expected_type + " 'str'> and we were unable to "
+        'msg': "argument 'cmci_port' is of type <" + expected_type + " 'str'> and we were unable to "
                "convert to int: <" + expected_type + " 'str'> cannot be converted to an int",
         'failed': True
     })

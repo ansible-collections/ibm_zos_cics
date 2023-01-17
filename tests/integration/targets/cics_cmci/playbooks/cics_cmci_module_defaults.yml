@@ -1,0 +1,457 @@
+# (c) Copyright IBM Corp. 2020,2021
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: CMCI Group Module_Default Integration Tests
+  collections:
+    - ibm.ibm_zos_cics
+  hosts: localhost
+  gather_facts: false
+  vars:
+    csdgroup: HTTPTEST
+    program: HTTPTEST
+    program_2: HTTPTES2
+    program_filter: HTTPTES*
+    error_msg_27: "missing required arguments: cmci_host, cmci_port, context"
+    error_msg_38: CMCI request failed with response "NODATA" reason "1027"
+    error_msg: "{{ error_msg_27 if lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7' else error_msg_38 }}"
+
+  module_defaults:
+    group/ibm.ibm_zos_cics.cmci_group:
+      cmci_host: "{{ cmci_host }}"
+      cmci_port: "{{ cmci_port }}"
+      cmci_user: "{{ cmci_user }}"
+      cmci_password: "{{ cmci_password }}"
+      context: "{{ cmci_context }}"
+      scope: "{{ cmci_scope_http }}"
+      insecure: true
+      scheme: http
+
+  tasks:
+    - name: HTTP Delete progdef
+      delegate_to: localhost
+      cmci_delete:
+        type: CICSDefinitionProgram
+        resources:
+          complex_filter:
+            and:
+              - attribute: NAME
+                value: "{{ program }}"
+              - attribute: CSDGROUP
+                value: "{{ csdgroup }}"
+          get_parameters:
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
+      register: result
+      failed_when: false
+
+    - name: Assert
+      ansible.builtin.assert:
+        that:
+          - result.changed == false
+          - result.failed_when_result == false
+          - result.msg == error_msg
+
+    - name: HTTP Create progdef
+      delegate_to: localhost
+      cmci_create:
+        type: CICSDefinitionProgram
+        attributes:
+          name: "{{ program }}"
+          csdgroup: "{{ csdgroup }}"
+        create_parameters:
+          - name: CSD
+      register: result
+      failed_when: false
+
+    - name: Assert 1 38
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
+      ansible.builtin.assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].name == program
+
+    - name: Assert 1 27
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
+      ansible.builtin.assert:
+        that:
+          - result.changed == false
+          - result.failed_when_result == false
+          - result.msg == error_msg
+
+    - name: HTTP Update progdef
+      delegate_to: localhost
+      cmci_update:
+        type: CICSDefinitionProgram
+        attributes:
+          description: foo
+        resources:
+          filter:
+            NAME: "{{ program }}"
+          get_parameters:
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
+      register: result
+      failed_when: false
+
+    - name: Assert 2 38
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
+      ansible.builtin.assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].description == 'foo'
+
+    - name: Assert 2 27
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
+      ansible.builtin.assert:
+        that:
+          - result.changed == false
+          - result.failed_when_result == false
+          - result.msg == error_msg
+
+    - name: HTTP Install program
+      delegate_to: localhost
+      cmci_action:
+        type: CICSDefinitionProgram
+        action_name: CSDINSTALL
+        resources:
+          filter:
+            NAME: "{{ program }}"
+          get_parameters:
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
+      register: result
+      failed_when: false
+
+    - name: Assert 3 38
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
+      ansible.builtin.assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+
+    - name: Assert 3 27
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
+      ansible.builtin.assert:
+        that:
+          - result.changed == false
+          - result.failed_when_result == false
+          - result.msg == error_msg
+
+    - name: HTTP Check program was installed
+      delegate_to: localhost
+      cmci_get:
+        type: CICSProgram
+        resources:
+          filter:
+            PROGRAM: "{{ program }}"
+      retries: 3 # May take a while to install, so give it a chance!
+      until: result is not failed
+      register: result
+      failed_when: false
+
+    - name: Assert 4 38
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
+      ansible.builtin.assert:
+        that:
+          - result is not changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].program == program
+
+    - name: Assert 4 27
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
+      ansible.builtin.assert:
+        that:
+          - result.changed == false
+          - result.failed_when_result == false
+          - result.msg == error_msg
+
+    - name: HTTP Disable program
+      delegate_to: localhost
+      cmci_update:
+        type: CICSProgram
+        attributes:
+          status: disabled
+        resources:
+          filter:
+            PROGRAM: "{{ program }}"
+          complex_filter:
+            and:
+              - attribute: PROGRAM
+                operator: "="
+                value: "{{ program }}"
+              - or:
+                  - attribute: USECOUNT
+                    operator: "!="
+                    value: "0"
+                  - attribute: USECOUNT
+                    operator: LT
+                    value: "1"
+      register: result
+      failed_when: false
+
+    - name: Assert 5 38
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
+      ansible.builtin.assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].program == program
+          - result.records[0].status == 'DISABLED'
+
+    - name: Assert 5 27
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
+      ansible.builtin.assert:
+        that:
+          - result.changed == false
+          - result.failed_when_result == false
+          - result.msg == error_msg
+
+    - name: HTTP Delete program
+      delegate_to: localhost
+      cmci_delete:
+        type: CICSProgram
+        resources:
+          filter:
+            PROGRAM: "{{ program }}"
+      register: result
+      failed_when: false
+
+    - name: Assert 6 38
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
+      ansible.builtin.assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.success_count == 1
+
+    - name: Assert 6 27
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
+      ansible.builtin.assert:
+        that:
+          - result.changed == false
+          - result.failed_when_result == false
+          - result.msg == error_msg
+
+    - name: HTTP Create progdef 2
+      delegate_to: localhost
+      cmci_create:
+        type: CICSDefinitionProgram
+        attributes:
+          name: "{{ program_2 }}"
+          csdgroup: "{{ csdgroup }}"
+        create_parameters:
+          - name: CSD
+      register: result
+      failed_when: false
+
+    - name: Assert program_2 created 38
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
+      ansible.builtin.assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].name == program_2
+
+    - name: Assert program_2 created 27
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
+      ansible.builtin.assert:
+        that:
+          - result.changed == false
+          - result.failed_when_result == false
+          - result.msg == error_msg
+
+    - name: HTTP Check All Records Returned
+      delegate_to: localhost
+      cmci_get:
+        type: CICSDefinitionProgram
+        resources:
+          filter:
+            name: "{{ program_filter }}"
+          get_parameters:
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
+      register: result
+      failed_when: false
+
+    - name: Assert record_count is 2 38
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
+      ansible.builtin.assert:
+        that:
+          - result is not changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 2
+
+    - name: Assert record_count is 2 27
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
+      ansible.builtin.assert:
+        that:
+          - result.changed == false
+          - result.failed_when_result == false
+          - result.msg == error_msg
+
+    - name: HTTP Check record count attribute
+      delegate_to: localhost
+      cmci_get:
+        type: CICSDefinitionProgram
+        record_count: 1
+        resources:
+          filter:
+            name: "{{ program_filter }}"
+          get_parameters:
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
+      register: result
+      failed_when: false
+
+    - name: Assert record_count attribute 38
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
+      ansible.builtin.assert:
+        that:
+          - result is not changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 2
+          - result.records|length == 1
+
+    - name: Assert record_count attribute 27
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
+      ansible.builtin.assert:
+        that:
+          - result.changed == false
+          - result.failed_when_result == false
+          - result.msg == error_msg
+
+    - name: HTTP Delete progdef
+      delegate_to: localhost
+      cmci_delete:
+        type: CICSDefinitionProgram
+        resources:
+          filter:
+            NAME: "{{ program }}"
+          get_parameters:
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
+      register: result
+      failed_when: false
+
+    - name: Assert 7 38
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
+      ansible.builtin.assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.success_count == 1
+
+    - name: Assert 7 27
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
+      ansible.builtin.assert:
+        that:
+          - result.changed == false
+          - result.failed_when_result == false
+          - result.msg == error_msg
+
+    - name: HTTP Delete progdef2
+      delegate_to: localhost
+      cmci_delete:
+        type: CICSDefinitionProgram
+        resources:
+          filter:
+            NAME: "{{ program_2 }}"
+          get_parameters:
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
+      register: result
+      failed_when: false
+
+    - name: Assert program_2 deleted 38
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
+      ansible.builtin.assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.success_count == 1
+
+    - name: Assert program_2 deleted 27
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
+      ansible.builtin.assert:
+        that:
+          - result.changed == false
+          - result.failed_when_result == false
+          - result.msg == error_msg
+
+    - name: HTTP fail_on_nodata default
+      delegate_to: localhost
+      cmci_get:
+        type: CICSDefinitionProgram
+        resources:
+          filter:
+            name: "{{ program_filter }}"
+          get_parameters:
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
+      register: result
+      failed_when: false
+
+    - name: Assert fail_on_nodata attribute default 38
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
+      ansible.builtin.assert:
+        that:
+          - result is not changed
+          - result.failed == false
+          - result.cpsm_response == 'NODATA'
+          - result.cpsm_response_code == 1027
+          - result.record_count == 0
+          - result.msg is defined
+          - result.failed_when_result is defined
+
+    - name: Assert fail_on_nodata attribute default 27
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
+      ansible.builtin.assert:
+        that:
+          - result.changed == false
+          - result.failed_when_result == false
+          - result.msg == error_msg
+
+    - name: HTTP fail_on_nodata
+      delegate_to: localhost
+      cmci_get:
+        type: CICSDefinitionProgram
+        fail_on_nodata: false
+        resources:
+          filter:
+            name: "{{ program_filter }}"
+          get_parameters:
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
+      register: result
+      failed_when: false
+
+    - name: Assert fail_on_nodata attribute false 38
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '3.8'
+      ansible.builtin.assert:
+        that:
+          - result is not changed
+          - result.failed == false
+          - result.cpsm_response == 'NODATA'
+          - result.cpsm_response_code == 1027
+          - result.record_count == 0
+          - result.msg is not defined
+          - result.failed_when_result == false
+
+    - name: Assert fail_on_nodata attribute false 27
+      when: lookup('env', 'ANSIBLE_TEST_PYTHON_VERSION') == '2.7'
+      ansible.builtin.assert:
+        that:
+          - result.changed == false
+          - result.failed_when_result == false
+          - result.msg == error_msg
