@@ -33,26 +33,26 @@ extends_documentation_fragment:
 EXAMPLES = r"""
 - name: delete a bundle in a CICS region
   cmci_delete:
-    cmci_host: 'winmvs2c.hursley.ibm.com'
+    cmci_host: "winmvs2c.hursley.ibm.com"
     cmci_port: 10080
-    context: 'iyk3z0r9'
+    context: "iyk3z0r9"
     type: CICSBundle
     resource:
       filter:
-        name: 'PONGALT'
+        name: "PONGALT"
 
 - name: delete a bundle definition in a CICS region
   cmci_delete:
-    cmci_host: 'winmvs2c.hursley.ibm.com'
+    cmci_host: "winmvs2c.hursley.ibm.com"
     cmci_port: 10080
-    context: 'iyk3z0r9'
+    context: "iyk3z0r9"
     type: CICSDefinitionBundle
     resource:
       filter:
-        name: 'PONGALT'
+        name: "PONGALT"
       get_parameters:
-        - name: 'csdgroup'
-          value: 'JVMGRP'
+        - name: "csdgroup"
+          value: "JVMGRP"
 """
 
 
@@ -183,10 +183,10 @@ records:
       usecount: "0"
       usefetch: "0.000"
 success_count:
-    description: The number of resources for which the action completed
-      successfully.
-    returned: success
-    type: int
+  description: The number of resources for which the action completed
+    successfully.
+  returned: success
+  type: int
 request:
   description: Information about the request that was made to CMCI.
   returned: success
@@ -205,238 +205,238 @@ request:
       returned: success
       type: str
 feedback:
-    description: Diagnostic data from FEEDBACK records associated with the request
-    returned: cmci error
-    type: list
-    elements: dict
-    contains:
-        action:
-            description: The name of the action that has failed.
-            returned: cmci error
-            type: str
-        attribute1:
-            description: The name of one of up to six attributes associated with the error.
-            returned: cmci error
-            type: str
-        attribute2:
-            description: The name of one of up to six attributes associated with the error.
-            returned: cmci error
-            type: str
-        attribute3:
-            description: The name of one of up to six attributes associated with the error.
-            returned: cmci error
-            type: str
-        attribute4:
-            description: The name of one of up to six attributes associated with the error.
-            returned: cmci error
-            type: str
-        attribute5:
-            description: The name of one of up to six attributes associated with the error.
-            returned: cmci error
-            type: str
-        attribute6:
-            description: The name of one of up to six attributes associated with the error.
-            returned: cmci error
-            type: str
+  description: Diagnostic data from FEEDBACK records associated with the request
+  returned: cmci error
+  type: list
+  elements: dict
+  contains:
+    action:
+      description: The name of the action that has failed.
+      returned: cmci error
+      type: str
+    attribute1:
+      description: The name of one of up to six attributes associated with the error.
+      returned: cmci error
+      type: str
+    attribute2:
+      description: The name of one of up to six attributes associated with the error.
+      returned: cmci error
+      type: str
+    attribute3:
+      description: The name of one of up to six attributes associated with the error.
+      returned: cmci error
+      type: str
+    attribute4:
+      description: The name of one of up to six attributes associated with the error.
+      returned: cmci error
+      type: str
+    attribute5:
+      description: The name of one of up to six attributes associated with the error.
+      returned: cmci error
+      type: str
+    attribute6:
+      description: The name of one of up to six attributes associated with the error.
+      returned: cmci error
+      type: str
+    eibfn:
+      description: The function code associated with the request.
+      returned: cmci error
+      type: str
+    eibfn_alt:
+      description: The name of the function associated with the request.
+      returned: cmci error
+      type: str
+    errorcode:
+      description: The CICSPlex® SM error code associated with the resource.
+      returned: cmci error
+      type: str
+    eyu_cicsname:
+      description: The name of the CICS region or CICSplex associated with the error.
+      returned: cmci error
+      type: str
+    keydata:
+      description: A string of data that identifies the instance of a resource associated with the error.
+      returned: cmci error
+      type: str
+    resp:
+      description: The CICS RESP code or the CICSPlex SM API EYUDA response code as a numeric value.
+      returned: cmci error
+      type: str
+    resp2:
+      description: The CICS RESP2 code or the CICSPlex SM API EYUDA reason code as a numeric value.
+      returned: cmci error
+      type: str
+    resp_alt:
+      description: >
+        The text equivalent for the resp value. For example, the text equivalent of a resp value of 16 is INVREQ.
+      returned: cmci error
+      type: str
+    installerror:
+      description: >
+        Contains diagnostic data from a BINSTERR record associated with a CICS® management client interface PUT install request.
+      returned: cmci error
+      type: list
+      elements: dict
+      contains:
         eibfn:
-            description: The function code associated with the request.
-            returned: cmci error
-            type: str
-        eibfn_alt:
-            description: The name of the function associated with the request.
-            returned: cmci error
-            type: str
-        errorcode:
-            description: The CICSPlex® SM error code associated with the resource.
-            returned: cmci error
-            type: str
+          description: The function code associated with the request.
+          returned: cmci error
+          type: str
         eyu_cicsname:
-            description: The name of the CICS region or CICSplex associated with the error.
-            returned: cmci error
-            type: str
-        keydata:
-            description: A string of data that identifies the instance of a resource associated with the error.
-            returned: cmci error
-            type: str
-        resp:
-            description: The CICS RESP code or the CICSPlex SM API EYUDA response code as a numeric value.
-            returned: cmci error
-            type: str
-        resp2:
-            description: The CICS RESP2 code or the CICSPlex SM API EYUDA reason code as a numeric value.
-            returned: cmci error
-            type: str
-        resp_alt:
-            description: >
-                The text equivalent for the resp value. For example, the text equivalent of a resp value of 16 is INVREQ.
-            returned: cmci error
-            type: str
-        installerror:
-            description: >
-                Contains diagnostic data from a BINSTERR record associated with a CICS® management client interface PUT install request.
-            returned: cmci error
-            type: list
-            elements: dict
-            contains:
-                eibfn:
-                    description: The function code associated with the request.
-                    returned: cmci error
-                    type: str
-                eyu_cicsname:
-                    description: The name of the CICS region or CICSplex associated with the installation error.
-                    returned: cmci error
-                    type: str
-                cresp1:
-                    description: The CICS RESP code or the CICSPlex® SM API EYUDA response code as a numeric value.
-                    returned: cmci error
-                    type: str
-                cresp2:
-                    description: The CICS RESP2 code or the CICSPlex SM API EYUDA reason code as a numeric value.
-                    returned: cmci error
-                    type: str
-                errorcode:
-                    description: The CICSPlex SM error code associated with the resource.
-                    returned: cmci error
-                    type: str
-                ressname:
-                    description: The name of the resource associated with the error.
-                    returned: cmci error
-                    type: str
-                resver:
-                    description: The version number of the resource associated with the error.
-                    returned: cmci error
-                    type: str
-        inconsistentscope:
-            description: >
-                Contains diagnostic data from a BINCONSC record associated with a CICS® management client interface PUT request.
-            returned: cmci error
-            type: list
-            elements: dict
-            contains:
-                eibfn:
-                    description: The function code associated with the request.
-                    returned: cmci error
-                    type: str
-                eyu_cicsname:
-                    description: The name of the CICS region or CICSplex associated with the installation error.
-                    returned: cmci error
-                    type: str
-                erroroperation:
-                    description: A numeric value that identifies the operation being performed when the error occurred.
-                    returned: cmci error
-                    type: str
-                errorcode:
-                    description: The CICSPlex® SM error code associated with the resource.
-                    returned: cmci error
-                    type: str
-                targetassignment:
-                    description: The assignment for the target scope.
-                    returned: cmci error
-                    type: str
-                targetdescription:
-                    description: The resource description for the target scope.
-                    returned: cmci error
-                    type: str
-                relatedassignment:
-                    description: The resource assignment for the related scope.
-                    returned: cmci error
-                    type: str
-                relateddescription:
-                    description: The resource description for the related scope.
-                    returned: cmci error
-                    type: str
-                relatedscope:
-                    description: The name of the related scope.
-                    returned: cmci error
-                    type: str
-        inconsistentset:
-            description: >
-                Contains diagnostic data from a BINCONRS record associated with a CICS® management client interface PUT request.
-            returned: cmci error
-            type: list
-            elements: dict
-            contains:
-                candidatename:
-                    description: The name of the candidate resource.
-                    returned: cmci error
-                    type: str
-                candidateversion:
-                    description: The version number of the candidate resource.
-                    returned: cmci error
-                    type: str
-                candidategroup:
-                    description: The resource group of the candidate resource.
-                    returned: cmci error
-                    type: str
-                candidateassignment:
-                    description: The assignment of the candidate resource.
-                    returned: cmci error
-                    type: str
-                candidatedescription:
-                    description: The description of the candidate resource.
-                    returned: cmci error
-                    type: str
-                candidateusage:
-                    description: The assignment usage of the candidate resource.
-                    returned: cmci error
-                    type: str
-                candidatesystemgroup:
-                    description: The system group of the candidate resource.
-                    returned: cmci error
-                    type: str
-                candidatetype:
-                    description: The system type of the candidate resource.
-                    returned: cmci error
-                    type: str
-                candidateoverride:
-                    description: The assignment override of the candidate resource.
-                    returned: cmci error
-                    type: str
-                eyu_cicsname:
-                    description: The name of the CICS region associated with the installation error.
-                    returned: cmci error
-                    type: str
-                erroroperation:
-                    description: >
-                        A numeric value that identifies that the operation being performed when the error occurred
-                    returned: cmci error
-                    type: str
-                existingname:
-                    description: The name of the existing resource.
-                    returned: cmci error
-                    type: str
-                existingversion:
-                    description: The version number of the existing resource.
-                    returned: cmci error
-                    type: str
-                existinggroup:
-                    description: The resource group of the existing resource.
-                    returned: cmci error
-                    type: str
-                existingassignment:
-                    description: The assignment of the existing resource.
-                    returned: cmci error
-                    type: str
-                existingdescription:
-                    description: The description of the existing resource.
-                    returned: cmci error
-                    type: str
-                existingusage:
-                    description: The assignment usage of the existing resource.
-                    returned: cmci error
-                    type: str
-                existingsystemgroup:
-                    description: The system group of the existing resource.
-                    returned: cmci error
-                    type: str
-                existingtype:
-                    description: The system type of the existing resource.
-                    returned: cmci error
-                    type: str
-                existingoverride:
-                    description: The assignment override of the existing resource.
-                    returned: cmci error
-                    type: str
+          description: The name of the CICS region or CICSplex associated with the installation error.
+          returned: cmci error
+          type: str
+        cresp1:
+          description: The CICS RESP code or the CICSPlex® SM API EYUDA response code as a numeric value.
+          returned: cmci error
+          type: str
+        cresp2:
+          description: The CICS RESP2 code or the CICSPlex SM API EYUDA reason code as a numeric value.
+          returned: cmci error
+          type: str
+        errorcode:
+          description: The CICSPlex SM error code associated with the resource.
+          returned: cmci error
+          type: str
+        ressname:
+          description: The name of the resource associated with the error.
+          returned: cmci error
+          type: str
+        resver:
+          description: The version number of the resource associated with the error.
+          returned: cmci error
+          type: str
+    inconsistentscope:
+      description: >
+        Contains diagnostic data from a BINCONSC record associated with a CICS® management client interface PUT request.
+      returned: cmci error
+      type: list
+      elements: dict
+      contains:
+        eibfn:
+          description: The function code associated with the request.
+          returned: cmci error
+          type: str
+        eyu_cicsname:
+          description: The name of the CICS region or CICSplex associated with the installation error.
+          returned: cmci error
+          type: str
+        erroroperation:
+          description: A numeric value that identifies the operation being performed when the error occurred.
+          returned: cmci error
+          type: str
+        errorcode:
+          description: The CICSPlex® SM error code associated with the resource.
+          returned: cmci error
+          type: str
+        targetassignment:
+          description: The assignment for the target scope.
+          returned: cmci error
+          type: str
+        targetdescription:
+          description: The resource description for the target scope.
+          returned: cmci error
+          type: str
+        relatedassignment:
+          description: The resource assignment for the related scope.
+          returned: cmci error
+          type: str
+        relateddescription:
+          description: The resource description for the related scope.
+          returned: cmci error
+          type: str
+        relatedscope:
+          description: The name of the related scope.
+          returned: cmci error
+          type: str
+    inconsistentset:
+      description: >
+        Contains diagnostic data from a BINCONRS record associated with a CICS® management client interface PUT request.
+      returned: cmci error
+      type: list
+      elements: dict
+      contains:
+        candidatename:
+          description: The name of the candidate resource.
+          returned: cmci error
+          type: str
+        candidateversion:
+          description: The version number of the candidate resource.
+          returned: cmci error
+          type: str
+        candidategroup:
+          description: The resource group of the candidate resource.
+          returned: cmci error
+          type: str
+        candidateassignment:
+          description: The assignment of the candidate resource.
+          returned: cmci error
+          type: str
+        candidatedescription:
+          description: The description of the candidate resource.
+          returned: cmci error
+          type: str
+        candidateusage:
+          description: The assignment usage of the candidate resource.
+          returned: cmci error
+          type: str
+        candidatesystemgroup:
+          description: The system group of the candidate resource.
+          returned: cmci error
+          type: str
+        candidatetype:
+          description: The system type of the candidate resource.
+          returned: cmci error
+          type: str
+        candidateoverride:
+          description: The assignment override of the candidate resource.
+          returned: cmci error
+          type: str
+        eyu_cicsname:
+          description: The name of the CICS region associated with the installation error.
+          returned: cmci error
+          type: str
+        erroroperation:
+          description: >
+            A numeric value that identifies that the operation being performed when the error occurred
+          returned: cmci error
+          type: str
+        existingname:
+          description: The name of the existing resource.
+          returned: cmci error
+          type: str
+        existingversion:
+          description: The version number of the existing resource.
+          returned: cmci error
+          type: str
+        existinggroup:
+          description: The resource group of the existing resource.
+          returned: cmci error
+          type: str
+        existingassignment:
+          description: The assignment of the existing resource.
+          returned: cmci error
+          type: str
+        existingdescription:
+          description: The description of the existing resource.
+          returned: cmci error
+          type: str
+        existingusage:
+          description: The assignment usage of the existing resource.
+          returned: cmci error
+          type: str
+        existingsystemgroup:
+          description: The system group of the existing resource.
+          returned: cmci error
+          type: str
+        existingtype:
+          description: The system type of the existing resource.
+          returned: cmci error
+          type: str
+        existingoverride:
+          description: The assignment override of the existing resource.
+          returned: cmci error
+          type: str
 """
 
 

@@ -232,7 +232,8 @@ def create_records_response(resource_type, records):  # type: (str, List) -> Ord
         ))
     )
 
-def create_nodata_response(): # type: (str, List) -> OrderedDict
+
+def create_nodata_response():  # type: (str, List) -> OrderedDict
     return create_cmci_response(
         ('resultsummary', od(
             ('@api_response1', '1027'),

@@ -145,7 +145,7 @@ options:
             C(and) and C(or) operators, see the C(complex_filter) parameter.
           - For more details, see
             L(How to build a filter expression,https://www.ibm.com/docs/en/cics-ts/latest?topic=expressions-how-build-filter-expression).
-          - For examples, see M(cmci_get).
+          - For examples, see M(ibm.ibm_zos_cics.cmci_get).
           - For supported attributes of different resource types, see their
             resource table reference, for example,
             L(PROGDEF resource table reference,https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table).
@@ -167,7 +167,7 @@ options:
           - When supplying the C(attribute) option, you must also supply a
             C(value) for the filter. You can also override the default
             operator of C(=) with the C(operator) option.
-          - For examples, see "Examples" in M(cmci_get).
+          - For examples, see "Examples" in M(ibm.ibm_zos_cics.cmci_get).
         type: dict
         required: false
         suboptions:

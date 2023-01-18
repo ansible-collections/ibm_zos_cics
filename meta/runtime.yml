@@ -1,4 +1,5 @@
-requires_ansible: '>=2.10.7'
+---
+requires_ansible: ">=2.10.7"
 action_groups:
   cmci_group:
     - cmci_action

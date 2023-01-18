@@ -1,104 +1,98 @@
 # (c) Copyright IBM Corp. 2021
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name:  CMCI Install Bundle Failure Integration Test
+- name: CMCI Install Bundle Failure Integration Test
   collections:
-   - ibm.ibm_zos_cics
-  hosts: 'localhost'
+    - ibm.ibm_zos_cics
+  hosts: localhost
   gather_facts: false
   vars:
-    csdgroup: 'ANSITEST'
-    bunddef: 'ANSIBUND'
+    csdgroup: ANSITEST
+    bunddef: ANSIBUND
 
   module_defaults:
     ibm.ibm_zos_cics.cmci_delete:
-      cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ cmci_secure_port }}'
-      cmci_user: '{{ cmci_user }}'
-      cmci_password: '{{ cmci_password }}'
-      context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope_https }}'
+      cmci_host: "{{ cmci_host }}"
+      cmci_port: "{{ cmci_secure_port }}"
+      cmci_user: "{{ cmci_user }}"
+      cmci_password: "{{ cmci_password }}"
+      context: "{{ cmci_context }}"
+      scope: "{{ cmci_scope_https }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_action:
-      cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ cmci_secure_port }}'
-      cmci_user: '{{ cmci_user }}'
-      cmci_password: '{{ cmci_password }}'
-      context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope_https }}'
+      cmci_host: "{{ cmci_host }}"
+      cmci_port: "{{ cmci_secure_port }}"
+      cmci_user: "{{ cmci_user }}"
+      cmci_password: "{{ cmci_password }}"
+      context: "{{ cmci_context }}"
+      scope: "{{ cmci_scope_https }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_create:
-      cmci_host: '{{ cmci_host }}'
-      cmci_port: '{{ cmci_secure_port }}'
-      cmci_user: '{{ cmci_user }}'
-      cmci_password: '{{ cmci_password }}'
-      context: '{{ cmci_context }}'
-      scope: '{{ cmci_scope_https }}'
+      cmci_host: "{{ cmci_host }}"
+      cmci_port: "{{ cmci_secure_port }}"
+      cmci_user: "{{ cmci_user }}"
+      cmci_password: "{{ cmci_password }}"
+      context: "{{ cmci_context }}"
+      scope: "{{ cmci_scope_https }}"
       insecure: true
 
-
   tasks:
-    - name: 'delete bundle def'
-      delegate_to: 'localhost'
+    - name: Delete bundle def
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSDefinitionBundle'
+        type: CICSDefinitionBundle
         resources:
           complex_filter:
             and:
               - attribute: NAME
-                value: '{{ bunddef }}'
+                value: "{{ bunddef }}"
               - attribute: CSDGROUP
-                value: '{{ csdgroup }}'
+                value: "{{ csdgroup }}"
           get_parameters:
-            - name: 'CSDGROUP'
-              value: '{{ csdgroup }}'
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
       register: result
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
-
-    - name: 'create bundle def'
-      delegate_to: 'localhost'
+    - name: Create bundle def
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_create:
-        type: 'CICSDefinitionBundle'
+        type: CICSDefinitionBundle
         create_parameters:
-          - name: 'CSD'
+          - name: CSD
         attributes:
-          name: '{{ bunddef }}'
-          csdgroup: '{{ csdgroup }}'
-          bundledir: "/invalid"
+          name: "{{ bunddef }}"
+          csdgroup: "{{ csdgroup }}"
+          bundledir: /invalid
       register: result
 
-    - name: assert created
-      assert:
+    - name: Assert created
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].name == bunddef
 
-    - name: 'install bundle def'
-      delegate_to: 'localhost'
+    - name: Install bundle def
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_action:
-        type: 'CICSDefinitionBundle'
-        action_name: 'CSDINSTALL'
+        type: CICSDefinitionBundle
+        action_name: CSDINSTALL
         resources:
           filter:
-            NAME: '{{ bunddef }}'
+            NAME: "{{ bunddef }}"
           get_parameters:
-            - name: 'CSDGROUP'
-              value: '{{ csdgroup }}'
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
       failed_when: false
       register: result
 
-    - name: debug
-      debug:
-        msg: '{{ result }}'
-
-    - name: assert installed
-      assert:
+    - name: Assert installed
+      ansible.builtin.assert:
         that:
           - result.failed is false
           - result.msg == "CMCI request failed with response \"TABLEERROR\" reason \"DATAERROR\""
@@ -114,24 +108,23 @@
           - result.feedback[1].eibfn_alt == 'CSD INSTALL'
           - result.feedback[1].eyu_cicsname == cmci_scope_https
           - result.feedback[1].resp == '16'
-          - result.feedback[1].resp2 == '633' #'Installation of BUNDLE resource resource failed because the resource had no manifest'
+          - result.feedback[1].resp2 == '633' # 'Installation of BUNDLE resource resource failed because the resource had no manifest'
           - result.feedback[1].resp_alt == 'INVREQ'
 
-
-    - name: 'delete bundle def'
-      delegate_to: 'localhost'
+    - name: Delete bundle def
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
-        type: 'CICSDefinitionBundle'
+        type: CICSDefinitionBundle
         resources:
           filter:
-            NAME: '{{ bunddef }}'
+            NAME: "{{ bunddef }}"
           get_parameters:
-            - name: 'CSDGROUP'
-              value: '{{ csdgroup }}'
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
       register: result
 
-    - name: assert deleted
-      assert:
+    - name: Assert deleted
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.cpsm_response == 'OK'

@@ -1,32 +1,28 @@
 # (c) Copyright IBM Corp. 2021
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name:  CMCI Incorrect Scope Integration Test
+- name: CMCI Incorrect Scope Integration Test
   collections:
-   - ibm.ibm_zos_cics
-  hosts: 'localhost'
+    - ibm.ibm_zos_cics
+  hosts: localhost
   gather_facts: false
 
   tasks:
-    - name: test invalid scope
+    - name: Test invalid scope
       ibm.ibm_zos_cics.cmci_get:
-        cmci_host: '{{ cmci_host }}'
-        cmci_port: '{{ cmci_secure_port }}'
-        cmci_user: '{{ cmci_user }}'
-        cmci_password: '{{ cmci_password }}'
+        cmci_host: "{{ cmci_host }}"
+        cmci_port: "{{ cmci_secure_port }}"
+        cmci_user: "{{ cmci_user }}"
+        cmci_password: "{{ cmci_password }}"
         insecure: true
-        context: '{{ cmci_context }}'
-        scope: 'invalid'
-        type: 'CICSProgram'
+        context: "{{ cmci_context }}"
+        scope: invalid
+        type: CICSProgram
       failed_when: false
       register: result
 
-    - name: debug
-      debug:
-        msg: '{{ result }}'
-
-    - name: assert
-      assert:
+    - name: Assert
+      ansible.builtin.assert:
         that:
           - result.failed is false
           - result.msg == "CMCI request failed with response \"INVALIDPARM\" reason \"SCOPE\""

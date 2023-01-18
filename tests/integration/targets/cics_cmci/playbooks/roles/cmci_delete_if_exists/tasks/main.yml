@@ -1,34 +1,35 @@
-- name: 'Check if target {{ resource_type }} is installed in {{ context }}/{{ scope }}'
-  include_role:
+---
+- name: Check if target {{ resource_type }} is installed in {{ context }}/{{ scope }}
+  ansible.builtin.include_role:
     name: cmci_check_exists
 
-- block:
-  - name: 'Delete resource in scope'
-    delegate_to: 'localhost'
-    ibm.ibm_zos_cics.cmci_delete:
-      type: '{{ resource_type }}'
-      context: '{{ context }}'
-      scope: '{{ scope }}'
-      resources:
-        filter: '{{ attributes }}'
-    register: deleted_result
-
-  - name: assert resource was deleted in scope
-    assert:
-      that:
-        - deleted_result is changed
-        - deleted_result.record_count == 1
-
-  - name: 'Check resource was deleted'
-    delegate_to: 'localhost'
-    ibm.ibm_zos_cics.cmci_get:
-      type: '{{ resource_type }}'
-      context: '{{ context }}'
-      scope: '{{ scope }}'
-      resources:
-        filter: '{{ attributes }}'
-    register: discarded_result
-    failed_when: >
-      'cpsm_response' not in discarded_result or discarded_result.cpsm_response not in ['NODATA']
-
+- name: Delete resource block
   when: exists
+  block:
+    - name: Delete resource in scope
+      delegate_to: localhost
+      ibm.ibm_zos_cics.cmci_delete:
+        type: "{{ resource_type }}"
+        context: "{{ context }}"
+        scope: "{{ scope }}"
+        resources:
+          filter: "{{ attributes }}"
+      register: deleted_result
+
+    - name: Assert resource was deleted in scope
+      ansible.builtin.assert:
+        that:
+          - deleted_result is changed
+          - deleted_result.record_count == 1
+
+    - name: Check resource was deleted
+      delegate_to: localhost
+      ibm.ibm_zos_cics.cmci_get:
+        type: "{{ resource_type }}"
+        context: "{{ context }}"
+        scope: "{{ scope }}"
+        resources:
+          filter: "{{ attributes }}"
+      register: discarded_result
+      failed_when: >
+        'cpsm_response' not in discarded_result or discarded_result.cpsm_response not in ['NODATA']

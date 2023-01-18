@@ -1,32 +1,28 @@
 # (c) Copyright IBM Corp. 2021
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name:  CMCI Incorrect Port Integration Test
+- name: CMCI Incorrect Port Integration Test
   collections:
-   - ibm.ibm_zos_cics
-  hosts: 'localhost'
+    - ibm.ibm_zos_cics
+  hosts: localhost
   gather_facts: false
 
   tasks:
-    - name: test incorrect port
+    - name: Test incorrect port
       ibm.ibm_zos_cics.cmci_get:
-        cmci_host: '{{ cmci_host }}'
+        cmci_host: "{{ cmci_host }}"
         cmci_port: 12345
-        cmci_user: '{{ cmci_user }}'
-        cmci_password: '{{ cmci_password }}'
-        context: '{{ cmci_context }}'
-        scope: '{{ cmci_scope_https }}'
-        type: 'cicsprogram'
+        cmci_user: "{{ cmci_user }}"
+        cmci_password: "{{ cmci_password }}"
+        context: "{{ cmci_context }}"
+        scope: "{{ cmci_scope_https }}"
+        type: cicsprogram
       failed_when: false
       register: result
 
-    - name: debug
-      debug:
-        msg: '{{ result.msg[:76] }} ... {{ result.msg[-67:] }}'
-
-    - name: assert
-      assert:
+    - name: Assert
+      ansible.builtin.assert:
         that:
           - result.failed is false
-          - '{{  result.msg[:76] == "Error performing CMCI request: <urllib3.connection.HTTPSConnection object at" }}'
-          - '{{  result.msg[-18:] == "Connection refused" }}'
+          - '{{ result.msg[:76] == "Error performing CMCI request: <urllib3.connection.HTTPSConnection object at" }}'
+          - '{{ result.msg[-18:] == "Connection refused" }}'

@@ -1,7 +1,8 @@
+---
 name: ibm_zos_cics
-version: "1.0.3"
+version: 1.0.3
 managed_requirements:
-  - name: "Python"
+  - name: Python
     version: ">=2.7"
-  - name: "CICS TS with CICSplex System Manager"
+  - name: CICS TS with CICSplex System Manager
     version: ">=4.1"
