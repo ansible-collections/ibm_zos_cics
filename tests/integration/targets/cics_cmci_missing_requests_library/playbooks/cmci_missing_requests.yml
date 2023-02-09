@@ -1,0 +1,28 @@
+# (c) Copyright IBM Corp. 2021
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: CMCI Missing Requests Integration Test
+  collections:
+    - ibm.ibm_zos_cics
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Test missing requests library
+      ibm.ibm_zos_cics.cmci_get:
+        cmci_host: host
+        cmci_port: "12345"
+        cmci_user: user
+        cmci_password: validpassword
+        insecure: true
+        context: content
+        scope: scope
+        type: cicsprogram
+      failed_when: false
+      register: result
+
+    - name: Assert
+      ansible.builtin.assert:
+        that:
+          - result.failed is false
+          - '{{ result.msg[:59] == "Failed to import the required Python library (requests) on " }}'

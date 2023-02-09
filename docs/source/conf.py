@@ -1,4 +1,4 @@
-# Copyright (c) IBM Corporation 2020
+# (c) Copyright IBM Corp. 2020
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 # Configuration file for the Sphinx documentation builder.
 #
@@ -33,7 +33,7 @@ release = '1.0.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-"sphinx_rtd_theme",
+    "sphinx_rtd_theme",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

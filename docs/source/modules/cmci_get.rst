@@ -2,13 +2,14 @@
 .. © Copyright IBM Corporation 2020                                              .
 .. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
 .. ...............................................................................
+
 :github_url: https://github.com/ansible-collections/ibm_zos_cics/blob/dev/plugins/modules/cmci_get.py
 
 .. _cmci_get_module:
 
 
-cmci_get -- Query CICS and CICSplex SM resources
-================================================
+cmci_get -- Query CICS and CICSPlex SM resources and definitions
+================================================================
 
 
 
@@ -19,7 +20,7 @@ cmci_get -- Query CICS and CICSplex SM resources
 
 Synopsis
 --------
-- The cmci_get module can be used to get information about installed and definitional CICS and CICSPlex® SM resources from CICS regions, using the CMCI API.  The CMCI API is provided by CICSplex SM, or in SMSS regions.  For information about the CMCI API see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html. For information about how to compose GET requests, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_get.html.
+- Get information about installed and definitional CICS® and CICSPlex® SM resources from CICS regions, by initiating GET requests via the CMCI REST API. The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API, see `CMCI REST API <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_overview.html>`_. For information about how to compose GET requests, see `CMCI GET requests <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_get.html>`_.
 
 
 
@@ -33,9 +34,11 @@ Parameters
 cmci_cert
   Location of the PEM-formatted certificate chain file to be used for HTTPS client authentication.
 
-  Required when security_type is certificate.
+  Can also be specified using the environment variable CMCI_CERT.
 
-  Can also be specified using the environment variable CMCI_CERT
+  Required if *cmci_key* is specified.
+
+  Authentication prioritises certificate authentication if *cmci_cert* and *cmci_key* are provided, then basic authentication if *cmci_user* and (cmci_password) are provided, and then unauthenticated if none is provided.
 
 
   | **required**: False
@@ -44,7 +47,7 @@ cmci_cert
 
      
 cmci_host
-  The TCP/IP host name of CMCI connection
+  The TCP/IP host name of CMCI connection.
 
 
   | **required**: True
@@ -53,11 +56,13 @@ cmci_host
 
      
 cmci_key
-  Location of the PEM-formatted file with your private key to be used for HTTPS client authentication.
+  Location of the PEM-formatted file storing your private key to be used for HTTPS client authentication.
 
-  Required when security type is certificate.
+  Can also be specified using the environment variable CMCI_KEY.
 
-  Can also be specified using the environment variable CMCI_KEY
+  Required if *cmci_cert* is specified.
+
+  Authentication prioritises certificate authentication if *cmci_cert* and *cmci_key* are provided, then basic authentication if *cmci_user* and (cmci_password) are provided, and then unauthenticated if none is provided.
 
 
   | **required**: False
@@ -66,9 +71,13 @@ cmci_key
 
      
 cmci_password
-  The password of cmci_user to pass using HTTP basic authentication
+  The password of *cmci_user* to pass HTTP basic authentication.
 
-  Can also be specified using the environment variable CMCI_PASSWORD
+  Can also be specified using the environment variable CMCI_PASSWORD.
+
+  Required if *cmci_user* is specified.
+
+  Authentication prioritises certificate authentication if *cmci_cert* and *cmci_key* are provided, then basic authentication if *cmci_user* and (cmci_password) are provided, and then unauthenticated if none is provided.
 
 
   | **required**: false
@@ -86,11 +95,13 @@ cmci_port
 
      
 cmci_user
-  The user id to run the CMCI request as
+  The user ID under which the CMCI request will run.
 
-  Required when security type is yes
+  Can also be specified using the environment variable CMCI_USER.
 
-  Can also be specified using the environment variable CMCI_USER
+  Required if *cmci_password* is specified.
+
+  Authentication prioritises certificate authentication if *cmci_cert* and *cmci_key* are provided, then basic authentication if *cmci_user* and (cmci_password) are provided, and then unauthenticated if none is provided.
 
 
   | **required**: false
@@ -99,20 +110,20 @@ cmci_user
 
      
 context
-  If CMCI is installed in a CICSPlex SM environment, context is the name of the CICSplex or CMAS associated with the request; for example, PLEX1. See the relevant resource table in CICSPlex SM resource tables to determine whether to specify a CICSplex or CMAS.
+  If CMCI is installed in a CICSPlex® SM environment, *context* is the name of the CICSplex or CMAS associated with the request, for example, ``PLEX1``. To determine whether a CMAS can be specified as *context*, see the **CMAS context** entry in the CICSPlex SM resource table reference of a resource. For example, according to the `PROGRAM resource table <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGRAMtab.html>`_, CMAS context is not supported for PROGRAM.
 
-  If CMCI is installed as a single server (SMSS), context is the APPLID of the CICS region associated with the request.
+  If CMCI is installed in a single region (SMSS), *context* is the APPLID of the CICS region associate with the request.
 
-  The value of context must not contain spaces. Context is not case-sensitive.
+  The value of *context* must contain no spaces. *context* is not case-sensitive.
 
 
-  | **required**: false
+  | **required**: True
   | **type**: str
 
 
      
 insecure
-  Set to true to disable SSL certificate trust chain verification when using https
+  When set to ``true``, disables SSL certificate trust chain verification when using HTTPS.
 
 
   | **required**: False
@@ -121,11 +132,11 @@ insecure
 
      
 record_count
-  Identifies a subset of records in a results cache starting from the first record in the results cache or from the record specified by the index parameter.
+  Identifies a subset of records in the results cache, starting either from the first record in the results cache or from the record specified by the index parameter. If not specified, all the records are returned by default.
 
-  A negative number indicates a count back from the last record; for example, -1 means the last record, -2 the last record but one, and so on
+  A negative number indicates a count back from the last record; for example, ``-1`` means the last record, ``-2`` the last record but one, and so on.
 
-  Count must be an integer, a value of zero is not permitted.
+  The count value must be an integer; a value of zero is not permitted.
 
 
   | **required**: False
@@ -133,8 +144,8 @@ record_count
 
 
      
-resource
-  Options which specify a target resource
+resources
+  Options that specify a target resource.
 
 
   | **required**: False
@@ -142,38 +153,141 @@ resource
 
 
      
-  criteria
-    A string containing logical expressions that filters the data returned on the request.
+  complex_filter
+    A dictionary representing a complex filter expression. Complex filters are composed of filter expressions, represented as dictionaries. Each dictionary can specify either an attribute expression, a list of filter expressions to be composed with the ``and`` operator, or a list of filter expressions to be composed with the ``or`` operator.
 
-    The string that makes up the value of the CRITERIA parameter follows the same rules as the filter expressions in the CICSPlex SM application programming interface.
+    The ``attribute``, ``and`` and ``or`` options are mutually exclusive with each other.
 
-    The filter can work with options ``query``, ``update``, ``delete``; otherwise it will be ignored.
+    Can contain one or more filters. Multiple filters must be combined using ``and`` or ``or`` logical operators.
 
-    For more guidance about specifying filter expressions using the CICSPlex SM API, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1a0.html.
+    Filters can be nested.
 
+    When supplying the ``attribute`` option, you must also supply a ``value`` for the filter. You can also override the default operator of ``=`` with the ``operator`` option.
 
-    | **required**: False
-    | **type**: str
-
-
-     
-  parameters
-    A string of one or more parameters and values of the form parameter_name(data_value) that refines the request. The rules for specifying these parameters are the same as in the CICSPlex SM application programming interface.
-
-    For more guidance about specifying parameter expressions using the CICSPlex SM API, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1bg.html
+    For examples, see "Examples" in :ref:`cmci_get <cmci_get_module>`.
 
 
     | **required**: False
     | **type**: dict
 
 
+     
+    and
+      A list of filter expressions to be combined with an ``and`` operation.
+
+      Filter expressions are nested ``complex_filter`` elements. Each nested filter expression can be either an ``attribute``, ``and`` or ``or`` complex filter expression.
+
+
+      | **required**: False
+      | **type**: list
+
+
+     
+    attribute
+      The name of a resource table attribute on which to filter.
+
+      For supported attributes of different resource types, see their resource table reference, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
+
+
+      | **required**: False
+      | **type**: str
+
+
+     
+    operator
+      These operators are accepted: ``<`` or ``LT`` (less than), ``<=`` or ``LE`` (less than or equal to), ``=`` or ``EQ`` (equal to), ``>`` or ``GT`` (greater than), ``>=`` or ``GE`` (greater than or equal to), ``==`` or ``IS`` (is), ``¬=``, ``!=``, or ``NE`` (not equal to). If not supplied when ``attribute`` is used, ``EQ`` is assumed.
+
+
+
+      | **required**: False
+      | **type**: str
+      | **choices**: <, >, <=, >=, =, ==, !=, ¬=, EQ, GT, GE, LT, LE, NE, IS
+
+
+     
+    or
+      A list of filter expressions to be combined with an ``or`` operation.
+
+      Filter expressions are nested ``complex_filter`` elements. Each nested filter expression can be either an ``attribute``, ``and`` or ``or`` complex filter expression.
+
+
+      | **required**: False
+      | **type**: list
+
+
+     
+    value
+      The value by which you are to filter the resource attributes.
+
+      The value must be a valid one for the resource table attribute as documented in the resource table reference, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
+
+
+      | **required**: False
+      | **type**: str
+
+
+
+     
+  filter
+    A dictionary with attribute names as keys, and target values, to be used as criteria to filter the set of resources returned from CICSPlex SM.
+
+    Filters implicitly use the ``=`` operator.
+
+    Filters for ``string`` type attributes can use the ``*`` and ``+`` wildcard operators.
+
+    ``*`` is a wildcard representing an unknown number of characters, and must appear at the end of the value.
+
+    ``+`` is a wildcard representing a single character, and can appear in any place in the value, potentially multiple times.
+
+    To use more complicated filter expressions, including a range of different filter operators, and the ability to compose filters with ``and`` and ``or`` operators, see the ``complex_filter`` parameter.
+
+    For more details, see `How to build a filter expression <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/system-programming/cpsm/eyup1a0.html>`_.
+
+    For examples, see :ref:`cmci_get <cmci_get_module>`
+
+    For supported attributes of different resource types, see their resource table reference, for example, `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
+
+
+    | **required**: False
+    | **type**: dict
+
+
+     
+  get_parameters
+    A list of one or more parameters with optional values used to identify the resources for this request. Eligible parameters for identifying the target resources can be found in the resource table reference for the target resource type, as valid parameters for the GET operation in the "Valid CPSM operations" table. For example, the valid parameters for identifying a PROGDEF resource are CICSSYS, CSDGROUP and RESGROUP, as found in the `PROGDEF resource table reference <https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.6.0/reference-cpsm-restables/cpsm-restables/PROGDEFtab.html>`_.
+
+
+
+    | **required**: False
+    | **type**: list
+
+
+     
+    name
+      Parameter name available for the GET operation.
+
+
+      | **required**: True
+      | **type**: str
+
+
+     
+    value
+      Parameter value if any.
+
+
+      | **required**: False
+      | **type**: str
+
+
+
 
      
 scheme
-  Whether or not to use HTTPS
+  The HTTP scheme to use when establishing a connection to the CMCI REST API.
 
 
-  | **required**: False
+  | **required**: false
   | **type**: str
   | **default**: https
   | **choices**: http, https
@@ -181,15 +295,13 @@ scheme
 
      
 scope
-  Specifies the name of a CICSplex, CICS region group, CICS region, or logical scope associated with the query.
+  Specifies the name of a CICSplex, CICS region group, CICS region, or logical scope that is associated with the query.
 
-  Scope is a subset of context, and limits the request to particular CICS systems or resources.
+  *scope* is a subset of *context* and limits the request to particular CICS systems or resources.
 
-  Scope is not mandatory. If scope is absent, the request is limited by the value of the context alone.
+  *scope* is optional. If it's not specified, the request is limited by the value of *context* alone.
 
-  The value of scope must not contain spaces.
-
-  Scope is not case-sensitive
+  The value of *scope* must contain no spaces. *scope* is not case-sensitive.
 
 
   | **required**: false
@@ -198,7 +310,7 @@ scope
 
      
 type
-  The CMCI resource name for the target resource type.  For the list of CMCI resource names, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_resources.html
+  The CMCI external resource name that maps to the target CICS or CICSPlex SM resource type. For a list of CMCI external resource names, see `CMCI resource names <https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/cmci/clientapi_resources.html>`_.
 
 
   | **required**: True
@@ -216,11 +328,11 @@ Examples
    - name: get 2 LOCFILEs from a CICSplex
      cmci_get:
        cmci_host: 'winmvs2c.hursley.ibm.com'
-       cmci_port: '10080'
+       cmci_port: 10080
        cmci_user: 'ibmuser'
        cmci_password: '123456'
        context: 'iyk3z0r9'
-       resource_name:  CICSLocalFile
+       type:  CICSLocalFile
        record_count: 2
        resource:
          filter:
@@ -229,16 +341,52 @@ Examples
    - name: get a localfile in a CICS region
      cmci_get:
        cmci_host: 'winmvs2c.hursley.ibm.com'
-       cmci_port: '10080'
+       cmci_port: 10080
        cmci_cert: './sec/ansible.pem'
        cmci_key: './sec/ansible.key'
        context: 'iyk3z0r9'
-       option: 'query'
-       resource_name: 'CICSLocalFile' 
-       resource:
+       type: 'CICSLocalFile'
+       resources:
          filter:
            dsname: 'XIAOPIN*'
            file: 'DFH*'
+       record_count: 1
+
+   - name: get a progdef from a CSD
+     cmci_get:
+       cmci_host: 'winmvs2c.hursley.ibm.com'
+       cmci_port: 10080
+       cmci_cert: './sec/ansible.pem'
+       cmci_key: './sec/ansible.key'
+       context: 'iyk3z0r9'
+       type: cicsdefinitionprogram
+       resources:
+         filter:
+           name: MYPROG
+         get_parameters:
+           - name: csdgroup
+             value: MYGRP
+       record_count: 1
+
+   - name: Using complex_filter to combine filter expressions and change operators
+     cmci_get:
+       cmci_host: 'winmvs2c.hursley.ibm.com'
+       cmci_port: 10080
+       cmci_cert: './sec/ansible.pem'
+       cmci_key: './sec/ansible.key'
+       context: 'iyk3z0r9'
+       type: 'CICSRegion'
+       resources:
+         complex_filter:
+           or: [{
+             attribute: 'currtasks',
+             value: '10',
+             operator: '<'
+           }, {
+             attribute: 'currtasks',
+             value: '100',
+             operator: '>'
+           }]
        record_count: 1
 
 
@@ -256,7 +404,7 @@ Return Values
    
                               
        changed
-        | True if the state was changed, otherwise False
+        | True if the state was changed, otherwise False.
       
         | **returned**: always
         | **type**: bool
@@ -264,7 +412,7 @@ Return Values
       
                               
        failed
-        | True if query_job failed, othewise False
+        | True if the query job failed, otherwise False.
       
         | **returned**: always
         | **type**: bool
@@ -280,7 +428,7 @@ Return Values
       
                               
        cpsm_reason
-        | Character value of the CPSM API reason code returned.  For a list of reason values provided by each API command, see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kr.html)
+        | The character value of the REASON code returned by each CICSPlex SM API command. For a list of REASON character values, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ky.html.
       
         | **returned**: success
         | **type**: str
@@ -288,7 +436,7 @@ Return Values
       
                               
        cpsm_reason_code
-        | Numeric value of the CPSM API reason code returned.  For a list of numeric values see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ks.html)
+        | The numeric value of the REASON code returned by each CICSPlex SM API command. For a list of REASON numeric values, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kw.html.
       
         | **returned**: success
         | **type**: int
@@ -296,7 +444,7 @@ Return Values
       
                               
        cpsm_response
-        | Character value of the CPSM API response code returned.  For a list of response values provided by each API command, see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kr.html)
+        | The character value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE character values, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kx.html.
       
         | **returned**: success
         | **type**: str
@@ -304,7 +452,7 @@ Return Values
       
                               
        cpsm_response_code
-        | Numeric value of the CPSM API response code returned.  For a list of numeric values see U(https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2ks.html)
+        | The numeric value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE numeric values, see https://www.ibm.com/support/knowledgecenter/SSGMCP_5.6.0/reference-system-programming/commands-cpsm/eyup2kv.html.
       
         | **returned**: success
         | **type**: str
@@ -312,7 +460,7 @@ Return Values
       
                               
        http_status
-        | Message associated with HTTP status code returned by CMCI
+        | The message associated with HTTP status code that is returned by CMCI.
       
         | **returned**: success
         | **type**: str
@@ -320,7 +468,7 @@ Return Values
       
                               
        http_status_code
-        | HTTP status code returned by CMCI
+        | The HTTP status code returned by CMCI.
       
         | **returned**: success
         | **type**: int
@@ -328,7 +476,7 @@ Return Values
       
                               
        record_count
-        | Number of records returned
+        | The number of records returned.
       
         | **returned**: success
         | **type**: int
@@ -336,7 +484,7 @@ Return Values
       
                               
        records
-        | A list of the returned records
+        | A list of the returned records.
       
         | **returned**: success
         | **type**: list      
@@ -350,7 +498,7 @@ Return Values
       
                               
        request
-        | Information about the request that was made to CMCI
+        | Information about the request that was made to CMCI.
       
         | **returned**: success
         | **type**: dict
@@ -358,7 +506,7 @@ Return Values
    
                               
         body
-          | The XML body sent with the request, if any
+          | The XML body sent with the request, if any.
       
           | **returned**: success
           | **type**: str
@@ -366,7 +514,7 @@ Return Values
       
                               
         method
-          | The HTTP method used for the request
+          | The HTTP method used for the request.
       
           | **returned**: success
           | **type**: str
@@ -374,10 +522,463 @@ Return Values
       
                               
         url
-          | The URL used for the request
+          | The URL used for the request.
       
           | **returned**: success
           | **type**: str
+      
+        
+      
+      
+                              
+       feedback
+        | Diagnostic data from FEEDBACK records associated with the request
+      
+        | **returned**: cmci error
+        | **type**: list
+              
+   
+                              
+        action
+          | The name of the action that has failed.
+      
+          | **returned**: cmci error
+          | **type**: str
+      
+      
+                              
+        attribute1
+          | The name of one of up to six attributes associated with the error.
+      
+          | **returned**: cmci error
+          | **type**: str
+      
+      
+                              
+        attribute2
+          | The name of one of up to six attributes associated with the error.
+      
+          | **returned**: cmci error
+          | **type**: str
+      
+      
+                              
+        attribute3
+          | The name of one of up to six attributes associated with the error.
+      
+          | **returned**: cmci error
+          | **type**: str
+      
+      
+                              
+        attribute4
+          | The name of one of up to six attributes associated with the error.
+      
+          | **returned**: cmci error
+          | **type**: str
+      
+      
+                              
+        attribute5
+          | The name of one of up to six attributes associated with the error.
+      
+          | **returned**: cmci error
+          | **type**: str
+      
+      
+                              
+        attribute6
+          | The name of one of up to six attributes associated with the error.
+      
+          | **returned**: cmci error
+          | **type**: str
+      
+      
+                              
+        eibfn
+          | The function code associated with the request.
+      
+          | **returned**: cmci error
+          | **type**: str
+      
+      
+                              
+        eibfn_alt
+          | The name of the function associated with the request.
+      
+          | **returned**: cmci error
+          | **type**: str
+      
+      
+                              
+        errorcode
+          | The CICSPlex® SM error code associated with the resource.
+      
+          | **returned**: cmci error
+          | **type**: str
+      
+      
+                              
+        eyu_cicsname
+          | The name of the CICS region or CICSplex associated with the error.
+      
+          | **returned**: cmci error
+          | **type**: str
+      
+      
+                              
+        keydata
+          | A string of data that identifies the instance of a resource associated with the error.
+      
+          | **returned**: cmci error
+          | **type**: str
+      
+      
+                              
+        resp
+          | The CICS RESP code or the CICSPlex SM API EYUDA response code as a numeric value.
+      
+          | **returned**: cmci error
+          | **type**: str
+      
+      
+                              
+        resp2
+          | The CICS RESP2 code or the CICSPlex SM API EYUDA reason code as a numeric value.
+      
+          | **returned**: cmci error
+          | **type**: str
+      
+      
+                              
+        resp_alt
+          | The text equivalent for the resp value. For example, the text equivalent of a resp value of 16 is INVREQ.
+
+      
+          | **returned**: cmci error
+          | **type**: str
+      
+      
+                              
+        installerror
+          | Contains diagnostic data from a BINSTERR record associated with a CICS® management client interface PUT install request.
+
+      
+          | **returned**: cmci error
+          | **type**: list
+              
+   
+                              
+         eibfn
+            | The function code associated with the request.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         eyu_cicsname
+            | The name of the CICS region or CICSplex associated with the installation error.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         cresp1
+            | The CICS RESP code or the CICSPlex® SM API EYUDA response code as a numeric value.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         cresp2
+            | The CICS RESP2 code or the CICSPlex SM API EYUDA reason code as a numeric value.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         errorcode
+            | The CICSPlex SM error code associated with the resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         ressname
+            | The name of the resource associated with the error.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         resver
+            | The version number of the resource associated with the error.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+        
+      
+      
+                              
+        inconsistentscope
+          | Contains diagnostic data from a BINCONSC record associated with a CICS® management client interface PUT request.
+
+      
+          | **returned**: cmci error
+          | **type**: list
+              
+   
+                              
+         eibfn
+            | The function code associated with the request.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         eyu_cicsname
+            | The name of the CICS region or CICSplex associated with the installation error.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         erroroperation
+            | A numeric value that identifies the operation being performed when the error occurred.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         errorcode
+            | The CICSPlex® SM error code associated with the resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         targetassignment
+            | The assignment for the target scope.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         targetdescription
+            | The resource description for the target scope.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         relatedassignment
+            | The resource assignment for the related scope.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         relateddescription
+            | The resource description for the related scope.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         relatedscope
+            | The name of the related scope.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+        
+      
+      
+                              
+        inconsistentset
+          | Contains diagnostic data from a BINCONRS record associated with a CICS® management client interface PUT request.
+
+      
+          | **returned**: cmci error
+          | **type**: list
+              
+   
+                              
+         candidatename
+            | The name of the candidate resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         candidateversion
+            | The version number of the candidate resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         candidategroup
+            | The resource group of the candidate resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         candidateassignment
+            | The assignment of the candidate resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         candidatedescription
+            | The description of the candidate resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         candidateusage
+            | The assignment usage of the candidate resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         candidatesystemgroup
+            | The system group of the candidate resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         candidatetype
+            | The system type of the candidate resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         candidateoverride
+            | The assignment override of the candidate resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         eyu_cicsname
+            | The name of the CICS region associated with the installation error.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         erroroperation
+            | A numeric value that identifies that the operation being performed when the error occurred
+
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         existingname
+            | The name of the existing resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         existingversion
+            | The version number of the existing resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         existinggroup
+            | The resource group of the existing resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         existingassignment
+            | The assignment of the existing resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         existingdescription
+            | The description of the existing resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         existingusage
+            | The assignment usage of the existing resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         existingsystemgroup
+            | The system group of the existing resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         existingtype
+            | The system type of the existing resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+      
+                              
+         existingoverride
+            | The assignment override of the existing resource.
+      
+            | **returned**: cmci error
+            | **type**: str
+      
+        
       
         
       

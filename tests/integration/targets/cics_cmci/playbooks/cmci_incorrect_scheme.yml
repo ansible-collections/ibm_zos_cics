@@ -1,0 +1,60 @@
+# (c) Copyright IBM Corp. 2021
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: CMCI Incorrect Scope Integration Test
+  collections:
+    - ibm.ibm_zos_cics
+  hosts: localhost
+  gather_facts: true
+  vars:
+    python_2_message: >-
+      Error performing CMCI request{{ ':' }} ('Connection aborted.',
+      BadStatusLine('No status line received - the server has closed the
+      connection',))
+    python_3_message: >-
+      Error performing CMCI request{{ ':' }} ('Connection aborted.',
+      RemoteDisconnected('Remote end closed connection without response'))
+    error_message: "{{ python_2_message if ansible_python.version.major == 2 else python_3_message }}"
+
+  tasks:
+    - name: Test https with incorrect scheme
+      ibm.ibm_zos_cics.cmci_get:
+        cmci_host: "{{ cmci_host }}"
+        cmci_port: "{{ cmci_secure_port }}"
+        cmci_user: "{{ cmci_user }}"
+        cmci_password: "{{ cmci_password }}"
+
+        context: "{{ cmci_context }}"
+        scope: "{{ cmci_scope_https }}"
+        type: cicsprogram
+        scheme: http
+        insecure: true
+      failed_when: false
+      register: result
+
+    - name: Assert https
+      ansible.builtin.assert:
+        that:
+          - result.failed is false
+          - result.msg == error_message
+
+    - name: Test http with incorrect scheme
+      ibm.ibm_zos_cics.cmci_get:
+        cmci_host: "{{ cmci_host }}"
+        cmci_port: "{{ cmci_port }}"
+        cmci_user: "{{ cmci_user }}"
+        cmci_password: "{{ cmci_password }}"
+
+        context: "{{ cmci_context }}"
+        scope: "{{ cmci_scope_region_1 }}"
+        type: cicsprogram
+        scheme: https
+        insecure: true
+      failed_when: false
+      register: result
+
+    - name: Assert http
+      ansible.builtin.assert:
+        that:
+          - result.failed is false
+          - result.msg[:79] == 'Error performing CMCI request{{ ":" }} [SSL{{ ":" }} WRONG_VERSION_NUMBER] wrong version number'

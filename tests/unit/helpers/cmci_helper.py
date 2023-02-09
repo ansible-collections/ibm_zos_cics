@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (c) IBM Corporation 2019, 2020
+# (c) Copyright IBM Corp. 2020,2021
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
 
@@ -10,12 +10,15 @@ from ansible.module_utils.common.text.converters import to_bytes
 from ansible.module_utils import basic
 from collections import OrderedDict
 from requests import PreparedRequest
-from typing import List
-
+from typing import List, Tuple
+from sys import version_info
+import urllib
+import requests
 import json
 import pytest
-import unittest
 import xmltodict
+import difflib
+import pprint
 
 CONTEXT = 'CICSEX56'
 SCOPE = 'IYCWEMW2'
@@ -27,16 +30,26 @@ class CMCITestHelper:
     def __init__(self, requests_mock=None):
         self.requests_mock = requests_mock
         self.expected = {}
+        self.expected_list = False
 
-    def stub_request(self, *args, complete_qs=True, **kwargs):
-        self.requests_mock.request(*args, complete_qs=complete_qs, **kwargs)
+    def stub_request(self, *args, **kwargs):
+        self.requests_mock.request(complete_qs=True, *args, **kwargs)
 
     def stub_delete(self, resource_type, success_count, *args, **kwargs):
         return self.stub_cmci(
             'DELETE',
             resource_type,
-            *args,
             response_dict=create_delete_response(success_count),
+            *args,
+            **kwargs
+        )
+
+    def stub_non_ok_delete(self, resource_type, error_count, *args, **kwargs):
+        return self.stub_cmci(
+            'DELETE',
+            resource_type,
+            response_dict=create_delete_bad_response(error_count),
+            *args,
             **kwargs
         )
 
@@ -44,15 +57,35 @@ class CMCITestHelper:
         return self.stub_cmci(
             method,
             resource_type,
-            *args,
             response_dict=create_records_response(resource_type, records),
+            *args,
             **kwargs
         )
 
-    def stub_cmci(self, method, resource_type, scheme='http', host=HOST, port=PORT,
+    def stub_nodata(self, method, resource_type, *args, **kwargs):
+        return self.stub_cmci(
+            method,
+            resource_type,
+            response_dict=create_nodata_response(),
+            *args,
+            **kwargs
+        )
+
+    def stub_non_ok_records(self, method, resource_type, feedback, *args, **kwargs):
+        return self.stub_cmci(
+            method,
+            resource_type,
+            *args,
+            response_dict=create_feedback_response(feedback),
+            **kwargs
+        )
+
+    def stub_cmci(self, method, resource_type, scheme='https', host=HOST, port=PORT,
                   context=CONTEXT, scope=None, parameters='', response_dict=None,
-                  headers={'CONTENT-TYPE': 'application/xml'}, status_code=200, reason='OK',
-                  record_count=None, **kwargs):
+                  headers=None, status_code=200, reason='OK',
+                  record_count=None, fail_on_nodata=True, **kwargs):
+        if headers is None:
+            headers = {'CONTENT-TYPE': 'application/xml'}
         url = '{0}://{1}:{2}/CICSSystemManagement/{3}/{4}/{5}{6}{7}'\
             .format(scheme, host, port, resource_type, context, '//' + str(record_count) if record_count else '',
                     scope if scope else '', parameters)
@@ -70,6 +103,12 @@ class CMCITestHelper:
     def expect(self, expected):
         self.expected = expected
 
+    def expect_list(self, chars_before_list, chars_after_list, string_containing_list='msg'):
+        self.expected_list = True
+        self.chars_before_list = chars_before_list
+        self.chars_after_list = chars_after_list
+        self.string_containing_list = string_containing_list
+
     def run(self, module, config):
         # upper-case the resource name, so it definitely doesn't match the CMCI response, to ensure
         # we don't rely on them matching
@@ -81,9 +120,25 @@ class CMCITestHelper:
 
         result = exc_info.value.args[0]
 
-        case = unittest.TestCase()
-        case.maxDiff = None
-        case.assertDictEqual(self.expected, result)
+        assert isinstance(self.expected, dict)
+        assert isinstance(result, dict)
+
+        # when a list of items is expected but the order varies, this block intecepts the actual result and sorts
+        # the list, allowing the expected and actual output to be compared in the same order
+        if self.expected_list:
+            actual_list = result.get(self.string_containing_list)[self.chars_before_list:-self.chars_after_list].split(", ")
+            actual_list.sort()
+            before_list = result.get(self.string_containing_list)[:self.chars_before_list]
+            after_list = result.get(self.string_containing_list)[-self.chars_after_list:]
+            concat = before_list + ", ".join(actual_list) + after_list
+            result.update({self.string_containing_list: concat})
+
+        if self.expected != result:
+            standard_msg = '%s != %s' % (repr(self.expected), repr(result))
+            diff = ('\n' + '\n'.join(difflib.ndiff(
+                           pprint.pformat(self.expected).splitlines(),
+                           pprint.pformat(result).splitlines())))
+            raise AssertionError(standard_msg + diff)
 
 
 @pytest.fixture
@@ -144,6 +199,19 @@ def create_delete_response(success_count):  # type: (int) -> OrderedDict
     )
 
 
+def create_delete_bad_response(error_count):  # type: (str, List) -> OrderedDict
+    return create_cmci_response(
+        ('resultsummary', od(
+            ('@api_response1', '1038'),
+            ('@api_response2', '1361'),
+            ('@api_response1_alt', 'TABLEERROR'),
+            ('@api_response2_alt', 'DATAERROR'),
+            ('@recordcount', str(error_count)),
+            ('@displayed_recordcount', str(error_count))
+        ))
+    )
+
+
 def create_records_response(resource_type, records):  # type: (str, List) -> OrderedDict
     # Convert to ordered dict, with @ sign for attribute prefix
     # CMCI always returns lower case names
@@ -165,6 +233,56 @@ def create_records_response(resource_type, records):  # type: (str, List) -> Ord
     )
 
 
+def create_nodata_response():  # type: (str, List) -> OrderedDict
+    return create_cmci_response(
+        ('resultsummary', od(
+            ('@api_response1', '1027'),
+            ('@api_response2', '0'),
+            ('@api_response1_alt', 'NODATA'),
+            ('@api_response2_alt', ''),
+            ('@recordcount', '0')
+        ))
+    )
+
+
+def create_feedback_response(errors):  # type: (str, List) -> OrderedDict
+
+    # Convert to ordered dict, with @ sign for attribute prefix
+    feedback = [
+        OrderedDict(
+            # Feedback can contain inner types of their own dictionary
+            [('@' + key, value) if not isinstance(value, list)
+             else get_error_detail(key, value)
+             for key, value in error.items()]
+        ) for error in errors
+    ]
+
+    return create_cmci_response(
+        ('resultsummary', od(
+            ('@api_response1', '1038'),
+            ('@api_response2', '1361'),
+            ('@api_response1_alt', 'TABLEERROR'),
+            ('@api_response2_alt', 'DATAERROR'),
+            ('@recordcount', 1)
+        )),
+        ('errors', od(
+            (
+                'feedback',
+                feedback
+            )
+        ))
+    )
+
+
+def get_error_detail(error_type, error_details):    # type: (str, List) -> Tuple[str, List[OrderedDict]]
+    return error_type,\
+        [
+            OrderedDict(
+                [('@' + k, v) for k, v in error.items()]
+            ) for error in error_details
+        ]
+
+
 def create_cmci_response(*args):  # type () -> OrderedDict
     return od(
         ('response', od(
@@ -182,9 +300,28 @@ def create_cmci_response(*args):  # type () -> OrderedDict
     )
 
 
+def encode_html_parameter(unencoded_value):
+    if version_info.major <= 2:
+        # This is a workaround for python 2, where we can't specify the
+        # encoding as a parameter in urlencode. Store the quote_plus
+        # setting, then override it with quote, so that spaces will be
+        # encoded as %20 instead of +. Then set the quote_plus value
+        # back so we haven't changed the behaviour long term
+        default_quote_plus = urllib.quote_plus
+        urllib.quote_plus = urllib.quote
+        encoded = urllib.urlencode(requests.utils.to_key_val_list(unencoded_value))
+        urllib.quote_plus = default_quote_plus
+    else:
+        # If running at python 3 and above
+        encoded = urllib.parse.urlencode(requests.utils.to_key_val_list(unencoded_value), quote_via=urllib.parse.quote)
+    return "?" + encoded
+
+
 def body_matcher(expected):
-    def match(request: PreparedRequest):
-        return expected == xmltodict.parse(request.body)
+    def match(request):  # type: (PreparedRequest) -> Dict
+        actual = xmltodict.parse(request.body)
+        return expected == actual
+
     return match
 
 

@@ -1,3 +1,6 @@
+---
+# (c) Copyright IBM Corp. 2020,2021
+
 # IBM collection namespace
 namespace: ibm
 
@@ -5,20 +8,26 @@ namespace: ibm
 name: ibm_zos_cics
 
 # The collection version
-version: 1.0.0
+version: 1.0.3
 
 # Collection README file
 readme: README.md
 
+# Contributors
+authors:
+  - Stewart Francis
+  - Tom Latham
+  - Sophie Green
+  - Ya Qing Chen
 # Description
-description: The Red Hat Ansible Certified Content for IBM Z CICS collection includes connection plugins, action plugins, modules and sample playbooks to automate tasks for CICS
+description:
+  The Red Hat Ansible Certified Content for IBM Z CICS collection includes connection plugins, action plugins,
+  modules and sample playbooks to automate tasks for CICS
 
 # License
-license: L(Apache License, Version 2.0, https://spdx.org/licenses/Apache-2.0.html)
-
+license: [Apache-2.0]
 # Tags
-tags: [ibm, z, zos, z_os, cics, red_hat_ansible_certified_cotent_for_ibm_z, cmci]
-
+tags: [ibm, z, zos, z_os, cics, cmci]
 # Collections that this collection requires to be installed for it to be usable.
 # dependencies: {} # This collection depends on no other collections
 
@@ -26,10 +35,10 @@ tags: [ibm, z, zos, z_os, cics, red_hat_ansible_certified_cotent_for_ibm_z, cmci
 repository: https://github.com/ansible-collections/ibm_zos_cics
 
 # The URL to any online docs
-documentation: https://github.com/ansible-collections/ibm_zos_cics/wiki 
+documentation: https://ibm.github.io/z_ansible_collections_doc
 
 # The URL to the homepage of the collection/project
-# homepage: https://www.ibm.com/it-infrastructure/z/
+homepage: https://www.ibm.com/support/z-content-solutions/ansible/
 
 # The URL to the collection issue tracker
 issues: https://github.com/ansible-collections/ibm_zos_cics/issues
@@ -37,5 +46,17 @@ issues: https://github.com/ansible-collections/ibm_zos_cics/issues
 # Ignore files and directories matching the following patterns
 build_ignore:
   - Dockerfile
-  - Jenkinsfile
   - yamllint.yaml
+  - venv2
+  - venv3
+  - .pytest_cache
+  - .idea
+  - .gitignore
+  - .ansible-test
+  - tests
+  - docs
+  - CONTRIBUTING.md
+  - build.sh
+  - requirements.txt
+  - dev-requirements.txt
+  - devguide.md

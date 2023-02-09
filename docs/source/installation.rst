@@ -1,37 +1,18 @@
 .. ...............................................................................
-.. © Copyright IBM Corporation 2020                                              .
+.. © Copyright IBM Corporation 2020,2021                                         .
 .. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
 .. ...............................................................................
 
 Installation
 ============
-You can install the **IBM z/OS CICS collection** from Ansible Galaxy, a custom Galaxy server, or a local build, using the `ansible-galaxy`_ command.
+Always check that your control node has fulfilled the :doc:`requirements` before installing the **IBM® z/OS® CICS® collection**.
 
-.. note:: Python module dependencies are not installed with the collection. To use the collection, you must install Python dependencies where the task will be running, in our case, the control node. See `Installing Python dependencies`_.
-
-Installing Python dependencies
--------------------------------
-You can use the supplied ``requirements`` file to install the dependencies:
-
-.. code-block:: sh
-
-   pip install requirements.txt
-
-
-.. this is a placeholder, no requirements file created yet.
-
-If you want to install the dependencies manually, here are the requirements of the control node:
-
-* `Ansible version`_: 2.9 or later
-
-.. _Ansible version:
-   https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html
-
+Then, follow the guidance to install the collection from Ansible® Galaxy or a custom Galaxy server. More ways to install an Ansible collection are documented at `installing collections`_.
 
 
 Installing from Ansible Galaxy
 ------------------------------
-Install the CICS collection from CLI:
+This is the quickest way to install the CICS collection. From your CLI, enter:
 
 .. code-block:: sh
 
@@ -40,18 +21,6 @@ Install the CICS collection from CLI:
 
 ..
    Comment: Will need to add something about overwriting previous versions when we have multiple versions. If you have installed a prior version, overwrite the existing collection with the ``--force`` (or ``-f``) option. Also, how to install a previous version, including beta.
-
-
-You'll see some output like this in the console:
-
-.. _ansible-galaxy:
-   https://docs.ansible.com/ansible/latest/cli/ansible-galaxy.html
-
-.. code-block:: sh
-
-   Process install dependency map
-   Starting collection install process
-   Installing 'ibm.ibm_zos_cics:1.0.0' to '/Users/user/.ansible/collections/ansible_collections/ibm/cics'
 
 By default, collections are installed in ``~/.ansible/collections``. After installation, the collection content will resemble this hierarchy: :
 
@@ -74,54 +43,6 @@ To install with customization, such as specifying another installation path or u
 
 .. _installing collections:
    https://docs.ansible.com/ansible/latest/user_guide/collections_using.html#installing-collections-with-ansible-galaxy
-
-Installing from a local build
-------------------------------
-
-You can clone the collection's Git repository, build the cloned collection into an archive file, and then install the collection using the archive file.
-
-.. comment: need to add the link to GitHub repository
-
-To build a collection from the Git repository:
-
-   #. Clone the repository.
-
-   #. Build the collection by running the ``ansible-galaxy collection build`` command, from inside the collection:
-
-      .. code-block:: sh
-
-         cd ibm_zos_cics
-         ansible-galaxy collection build
-
-      Example output:
-
-      .. code-block:: sh
-
-         $ ansible-galaxy collection build
-         Created collection for ibm.ibm_zos_cics at /Users/user/git/ibm/zos-ansible/ibm_zos_cics/ibm-ibm_zos_cics-1.0.0.tar.gz
-
-      .. note::
-         * Collection archive names will change depending on the release version. They adhere to this convention ``<namespace>-<collection>-<version>.tar.gz``, for example, ``ibm-ibm_zos_cics-1.0.0.tar.gz``.
-         * If you build the collection with Ansible version 2.9 or earlier, you will see the following warning that you can ignore: [WARNING]: Found unknown keys in collection galaxy.yml at '/Users/user/git/ibm/zos-ansible/ibm_zos_cics/galaxy.yml': build_ignore
-
-
-   #. Install the locally built collection:
-
-      .. code-block:: sh
-
-         $ ansible-galaxy collection install ibm-ibm_zos_cics-1.0.0.tar.gz
-
-      The output will look like this:
-
-      .. code-block:: sh
-
-         Process install dependency map
-         Starting collection install process
-         Installing 'ibm.ibm_zos_cics:1.0.0' to '/Users/user/.ansible/collections/ansible_collections/ibm/ibm_zos_cics'
-
-      To install with customization, such as specifying another installation path or using a playbook, see `installing collections`_.
-
-
 
 
 Installing from a custom Galaxy server

@@ -1,0 +1,132 @@
+# (c) Copyright IBM Corp. 2021
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: CMCI Install Bundle Failure Integration Test
+  collections:
+    - ibm.ibm_zos_cics
+  hosts: localhost
+  gather_facts: false
+  vars:
+    csdgroup: ANSITEST
+    bunddef: ANSIBUND
+
+  module_defaults:
+    ibm.ibm_zos_cics.cmci_delete:
+      cmci_host: "{{ cmci_host }}"
+      cmci_port: "{{ cmci_secure_port }}"
+      cmci_user: "{{ cmci_user }}"
+      cmci_password: "{{ cmci_password }}"
+      context: "{{ cmci_context }}"
+      scope: "{{ cmci_scope_https }}"
+      insecure: true
+
+    ibm.ibm_zos_cics.cmci_action:
+      cmci_host: "{{ cmci_host }}"
+      cmci_port: "{{ cmci_secure_port }}"
+      cmci_user: "{{ cmci_user }}"
+      cmci_password: "{{ cmci_password }}"
+      context: "{{ cmci_context }}"
+      scope: "{{ cmci_scope_https }}"
+      insecure: true
+
+    ibm.ibm_zos_cics.cmci_create:
+      cmci_host: "{{ cmci_host }}"
+      cmci_port: "{{ cmci_secure_port }}"
+      cmci_user: "{{ cmci_user }}"
+      cmci_password: "{{ cmci_password }}"
+      context: "{{ cmci_context }}"
+      scope: "{{ cmci_scope_https }}"
+      insecure: true
+
+  tasks:
+    - name: Delete bundle def
+      delegate_to: localhost
+      ibm.ibm_zos_cics.cmci_delete:
+        type: CICSDefinitionBundle
+        resources:
+          complex_filter:
+            and:
+              - attribute: NAME
+                value: "{{ bunddef }}"
+              - attribute: CSDGROUP
+                value: "{{ csdgroup }}"
+          get_parameters:
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
+      register: result
+      failed_when: >
+        'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
+
+    - name: Create bundle def
+      delegate_to: localhost
+      ibm.ibm_zos_cics.cmci_create:
+        type: CICSDefinitionBundle
+        create_parameters:
+          - name: CSD
+        attributes:
+          name: "{{ bunddef }}"
+          csdgroup: "{{ csdgroup }}"
+          bundledir: /invalid
+      register: result
+
+    - name: Assert created
+      ansible.builtin.assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].name == bunddef
+
+    - name: Install bundle def
+      delegate_to: localhost
+      ibm.ibm_zos_cics.cmci_action:
+        type: CICSDefinitionBundle
+        action_name: CSDINSTALL
+        resources:
+          filter:
+            NAME: "{{ bunddef }}"
+          get_parameters:
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
+      failed_when: false
+      register: result
+
+    - name: Assert installed
+      ansible.builtin.assert:
+        that:
+          - result.failed is false
+          - result.msg == "CMCI request failed with response \"TABLEERROR\" reason \"DATAERROR\""
+          - result.cpsm_reason == 'DATAERROR'
+          - result.cpsm_response == 'TABLEERROR'
+
+          - result.feedback[0].action == 'CSDINSTALL'
+          - result.feedback[0].attribute1 == 'NAME'
+          - result.feedback[0].errorcode == '31'
+
+          - result.feedback[1].action == 'CSDINSTALL'
+          - result.feedback[1].eibfn == 'A20E'
+          - result.feedback[1].eibfn_alt == 'CSD INSTALL'
+          - result.feedback[1].eyu_cicsname == cmci_scope_https
+          - result.feedback[1].resp == '16'
+          - result.feedback[1].resp2 == '633' # 'Installation of BUNDLE resource resource failed because the resource had no manifest'
+          - result.feedback[1].resp_alt == 'INVREQ'
+
+    - name: Delete bundle def
+      delegate_to: localhost
+      ibm.ibm_zos_cics.cmci_delete:
+        type: CICSDefinitionBundle
+        resources:
+          filter:
+            NAME: "{{ bunddef }}"
+          get_parameters:
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
+      register: result
+
+    - name: Assert deleted
+      ansible.builtin.assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.success_count == 1

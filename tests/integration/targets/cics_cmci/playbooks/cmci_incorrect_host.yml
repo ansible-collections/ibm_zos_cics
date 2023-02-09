@@ -1,0 +1,28 @@
+# (c) Copyright IBM Corp. 2021
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: CMCI Incorrect Host Integration Test
+  collections:
+    - ibm.ibm_zos_cics
+  hosts: localhost
+  gather_facts: true
+
+  tasks:
+    - name: Test invalid host
+      ibm.ibm_zos_cics.cmci_get:
+        cmci_host: DOESNTEXIST
+        cmci_port: "{{ cmci_secure_port }}"
+        cmci_user: "{{ cmci_user }}"
+        cmci_password: "{{ cmci_password }}"
+        insecure: true
+        context: "{{ cmci_context }}"
+        scope: "{{ cmci_scope_https }}"
+        type: cicsprogram
+      failed_when: false
+      register: result
+
+    - name: Assert
+      ansible.builtin.assert:
+        that:
+          - result.failed is false
+          - '{{ result.msg[:76] == "Error performing CMCI request: <urllib3.connection.HTTPSConnection object at" }}'

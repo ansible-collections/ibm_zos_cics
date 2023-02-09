@@ -1,0 +1,65 @@
+---
+###
+# DISABLE AND DISCARD file1 in related scope if it exists
+###
+- name: Disable resource
+  delegate_to: localhost
+  ibm.ibm_zos_cics.cmci_action:
+    type: "{{ resource_type }}"
+    action_name: DISABLE
+    context: "{{ context }}"
+    scope: "{{ scope }}"
+    resources:
+      filter: "{{ attributes }}"
+    action_parameters:
+      - name: BUSY
+        value: FORCE
+  register: result
+
+- name: Check resource was disabled
+  delegate_to: localhost
+  ibm.ibm_zos_cics.cmci_get:
+    type: "{{ resource_type }}"
+    context: "{{ context }}"
+    scope: "{{ scope }}"
+    resources:
+      filter: "{{ attributes }}"
+  register: disabled_result
+  retries: 3
+  failed_when: >
+    'cpsm_response' not in result or result.cpsm_response not in ['OK'] or result.records[0].enablestatus != 'DISABLED'
+
+- name: Assert file1 was disabled in related region
+  ansible.builtin.assert:
+    that:
+      - disabled_result is not changed
+      - disabled_result.record_count == 1
+      - disabled_result.records[0].enablestatus == 'DISABLED'
+
+- name: Discard resource in scope
+  delegate_to: localhost
+  ibm.ibm_zos_cics.cmci_delete:
+    type: "{{ resource_type }}"
+    context: "{{ context }}"
+    scope: "{{ scope }}"
+    resources:
+      filter: "{{ attributes }}"
+  register: deleted_result
+
+- name: Assert resource was discarded in scope
+  ansible.builtin.assert:
+    that:
+      - deleted_result is changed
+      - deleted_result.record_count == 1
+
+- name: Check resource was discarded
+  delegate_to: localhost
+  ibm.ibm_zos_cics.cmci_get:
+    type: "{{ resource_type }}"
+    context: "{{ context }}"
+    scope: "{{ scope }}"
+    resources:
+      filter: "{{ attributes }}"
+  register: discarded_result
+  failed_when: >-
+    'cpsm_response' not in discarded_result or discarded_result.cpsm_response not in ['NODATA']
