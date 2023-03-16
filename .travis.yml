@@ -1,0 +1,56 @@
+language: python
+python:
+  - "2.7"
+  - "3.8"
+  - "3.9"
+  - "3.10"
+env:
+  - ANSIBLE_VERSION="stable-2.11"
+  - ANSIBLE_VERSION="stable-2.12"
+  - ANSIBLE_VERSION="stable-2.13"
+  - ANSIBLE_VERSION="stable-2.14"
+  - ANSIBLE_VERSION="devel"
+matrix:
+  exclude:
+    # Python 2.7 max ansible version is 2.11
+    - python: "2.7"
+      env: ANSIBLE_VERSION="stable-2.12"
+    - python: "2.7"
+      env: ANSIBLE_VERSION="stable-2.13"
+    - python: "2.7"
+      env: ANSIBLE_VERSION="stable-2.14"
+    - python: "2.7"
+      env: ANSIBLE_VERSION="devel"
+      # Python 3.8 max ansible version is 2.13
+    - python: "3.8"
+      env: ANSIBLE_VERSION="stable-2.14"
+    - python: "3.8"
+      env: ANSIBLE_VERSION="devel"
+      # Ansible 2.11 max python version support is 3.9
+    - python: "3.10"
+      env: ANSIBLE_VERSION="stable-2.11"
+services:
+  - docker
+before_script: source .travis/get_artifactory_creds.sh
+script: |
+  echo ""
+  echo "#############################################"
+  echo "# PYTHON VERSION:  ${TRAVIS_PYTHON_VERSION}"
+  echo "# ANSIBLE VERSION: ${ANSIBLE_VERSION}"
+  echo "#############################################"
+  echo ""
+  ANSIBLE_NO_STABLE="${ANSIBLE_VERSION//stable-/}"
+  ANSIBLE_NO_DOT="${ANSIBLE_NO_STABLE//./}"
+  PYTHON_NO_DOT="${TRAVIS_PYTHON_VERSION//./}"
+  IMAGE_NAME="cics-python-$PYTHON_NO_DOT-ansible-$ANSIBLE_NO_DOT"
+
+  echo "$ARTIFACTORY_TOKEN" | docker login --username $ARTIFACTORY_USER --password-stdin $DOCKER_REGISTRY
+  docker pull $DOCKER_REGISTRY/$IMAGE_NAME:latest
+
+  bash "$TRAVIS_BUILD_DIR"/.travis/build_env.sh
+
+  docker run --rm -it -v \
+      $(pwd):/root/ansible_collections/ibm/ibm_zos_cics \
+      -e TRAVIS_PYTHON_VERSION=$TRAVIS_PYTHON_VERSION \
+      $DOCKER_REGISTRY/$IMAGE_NAME:latest \
+      bash -c "cd /root/ansible_collections/ibm/ibm_zos_cics && bash .travis/build_and_test.sh"
