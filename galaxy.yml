@@ -27,7 +27,7 @@ description:
 # License
 license: [Apache-2.0]
 # Tags
-tags: [ibm, z, zos, z_os, cics, cmci]
+tags: [ibm, z, zos, z_os, cics, cmci, infrastructure]
 # Collections that this collection requires to be installed for it to be usable.
 # dependencies: {} # This collection depends on no other collections
 
@@ -60,3 +60,7 @@ build_ignore:
   - requirements.txt
   - dev-requirements.txt
   - devguide.md
+  - .travis
+  - .github
+  - .ansible-lint
+  - .travis.yml

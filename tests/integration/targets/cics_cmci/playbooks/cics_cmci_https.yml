@@ -2,15 +2,13 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
 - name: CMCI HTTPS Integration Test
-  collections:
-    - ibm.ibm_zos_cics
   hosts: localhost
   gather_facts: false
   vars:
-    csdgroup: ANSITEST
-    program: ANSITEST
-    program_2: ANSITES2
-    program_filter: ANSITES*
+    csdgroup: "{{ cmci_program_name_1 }}"
+    program: "{{ cmci_program_name_1 }}"
+    program_2: "{{ cmci_program_name_2 }}"
+    program_filter: "{{ cmci_program_filter }}"
 
   module_defaults:
     ibm.ibm_zos_cics.cmci_get:
@@ -19,7 +17,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_update:
@@ -28,7 +26,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_delete:
@@ -37,7 +35,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_action:
@@ -46,7 +44,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_create:
@@ -55,21 +53,55 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
   tasks:
+    ##################################################################################
+    # Initial cleanup
+    ##################################################################################
+    - name: Disable program
+      delegate_to: localhost
+      ibm.ibm_zos_cics.cmci_update:
+        type: CICSProgram
+        attributes:
+          status: disabled
+        resources:
+          filter:
+            PROGRAM: "{{ program }}"
+          complex_filter:
+            and:
+              - attribute: PROGRAM
+                operator: "="
+                value: "{{ program }}"
+              - or:
+                  - attribute: USECOUNT
+                    operator: "!="
+                    value: "0"
+                  - attribute: USECOUNT
+                    operator: LT
+                    value: "1"
+      register: result
+      failed_when: >
+        'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
+
+    - name: Delete Program
+      ansible.builtin.include_role:
+        name: cmci_delete_if_exists
+      vars:
+        resource_type: "CICSProgram"
+        context: "{{ cmci_context }}"
+        scope: "{{ cmci_scope }}"
+        attributes:
+          PROGRAM: "{{ program }}"
+
     - name: Delete progdef
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
         type: CICSDefinitionProgram
         resources:
-          complex_filter:
-            and:
-              - attribute: NAME
-                value: "{{ program }}"
-              - attribute: CSDGROUP
-                value: "{{ csdgroup }}"
+          filter:
+            NAME: "{{ program }}"
           get_parameters:
             - name: CSDGROUP
               value: "{{ csdgroup }}"
@@ -77,6 +109,23 @@
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
+    - name: Delete progdef 2
+      delegate_to: localhost
+      ibm.ibm_zos_cics.cmci_delete:
+        type: CICSDefinitionProgram
+        resources:
+          filter:
+            NAME: "{{ program_2 }}"
+          get_parameters:
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
+      register: result
+      failed_when: >
+        'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
+
+    ##################################################################################
+    # Main Test
+    ##################################################################################
     - name: Create progdef
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_create:

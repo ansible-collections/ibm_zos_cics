@@ -2,13 +2,11 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
 - name: CMCI Install Bundle Failure Integration Test
-  collections:
-    - ibm.ibm_zos_cics
   hosts: localhost
   gather_facts: false
   vars:
-    csdgroup: ANSITEST
-    bunddef: ANSIBUND
+    csdgroup: "{{ cmci_program_name_1 }}"
+    bunddef: "{{ cmci_program_name_2 }}"
 
   module_defaults:
     ibm.ibm_zos_cics.cmci_delete:
@@ -17,7 +15,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_action:
@@ -26,7 +24,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_create:
@@ -35,10 +33,13 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
   tasks:
+    ##################################################################################
+    # Initial cleanup
+    ##################################################################################
     - name: Delete bundle def
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
@@ -57,6 +58,9 @@
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
+    ##################################################################################
+    # Main Test
+    ##################################################################################
     - name: Create bundle def
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_create:
@@ -106,7 +110,7 @@
           - result.feedback[1].action == 'CSDINSTALL'
           - result.feedback[1].eibfn == 'A20E'
           - result.feedback[1].eibfn_alt == 'CSD INSTALL'
-          - result.feedback[1].eyu_cicsname == cmci_scope_https
+          - result.feedback[1].eyu_cicsname == cmci_scope
           - result.feedback[1].resp == '16'
           - result.feedback[1].resp2 == '633' # 'Installation of BUNDLE resource resource failed because the resource had no manifest'
           - result.feedback[1].resp_alt == 'INVREQ'

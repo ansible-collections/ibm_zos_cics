@@ -2,15 +2,13 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
 - name: CMCI HTTP Integration Test
-  collections:
-    - ibm.ibm_zos_cics
   hosts: localhost
   gather_facts: false
   vars:
-    csdgroup: HTTPTEST
-    program: HTTPTEST
-    program_2: HTTPTES2
-    program_filter: HTTPTES*
+    csdgroup: "{{ cmci_program_name_1 }}"
+    program: "{{ cmci_program_name_1 }}"
+    program_2: "{{ cmci_program_name_2 }}"
+    program_filter: "{{ cmci_program_filter }}"
 
   module_defaults:
     ibm.ibm_zos_cics.cmci_get:
@@ -19,7 +17,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_http }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
       scheme: http
 
@@ -29,7 +27,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_http }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
       scheme: http
 
@@ -39,7 +37,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_http }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
       scheme: http
 
@@ -49,7 +47,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_http }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
       scheme: http
 
@@ -59,11 +57,49 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_http }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
       scheme: http
 
   tasks:
+    ##################################################################################
+    # Initial cleanup
+    ##################################################################################
+    - name: HTTP Disable program
+      delegate_to: localhost
+      ibm.ibm_zos_cics.cmci_update:
+        type: CICSProgram
+        attributes:
+          status: disabled
+        resources:
+          filter:
+            PROGRAM: "{{ program }}"
+          complex_filter:
+            and:
+              - attribute: PROGRAM
+                operator: "="
+                value: "{{ program }}"
+              - or:
+                  - attribute: USECOUNT
+                    operator: "!="
+                    value: "0"
+                  - attribute: USECOUNT
+                    operator: LT
+                    value: "1"
+      register: result
+      failed_when: >
+        'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
+
+    - name: HTTP Delete Program
+      ansible.builtin.include_role:
+        name: cmci_delete_if_exists
+      vars:
+        resource_type: "CICSProgram"
+        context: "{{ cmci_context }}"
+        scope: "{{ cmci_scope }}"
+        attributes:
+          PROGRAM: "{{ program }}"
+
     - name: HTTP Delete progdef
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
@@ -82,6 +118,27 @@
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
+    - name: HTTP Delete progdef2
+      delegate_to: localhost
+      ibm.ibm_zos_cics.cmci_delete:
+        type: CICSDefinitionProgram
+        resources:
+          complex_filter:
+            and:
+              - attribute: NAME
+                value: "{{ program_2 }}"
+              - attribute: CSDGROUP
+                value: "{{ csdgroup }}"
+          get_parameters:
+            - name: CSDGROUP
+              value: "{{ csdgroup }}"
+      register: result
+      failed_when: >
+        'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
+
+    ##################################################################################
+    # Main Test
+    ##################################################################################
     - name: HTTP Create progdef
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_create:

@@ -1,3 +1,8 @@
 ---
 skip_list:
     - "name[template]"
+    - "args[module]"
+    - "yaml[line-length]"
+    - "galaxy[no-changelog]"
+    - "meta-unsupported-ansible"
+    - "meta-runtime[unsupported-version]"

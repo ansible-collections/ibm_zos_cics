@@ -2,8 +2,6 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
 - name: CMCI Create Pipeline Failure Integration Test
-  collections:
-    - ibm.ibm_zos_cics
   hosts: localhost
   gather_facts: false
 
@@ -16,7 +14,7 @@
         cmci_password: "{{ cmci_password }}"
         insecure: true
         context: "{{ cmci_context }}"
-        scope: "{{ cmci_scope_https }}"
+        scope: "{{ cmci_scope }}"
         type: CICSDefinitionPipeline
         create_parameters:
           - name: CSD

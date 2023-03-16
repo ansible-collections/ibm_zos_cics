@@ -103,11 +103,12 @@ class CMCITestHelper:
     def expect(self, expected):
         self.expected = expected
 
-    def expect_list(self, chars_before_list, chars_after_list, string_containing_list='msg'):
+    def expect_list(self, chars_before_list, chars_after_list, expected_output_options, string_containing_list='msg'):
         self.expected_list = True
         self.chars_before_list = chars_before_list
         self.chars_after_list = chars_after_list
         self.string_containing_list = string_containing_list
+        self.expected_output_options = expected_output_options
 
     def run(self, module, config):
         # upper-case the resource name, so it definitely doesn't match the CMCI response, to ensure
@@ -133,12 +134,20 @@ class CMCITestHelper:
             concat = before_list + ", ".join(actual_list) + after_list
             result.update({self.string_containing_list: concat})
 
-        if self.expected != result:
-            standard_msg = '%s != %s' % (repr(self.expected), repr(result))
-            diff = ('\n' + '\n'.join(difflib.ndiff(
-                           pprint.pformat(self.expected).splitlines(),
-                           pprint.pformat(result).splitlines())))
-            raise AssertionError(standard_msg + diff)
+            # Result now contains actual response, but with an ordered list of options
+            # We use output_options instead of expected as the expected result could be one of multiple
+            if result not in self.expected_output_options:
+                self.assert_error(result)
+        else:
+            if self.expected != result:
+                self.assert_error(result)
+
+    def assert_error(self, result):
+        standard_msg = '%s != %s' % (repr(self.expected), repr(result))
+        diff = ('\n' + '\n'.join(difflib.ndiff(
+                pprint.pformat(self.expected).splitlines(),
+                pprint.pformat(result).splitlines())))
+        raise AssertionError(standard_msg + diff)
 
 
 @pytest.fixture
