@@ -1,5 +1,5 @@
 .. ...............................................................................
-.. © Copyright IBM Corporation 2020                                              .
+.. © Copyright IBM Corporation 2020,2023                                         .
 .. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
 .. ...............................................................................
 
@@ -170,6 +170,40 @@ The included sample variables file (all.yml) looks like this:
 
 .. _all.yml:
    https://github.com/ansible-collections/ibm_zos_cics/blob/master/playbooks/group_vars/all.yml
+
+
+
+Module Defaults
+---------------
+
+Ansible has a module defaults feature to use the same values during every use of
+a task, rather than repeating the values. Here we can set the host url and
+credentials of the **cmci_get** task to be the same throughout the playbook.
+
+.. code-block:: yaml
+   module_defaults:
+      ibm.ibm_zos_cics.cmci_get:
+         cmci_host: "{{ cmci_host }}"
+         cmci_user: "{{ cmci_user }}"
+         cmci_password: "{{ cmci_password }}"
+
+
+If you wish to use the same values in **all** CMCI tasks, you can assign them
+to the group called **cmci_group**.
+
+.. code-block:: yaml
+
+   module_defaults:
+      group/ibm.ibm_zos_cics.cmci_group:
+         cmci_host: "my.system.host"
+         cmci_port: "system.port.number"
+         cmci_user: "my.username"
+         cmci_password: "my.password"
+
+.. note::
+   Group module defaults are only available in ``ansible-core`` 2.12 or later. If
+   this syntax is used with ``ansible-core`` 2.11 or earlier, the values are
+   perceived as not present, and a 'missing required arguments' error is thrown.
 
 
 
