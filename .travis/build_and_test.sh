@@ -13,7 +13,7 @@ if [ "$TRAVIS_PYTHON_VERSION" != "2.7" ]; then
     echo "###################### Ansible-lint ######################"
     echo "##########################################################"
     echo ""
-    ansible-lint
+    ansible-lint --profile production
 fi
 
 echo ""

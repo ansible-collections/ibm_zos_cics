@@ -177,8 +177,8 @@ Module Defaults
 ---------------
 
 Ansible has a module defaults feature to use the same values during every use of
-a task, rather than repeating the values. Here we can set the host url and
-credentials of the **cmci_get** task to be the same throughout the playbook.
+a module, rather than repeating them everytime. Here we can set the host url and
+credentials of the **cmci_get** module to be the same throughout the playbook.
 
 .. code-block:: yaml
    module_defaults:
@@ -188,7 +188,7 @@ credentials of the **cmci_get** task to be the same throughout the playbook.
          cmci_password: "{{ cmci_password }}"
 
 
-If you wish to use the same values in **all** CMCI tasks, you can assign them
+If you wish to use the same values in **all** CMCI modules, you can assign them
 to the group called **cmci_group**.
 
 .. code-block:: yaml
