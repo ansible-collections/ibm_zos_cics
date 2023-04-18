@@ -21,7 +21,7 @@ An `Ansible playbook`_ consists of organized instructions that define work for
 a managed node (host) to be managed with Ansible.
 
 `Samples`_ that contains multiple example playbooks are included in the
-`CICS samples repository`_. The sample playbooks are for reference and can be run
+`Ansible Z playbook repository`_. The sample playbooks are for reference and can be run
 with the ``ansible-playbook`` command with some modification to their **inventory**,
 **ansible.cfg** and **group_vars** as well as updates to their module parameters
 to reference your CICS artifacts and configuration.
@@ -36,7 +36,7 @@ refer to the installation path as ``~/.ansible/collections/ibm/ibm_zos_cics``.
    https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html#playbooks-intro
 .. _Samples:
    https://github.com/IBM/z_ansible_collections_samples/tree/main/zos_subsystems/cics
-.. _CICS samples repository:
+.. _Ansible Z playbook repository:
    https://github.com/IBM/z_ansible_collections_samples
 .. _installation documentation:
    installation.html
@@ -85,9 +85,9 @@ list or group of lists known as an `inventory`_. Once the inventory is defined,
 you can use `patterns`_ to select the hosts or groups that you want Ansible to
 run against.
 
-Included in the `CMCI samples repository`_ is a `sample inventory file`_ 
-that can be used to manage your nodes with a little modification. This
-inventory file should be included when running the sample playbook.
+Included in the CICS `deploy program sample`_ is an example `inventory file`_
+which shows how host information is supplied to Ansible. It looks like the 
+following:
 
 .. code-block:: yaml
 
@@ -119,11 +119,11 @@ to set the port for a host can be reviewed in the
 
 .. _inventory:
    https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
-.. _CMCI samples repository:
-   https://github.com/IBM/z_ansible_collections_samples/blob/main/zos_subsystems/cics/cmci
 .. _patterns:
    https://docs.ansible.com/ansible/latest/user_guide/intro_patterns.html#intro-patterns
-.. _sample inventory file:
+.. _deploy program sample:
+   https://github.com/IBM/z_ansible_collections_samples/blob/main/zos_subsystems/cics/cmci/deploy_program
+.. _inventory file:
    https://github.com/IBM/z_ansible_collections_samples/blob/main/zos_subsystems/cics/cmci/deploy_program/inventory.yml
 .. _FAQ:
    https://docs.ansible.com/ansible/latest/reference_appendices/faq.html#running-on-z-os
@@ -137,8 +137,9 @@ Group_vars
 
 Although you can store variables in the inventory file, storing separate host
 and group variables files may help you organize your variable values more
-easily. Included with the sample playbook is a sample variables
-file `zos_host.yml`_.
+easily. An example of one of these variable files is the `zos_host.yml`_
+file included with the `deploy_program sample`_, which is used to provide the
+required environment variables.
 
 The value for the property **BPXK_AUTOCVT** must be configured to ``ON``.
 
@@ -178,6 +179,8 @@ the playbook as well as the following:
 
 .. _zos_host.yml:
    https://github.com/IBM/z_ansible_collections_samples/blob/main/zos_subsystems/cics/cmci/deploy_program/host_vars/zos_host.yml
+.. _deploy_program sample:
+   https://github.com/IBM/z_ansible_collections_samples/blob/main/zos_subsystems/cics/cmci/deploy_program
 
 
 
@@ -225,7 +228,7 @@ the directory containing the playbook you want to run. For example:
 
 Use the Ansible command ``ansible-playbook`` to run the sample playbook.  The
 command syntax is ``ansible-playbook -i <inventory> <playbook>`` which, using
-the example above of deploy_program, is
+the example above of ``deploy_program``, is
 ``ansible-playbook -i inventory deploy_program.yaml``.
 
 This command assumes that the controller's public SSH key has been shared with
