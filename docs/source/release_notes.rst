@@ -1,5 +1,5 @@
 .. ...............................................................................
-.. © Copyright IBM Corporation 2020,2021                                         .
+.. © Copyright IBM Corporation 2020,2023                                         .
 .. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
 .. ...............................................................................
 
@@ -50,7 +50,7 @@ This collection can manage CICS and CICSPlex® SM resources and definitions by c
   * Sample playbooks are available at the `samples repository`_. Each playbook contains a README that explains what configurations must be made to run a sample playbook.
 
 .. _samples repository:
-   https://github.com/IBM/z_ansible_collections_samples/tree/master/zos_subsystems/cics
+   https://github.com/IBM/z_ansible_collections_samples/tree/main/zos_subsystems/cics
 
 .. _CMCI REST API:
    https://www.ibm.com/docs/en/cics-ts/latest?topic=cmci-how-it-works-rest-api

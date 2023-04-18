@@ -1,5 +1,5 @@
 .. ...............................................................................
-.. © Copyright IBM Corporation 2020,2021                                         .
+.. © Copyright IBM Corporation 2020,2023                                         .
 .. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
 .. ...............................................................................
 
@@ -15,7 +15,7 @@ A control node is any machine with Ansible® installed. You can run commands and
 
 .. note:: The IBM® z/OS® CICS® collection cannot run on a Windows system.
 
-* `Ansible version`_: 2.9 or later
+* `Ansible version`_: 2.11 or later
 * `Python`_: 2.7 or later
 
 

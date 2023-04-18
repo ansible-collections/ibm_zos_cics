@@ -6,8 +6,13 @@
 Playbooks
 =========
 
-The sample playbooks that are **included** in the **IBM z/OS CICS collection**
-demonstrate how to use the collection content.
+There are sample playbooks that demonstrate the **IBM z/OS CICS collection**
+functionality in the `samples repository`_.
+
+.. _samples repository:
+   https://github.com/IBM/z_ansible_collections_samples
+
+
 
 Playbook Documentation
 ----------------------
@@ -15,10 +20,10 @@ Playbook Documentation
 An `Ansible playbook`_ consists of organized instructions that define work for
 a managed node (host) to be managed with Ansible.
 
-A `playbooks directory`_ that contains a sample playbook is included in the
-**IBM z/OS CICS collection**. The sample playbook is for reference and can be run
-with the ``ansible-playbook`` command with some modification to the **inventory**,
-**ansible.cfg** and **group_vars** as well as updates to the module parameters
+`Samples`_ that contains multiple example playbooks are included in the
+`CICS samples repository`_. The sample playbooks are for reference and can be run
+with the ``ansible-playbook`` command with some modification to their **inventory**,
+**ansible.cfg** and **group_vars** as well as updates to their module parameters
 to reference your CICS artifacts and configuration.
 
 You can find the playbook content that is included with the collection in the
@@ -29,10 +34,13 @@ refer to the installation path as ``~/.ansible/collections/ibm/ibm_zos_cics``.
 
 .. _Ansible playbook:
    https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html#playbooks-intro
-.. _playbooks directory:
-   https://github.com/ansible-collections/ibm_zos_cics/tree/master/playbooks
+.. _Samples:
+   https://github.com/IBM/z_ansible_collections_samples/tree/main/zos_subsystems/cics
+.. _CICS samples repository:
+   https://github.com/IBM/z_ansible_collections_samples
 .. _installation documentation:
    installation.html
+
 
 
 Sample Configuration and Setup
@@ -43,18 +51,14 @@ allow you to customize how Ansible operates in your environment. Ansible
 supports several sources to configure its behavior and all sources follow the
 Ansible `precedence rules`_.
 
-The Ansible configuration file `ansible.cfg` can override almost all
-``ansible-playbook`` configurations. Included in the `playbooks directory`_ is a
-sample `ansible.cfg`_ that can supplement ``ansible-playbook`` with a
-little modification. In the sample `ansible.cfg`_, the only required
-configuration is ``pipelining = True``.
+The Ansible configuration file ``ansible.cfg`` can override almost all
+``ansible-playbook`` configurations.
 
 You can specify the SSH port used by Ansible and instruct Ansible where to
 write the temporary files on the target. This can be easily done by adding the
-options to your inventory or `ansible.cfg`.
+options to your inventory or ``ansible.cfg``.
 
-An example of adding these options to `ansible.cfg` is shown below. For more
-details, see the sample `ansible.cfg`_ notes.
+An example of adding these options to ``ansible.cfg`` is shown below.
 
 .. code-block:: yaml
 
@@ -66,12 +70,12 @@ details, see the sample `ansible.cfg`_ notes.
 For more information about available configurations for ``ansible.cfg``, read
 the Ansible documentation on `Ansible configuration settings`_.
 
-.. _ansible.cfg:
-   https://github.com/ansible-collections/ibm_zos_cics/blob/master/playbooks/ansible.cfg
 .. _Ansible configuration settings:
    https://docs.ansible.com/ansible/latest/reference_appendices/config.html#ansible-configuration-settings-locations
 .. _precedence rules:
    https://docs.ansible.com/ansible/latest/reference_appendices/general_precedence.html#general-precedence-rules
+
+
 
 Inventory
 ---------
@@ -81,15 +85,15 @@ list or group of lists known as an `inventory`_. Once the inventory is defined,
 you can use `patterns`_ to select the hosts or groups that you want Ansible to
 run against.
 
-Included in the `playbooks directory`_ is a `sample inventory file`_ that can be
-used to manage your nodes with a little modification. This inventory file
-should be included when running the sample playbook.
+Included in the `CMCI samples repository`_ is a `sample inventory file`_ 
+that can be used to manage your nodes with a little modification. This
+inventory file should be included when running the sample playbook.
 
 .. code-block:: yaml
 
-   zsystem:
+   source_system:
      hosts:
-       zvm:
+       zos_host:
          ansible_host: zos_target_address
          ansible_user: zos_target_username
          ansible_python_interpreter: path_to_python_interpreter_binary_on_zos_target
@@ -115,14 +119,17 @@ to set the port for a host can be reviewed in the
 
 .. _inventory:
    https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
+.. _CMCI samples repository:
+   https://github.com/IBM/z_ansible_collections_samples/blob/main/zos_subsystems/cics/cmci
 .. _patterns:
    https://docs.ansible.com/ansible/latest/user_guide/intro_patterns.html#intro-patterns
 .. _sample inventory file:
-   https://github.com/ansible-collections/ibm_zos_cics/blob/master/playbooks/inventory
+   https://github.com/IBM/z_ansible_collections_samples/blob/main/zos_subsystems/cics/cmci/deploy_program/inventory.yml
 .. _FAQ:
    https://docs.ansible.com/ansible/latest/reference_appendices/faq.html#running-on-z-os
 .. _behavioral inventory parameters:
    https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#connecting-to-hosts-behavioral-inventory-parameters
+
 
 
 Group_vars
@@ -131,7 +138,7 @@ Group_vars
 Although you can store variables in the inventory file, storing separate host
 and group variables files may help you organize your variable values more
 easily. Included with the sample playbook is a sample variables
-file `all.yml`_.
+file `zos_host.yml`_.
 
 The value for the property **BPXK_AUTOCVT** must be configured to ``ON``.
 
@@ -150,7 +157,8 @@ The value for the property **PATH** is the ZOA utilities BIN path and the Python
 interpreter path; for example,
 ``/usr/lpp/IBM/zoautil/bin:/usr/lpp/rsusr/python36/bin/python:/bin``.
 
-The included sample variables file (all.yml) looks like this:
+The included sample variables file (zos_host.yml) contains variables specific to
+the playbook as well as the following:
 
 .. code-block:: yaml
 
@@ -168,8 +176,8 @@ The included sample variables file (all.yml) looks like this:
    **ZOAU_ROOT** which is the ZOA Utilities install root path required for
    ZOAU; for example, ``/usr/lpp/IBM/zoautil``.
 
-.. _all.yml:
-   https://github.com/ansible-collections/ibm_zos_cics/blob/master/playbooks/group_vars/all.yml
+.. _zos_host.yml:
+   https://github.com/IBM/z_ansible_collections_samples/blob/main/zos_subsystems/cics/cmci/deploy_program/host_vars/zos_host.yml
 
 
 
@@ -181,11 +189,12 @@ a module, rather than repeating them everytime. Here we can set the host url and
 credentials of the **cmci_get** module to be the same throughout the playbook.
 
 .. code-block:: yaml
+
    module_defaults:
-      ibm.ibm_zos_cics.cmci_get:
-         cmci_host: "{{ cmci_host }}"
-         cmci_user: "{{ cmci_user }}"
-         cmci_password: "{{ cmci_password }}"
+     ibm.ibm_zos_cics.cmci_get:
+       cmci_host: "{{ cmci_host }}"
+       cmci_user: "{{ cmci_user }}"
+       cmci_password: "{{ cmci_password }}"
 
 
 If you wish to use the same values in **all** CMCI modules, you can assign them
@@ -194,11 +203,11 @@ to the group called **cmci_group**.
 .. code-block:: yaml
 
    module_defaults:
-      group/ibm.ibm_zos_cics.cmci_group:
-         cmci_host: "my.system.host"
-         cmci_port: "system.port.number"
-         cmci_user: "my.username"
-         cmci_password: "my.password"
+     group/ibm.ibm_zos_cics.cmci_group:
+       cmci_host: "my.system.host"
+       cmci_port: "system.port.number"
+       cmci_user: "my.username"
+       cmci_password: "my.password"
 
 .. note::
    Group module defaults are only available in ``ansible-core`` 2.12 or later. If
@@ -210,13 +219,14 @@ to the group called **cmci_group**.
 Run the playbook
 ----------------
 
-Access the sample Ansible playbook and ensure that you are within the collection
-playbooks directory where the sample files are included:
-``~/.ansible/collections/ibm/ibm_zos_cics/playbooks/``.
+Access the `collection samples repository`_ and ensure you have navigated to
+the directory containing the playbook you want to run. For example:
+``zos_subsystems/cics/cmci/deploy_program/``.
 
 Use the Ansible command ``ansible-playbook`` to run the sample playbook.  The
-command syntax is ``ansible-playbook -i <inventory> <playbook>``; for example,
-``ansible-playbook -i inventory zos-collection-sample.yaml``.
+command syntax is ``ansible-playbook -i <inventory> <playbook>`` which, using
+the example above of deploy_program, is
+``ansible-playbook -i inventory deploy_program.yaml``.
 
 This command assumes that the controller's public SSH key has been shared with
 the managed node. If you want to avoid entering a username and password each
@@ -225,7 +235,7 @@ command; for example, ``ssh-copy-id -i ~/.ssh/mykey.pub user@<hostname>``.
 
 Alternatively, you can use the ``--ask-pass`` option to be prompted for the
 user's password each time a playbook is run; for example,
-``ansible-playbook -i inventory zos-collection-sample.yaml --ask-pass``.
+``ansible-playbook -i inventory deploy_program.yaml --ask-pass``.
 
 .. note::
    * Using ``--ask-pass`` is not recommended because it will hinder performance.
@@ -249,7 +259,7 @@ ERROR, DEBUG.
    Review the playbook notes sections for additional details and
    configuration.
 
-   Sample playbooks often submit JCL that is included with this collection
+   Playbooks often submit JCL that is included in the samples repository
    under the `files directory`_. Review the sample JCL for necessary edits to
    allow for submission on the target system. The most common changes are to
    add a CLASS parameter and change the NOTIFY user parameter. For more details,
@@ -257,6 +267,7 @@ ERROR, DEBUG.
 
 .. _ask-pass documentation:
    https://linux.die.net/man/1/sshpass
-
+.. _collection samples repository:
+   https://github.com/IBM/z_ansible_collections_samples
 .. _files directory:
-   https://github.com/ansible-collections/ibm_zos_core/tree/dev/playbooks/files
+   https://github.com/IBM/z_ansible_collections_samples/tree/main/zos_basics/constructs/files
