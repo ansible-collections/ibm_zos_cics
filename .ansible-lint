@@ -3,6 +3,7 @@ skip_list:
     - "name[template]"
     - "args[module]"
     - "yaml[line-length]"
+    - "yaml[truthy]"
     - "galaxy[no-changelog]"
     - "meta-unsupported-ansible"
     - "meta-runtime[unsupported-version]"

@@ -31,7 +31,7 @@ matrix:
       env: ANSIBLE_VERSION="stable-2.11"
 services:
   - docker
-before_script: source .travis/get_artifactory_creds.sh
+before_script: source .travis/get_vault_data.sh
 script: |
   echo ""
   echo "#############################################"
@@ -54,3 +54,12 @@ script: |
       -e TRAVIS_PYTHON_VERSION=$TRAVIS_PYTHON_VERSION \
       $DOCKER_REGISTRY/$IMAGE_NAME:latest \
       bash -c "cd /root/ansible_collections/ibm/ibm_zos_cics && bash .travis/build_and_test.sh"
+
+jobs:
+  include:
+    - stage: deploy
+      script: bash .travis/push_artifactory.sh
+      python: "3.10"
+      env: ANSIBLE_VERSION="stable-2.14"
+      on:
+        branch: main
