@@ -7,6 +7,18 @@
 Releases
 ========
 
+Version 1.0.4
+=============
+What's New
+-------------------
+* Provide variables for all modules in one go using Ansible's `group module defaults`_ support. The group name for the CMCI modules is ``cmci_group``.
+
+* Prevent ``cmci_get`` from failing if no records are found via the ``fail_on_nodata`` option. The default value is true if not specified.
+
+.. _group module defaults:
+   https://docs.ansible.com/ansible/2.8/user_guide/playbooks_module_defaults.html#module-defaults-groups
+
+
 Version 1.0.3
 =============
 
