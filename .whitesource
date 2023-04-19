@@ -1,3 +1,12 @@
 {
-  "settingsInheritedFrom": "whitesource-config/whitesource-config@master"
+  "settingsInheritedFrom": "whitesource-config/whitesource-config@master",
+  "remediateSettings": {
+    "enableRenovate": true,
+    "extends": [
+      "config:base"
+    ]
+  },
+  "issueSettings": {
+    "issueRepoName": "cics-ts-tracking"
+  }
 }
