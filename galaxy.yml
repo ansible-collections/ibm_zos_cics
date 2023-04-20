@@ -65,3 +65,5 @@ build_ignore:
   - .github
   - .ansible-lint
   - .travis.yml
+  - .whitesource
+  - ibm-ibm_zos_cics-*.tar.gz
