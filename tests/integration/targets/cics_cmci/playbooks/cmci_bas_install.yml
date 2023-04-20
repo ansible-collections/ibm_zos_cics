@@ -5,19 +5,17 @@
   # Sets Up a full BAS resource assignment deployment. Checks to see where programs will be installed and then
   # installs to two regions with a target scope and one related scope. Uninstalls and deletes everything created after
 
-  collections:
-    - ibm.ibm_zos_cics
   hosts: localhost
   gather_facts: false
   vars:
-    program: ANSIPROG
-    resource_description: ANSIDESC
-    resource_assignment: ANSIGMNT
-    resource_group: ANSIRGRP
-    related_scope: "{{ cmci_scope_http }}"
+    program: "{{ cmci_program_name_1 }}"
+    resource_description: "{{ cmci_program_name_2 }}"
+    resource_assignment: "{{ cmci_program_name_2 }}"
+    resource_group: "{{ cmci_program_name_1 }}"
+    related_scope: "{{ cmci_scope }}"
     region_one: "{{ cmci_scope_region_1 }}"
     region_two: "{{ cmci_scope_region_2 }}"
-    target_scope: ANSITARG
+    target_scope: "{{ cmci_program_name_1 }}"
     def_ver: "1"
 
   module_defaults:
@@ -27,7 +25,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_update:
@@ -36,7 +34,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_delete:
@@ -45,7 +43,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_action:
@@ -54,7 +52,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_create:
@@ -63,7 +61,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
   tasks:

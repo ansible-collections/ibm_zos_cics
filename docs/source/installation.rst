@@ -1,5 +1,5 @@
 .. ...............................................................................
-.. © Copyright IBM Corporation 2020,2021                                         .
+.. © Copyright IBM Corporation 2020,2023                                         .
 .. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
 .. ...............................................................................
 
@@ -31,7 +31,6 @@ By default, collections are installed in ``~/.ansible/collections``. After insta
    │      ├── ibm/
    │          ├── ibm_zos_cics/
    │              ├── docs/
-   │              ├── playbooks/
    │              ├── plugins/
    │                  ├── action/
    │                  ├── module_utils/

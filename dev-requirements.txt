@@ -1,8 +1,8 @@
-# (c) Copyright IBM Corp. 2020,2021
+# (c) Copyright IBM Corp. 2020,2023
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 -r requirements.txt
-ansible-core==2.13.7; python_version >= '3'
-ansible-core==2.11.12; python_version < '3'
+# ansible-core==2.13.7; python_version >= '3'
+# ansible-core==2.11.12; python_version < '3'
 junit-xml==1.9  # To get JUnit xml report from ansible-test
 pytest_mock==1.12.1
 mock==3.0.5
@@ -16,8 +16,7 @@ shellcheck-py==0.9.0.2; python_version >= '3'
 rstcheck==3.3.1; python_version >= '3'
 yamllint==1.29.0; python_version >= '3'
 voluptuous==0.13.1; python_version >= '3'
-ansible-doc-extractor==0.1.6; python_version >= '3'
-ansible-lint==6.10.2; python_version >= '3'
-pycodestyle==2.6.0; python_version >= '3'
-Sphinx==3.4.3; python_version >= '3'
-sphinx-rtd-theme==0.5.1; python_version >= '3'
+# needed to lint devel ansible version
+ansible-lint==6.12.2; python_version >= '3' and python_version < '3.9'
+ansible-lint==6.13.1; python_version >= '3.9'
+pycodestyle==2.10.0; python_version >= '3'

@@ -4,14 +4,12 @@
 - name: CMCI BAS Link Integration Test
   # Sets Up a Basic BAS Resource Description with one Resource Group containing one program definition and then cleans up
 
-  collections:
-    - ibm.ibm_zos_cics
   hosts: localhost
   gather_facts: false
   vars:
-    program: ANSIPROG
-    resource_description: ANSIBAS
-    resource_group: ANSIGRP
+    program: "{{ cmci_program_name_1 }}"
+    resource_description: "{{ cmci_program_name_2 }}"
+    resource_group: "{{ cmci_program_name_2 }}"
     resource_scope: "{{ cmci_scope_region_2 }}"
     def_ver: "1"
 
@@ -22,7 +20,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_update:
@@ -31,7 +29,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_delete:
@@ -40,7 +38,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_action:
@@ -49,7 +47,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_create:
@@ -58,10 +56,13 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
   tasks:
+    ##################################################################################
+    # Initial cleanup
+    ##################################################################################
     - name: Delete progdef
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_delete:
@@ -99,6 +100,9 @@
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
 
+    ##################################################################################
+    # Main Test
+    ##################################################################################
     - name: Create progdef
       delegate_to: localhost
       ibm.ibm_zos_cics.cmci_create:

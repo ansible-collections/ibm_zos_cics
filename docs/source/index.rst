@@ -1,5 +1,5 @@
 .. ...............................................................................
-.. © Copyright IBM Corporation 2020,2021                                         .
+.. © Copyright IBM Corporation 2020,2023                                         .
 .. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
 .. ...............................................................................
 
@@ -32,14 +32,13 @@ The **The IBM z/OS CICS collection** is following the **Red Hat Ansible Certifie
 Features
 ================
 
-The IBM z/OS CICS collection includes `modules`_, `sample playbooks`_, and ansible-doc to automate tasks against CICS resources and definitions.
-
+The IBM z/OS CICS collection includes `modules`_ and ansible-doc to automate tasks against CICS resources and definitions. There are also samples in the `Z Ansible collection samples repository`_ for core z/OS, CICS, and other z/OS subsystems.
 
 
 .. _modules:
-    https://github.com/ansible-collections/ibm_zos_cics/tree/master/plugins/modules/
-.. _sample playbooks:
-    https://github.com/ansible-collections/ibm_zos_cics/tree/master/playbooks/
+    https://github.com/ansible-collections/ibm_zos_cics/tree/main/plugins/modules/
+.. _Z Ansible collection samples repository:
+    https://github.com/IBM/z_ansible_collections_samples
 
 
 Copyright

@@ -1,11 +1,23 @@
 .. ...............................................................................
-.. © Copyright IBM Corporation 2020,2021                                         .
+.. © Copyright IBM Corporation 2020,2023                                         .
 .. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
 .. ...............................................................................
 
 ========
 Releases
 ========
+
+Version 1.0.4
+=============
+What's New
+-------------------
+* Provide variables for all modules in one go using Ansible's `group module defaults`_ support. The group name for the CMCI modules is ``cmci_group``.
+
+* Prevent ``cmci_get`` from failing if no records are found via the ``fail_on_nodata`` option. The default value is true if not specified.
+
+.. _group module defaults:
+   https://docs.ansible.com/ansible/2.8/user_guide/playbooks_module_defaults.html#module-defaults-groups
+
 
 Version 1.0.3
 =============
@@ -50,7 +62,7 @@ This collection can manage CICS and CICSPlex® SM resources and definitions by c
   * Sample playbooks are available at the `samples repository`_. Each playbook contains a README that explains what configurations must be made to run a sample playbook.
 
 .. _samples repository:
-   https://github.com/IBM/z_ansible_collections_samples/tree/master/zos_subsystems/cics
+   https://github.com/IBM/z_ansible_collections_samples/tree/main/zos_subsystems/cics
 
 .. _CMCI REST API:
    https://www.ibm.com/docs/en/cics-ts/latest?topic=cmci-how-it-works-rest-api

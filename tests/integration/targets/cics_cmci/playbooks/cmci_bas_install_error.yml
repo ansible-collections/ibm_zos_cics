@@ -6,20 +6,18 @@
   # installs to two regions with a target scope and one related scope. Then attempts to install again and checks an error
   # occured with feedback and nested installerrors. Uninstalls and deletes everything created after
 
-  collections:
-    - ibm.ibm_zos_cics
   hosts: localhost
   gather_facts: false
   vars:
-    res_def: ANSIFIL*
-    file1: ANSIFIL1
-    file2: ANSIFIL2
-    resource_description: ANSIDESC
-    resource_assignment: ANSIGMNT
+    file1: "{{ cmci_program_name_1 }}"
+    file2: "{{ cmci_program_name_2 }}"
+    res_def: "{{ cmci_program_filter }}"
+    resource_description: "{{ cmci_program_name_2 }}"
+    resource_assignment: "{{ cmci_program_name_2 }}"
     resource_assignment_type_target: CICSRemoteFile
     resource_assignment_type_related: CICSLocalFile
-    resource_group: ANSIRGRP
-    related_scope: "{{ cmci_scope_http }}"
+    resource_group: "{{ cmci_program_name_1 }}"
+    related_scope: "{{ cmci_scope }}"
     target_scope: "{{ cmci_scope_region_1 }}"
     def_ver: "1"
 
@@ -30,7 +28,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_update:
@@ -39,7 +37,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_delete:
@@ -48,7 +46,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_action:
@@ -57,7 +55,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
     ibm.ibm_zos_cics.cmci_create:
@@ -66,7 +64,7 @@
       cmci_user: "{{ cmci_user }}"
       cmci_password: "{{ cmci_password }}"
       context: "{{ cmci_context }}"
-      scope: "{{ cmci_scope_https }}"
+      scope: "{{ cmci_scope }}"
       insecure: true
 
   tasks:

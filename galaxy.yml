@@ -8,7 +8,7 @@ namespace: ibm
 name: ibm_zos_cics
 
 # The collection version
-version: 1.0.3
+version: 1.0.4
 
 # Collection README file
 readme: README.md
@@ -27,7 +27,7 @@ description:
 # License
 license: [Apache-2.0]
 # Tags
-tags: [ibm, z, zos, z_os, cics, cmci]
+tags: [ibm, z, zos, z_os, cics, cmci, infrastructure]
 # Collections that this collection requires to be installed for it to be usable.
 # dependencies: {} # This collection depends on no other collections
 
@@ -59,4 +59,9 @@ build_ignore:
   - build.sh
   - requirements.txt
   - dev-requirements.txt
+  - doc-requirements.txt
   - devguide.md
+  - .travis
+  - .github
+  - .ansible-lint
+  - .travis.yml
