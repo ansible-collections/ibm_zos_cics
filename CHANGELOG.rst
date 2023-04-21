@@ -5,6 +5,24 @@ ibm.ibm_zos_cics Release Notes
 .. contents:: Topics
 
 
+v1.0.4
+======
+
+Release Summary
+---------------
+
+This release contains a number of new features and bug fixes.
+
+Minor Changes
+-------------
+
+- Provide variables for all modules in one go using Ansible's `group module defaults <https://docs.ansible.com/ansible/2.8/user_guide/playbooks_module_defaults.html#module-defaults-groups>`_ support. The group name for the CMCI modules is ``cmci_group``.
+
+Bugfixes
+--------
+
+- cmci_get - prevent ``cmci_get`` from failing if no records are found via the ``fail_on_nodata`` option. The default value is ``true`` if not specified.
+
 v1.0.3
 ======
 

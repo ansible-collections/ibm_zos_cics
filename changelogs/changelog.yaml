@@ -45,3 +45,16 @@ releases:
     fragments:
     - 103-retrospective.yml
     release_date: '2021-07-15'
+  1.0.4:
+    changes:
+      bugfixes:
+      - cmci_get - prevent ``cmci_get`` from failing if no records are found via the
+        ``fail_on_nodata`` option. The default value is ``true`` if not specified.
+      minor_changes:
+      - Provide variables for all modules in one go using Ansible's `group module
+        defaults <https://docs.ansible.com/ansible/2.8/user_guide/playbooks_module_defaults.html#module-defaults-groups>`_
+        support. The group name for the CMCI modules is ``cmci_group``.
+      release_summary: This release contains a number of new features and bug fixes.
+    fragments:
+    - 104-retrospective.yml
+    release_date: '2023-04-21'
