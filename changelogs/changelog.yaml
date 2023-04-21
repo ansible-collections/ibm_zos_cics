@@ -26,3 +26,10 @@ releases:
       name: cmci_update
       namespace: ''
     release_date: '2021-02-17'
+  1.0.1:
+    changes:
+      release_summary: Fix some documentation issues on Hub, and include some missing
+        documentation about requirements.
+    fragments:
+    - 101-retrospective.yml
+    release_date: '2021-03-02'

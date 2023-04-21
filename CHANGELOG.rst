@@ -5,6 +5,14 @@ ibm.ibm_zos_cics Release Notes
 .. contents:: Topics
 
 
+v1.0.1
+======
+
+Release Summary
+---------------
+
+Fix some documentation issues on Hub, and include some missing documentation about requirements.
+
 v1.0.0
 ======
 
@@ -23,11 +31,3 @@ New Modules
 - ibm.ibm_zos_cics.cmci_delete - Delete CICS and CICSPlex SM resources
 - ibm.ibm_zos_cics.cmci_get - Query CICS and CICSPlex SM resources and definitions
 - ibm.ibm_zos_cics.cmci_update - Update CICS and CICSPlex resources and definitions
-
-v0.0.3
-======
-
-Release Summary
----------------
-
-Pre-release
