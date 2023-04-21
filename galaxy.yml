@@ -67,3 +67,4 @@ build_ignore:
   - .travis.yml
   - .whitesource
   - ibm-ibm_zos_cics-*.tar.gz
+  - changelogs

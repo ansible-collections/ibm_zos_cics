@@ -19,6 +19,7 @@ description:
     L(CMCI REST API,https://www.ibm.com/docs/en/cics-ts/latest?topic=programming-cmci-rest-api-reference).
     For information about how to compose POST requests, see
     L(CMCI POST requests,https://www.ibm.com/docs/en/cics-ts/latest?topic=requests-cmci-post).
+version_added: 1.0.0
 author:
   - Stewart Francis (@stewartfrancis)
   - Tom Latham (@Tom-Latham)
