@@ -5,6 +5,25 @@ ibm.ibm_zos_cics Release Notes
 .. contents:: Topics
 
 
+v1.0.3
+======
+
+Release Summary
+---------------
+
+This release contains a number of new features and bug fixes.
+
+Minor Changes
+-------------
+
+- Added support for CMCI feedback on failed CMCI requests.
+- Updated timeout support on requests to be configurable via the timeout option. The default value is 30 seconds if not specified.
+
+Bugfixes
+--------
+
+- Improve sanitisation and validation of parameters.
+
 v1.0.1
 ======
 

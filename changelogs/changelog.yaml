@@ -33,3 +33,15 @@ releases:
     fragments:
     - 101-retrospective.yml
     release_date: '2021-03-02'
+  1.0.3:
+    changes:
+      bugfixes:
+      - Improve sanitisation and validation of parameters.
+      minor_changes:
+      - Added support for CMCI feedback on failed CMCI requests.
+      - Updated timeout support on requests to be configurable via the timeout option.
+        The default value is 30 seconds if not specified.
+      release_summary: This release contains a number of new features and bug fixes.
+    fragments:
+    - 103-retrospective.yml
+    release_date: '2021-07-15'
