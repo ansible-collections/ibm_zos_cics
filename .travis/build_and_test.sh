@@ -6,8 +6,8 @@ git config --global --add safe.directory /root/ansible_collections/ibm/ibm_zos_c
 
 pip install -r /root/ansible_collections/ibm/ibm_zos_cics/dev-requirements.txt
 
-# ansible-lint requires python >= 3.8
-if [ "$TRAVIS_PYTHON_VERSION" != "2.7" ]; then
+# ansible-lint requires python >= 3.9
+if [ "$TRAVIS_PYTHON_VERSION" != "2.7" ] && [ "$TRAVIS_PYTHON_VERSION" != "3.8" ]; then
     echo ""
     echo "##########################################################"
     echo "###################### Ansible-lint ######################"
