@@ -1,6 +1,4 @@
-# (c) Copyright IBM Corp. 2020,2021
-IBM z/OS CICS collection
-========================
+# IBM z/OS CICS collection
 
 The **IBM® z/OS® CICS® collection**, also represented as **ibm\_zos\_cics**
 in this document, is part of the broader initiative to bring Ansible Automation to IBM Z® through the offering
@@ -12,8 +10,7 @@ such as the [IBM z/OS core collection](https://github.com/ansible-collections/ib
 It is also possible to use it independently to perform automation tasks solely in CICS.
 
 
-Red Hat Ansible Certified Content for IBM Z
-===========================================
+## Red Hat Ansible Certified Content for IBM Z
 
 **Red Hat® Ansible Certified Content for IBM Z** provides the ability to
 connect IBM Z® to clients' wider enterprise automation strategy through the
@@ -36,20 +33,22 @@ as **certified** and **IBM supported** for
 
 For guides and reference, please review the [documentation](https://ibm.github.io/z_ansible_collections_doc/index.html).
 
-Features
-========
+## Features
 
 The IBM CICS collection includes
 [modules](https://ibm.github.io/z_ansible_collections_doc/ibm_zos_cics/docs/source/modules.html),
 [sample playbooks](https://github.com/IBM/z_ansible_collections_samples),
 and ansible-doc to automate tasks in CICS.
 
+## Contributing
 
-Copyright
-=========
-© Copyright IBM Corporation 2021.
+We welcome contributions! Find out how in our [contribution guide](CONTRIBUTING.md).
 
-License
-=======
-This collection is licensed under [Apache License,
+## Copyright 
+
+© Copyright IBM Corporation 2021, 2023.
+
+## License
+
+This collection is licensed under the [Apache License,
 Version 2.0](https://opensource.org/licenses/Apache-2.0).
