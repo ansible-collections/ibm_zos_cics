@@ -1,0 +1,41 @@
+objects: {}
+plugins:
+  become: {}
+  cache: {}
+  callback: {}
+  cliconf: {}
+  connection: {}
+  httpapi: {}
+  inventory: {}
+  lookup: {}
+  module:
+    cmci_action:
+      description: Perform actions on CICS and CICSPlex SM resources
+      name: cmci_action
+      namespace: ''
+      version_added: 1.0.0
+    cmci_create:
+      description: Create CICS and CICSPlex SM definitions
+      name: cmci_create
+      namespace: ''
+      version_added: 1.0.0
+    cmci_delete:
+      description: Delete CICS and CICSPlex SM resources
+      name: cmci_delete
+      namespace: ''
+      version_added: 1.0.0
+    cmci_get:
+      description: Query CICS and CICSPlex SM resources and definitions
+      name: cmci_get
+      namespace: ''
+      version_added: 1.0.0
+    cmci_update:
+      description: Update CICS and CICSPlex resources and definitions
+      name: cmci_update
+      namespace: ''
+      version_added: 1.0.0
+  netconf: {}
+  shell: {}
+  strategy: {}
+  vars: {}
+version: 1.0.4
