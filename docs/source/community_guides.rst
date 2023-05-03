@@ -20,7 +20,7 @@ For a developer guide on how to develop and run test cases for IBM® z/OS® CICS
 .. _git issues:
    https://github.com/ansible-collections/ibm_zos_cics/issues
 .. _Developer guide:
-   https://github.com/ansible-collections/ibm_zos_cics/blob/main/devguide.md
+   https://github.com/ansible-collections/ibm_zos_cics/blob/main/CONTRIBUTING.md
 
 
 

@@ -60,7 +60,6 @@ build_ignore:
   - requirements.txt
   - dev-requirements.txt
   - doc-requirements.txt
-  - devguide.md
   - .travis
   - .github
   - .ansible-lint
