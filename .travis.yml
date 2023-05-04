@@ -9,6 +9,7 @@ env:
   - ANSIBLE_VERSION="stable-2.12"
   - ANSIBLE_VERSION="stable-2.13"
   - ANSIBLE_VERSION="stable-2.14"
+  - ANSIBLE_VERSION="stable-2.15"
   - ANSIBLE_VERSION="devel"
 matrix:
   exclude:
@@ -20,10 +21,14 @@ matrix:
     - python: "2.7"
       env: ANSIBLE_VERSION="stable-2.14"
     - python: "2.7"
+      env: ANSIBLE_VERSION="stable-2.15"
+    - python: "2.7"
       env: ANSIBLE_VERSION="devel"
       # Python 3.8 max ansible version is 2.13
     - python: "3.8"
       env: ANSIBLE_VERSION="stable-2.14"
+    - python: "3.8"
+      env: ANSIBLE_VERSION="stable-2.15"
     - python: "3.8"
       env: ANSIBLE_VERSION="devel"
       # Ansible 2.11 max python version support is 3.9
