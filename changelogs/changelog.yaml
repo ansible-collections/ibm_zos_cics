@@ -58,3 +58,13 @@ releases:
     fragments:
     - 104-retrospective.yml
     release_date: '2023-04-21'
+  1.0.5:
+    changes:
+      bugfixes:
+      - Missing requirements.txt - requirements.txt was not included in the built
+        collection. Fix removes this from the build_ignore section of the galaxy.yml.
+      release_summary: This release contains one bug fix
+    fragments:
+    - include-requirements-txt.yaml
+    - release_summary.yaml
+    release_date: '2023-05-16'

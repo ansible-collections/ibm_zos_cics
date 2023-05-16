@@ -5,6 +5,19 @@ ibm.ibm_zos_cics Release Notes
 .. contents:: Topics
 
 
+v1.0.5
+======
+
+Release Summary
+---------------
+
+This release contains one bug fix.
+
+Bugfixes
+--------
+
+- Missing requirements.txt - requirements.txt was not included in the built collection. Fix removes this from the build_ignore section of the galaxy.yml.
+
 v1.0.4
 ======
 
