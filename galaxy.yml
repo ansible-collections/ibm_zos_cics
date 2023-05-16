@@ -8,7 +8,7 @@ namespace: ibm
 name: ibm_zos_cics
 
 # The collection version
-version: 1.0.4
+version: 1.0.5
 
 # Collection README file
 readme: README.md
@@ -53,15 +53,19 @@ build_ignore:
   - .idea
   - .gitignore
   - .ansible-test
-  - tests
+  - tests/integration
+  - tests/unit
+  - tests/output
+  - tests/__init__.py
   - docs
   - CONTRIBUTING.md
   - build.sh
-  - requirements.txt
   - dev-requirements.txt
   - doc-requirements.txt
-  - devguide.md
   - .travis
   - .github
   - .ansible-lint
   - .travis.yml
+  - .whitesource
+  - ibm-ibm_zos_cics-*.tar.gz
+  - changelogs

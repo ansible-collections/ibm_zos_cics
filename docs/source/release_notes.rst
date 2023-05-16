@@ -7,6 +7,13 @@
 Releases
 ========
 
+Version 1.0.5
+=============
+What's New
+-------------------
+* Bug fix that includes the ``requirements.txt`` file in the built collection.
+
+
 Version 1.0.4
 =============
 What's New

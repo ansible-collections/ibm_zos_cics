@@ -1,0 +1,70 @@
+ancestor: null
+releases:
+  1.0.0:
+    changes:
+      release_summary: "Initial release of the IBM\xAE z/OS\xAE CICS\xAE collection,
+        also referred to as ibm_zos_cics, which is part of the broader offering Red
+        Hat\xAE Ansible\xAE Certified Content for IBM Z\xAE.\n\nThis collection can
+        manage CICS and CICSPlex\xAE SM resources and definitions by calling the CMCI
+        REST API, which can be configured in a CICSplex or in a stand-alone region."
+    fragments:
+    - 100-retrospective.yml
+    modules:
+    - description: Perform actions on CICS and CICSPlex SM resources
+      name: cmci_action
+      namespace: ''
+    - description: Create CICS and CICSPlex SM definitions
+      name: cmci_create
+      namespace: ''
+    - description: Delete CICS and CICSPlex SM resources
+      name: cmci_delete
+      namespace: ''
+    - description: Query CICS and CICSPlex SM resources and definitions
+      name: cmci_get
+      namespace: ''
+    - description: Update CICS and CICSPlex resources and definitions
+      name: cmci_update
+      namespace: ''
+    release_date: '2021-02-17'
+  1.0.1:
+    changes:
+      release_summary: Fix some documentation issues on Hub, and include some missing
+        documentation about requirements.
+    fragments:
+    - 101-retrospective.yml
+    release_date: '2021-03-02'
+  1.0.3:
+    changes:
+      bugfixes:
+      - Improve sanitisation and validation of parameters.
+      minor_changes:
+      - Added support for CMCI feedback on failed CMCI requests.
+      - Updated timeout support on requests to be configurable via the timeout option.
+        The default value is 30 seconds if not specified.
+      release_summary: This release contains a number of new features and bug fixes.
+    fragments:
+    - 103-retrospective.yml
+    release_date: '2021-07-15'
+  1.0.4:
+    changes:
+      bugfixes:
+      - cmci_get - prevent ``cmci_get`` from failing if no records are found via the
+        ``fail_on_nodata`` option. The default value is ``true`` if not specified.
+      minor_changes:
+      - Provide variables for all modules in one go using Ansible's `group module
+        defaults <https://docs.ansible.com/ansible/2.8/user_guide/playbooks_module_defaults.html#module-defaults-groups>`_
+        support. The group name for the CMCI modules is ``cmci_group``.
+      release_summary: This release contains a number of new features and bug fixes.
+    fragments:
+    - 104-retrospective.yml
+    release_date: '2023-04-21'
+  1.0.5:
+    changes:
+      bugfixes:
+      - Missing requirements.txt - requirements.txt was not included in the built
+        collection. Fix removes this from the build_ignore section of the galaxy.yml.
+      release_summary: This release contains one bug fix
+    fragments:
+    - include-requirements-txt.yaml
+    - release_summary.yaml
+    release_date: '2023-05-16'
