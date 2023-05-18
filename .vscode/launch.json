@@ -10,8 +10,8 @@
             "request": "launch",
             "program": ".venv/bin/ansible-test",
             "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": ["integration", "cics_cmci"]
+            "justMyCode": false,
+            "args": ["integration", "cics_utilities"]
         }
     ]
 }
