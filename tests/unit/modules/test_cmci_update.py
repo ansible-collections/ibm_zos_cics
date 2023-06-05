@@ -12,7 +12,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import 
 )
 
 
-def test_csd_update(cmci_module):  # type: (CMCITestHelper) -> None
+def test_csd_update(cmci_module):  # type: (cmci_module) -> None
     record = dict(
         changeagent='CSDAPI',
         changeagrel='0730',
