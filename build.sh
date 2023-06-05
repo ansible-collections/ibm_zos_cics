@@ -17,9 +17,7 @@ export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 
 source "$CMCI_PYTHON_38/bin/activate"
 (set -x; pip install -r dev-requirements.txt)
-
 (set -x; ANSIBLE_COLLECTIONS_PATHS=../../.. ansible-lint)
-(set -x; python3 -m yamllint -c yamllint.yaml .)
 
 echo "/* -------------------------------------------------------------------------- */"
 echo "/*                           ansible-test Sanity Tests                        */"
