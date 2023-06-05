@@ -18,7 +18,7 @@ import re
 import sys
 
 
-def test_401_fails(cmci_module):  # type: (CMCITestHelper) -> None
+def test_401_fails(cmci_module):  # type: (cmci_module) -> None
     cmci_module.stub_request(
         'GET',
         'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/CICSDefinitionBundle/CICPY012/',

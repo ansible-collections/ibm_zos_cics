@@ -8,12 +8,15 @@ __metaclass__ = type
 
 from ansible.module_utils.basic import AnsibleModule, missing_required_lib,\
     env_fallback
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Tuple
 from collections import OrderedDict
 from sys import version_info
 import re
 import traceback
 import urllib
+
+REQUESTS_IMP_ERR = ""
+XMLTODICT_IMP_ERR = ""
 
 try:
     import requests
@@ -178,7 +181,7 @@ def read_error_node(node):  # type: (OrderedDict) -> List[OrderedDict]
 
 
 def read_error_detail(key, value):
-    # type: (List[str, OrderedDict]) -> Tuple[str, List[OrderedDict]]
+    # type: (str, OrderedDict) -> Tuple[str, List[OrderedDict]]
     # Xmltodict parses inner error types as Dicts when there is only one item in
     # it even though it may well be a list if multiple results were returned. If
     # we find a dict here, wrap it in a list so we can account for only one

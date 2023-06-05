@@ -19,7 +19,7 @@ if sys.version_info.major <= 2:
     expected_type = 'type'
 
 
-def test_query_criteria(cmci_module):  # type: (CMCITestHelper) -> None
+def test_query_criteria(cmci_module):  # type: (cmci_module) -> None
     records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
     cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE, parameters='?CRITERIA=%28FOO%3D%27BAR%27%29')
 
