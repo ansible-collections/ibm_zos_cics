@@ -7,3 +7,4 @@ skip_list:
     - "galaxy[no-changelog]"
     - "meta-unsupported-ansible"
     - "meta-runtime[unsupported-version]"
+    - "var-naming[no-role-prefix]"
