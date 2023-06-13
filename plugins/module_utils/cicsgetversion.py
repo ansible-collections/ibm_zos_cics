@@ -15,7 +15,12 @@ else:
 
 def get_dataset_member_version_record(dataset):  # type: (str) -> str
     try:
-        records = Datasets.read("%s.SDFHSAMP(DFH0SINX)" % dataset)
-        return records.split("STATUS = ", 1)[1].split(" ")[0]
+        result = Datasets.read("%s.SDFHSAMP(DFH0SINX)" % dataset).split("STATUS = ", 1)[1].split(" ")[0]
+        if not result or result == "":
+            raise Exception("CICS version was blank")
+        elif len(result) >= 10:
+            raise Exception("CICS version was too long")
+        else:
+            return result
     except ZOAUExceptions.ZOAUException:
         raise Exception("Error reading dataset for calculating CICS version.")
