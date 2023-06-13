@@ -1,5 +1,6 @@
 # (c) Copyright IBM Corp. 2020,2021
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
-requests==2.27.1
+requests==2.27.1;python_version<'3.7'
+requests==2.31.0;python_version>='3.7'
 xmltodict==0.12.0
 typing;python_version<"3.5"
