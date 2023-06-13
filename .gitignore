@@ -1,6 +1,7 @@
 .DS_Store
 docs/build/
 .idea
+.vscode/settings.json
 __pycache__
 venv*
 .venv

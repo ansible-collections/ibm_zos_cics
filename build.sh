@@ -33,6 +33,8 @@ echo "/* -----------------------------------------------------------------------
 echo "/*                          Integration tests Python 3.8                      */"
 echo "/* -------------------------------------------------------------------------- */"
 (set -x; ansible-test integration cics_cmci --python 3.8)
+(set -x; ansible-test integration cics_utilities --python 3.8)
+
 
 echo "/* -------------------------------------------------------------------------- */"
 echo "/*               Integration tests for missing libraries Python 3.8           */"
@@ -59,6 +61,7 @@ echo "/* -----------------------------------------------------------------------
 echo "/*                          Integration tests Python 2.7                      */"
 echo "/* -------------------------------------------------------------------------- */"
 (set -x; ansible-test integration cics_cmci --python 2.7)
+(set -x; ansible-test integration cics_utilities --python 2.7)
 deactivate
 
 source "$CMCI_PYTHON_38/bin/activate"
