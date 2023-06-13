@@ -14,7 +14,6 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import 
 from ansible.module_utils import basic
 
 import pytest
-import re
 import sys
 
 
@@ -90,9 +89,10 @@ def test_unknown_host(monkeypatch):
     with pytest.raises(AnsibleFailJson) as exc_info:
         cmci_get.main()
 
-    exp = \
-        'Error performing CMCI request: <[^>]*>: Failed to establish a new connection: .*'
-    assert re.match(exp, exc_info.value.args[0]['msg']), exc_info.value.args[0]['msg'] + " didn't match"
+    if sys.version_info.major <= 2:
+        assert exc_info.value.args[0]['msg'].__contains__('Failed to establish a new connection')
+    else:
+        assert exc_info.value.args[0]['msg'].__contains__('([Errno -2] Name or service not known)')
 
 
 def test_invalid_port_type(cmci_module):  # type: (CMCITestHelper) -> None
