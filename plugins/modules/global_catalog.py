@@ -5,9 +5,6 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
-from typing import Dict, List
-from ansible.module_utils.basic import AnsibleModule
-import traceback
 __metaclass__ = type
 
 DOCUMENTATION = r'''
@@ -222,6 +219,10 @@ result:
       returned: always
 """
 
+
+from typing import Dict, List
+from ansible.module_utils.basic import AnsibleModule
+import traceback
 
 DDStatement = None
 ZOS_CORE_IMP_ERR = None

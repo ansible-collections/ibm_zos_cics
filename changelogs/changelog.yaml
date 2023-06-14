@@ -68,3 +68,13 @@ releases:
     - include-requirements-txt.yaml
     - release_summary.yaml
     release_date: '2023-05-16'
+  1.1.0-beta.1:
+    changes:
+      release_summary: This release contains a new Global Catalog module
+    fragments:
+    - beta.yml
+    modules:
+    - description: "Create and initialize CICS\xAE global catalog."
+      name: global_catalog
+      namespace: ''
+    release_date: '2023-06-14'

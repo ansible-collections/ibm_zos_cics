@@ -5,13 +5,26 @@ ibm.ibm_zos_cics Release Notes
 .. contents:: Topics
 
 
+v1.1.0-beta.1
+=============
+
+Release Summary
+---------------
+
+This release contains a new Global Catalog module
+
+New Modules
+-----------
+
+- ibm.ibm_zos_cics.global_catalog - Create and initialize CICS® global catalog.
+
 v1.0.5
 ======
 
 Release Summary
 ---------------
 
-This release contains one bug fix.
+This release contains one bug fix
 
 Bugfixes
 --------
