@@ -1,0 +1,103 @@
+- name: Absent Catalog
+
+  hosts: "all"
+  gather_facts: false
+  vars:
+    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_absent }}"
+    catalog_name: "DFHGCD"
+    catalog_path: "{{ region_dataset_path }}.{{ catalog_name }}"
+
+  module_defaults:
+    ibm.ibm_zos_cics.global_catalog:
+      sdfhload: "{{ cics_steplib }}"
+      space_primary: 5
+      space_type: "M"
+      location: "{{ region_dataset_path }}.DFHGCD"
+
+  tasks:
+    # #############################################################################
+    # ############################## Initial cleanup ##############################
+    # #############################################################################
+
+    - name: Delete Catalog Dataset if it exists
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ catalog_path }}"
+        state: absent
+      register: delete_result
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == False
+
+    # #############################################################################
+    # ############################ Initialize Catalog #############################
+    # #############################################################################
+
+    - name: Run Global Catalog module with Initial target state
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.global_catalog:
+        state: "initial"
+      register: initial_result
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ initial_result }}"
+
+    - name: Assert Before
+      ansible.builtin.assert:
+        that:
+          - initial_result.starting_catalog.exists == False
+          - initial_result.starting_catalog.name == "{{ catalog_path }}"
+          - initial_result.starting_catalog.autostart_override == ''
+          - initial_result.starting_catalog.nextstart == ''
+
+    - name: Assert After
+      ansible.builtin.assert:
+        that:
+          - initial_result.end_catalog.exists == True
+          - initial_result.end_catalog.name == "{{ catalog_path }}"
+          - initial_result.end_catalog.autostart_override == 'AUTOINIT'
+          - initial_result.end_catalog.nextstart == 'UNKNOWN'
+
+
+    # #############################################################################
+    # ############################## Module Testing ###############################
+    # #############################################################################
+
+    - name: Run Global Catalog module with Absent target state
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.global_catalog:
+        state: "absent"
+      register: absent_result
+
+    - name: Assert Before
+      ansible.builtin.assert:
+        that:
+          - absent_result.starting_catalog.exists == True
+          - absent_result.starting_catalog.name == "{{ catalog_path }}"
+          - absent_result.starting_catalog.autostart_override == 'AUTOINIT'
+          - absent_result.starting_catalog.nextstart == 'UNKNOWN'
+
+    - name: Assert After
+      ansible.builtin.assert:
+        that:
+          - absent_result.end_catalog.exists == False
+
+
+    # #############################################################################
+    # ################################## Cleanup ##################################
+    # #############################################################################
+
+    - name: Delete Catalog Dataset
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ catalog_path }}"
+        state: absent
+      register: delete_result
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == False
