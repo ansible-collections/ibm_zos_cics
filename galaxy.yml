@@ -70,3 +70,5 @@ build_ignore:
   - .whitesource
   - ibm-ibm_zos_cics-*.tar.gz
   - changelogs
+  - .devcontainer
+  - .vscode
