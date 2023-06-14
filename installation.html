@@ -1,0 +1,271 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Installation &mdash; IBM Z CICS Collection 1.1.0-beta.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/beta-banner/index.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Playbooks" href="playbooks.html" />
+    <link rel="prev" title="Requirements of managed nodes" href="requirements_managed.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> IBM Z CICS Collection
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installing-from-ansible-galaxy">Installing from Ansible Galaxy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-from-a-custom-galaxy-server">Installing from a custom Galaxy server</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="playbooks.html">Playbooks</a></li>
+</ul>
+<p><span class="caption-text">Ansible Content</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
+</ul>
+<p><span class="caption-text">Release Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Releases</a></li>
+</ul>
+<p><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community_guides.html">Contributing</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">IBM Z CICS Collection</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Installation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/installation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>Always check that your control node has fulfilled the <a class="reference internal" href="requirements.html"><span class="doc">Requirements</span></a> before installing the <strong>IBM® z/OS® CICS® collection</strong>.</p>
+<p>Then, follow the guidance to install the collection from Ansible® Galaxy or a custom Galaxy server. More ways to install an Ansible collection are documented at <a class="reference external" href="https://docs.ansible.com/ansible/latest/user_guide/collections_using.html#installing-collections-with-ansible-galaxy">installing collections</a>.</p>
+<section id="installing-from-ansible-galaxy">
+<h2>Installing from Ansible Galaxy<a class="headerlink" href="#installing-from-ansible-galaxy" title="Permalink to this headline">¶</a></h2>
+<p>This is the quickest way to install the CICS collection. From your CLI, enter:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>ansible-galaxy<span class="w"> </span>collection<span class="w"> </span>install<span class="w"> </span>ibm.ibm_zos_cics
+</pre></div>
+</div>
+<p>By default, collections are installed in <code class="docutils literal notranslate"><span class="pre">~/.ansible/collections</span></code>. After installation, the collection content will resemble this hierarchy: :</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>├──<span class="w"> </span>collections/
+│<span class="w">  </span>├──<span class="w"> </span>ansible_collections/
+│<span class="w">      </span>├──<span class="w"> </span>ibm/
+│<span class="w">          </span>├──<span class="w"> </span>ibm_zos_cics/
+│<span class="w">              </span>├──<span class="w"> </span>docs/
+│<span class="w">              </span>├──<span class="w"> </span>plugins/
+│<span class="w">                  </span>├──<span class="w"> </span>action/
+│<span class="w">                  </span>├──<span class="w"> </span>module_utils/
+│<span class="w">                  </span>├──<span class="w"> </span>modules/
+</pre></div>
+</div>
+<p>To install with customization, such as specifying another installation path or using a playbook, see <a class="reference external" href="https://docs.ansible.com/ansible/latest/user_guide/collections_using.html#installing-collections-with-ansible-galaxy">installing collections</a>.</p>
+</section>
+<section id="installing-from-a-custom-galaxy-server">
+<h2>Installing from a custom Galaxy server<a class="headerlink" href="#installing-from-a-custom-galaxy-server" title="Permalink to this headline">¶</a></h2>
+<p>By default, the <code class="docutils literal notranslate"><span class="pre">ansible-galaxy</span></code> command is configured to access
+<a class="reference external" href="https://galaxy.ansible.com">https://galaxy.ansible.com</a> as the server when you install a
+collection. The <code class="docutils literal notranslate"><span class="pre">ansible-galaxy</span></code> client can be configured to point to other servers, such as a privately running Galaxy server, by configuring the server list in the <code class="docutils literal notranslate"><span class="pre">ansible.cfg</span></code> file.</p>
+<p>Ansible searches for <code class="docutils literal notranslate"><span class="pre">ansible.cfg</span></code> in the following locations in this order:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>ANSIBLE_CONFIG (environment variable if set)</p></li>
+<li><p>ansible.cfg (in the current directory)</p></li>
+<li><p>~/.ansible.cfg (in the home directory)</p></li>
+<li><p>/etc/ansible/ansible.cfg</p></li>
+</ul>
+</div></blockquote>
+<p>Instructions on how to configure the server list in <code class="docutils literal notranslate"><span class="pre">ansible.cfg</span></code> can be found at <a class="reference external" href="https://docs.ansible.com/ansible/latest/user_guide/collections_using.html#configuring-the-ansible-galaxy-client">configuring the ansible-galaxy client</a>. Available options in the Ansible configuration file can be found at <a class="reference external" href="https://docs.ansible.com/ansible/latest/reference_appendices/config.html">Ansible Configuration Settings</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When hosting a private Galaxy server, available content is not always consistent with what is available on the community Galaxy server.</p>
+</aside>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="playbooks.html" class="btn btn-neutral float-right" title="Playbooks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="requirements_managed.html" class="btn btn-neutral float-left" title="Requirements of managed nodes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright IBM Corp. 2020, 2023.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,392 @@
+.. ...............................................................................
+.. © Copyright IBM Corporation 2020,2023                                         .
+.. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
+.. ...............................................................................
+
+:github_url: https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/global_catalog.py
+
+.. _global_catalog_module:
+
+
+global_catalog -- Create and initialize CICS® global catalog.
+=============================================================
+
+
+
+.. contents::
+   :local:
+   :depth: 1
+
+
+Synopsis
+--------
+- Create, update, and remove a CICS® global catalog dataset to be used by a CICS® region, achieved by running the IDCAMS and DFHRMUTL programs.
+
+
+
+
+
+Parameters
+----------
+
+
+     
+location
+  The name of the dataset to be used as the global catalog dataset.
+
+
+  | **required**: True
+  | **type**: str
+
+
+     
+sdfhload
+  The location of SDFHLOAD for the CICS install to be used to create the global catalog.
+
+
+  | **required**: True
+  | **type**: str
+
+
+     
+space_primary
+  Specifies the size of the global catalog dataset. Note, this is just the value; the unit is specified with space_type.
+
+
+  | **required**: False
+  | **type**: int
+  | **default**: 5
+
+
+     
+space_type
+  Specifies the unit to be used for the global catalog size. Note, this is just the unit; the value is specified with space_primary.
+
+
+  | **required**: False
+  | **type**: str
+  | **default**: M
+  | **choices**: M, K, REC, CYL, TRK
+
+
+     
+state
+  The state the catalog will end up in after the task has run.
+
+
+  | **required**: True
+  | **type**: str
+  | **choices**: initial, absent, cold, warm
+
+
+
+
+Examples
+--------
+
+.. code-block:: yaml+jinja
+
+   
+   - name: Initialize a global catalog
+     ibm.ibm_zos_cics.global_catalog:
+       location: "CICS.INSTALL.REG01.DFHGCD"
+       sdfhload: "CTS560.CICS730.SDFHLOAD"
+       state: "initial"
+
+   - name: Initialize a large catalog
+     ibm.ibm_zos_cics.global_catalog:
+       location: "CICS.INSTALL.REG01.DFHGCD"
+       sdfhload: "CTS560.CICS730.SDFHLOAD"
+       space_primary: 100
+       space_type: "M"
+       state: "initial"
+
+   - name: Set AUTO_START_OVERRIDE record to be AUTOASIS
+     ibm.ibm_zos_cics.global_catalog:
+       location: "CICS.INSTALL.REG01.DFHGCD"
+       sdfhload: "CTS560.CICS730.SDFHLOAD"
+       state: "warm"
+
+   - name: Set AUTO_START_OVERRIDE record to be AUTOCOLD
+     ibm.ibm_zos_cics.global_catalog:
+       location: "CICS.INSTALL.REG01.DFHGCD"
+       sdfhload: "CTS560.CICS730.SDFHLOAD"
+       state: "cold"
+
+   - name: Delete global catalog
+     ibm.ibm_zos_cics.global_catalog:
+       location: "CICS.INSTALL.REG01.DFHGCD"
+       sdfhload: "CTS560.CICS730.SDFHLOAD"
+       state: "absent"
+
+
+
+
+
+
+
+
+
+Return Values
+-------------
+
+
+   
+                              
+       changed
+        | True if the state was changed, otherwise False.
+      
+        | **returned**: always
+        | **type**: bool
+      
+      
+                              
+       failed
+        | True if the query job failed, otherwise False.
+      
+        | **returned**: always
+        | **type**: bool
+      
+      
+                              
+       is_zos
+        | True if the target environment is z/OS
+      
+        | **returned**: always
+        | **type**: bool
+      
+      
+                              
+       starting_catalog
+        | The state of the global catalog before the task
+      
+        | **returned**: success
+        | **type**: dict
+              
+   
+                              
+        autostart_override
+          | The current autostart override record
+      
+          | **returned**: success
+          | **type**: str
+      
+      
+                              
+        name
+          | The name of the global catalog dataset
+      
+          | **returned**: success
+          | **type**: str
+      
+      
+                              
+        nextstart
+          | The next start type listed in the catalog
+      
+          | **returned**: success
+          | **type**: str
+      
+      
+                              
+        sdfhload
+          | The name of the sdfhload
+      
+          | **returned**: success
+          | **type**: str
+      
+      
+                              
+        state
+          | The specified target state for the catalog
+      
+          | **returned**: success
+          | **type**: str
+      
+      
+                              
+        exists
+          | True if the global catalog dataset exists
+      
+          | **returned**: success
+          | **type**: bool
+      
+      
+                              
+        vsam
+          | True if the global catalog dataset is a VSAM
+      
+          | **returned**: success
+          | **type**: bool
+      
+      
+                              
+        size
+          | Size parameters of the catalog dataset
+      
+          | **returned**: success
+          | **type**: dict
+              
+   
+                              
+         primary
+            | The primary size allocated for the catalog
+      
+            | **returned**: success
+            | **type**: int
+      
+      
+                              
+         secondary
+            | The secondary size allocated for the catalog
+      
+            | **returned**: success
+            | **type**: int
+      
+      
+                              
+         unit
+            | The size unit used for the catalog
+      
+            | **returned**: success
+            | **type**: str
+      
+        
+      
+        
+      
+      
+                              
+       end_catalog
+        | The state of the global catalog at the end of the task.
+      
+        | **returned**: success
+        | **type**: dict
+              
+   
+                              
+        autostart_override
+          | The current autostart override record
+      
+          | **returned**: success
+          | **type**: str
+      
+      
+                              
+        name
+          | The name of the global catalog dataset
+      
+          | **returned**: success
+          | **type**: str
+      
+      
+                              
+        nextstart
+          | The next start type listed in the catalog
+      
+          | **returned**: success
+          | **type**: str
+      
+      
+                              
+        sdfhload
+          | The name of the sdfhload
+      
+          | **returned**: success
+          | **type**: str
+      
+      
+                              
+        state
+          | The specified target state for the catalog
+      
+          | **returned**: success
+          | **type**: str
+      
+      
+                              
+        exists
+          | True if the global catalog dataset exists
+      
+          | **returned**: success
+          | **type**: bool
+      
+      
+                              
+        vsam
+          | True if the global catalog dataset is a VSAM
+      
+          | **returned**: success
+          | **type**: bool
+      
+      
+                              
+        size
+          | Size parameters of the catalog dataset
+      
+          | **returned**: success
+          | **type**: dict
+              
+   
+                              
+         primary
+            | The primary size allocated for the catalog
+      
+            | **returned**: success
+            | **type**: int
+      
+      
+                              
+         secondary
+            | The secondary size allocated for the catalog
+      
+            | **returned**: success
+            | **type**: int
+      
+      
+                              
+         unit
+            | The size unit used for the catalog
+      
+            | **returned**: success
+            | **type**: str
+      
+        
+      
+        
+      
+      
+                              
+       result
+        | The result of the CICS programs run during the module execution.
+      
+        | **returned**: success
+        | **type**: dict
+              
+   
+                              
+        msg
+          | The string message returned by the CICS program.
+      
+          | **returned**: always
+          | **type**: str
+      
+      
+                              
+        rc
+          | The return code of the CICS program.
+      
+          | **returned**: always
+          | **type**: int
+      
+      
+                              
+        success
+          | True if the CICS program was successful
+      
+          | **returned**: always
+          | **type**: bool
+      
+        
+      
+        

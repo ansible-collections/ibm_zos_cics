@@ -1,0 +1,1133 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>cmci_get – Query CICS and CICSPlex SM resources and definitions &mdash; IBM Z CICS Collection 1.1.0-beta.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/beta-banner/index.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="cmci_update – Update CICS and CICSPlex resources and definitions" href="cmci_update.html" />
+    <link rel="prev" title="cmci_delete – Delete CICS and CICSPlex SM resources" href="cmci_delete.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> IBM Z CICS Collection
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../requirements.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../playbooks.html">Playbooks</a></li>
+</ul>
+<p><span class="caption-text">Ansible Content</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cmci_action.html">cmci_action – Perform actions on CICS and CICSPlex SM resources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cmci_create.html">cmci_create – Create CICS and CICSPlex SM definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cmci_delete.html">cmci_delete – Delete CICS and CICSPlex SM resources</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">cmci_get – Query CICS and CICSPlex SM resources and definitions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#return-values">Return Values</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cmci_update.html">cmci_update – Update CICS and CICSPlex resources and definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="global_catalog.html">global_catalog – Create and initialize CICS® global catalog.</a></li>
+</ul>
+</li>
+</ul>
+<p><span class="caption-text">Release Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Releases</a></li>
+</ul>
+<p><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../community_guides.html">Contributing</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">IBM Z CICS Collection</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../modules.html">Modules</a> &raquo;</li>
+        
+      <li>cmci_get – Query CICS and CICSPlex SM resources and definitions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            
+              <!-- User defined GitHub URL -->
+              <a href="https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/cmci_get.py" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="cmci-get-query-cics-and-cicsplex-sm-resources-and-definitions">
+<span id="cmci-get-module"></span><h1>cmci_get – Query CICS and CICSPlex SM resources and definitions<a class="headerlink" href="#cmci-get-query-cics-and-cicsplex-sm-resources-and-definitions" title="Permalink to this headline">¶</a></h1>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#synopsis" id="toc-entry-1">Synopsis</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="toc-entry-2">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#examples" id="toc-entry-3">Examples</a></p></li>
+<li><p><a class="reference internal" href="#return-values" id="toc-entry-4">Return Values</a></p></li>
+</ul>
+</nav>
+<section id="synopsis">
+<h2><a class="toc-backref" href="#toc-entry-1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Get information about installed and definitional CICS® and CICSPlex® SM resources from CICS regions, by initiating GET requests via the CMCI REST API. The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API, see <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=programming-cmci-rest-api-reference">CMCI REST API</a>. For information about how to compose GET requests, see <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=requests-cmci-get">CMCI GET requests</a>.</p></li>
+</ul>
+</section>
+<section id="parameters">
+<h2><a class="toc-backref" href="#toc-entry-2" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<dl>
+<dt>cmci_cert</dt><dd><p>Location of the PEM-formatted certificate chain file to be used for HTTPS client authentication.</p>
+<p>Can also be specified using the environment variable CMCI_CERT.</p>
+<p>Required if <em>cmci_key</em> is specified.</p>
+<p>Authentication prioritises certificate authentication if <em>cmci_cert</em> and <em>cmci_key</em> are provided, then basic authentication if <em>cmci_user</em> and <em>cmci_password</em> are provided, and then unauthenticated if none is provided.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>cmci_host</dt><dd><p>The TCP/IP host name of CMCI connection.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: True</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>cmci_key</dt><dd><p>Location of the PEM-formatted file storing your private key to be used for HTTPS client authentication.</p>
+<p>Can also be specified using the environment variable CMCI_KEY.</p>
+<p>Required if <em>cmci_cert</em> is specified.</p>
+<p>Authentication prioritises certificate authentication if <em>cmci_cert</em> and <em>cmci_key</em> are provided, then basic authentication if <em>cmci_user</em> and <em>cmci_password</em> are provided, and then unauthenticated if none is provided.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>cmci_password</dt><dd><p>The password of <em>cmci_user</em> to pass HTTP basic authentication.</p>
+<p>Can also be specified using the environment variable CMCI_PASSWORD.</p>
+<p>Required if <em>cmci_user</em> is specified.</p>
+<p>Authentication prioritises certificate authentication if <em>cmci_cert</em> and <em>cmci_key</em> are provided, then basic authentication if <em>cmci_user</em> and <em>cmci_password</em> are provided, and then unauthenticated if none is provided.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: false</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>cmci_port</dt><dd><p>The port number of the CMCI connection.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: True</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>cmci_user</dt><dd><p>The user ID under which the CMCI request will run.</p>
+<p>Can also be specified using the environment variable CMCI_USER.</p>
+<p>Required if <em>cmci_password</em> is specified.</p>
+<p>Authentication prioritises certificate authentication if <em>cmci_cert</em> and <em>cmci_key</em> are provided, then basic authentication if <em>cmci_user</em> and <em>cmci_password</em> are provided, and then unauthenticated if none is provided.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: false</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>context</dt><dd><p>If CMCI is installed in a CICSPlex® SM environment, <em>context</em> is the name of the CICSplex or CMAS associated with the request, for example, <code class="docutils literal notranslate"><span class="pre">PLEX1</span></code>. To determine whether a CMAS can be specified as <em>context</em>, see the <strong>CMAS context</strong> entry in the CICSPlex SM resource table reference of a resource. For example, according to the <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-program-resource-table">PROGRAM resource table</a>, CMAS context is not supported for PROGRAM.</p>
+<p>If CMCI is installed in a single region (SMSS), <em>context</em> is the APPLID of the CICS region associate with the request.</p>
+<p>The value of <em>context</em> must contain no spaces. <em>context</em> is not case-sensitive.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: True</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>fail_on_nodata</dt><dd><p>Specifies whether the module should fail if no data is returned by the query. If set to true, the module will fail if no data is returned.</p>
+<p>Default behaviour is for the module to fail if no data is returned. When set to false, the module will return OK, just with no records.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: bool</div>
+<div class="line"><strong>default</strong>: True</div>
+</div>
+</dd>
+<dt>insecure</dt><dd><p>When set to <code class="docutils literal notranslate"><span class="pre">true</span></code>, disables SSL certificate trust chain verification when using HTTPS.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+<dt>record_count</dt><dd><p>Identifies a subset of records in the results cache, starting either from the first record in the results cache or from the record specified by the index parameter. If not specified, all the records are returned by default.</p>
+<p>A negative number indicates a count back from the last record; for example, <code class="docutils literal notranslate"><span class="pre">-1</span></code> means the last record, <code class="docutils literal notranslate"><span class="pre">-2</span></code> the last record but one, and so on.</p>
+<p>The count value must be an integer; a value of zero is not permitted.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>resources</dt><dd><p>Options that specify a target resource.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>complex_filter</dt><dd><p>A dictionary representing a complex filter expression. Complex filters are composed of filter expressions, represented as dictionaries. Each dictionary can specify either an attribute expression, a list of filter expressions to be composed with the <code class="docutils literal notranslate"><span class="pre">and</span></code> operator, or a list of filter expressions to be composed with the <code class="docutils literal notranslate"><span class="pre">or</span></code> operator.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">attribute</span></code>, <code class="docutils literal notranslate"><span class="pre">and</span></code> and <code class="docutils literal notranslate"><span class="pre">or</span></code> options are mutually exclusive with each other.</p>
+<p>Can contain one or more filters. Multiple filters must be combined using <code class="docutils literal notranslate"><span class="pre">and</span></code> or <code class="docutils literal notranslate"><span class="pre">or</span></code> logical operators.</p>
+<p>Filters can be nested.</p>
+<p>When supplying the <code class="docutils literal notranslate"><span class="pre">attribute</span></code> option, you must also supply a <code class="docutils literal notranslate"><span class="pre">value</span></code> for the filter. You can also override the default operator of <code class="docutils literal notranslate"><span class="pre">=</span></code> with the <code class="docutils literal notranslate"><span class="pre">operator</span></code> option.</p>
+<p>For examples, see “Examples” in <span class="xref std std-ref">ibm.ibm_zos_cics.cmci_get</span>.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>and</dt><dd><p>A list of filter expressions to be combined with an <code class="docutils literal notranslate"><span class="pre">and</span></code> operation.</p>
+<p>Filter expressions are nested <code class="docutils literal notranslate"><span class="pre">complex_filter</span></code> elements. Each nested filter expression can be either an <code class="docutils literal notranslate"><span class="pre">attribute</span></code>, <code class="docutils literal notranslate"><span class="pre">and</span></code> or <code class="docutils literal notranslate"><span class="pre">or</span></code> complex filter expression.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: list</div>
+</div>
+</dd>
+<dt>attribute</dt><dd><p>The name of a resource table attribute on which to filter.</p>
+<p>For supported attributes of different resource types, see their resource table reference, for example, <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table">PROGDEF resource table reference</a>.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>operator</dt><dd><p>These operators are accepted: <code class="docutils literal notranslate"><span class="pre">&lt;</span></code> or <code class="docutils literal notranslate"><span class="pre">LT</span></code> (less than), <code class="docutils literal notranslate"><span class="pre">&lt;=</span></code> or <code class="docutils literal notranslate"><span class="pre">LE</span></code> (less than or equal to), <code class="docutils literal notranslate"><span class="pre">=</span></code> or <code class="docutils literal notranslate"><span class="pre">EQ</span></code> (equal to), <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">GT</span></code> (greater than), <code class="docutils literal notranslate"><span class="pre">&gt;=</span></code> or <code class="docutils literal notranslate"><span class="pre">GE</span></code> (greater than or equal to), <code class="docutils literal notranslate"><span class="pre">==</span></code> or <code class="docutils literal notranslate"><span class="pre">IS</span></code> (is), <code class="docutils literal notranslate"><span class="pre">¬=</span></code>, <code class="docutils literal notranslate"><span class="pre">!=</span></code>, or <code class="docutils literal notranslate"><span class="pre">NE</span></code> (not equal to). If not supplied when <code class="docutils literal notranslate"><span class="pre">attribute</span></code> is used, <code class="docutils literal notranslate"><span class="pre">EQ</span></code> is assumed.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: &lt;, &gt;, &lt;=, &gt;=, =, ==, !=, ¬=, EQ, GT, GE, LT, LE, NE, IS</div>
+</div>
+</dd>
+<dt>or</dt><dd><p>A list of filter expressions to be combined with an <code class="docutils literal notranslate"><span class="pre">or</span></code> operation.</p>
+<p>Filter expressions are nested <code class="docutils literal notranslate"><span class="pre">complex_filter</span></code> elements. Each nested filter expression can be either an <code class="docutils literal notranslate"><span class="pre">attribute</span></code>, <code class="docutils literal notranslate"><span class="pre">and</span></code> or <code class="docutils literal notranslate"><span class="pre">or</span></code> complex filter expression.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: list</div>
+</div>
+</dd>
+<dt>value</dt><dd><p>The value by which you are to filter the resource attributes.</p>
+<p>The value must be a valid one for the resource table attribute as documented in the resource table reference, for example, <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table">PROGDEF resource table reference</a>.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>filter</dt><dd><p>A dictionary with attribute names as keys, and target values, to be used as criteria to filter the set of resources returned from CICSPlex SM.</p>
+<p>Filters implicitly use the <code class="docutils literal notranslate"><span class="pre">=</span></code> operator.</p>
+<p>Filters for <code class="docutils literal notranslate"><span class="pre">string</span></code> type attributes can use the <code class="docutils literal notranslate"><span class="pre">*</span></code> and <code class="docutils literal notranslate"><span class="pre">+</span></code> wildcard operators.</p>
+<p><code class="docutils literal notranslate"><span class="pre">*</span></code> is a wildcard representing an unknown number of characters, and must appear at the end of the value.</p>
+<p><code class="docutils literal notranslate"><span class="pre">+</span></code> is a wildcard representing a single character, and can appear in any place in the value, potentially multiple times.</p>
+<p>To use more complicated filter expressions, including a range of different filter operators, and the ability to compose filters with <code class="docutils literal notranslate"><span class="pre">and</span></code> and <code class="docutils literal notranslate"><span class="pre">or</span></code> operators, see the <code class="docutils literal notranslate"><span class="pre">complex_filter</span></code> parameter.</p>
+<p>For more details, see <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=expressions-how-build-filter-expression">How to build a filter expression</a>.</p>
+<p>For examples, see <span class="xref std std-ref">ibm.ibm_zos_cics.cmci_get</span>.</p>
+<p>For supported attributes of different resource types, see their resource table reference, for example, <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table">PROGDEF resource table reference</a>.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+</dd>
+<dt>get_parameters</dt><dd><p>A list of one or more parameters with optional values used to identify the resources for this request. Eligible parameters for identifying the target resources can be found in the resource table reference for the target resource type, as valid parameters for the GET operation in the “Valid CPSM operations” table. For example, the valid parameters for identifying a PROGDEF resource are CICSSYS, CSDGROUP and RESGROUP, as found in the <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table">PROGDEF resource table reference</a>.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: list</div>
+</div>
+<dl>
+<dt>name</dt><dd><p>Parameter name available for the GET operation.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: True</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>value</dt><dd><p>Parameter value if any.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt>scheme</dt><dd><p>The HTTP scheme to use when establishing a connection to the CMCI REST API.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: false</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>default</strong>: https</div>
+<div class="line"><strong>choices</strong>: http, https</div>
+</div>
+</dd>
+<dt>scope</dt><dd><p>Specifies the name of a CICSplex, CICS region group, CICS region, or logical scope that is associated with the query.</p>
+<p><em>scope</em> is a subset of <em>context</em> and limits the request to particular CICS systems or resources.</p>
+<p><em>scope</em> is optional. If it’s not specified, the request is limited by the value of <em>context</em> alone.</p>
+<p>The value of <em>scope</em> must contain no spaces. <em>scope</em> is not case-sensitive.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: false</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>timeout</dt><dd><p>HTTP request timeout in seconds</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+<div class="line"><strong>default</strong>: 30</div>
+</div>
+</dd>
+<dt>type</dt><dd><p>The CMCI external resource name that maps to the target CICS or CICSPlex SM resource type. For a list of CMCI external resource names, see <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=reference-cmci-resource-names">CMCI resource names</a>.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: True</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</section>
+<section id="examples">
+<h2><a class="toc-backref" href="#toc-entry-3" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">get 2 LOCFILEs from a CICSplex</span>
+<span class="w">  </span><span class="nt">cmci_get</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cmci_host</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;winmvs2c.hursley.ibm.com&quot;</span>
+<span class="w">    </span><span class="nt">cmci_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10080</span>
+<span class="w">    </span><span class="nt">cmci_user</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ibmuser&quot;</span>
+<span class="w">    </span><span class="nt">cmci_password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123456&quot;</span>
+<span class="w">    </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;iyk3z0r9&quot;</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CICSLocalFile</span>
+<span class="w">    </span><span class="nt">record_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">    </span><span class="nt">resource</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">filter</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">dsname</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTS*&quot;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">get a localfile in a CICS region</span>
+<span class="w">  </span><span class="nt">cmci_get</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cmci_host</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;winmvs2c.hursley.ibm.com&quot;</span>
+<span class="w">    </span><span class="nt">cmci_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10080</span>
+<span class="w">    </span><span class="nt">cmci_cert</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./sec/ansible.pem&quot;</span>
+<span class="w">    </span><span class="nt">cmci_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./sec/ansible.key&quot;</span>
+<span class="w">    </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;iyk3z0r9&quot;</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CICSLocalFile&quot;</span>
+<span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">filter</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">dsname</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;XIAOPIN*&quot;</span>
+<span class="w">        </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;DFH*&quot;</span>
+<span class="w">    </span><span class="nt">record_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">get a progdef from a CSD</span>
+<span class="w">  </span><span class="nt">cmci_get</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cmci_host</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;winmvs2c.hursley.ibm.com&quot;</span>
+<span class="w">    </span><span class="nt">cmci_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10080</span>
+<span class="w">    </span><span class="nt">cmci_cert</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./sec/ansible.pem&quot;</span>
+<span class="w">    </span><span class="nt">cmci_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./sec/ansible.key&quot;</span>
+<span class="w">    </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;iyk3z0r9&quot;</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cicsdefinitionprogram</span>
+<span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">filter</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MYPROG</span>
+<span class="w">      </span><span class="nt">get_parameters</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">csdgroup</span>
+<span class="w">          </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MYGRP</span>
+<span class="w">    </span><span class="nt">record_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pass module even if bundle definition is not found</span>
+<span class="w">  </span><span class="nt">cmci_get</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cmci_host</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;winmvs2c.hursley.ibm.com&quot;</span>
+<span class="w">    </span><span class="nt">cmci_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10080</span>
+<span class="w">    </span><span class="nt">cmci_cert</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./sec/ansible.pem&quot;</span>
+<span class="w">    </span><span class="nt">cmci_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./sec/ansible.key&quot;</span>
+<span class="w">    </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;iyk3z0r9&quot;</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cicsdefinitionbundle</span>
+<span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">filter</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MYBUNDLE</span>
+<span class="w">      </span><span class="nt">get_parameters</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">csdgroup</span>
+<span class="w">          </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MYGRP</span>
+<span class="w">    </span><span class="nt">record_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">fail_on_nodata</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Using complex_filter to combine filter expressions and change operators</span>
+<span class="w">  </span><span class="nt">cmci_get</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cmci_host</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;winmvs2c.hursley.ibm.com&quot;</span>
+<span class="w">    </span><span class="nt">cmci_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10080</span>
+<span class="w">    </span><span class="nt">cmci_cert</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./sec/ansible.pem&quot;</span>
+<span class="w">    </span><span class="nt">cmci_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./sec/ansible.key&quot;</span>
+<span class="w">    </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;iyk3z0r9&quot;</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CICSRegion&quot;</span>
+<span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">complex_filter</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">or</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">[</span>
+<span class="w">            </span><span class="p p-Indicator">{</span><span class="nt"> attribute</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;currtasks&quot;</span><span class="p p-Indicator">,</span><span class="nt"> value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;10&quot;</span><span class="p p-Indicator">,</span><span class="nt"> operator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;&quot;</span><span class="w"> </span><span class="p p-Indicator">},</span>
+<span class="w">            </span><span class="p p-Indicator">{</span><span class="nt"> attribute</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;currtasks&quot;</span><span class="p p-Indicator">,</span><span class="nt"> value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;100&quot;</span><span class="p p-Indicator">,</span><span class="nt"> operator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&gt;&quot;</span><span class="w"> </span><span class="p p-Indicator">},</span>
+<span class="w">          </span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">record_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+</pre></div>
+</div>
+</section>
+<section id="return-values">
+<h2><a class="toc-backref" href="#toc-entry-4" role="doc-backlink">Return Values</a><a class="headerlink" href="#return-values" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><dl>
+<dt>changed</dt><dd><div class="line-block">
+<div class="line">True if the state was changed, otherwise False.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: always</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+<dt>failed</dt><dd><div class="line-block">
+<div class="line">True if the query job failed, otherwise False.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: always</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+<dt>connect_version</dt><dd><div class="line-block">
+<div class="line">Version of the CMCI API</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: success</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>cpsm_reason</dt><dd><div class="line-block">
+<div class="line">The character value of the REASON code returned by each CICSPlex SM API command. For a list of REASON character values, see <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-reason-in-alphabetical-order">https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-reason-in-alphabetical-order</a>.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: success</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>cpsm_reason_code</dt><dd><div class="line-block">
+<div class="line">The numeric value of the REASON code returned by each CICSPlex SM API command. For a list of REASON numeric values, see <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-reason-in-numerical-order">https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-reason-in-numerical-order</a>.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: success</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>cpsm_response</dt><dd><div class="line-block">
+<div class="line">The character value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE character values, see <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-response-in-alphabetical-order">https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-response-in-alphabetical-order</a>.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: success</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>cpsm_response_code</dt><dd><div class="line-block">
+<div class="line">The numeric value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE numeric values, see <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-response-in-numerical-order">https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-response-in-numerical-order</a>.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: success</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>http_status</dt><dd><div class="line-block">
+<div class="line">The message associated with HTTP status code that is returned by CMCI.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: success</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>http_status_code</dt><dd><div class="line-block">
+<div class="line">The HTTP status code returned by CMCI.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: success</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>record_count</dt><dd><div class="line-block">
+<div class="line">The number of records returned.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: success</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>records</dt><dd><div class="line-block">
+<div class="line">A list of the returned records.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: success</div>
+<div class="line"><strong>type</strong>: list</div>
+<div class="line"><strong>sample</strong>:</div>
+</div>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[{</span><span class="s2">&quot;_keydata&quot;</span><span class="p">:</span> <span class="s2">&quot;C1D5E2C9E3C5E2E3&quot;</span><span class="p">,</span> <span class="s2">&quot;aloadtime&quot;</span><span class="p">:</span> <span class="s2">&quot;00:00:00.000000&quot;</span><span class="p">,</span> <span class="s2">&quot;apist&quot;</span><span class="p">:</span> <span class="s2">&quot;CICSAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;application&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;applmajorver&quot;</span><span class="p">:</span> <span class="s2">&quot;-1&quot;</span><span class="p">,</span> <span class="s2">&quot;applmicrover&quot;</span><span class="p">:</span> <span class="s2">&quot;-1&quot;</span><span class="p">,</span> <span class="s2">&quot;applminorver&quot;</span><span class="p">:</span> <span class="s2">&quot;-1&quot;</span><span class="p">,</span> <span class="s2">&quot;basdefinever&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;cedfstatus&quot;</span><span class="p">:</span> <span class="s2">&quot;CEDF&quot;</span><span class="p">,</span> <span class="s2">&quot;changeagent&quot;</span><span class="p">:</span> <span class="s2">&quot;CSDAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;changeagrel&quot;</span><span class="p">:</span> <span class="s2">&quot;0730&quot;</span><span class="p">,</span> <span class="s2">&quot;changetime&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-12-15T02:34:31.000000+00:00&quot;</span><span class="p">,</span> <span class="s2">&quot;changeusrid&quot;</span><span class="p">:</span> <span class="s2">&quot;YQCHEN&quot;</span><span class="p">,</span> <span class="s2">&quot;coboltype&quot;</span><span class="p">:</span> <span class="s2">&quot;NOTAPPLIC&quot;</span><span class="p">,</span> <span class="s2">&quot;concurrency&quot;</span><span class="p">:</span> <span class="s2">&quot;QUASIRENT&quot;</span><span class="p">,</span> <span class="s2">&quot;copy&quot;</span><span class="p">:</span> <span class="s2">&quot;NOTREQUIRED&quot;</span><span class="p">,</span> <span class="s2">&quot;currentloc&quot;</span><span class="p">:</span> <span class="s2">&quot;NOCOPY&quot;</span><span class="p">,</span> <span class="s2">&quot;datalocation&quot;</span><span class="p">:</span> <span class="s2">&quot;ANY&quot;</span><span class="p">,</span> <span class="s2">&quot;definesource&quot;</span><span class="p">:</span> <span class="s2">&quot;ANSITEST&quot;</span><span class="p">,</span> <span class="s2">&quot;definetime&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-12-15T02:34:29.000000+00:00&quot;</span><span class="p">,</span> <span class="s2">&quot;dynamstatus&quot;</span><span class="p">:</span> <span class="s2">&quot;NOTDYNAMIC&quot;</span><span class="p">,</span> <span class="s2">&quot;entrypoint&quot;</span><span class="p">:</span> <span class="s2">&quot;FF000000&quot;</span><span class="p">,</span> <span class="s2">&quot;execkey&quot;</span><span class="p">:</span> <span class="s2">&quot;USEREXECKEY&quot;</span><span class="p">,</span> <span class="s2">&quot;executionset&quot;</span><span class="p">:</span> <span class="s2">&quot;FULLAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;eyu_cicsname&quot;</span><span class="p">:</span> <span class="s2">&quot;IYCWEMW2&quot;</span><span class="p">,</span> <span class="s2">&quot;eyu_cicsrel&quot;</span><span class="p">:</span> <span class="s2">&quot;E730&quot;</span><span class="p">,</span> <span class="s2">&quot;eyu_reserved&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;fetchcnt&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;fetchtime&quot;</span><span class="p">:</span> <span class="s2">&quot;00:00:00.000000&quot;</span><span class="p">,</span> <span class="s2">&quot;holdstatus&quot;</span><span class="p">:</span> <span class="s2">&quot;NOTAPPLIC&quot;</span><span class="p">,</span> <span class="s2">&quot;installagent&quot;</span><span class="p">:</span> <span class="s2">&quot;CSDAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;installtime&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-12-15T02:34:33.000000+00:00&quot;</span><span class="p">,</span> <span class="s2">&quot;installusrid&quot;</span><span class="p">:</span> <span class="s2">&quot;YQCHEN&quot;</span><span class="p">,</span> <span class="s2">&quot;jvmclass&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;jvmserver&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;language&quot;</span><span class="p">:</span> <span class="s2">&quot;NOTDEFINED&quot;</span><span class="p">,</span> <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;library&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;librarydsn&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;loadpoint&quot;</span><span class="p">:</span> <span class="s2">&quot;FF000000&quot;</span><span class="p">,</span> <span class="s2">&quot;lpastat&quot;</span><span class="p">:</span> <span class="s2">&quot;NOTAPPLIC&quot;</span><span class="p">,</span> <span class="s2">&quot;newcopycnt&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;operation&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;pgrjusecount&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;platform&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;program&quot;</span><span class="p">:</span> <span class="s2">&quot;ANSITEST&quot;</span><span class="p">,</span> <span class="s2">&quot;progtype&quot;</span><span class="p">:</span> <span class="s2">&quot;PROGRAM&quot;</span><span class="p">,</span> <span class="s2">&quot;remotename&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;remotesystem&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;removecnt&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;rescount&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;residency&quot;</span><span class="p">:</span> <span class="s2">&quot;NONRESIDENT&quot;</span><span class="p">,</span> <span class="s2">&quot;rloading&quot;</span><span class="p">:</span> <span class="s2">&quot;0.000&quot;</span><span class="p">,</span> <span class="s2">&quot;rplid&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;rremoval&quot;</span><span class="p">:</span> <span class="s2">&quot;0.000&quot;</span><span class="p">,</span> <span class="s2">&quot;runtime&quot;</span><span class="p">:</span> <span class="s2">&quot;UNKNOWN&quot;</span><span class="p">,</span> <span class="s2">&quot;ruse&quot;</span><span class="p">:</span> <span class="s2">&quot;0.000&quot;</span><span class="p">,</span> <span class="s2">&quot;sharestatus&quot;</span><span class="p">:</span> <span class="s2">&quot;PRIVATE&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;DISABLED&quot;</span><span class="p">,</span> <span class="s2">&quot;transid&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;useagelstat&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;usecount&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;usefetch&quot;</span><span class="p">:</span> <span class="s2">&quot;0.000&quot;</span><span class="p">}]</span>
+</pre></div>
+</div>
+</div></blockquote>
+</dd>
+<dt>request</dt><dd><div class="line-block">
+<div class="line">Information about the request that was made to CMCI.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: success</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>body</dt><dd><div class="line-block">
+<div class="line">The XML body sent with the request, if any.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: success</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>method</dt><dd><div class="line-block">
+<div class="line">The HTTP method used for the request.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: success</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>url</dt><dd><div class="line-block">
+<div class="line">The URL used for the request.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: success</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>feedback</dt><dd><div class="line-block">
+<div class="line">Diagnostic data from FEEDBACK records associated with the request</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: list</div>
+</div>
+<dl>
+<dt>action</dt><dd><div class="line-block">
+<div class="line">The name of the action that has failed.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>attribute1</dt><dd><div class="line-block">
+<div class="line">The name of one of up to six attributes associated with the error.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>attribute2</dt><dd><div class="line-block">
+<div class="line">The name of one of up to six attributes associated with the error.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>attribute3</dt><dd><div class="line-block">
+<div class="line">The name of one of up to six attributes associated with the error.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>attribute4</dt><dd><div class="line-block">
+<div class="line">The name of one of up to six attributes associated with the error.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>attribute5</dt><dd><div class="line-block">
+<div class="line">The name of one of up to six attributes associated with the error.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>attribute6</dt><dd><div class="line-block">
+<div class="line">The name of one of up to six attributes associated with the error.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>eibfn</dt><dd><div class="line-block">
+<div class="line">The function code associated with the request.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>eibfn_alt</dt><dd><div class="line-block">
+<div class="line">The name of the function associated with the request.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>errorcode</dt><dd><div class="line-block">
+<div class="line">The CICSPlex® SM error code associated with the resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>eyu_cicsname</dt><dd><div class="line-block">
+<div class="line">The name of the CICS region or CICSplex associated with the error.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>keydata</dt><dd><div class="line-block">
+<div class="line">A string of data that identifies the instance of a resource associated with the error.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>resp</dt><dd><div class="line-block">
+<div class="line">The CICS RESP code or the CICSPlex SM API EYUDA response code as a numeric value.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>resp2</dt><dd><div class="line-block">
+<div class="line">The CICS RESP2 code or the CICSPlex SM API EYUDA reason code as a numeric value.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>resp_alt</dt><dd><div class="line-block">
+<div class="line">The text equivalent for the resp value. For example, the text equivalent of a resp value of 16 is INVREQ.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>installerror</dt><dd><blockquote>
+<div><div class="line-block">
+<div class="line">Contains diagnostic data from a BINSTERR record associated with a CICS® management client interface PUT install request.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: list</div>
+</div>
+</div></blockquote>
+<dl>
+<dt>eibfn</dt><dd><div class="line-block">
+<div class="line">The function code associated with the request.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>eyu_cicsname</dt><dd><div class="line-block">
+<div class="line">The name of the CICS region or CICSplex associated with the installation error.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>cresp1</dt><dd><div class="line-block">
+<div class="line">The CICS RESP code or the CICSPlex® SM API EYUDA response code as a numeric value.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>cresp2</dt><dd><div class="line-block">
+<div class="line">The CICS RESP2 code or the CICSPlex SM API EYUDA reason code as a numeric value.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>errorcode</dt><dd><div class="line-block">
+<div class="line">The CICSPlex SM error code associated with the resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>ressname</dt><dd><div class="line-block">
+<div class="line">The name of the resource associated with the error.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>resver</dt><dd><div class="line-block">
+<div class="line">The version number of the resource associated with the error.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>inconsistentscope</dt><dd><blockquote>
+<div><div class="line-block">
+<div class="line">Contains diagnostic data from a BINCONSC record associated with a CICS® management client interface PUT request.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: list</div>
+</div>
+</div></blockquote>
+<dl>
+<dt>eibfn</dt><dd><div class="line-block">
+<div class="line">The function code associated with the request.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>eyu_cicsname</dt><dd><div class="line-block">
+<div class="line">The name of the CICS region or CICSplex associated with the installation error.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>erroroperation</dt><dd><div class="line-block">
+<div class="line">A numeric value that identifies the operation being performed when the error occurred.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>errorcode</dt><dd><div class="line-block">
+<div class="line">The CICSPlex® SM error code associated with the resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>targetassignment</dt><dd><div class="line-block">
+<div class="line">The assignment for the target scope.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>targetdescription</dt><dd><div class="line-block">
+<div class="line">The resource description for the target scope.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>relatedassignment</dt><dd><div class="line-block">
+<div class="line">The resource assignment for the related scope.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>relateddescription</dt><dd><div class="line-block">
+<div class="line">The resource description for the related scope.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>relatedscope</dt><dd><div class="line-block">
+<div class="line">The name of the related scope.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>inconsistentset</dt><dd><blockquote>
+<div><div class="line-block">
+<div class="line">Contains diagnostic data from a BINCONRS record associated with a CICS® management client interface PUT request.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: list</div>
+</div>
+</div></blockquote>
+<dl>
+<dt>candidatename</dt><dd><div class="line-block">
+<div class="line">The name of the candidate resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>candidateversion</dt><dd><div class="line-block">
+<div class="line">The version number of the candidate resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>candidategroup</dt><dd><div class="line-block">
+<div class="line">The resource group of the candidate resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>candidateassignment</dt><dd><div class="line-block">
+<div class="line">The assignment of the candidate resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>candidatedescription</dt><dd><div class="line-block">
+<div class="line">The description of the candidate resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>candidateusage</dt><dd><div class="line-block">
+<div class="line">The assignment usage of the candidate resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>candidatesystemgroup</dt><dd><div class="line-block">
+<div class="line">The system group of the candidate resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>candidatetype</dt><dd><div class="line-block">
+<div class="line">The system type of the candidate resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>candidateoverride</dt><dd><div class="line-block">
+<div class="line">The assignment override of the candidate resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>eyu_cicsname</dt><dd><div class="line-block">
+<div class="line">The name of the CICS region associated with the installation error.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>erroroperation</dt><dd><div class="line-block">
+<div class="line">A numeric value that identifies that the operation being performed when the error occurred</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>existingname</dt><dd><div class="line-block">
+<div class="line">The name of the existing resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>existingversion</dt><dd><div class="line-block">
+<div class="line">The version number of the existing resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>existinggroup</dt><dd><div class="line-block">
+<div class="line">The resource group of the existing resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>existingassignment</dt><dd><div class="line-block">
+<div class="line">The assignment of the existing resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>existingdescription</dt><dd><div class="line-block">
+<div class="line">The description of the existing resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>existingusage</dt><dd><div class="line-block">
+<div class="line">The assignment usage of the existing resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>existingsystemgroup</dt><dd><div class="line-block">
+<div class="line">The system group of the existing resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>existingtype</dt><dd><div class="line-block">
+<div class="line">The system type of the existing resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>existingoverride</dt><dd><div class="line-block">
+<div class="line">The assignment override of the existing resource.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: cmci error</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="cmci_update.html" class="btn btn-neutral float-right" title="cmci_update – Update CICS and CICSPlex resources and definitions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cmci_delete.html" class="btn btn-neutral float-left" title="cmci_delete – Delete CICS and CICSPlex SM resources" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright IBM Corp. 2020, 2023.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
