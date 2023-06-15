@@ -3,7 +3,7 @@
 ---
 - name: CMCI Incorrect Host Integration Test
   hosts: localhost
-  gather_facts: true
+  gather_facts: false
 
   tasks:
     - name: Test invalid host
@@ -23,4 +23,5 @@
       ansible.builtin.assert:
         that:
           - result.failed is false
-          - '{{ result.msg[:76] == "Error performing CMCI request: <urllib3.connection.HTTPSConnection object at" }}'
+          - '{{ result.msg[:51] == "Error performing CMCI request: <urllib3.connection." }}'
+          - '{{ result.msg[-25:] == "Name or service not known" }}'
