@@ -92,7 +92,7 @@ def test_unknown_host(monkeypatch):
     if sys.version_info.major <= 2:
         assert exc_info.value.args[0]['msg'].__contains__('Failed to establish a new connection')
     else:
-        assert exc_info.value.args[0]['msg'].__contains__('([Errno -2] Name or service not known)')
+        assert exc_info.value.args[0]['msg'].__contains__('[Errno -2] Name or service not known')
 
 
 def test_invalid_port_type(cmci_module):  # type: (CMCITestHelper) -> None

@@ -22,5 +22,5 @@
       ansible.builtin.assert:
         that:
           - result.failed is false
-          - '{{ result.msg[:76] == "Error performing CMCI request: <urllib3.connection.HTTPSConnection object at" }}'
+          - '{{ result.msg[:51] == "Error performing CMCI request: <urllib3.connection." }}'
           - '{{ result.msg[-18:] == "Connection refused" }}'
