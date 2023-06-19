@@ -276,9 +276,12 @@ class AnsibleGlobalCatalogModule(object):
             argument_spec=self.init_argument_spec(),
         )
         self.result = {}
+        self.result['changed'] = False
+        self.result['failed'] = False
         self.validate_parameters()
 
     def _fail(self, msg):  # type: (str) -> None
+        self.result['failed'] = True
         self._module.fail_json(msg=msg, **self.result)
 
     def _exit(self):
@@ -383,6 +386,7 @@ class AnsibleGlobalCatalogModule(object):
             }
             self._fail("Error running DFHRMUTL")
 
+        self.result['changed'] = True
         return CatalogResponse(
             success=True,
             rc=dfhrmutl_output.rc,
@@ -397,6 +401,8 @@ class AnsibleGlobalCatalogModule(object):
         '''.format(self.starting_catalog.name)
 
         rc, stdout, stderr = idcams(cmd=delete_cmd, authorized=True)
+        if rc == 0:
+            self.result['changed'] = True
 
         return CatalogResponse(success=rc == 0, rc=rc, msg=stdout)
 
@@ -450,9 +456,8 @@ class AnsibleGlobalCatalogModule(object):
         return self.run_dfhrmutl(cmd="SET_AUTO_START=AUTOCOLD")
 
     def invalid_target_state(self):  # type: () -> None
-        self.result['target_state_error'] = "{0} is not a valid target state".format(
-            self.global_catalog.state)
-        self._module.fail_json(**self.result)
+        self._fail("{0} is not a valid target state".format(
+            self.global_catalog.state))
 
     def get_target_method(self, target):
         return {
