@@ -341,8 +341,8 @@ class AnsibleGlobalCatalogModule(object):
         result = parser.parse_args({
             "space_primary": self._module.params.get(CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
             "space_type": self._module.params.get(CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
-            "location": self._module.params.get(CATALOG_GCD_ALIAS),
-            "sdfhload": self._module.params.get(CATALOG_STEPLIB_ALIAS),
+            "location": self._module.params.get(CATALOG_GCD_ALIAS).upper(),
+            "sdfhload": self._module.params.get(CATALOG_STEPLIB_ALIAS).upper(),
             "state": self._module.params.get(CATALOG_TARGET_STATE_ALIAS)
         })
         self.starting_catalog = GlobalCatalog(
