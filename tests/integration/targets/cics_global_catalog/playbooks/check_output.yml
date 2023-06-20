@@ -1,0 +1,96 @@
+- name: Validate return data
+
+  hosts: "all"
+  gather_facts: false
+  vars:
+    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}"
+    catalog_name: "DFHGCD"
+    catalog_path: "{{ region_dataset_path }}.{{ catalog_name }}"
+
+  module_defaults:
+    ibm.ibm_zos_cics.global_catalog:
+      sdfhload: "{{ cics_steplib }}"
+      space_primary: 5
+      space_type: "M"
+      location: "{{ region_dataset_path }}.DFHGCD"
+
+  tasks:
+    # #############################################################################
+    # ############################## Initial cleanup ##############################
+    # #############################################################################
+
+    - name: Delete Catalog Dataset if it exists
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ catalog_path }}"
+        state: absent
+      register: delete_result
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == False
+
+    # #############################################################################
+    # ############################## Module Testing ###############################
+    # #############################################################################
+
+    - name: Create Catalog with initial state
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.global_catalog:
+        state: "initial"
+      register: res
+
+    - name: Assert Catalog Created, changed is true
+      ansible.builtin.assert:
+        that:
+          - res.failed is false
+          - res.changed is true
+          - res.result.rc == 0
+          - res.result.success is true
+          - res.starting_catalog.exists is false
+          - res.end_catalog.exists is true
+
+    - name: Try recreating same catalog
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.global_catalog:
+        state: "initial"
+      register: res
+
+    - name: Assert Catalog Created, changed is false
+      ansible.builtin.assert:
+        that:
+          - res.failed is false
+          - res.changed is false
+          - res.starting_catalog.exists is true
+          - res.starting_catalog.state == "initial"
+
+    - name: Remove catalog
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.global_catalog:
+        state: "absent"
+      register: res
+
+    - name: Assert Catalog Removed, changed is true
+      ansible.builtin.assert:
+        that:
+          - res.failed is false
+          - res.changed is true
+          - res.starting_catalog.exists is true
+          - res.end_catalog.exists is false
+          - res.starting_catalog.state == "absent"
+          - res.result.rc == 0
+          - res.result.success is true
+
+    - name: Try removing catalog, changed is false
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.global_catalog:
+        state: "absent"
+      register: res
+
+    - name: Assert Catalog removed, changed is false
+      ansible.builtin.assert:
+        that:
+          - res.failed is false
+          - res.changed is false
+          - res.starting_catalog.exists is false
