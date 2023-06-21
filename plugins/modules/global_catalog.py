@@ -223,6 +223,7 @@ result:
 from typing import Dict, List
 from ansible.module_utils.basic import AnsibleModule
 import traceback
+from time import sleep
 
 DDStatement = None
 ZOS_CORE_IMP_ERR = None
@@ -416,7 +417,7 @@ class AnsibleGlobalCatalogModule(object):
                 self._fail(
                     "IDCAMS failed with rc {0} and message: {1}".format(
                         idcams_output.rc, idcams_output.msg))
-
+        sleep(3)
         return self.run_dfhrmutl(cmd="SET_AUTO_START=AUTOINIT")
 
     def warm_global_catalog(self):  # type: () -> CatalogResponse
