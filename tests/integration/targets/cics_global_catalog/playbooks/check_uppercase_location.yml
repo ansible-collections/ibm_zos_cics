@@ -1,18 +1,10 @@
-- name: Initial Catalog
+- name: Check Lowercase Location Parameter
 
   hosts: "all"
   gather_facts: false
   vars:
     region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}"
     catalog_name: "DFHGCD"
-    catalog_path: "{{ region_dataset_path }}.{{ catalog_name }}"
-
-  module_defaults:
-    ibm.ibm_zos_cics.global_catalog:
-      sdfhload: "{{ cics_steplib }}"
-      space_primary: 5
-      space_type: "M"
-      location: "{{ region_dataset_path }}.DFHGCD"
 
   tasks:
     # #############################################################################
@@ -22,7 +14,7 @@
     - name: Delete Catalog Dataset if it exists
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
-        name: "{{ catalog_path }}"
+        name: "{{ region_dataset_path }}.LOWER.{{ catalog_name }}"
         state: absent
       register: delete_result
 
@@ -35,27 +27,25 @@
     # ############################## Module Testing ###############################
     # #############################################################################
 
-    - name: Run Global Catalog module with Initial target state
+    - name: Give lowercase GCD location
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_cics.global_catalog:
+        location: "{{ region_dataset_path }}.lower.{{ catalog_name }}"
+        sdfhload: "{{ cics_steplib }}"
+        space_primary: 5
+        space_type: "M"
         state: "initial"
-      register: result
+      register: res
+      failed_when: false
 
-    - name: Assert Before
+    - name: Assert turned to uppercase
       ansible.builtin.assert:
         that:
-          - result.starting_catalog.exists == False
-          - result.starting_catalog.name == "{{ catalog_path }}"
-          - result.starting_catalog.autostart_override == ''
-          - result.starting_catalog.nextstart == ''
-
-    - name: Assert After
-      ansible.builtin.assert:
-        that:
-          - result.end_catalog.exists == True
-          - result.end_catalog.name == "{{ catalog_path }}"
-          - result.end_catalog.autostart_override == 'AUTOINIT'
-          - result.end_catalog.nextstart == 'UNKNOWN'
+          - res.starting_catalog.exists == False
+          - res.end_catalog.exists == True
+          - res.end_catalog.name == "{{ region_dataset_path }}.LOWER.{{ catalog_name }}"
+          - res.end_catalog.autostart_override == 'AUTOINIT'
+          - res.end_catalog.nextstart == 'UNKNOWN'
 
     # #############################################################################
     # ################################## Cleanup ##################################
@@ -64,7 +54,7 @@
     - name: Delete Catalog Dataset
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
-        name: "{{ catalog_path }}"
+        name: "{{ region_dataset_path }}.LOWER.{{ catalog_name }}"
         state: absent
       register: delete_result
 
