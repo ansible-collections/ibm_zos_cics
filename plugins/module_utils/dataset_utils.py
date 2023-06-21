@@ -4,7 +4,6 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 import traceback
-from dataclasses import dataclass
 
 ZOS_CORE_IMP_ERR = None
 
@@ -14,7 +13,6 @@ except ImportError:
     ZOS_CORE_IMP_ERR = traceback.format_exc()
 
 
-@dataclass
 class CatalogSize():
 
     def __init__(self, unit, primary, secondary):
@@ -30,7 +28,6 @@ class CatalogSize():
         }
 
 
-@dataclass
 class GlobalCatalog():
 
     def __init__(
@@ -65,7 +62,6 @@ class GlobalCatalog():
         }
 
 
-@dataclass
 class CatalogResponse():
 
     def __init__(self, success, rc, msg):

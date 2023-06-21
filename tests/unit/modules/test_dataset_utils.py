@@ -6,7 +6,10 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
-from unittest.mock import Mock
+try:
+    from unittest.mock import MagicMock
+except ImportError:
+    from mock import MagicMock
 
 
 def test_catalog_size_class():
@@ -59,10 +62,10 @@ def test_catalog_response_class():
 
 
 def test_update_catalog_props_exists():
-    mock_dep = Mock()
+    mock_dep = MagicMock()
     mock_dep.exists.return_value = True
     mock_dep.ds_type.return_value = "VSAM"
-    dataset_utils.DataSetUtils = Mock(return_value=mock_dep)
+    dataset_utils.DataSetUtils = MagicMock(return_value=mock_dep)
 
     catalog_size = dataset_utils.CatalogSize(unit="M", primary=10, secondary=1)
     global_catalog = dataset_utils.GlobalCatalog(
@@ -81,10 +84,10 @@ def test_update_catalog_props_exists():
 
 
 def test_update_catalog_props_vsam():
-    mock_dep = Mock()
+    mock_dep = MagicMock()
     mock_dep.exists.return_value = False
     mock_dep.ds_type.return_value = None
-    dataset_utils.DataSetUtils = Mock(return_value=mock_dep)
+    dataset_utils.DataSetUtils = MagicMock(return_value=mock_dep)
 
     catalog_size = dataset_utils.CatalogSize(unit="M", primary=10, secondary=1)
     global_catalog = dataset_utils.GlobalCatalog(
