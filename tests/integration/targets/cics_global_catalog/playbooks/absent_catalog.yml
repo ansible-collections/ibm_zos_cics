@@ -41,10 +41,6 @@
         state: "initial"
       register: initial_result
 
-    - name: Debug
-      ansible.builtin.debug:
-        msg: "{{ initial_result }}"
-
     - name: Assert Before
       ansible.builtin.assert:
         that:

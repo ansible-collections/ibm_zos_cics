@@ -3,7 +3,7 @@
   hosts: "all"
   gather_facts: false
   vars:
-    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}"
+    region_dataset_path: "ANSIBIT.TESTS.{{ cics_test_area_initial }}"
     catalog_name: "DFHGCD"
 
   tasks:
@@ -14,7 +14,7 @@
     - name: Delete Catalog Dataset if it exists
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
-        name: "{{ region_dataset_path }}.LOWER.{{ catalog_name }}"
+        name: "{{ region_dataset_path }}.LOW.{{ catalog_name }}"
         state: absent
       register: delete_result
 
@@ -30,7 +30,7 @@
     - name: Give lowercase GCD location
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_cics.global_catalog:
-        location: "{{ region_dataset_path }}.lower.{{ catalog_name }}"
+        location: "{{ region_dataset_path }}.low.{{ catalog_name }}"
         sdfhload: "{{ cics_steplib }}"
         space_primary: 5
         space_type: "M"
@@ -43,7 +43,7 @@
         that:
           - res.starting_catalog.exists == False
           - res.end_catalog.exists == True
-          - res.end_catalog.name == "{{ region_dataset_path }}.LOWER.{{ catalog_name }}"
+          - res.end_catalog.name == "{{ region_dataset_path }}.LOW.{{ catalog_name }}"
           - res.end_catalog.autostart_override == 'AUTOINIT'
           - res.end_catalog.nextstart == 'UNKNOWN'
 
@@ -54,7 +54,7 @@
     - name: Delete Catalog Dataset
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
-        name: "{{ region_dataset_path }}.LOWER.{{ catalog_name }}"
+        name: "{{ region_dataset_path }}.LOW.{{ catalog_name }}"
         state: absent
       register: delete_result
 

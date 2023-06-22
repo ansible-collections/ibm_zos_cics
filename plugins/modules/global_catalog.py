@@ -223,7 +223,6 @@ result:
 from typing import Dict, List
 from ansible.module_utils.basic import AnsibleModule
 import traceback
-from time import sleep
 
 DDStatement = None
 ZOS_CORE_IMP_ERR = None
@@ -231,7 +230,6 @@ try:
     from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
     from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
     from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
-    from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
     from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.system import is_zos
     from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.mvs_cmd import idcams
 except ImportError:
@@ -364,7 +362,16 @@ class AnsibleGlobalCatalogModule(object):
 
     def create_global_catalog_dataset(self):
         create_cmd = get_idcams_create_cmd(self.starting_catalog)
-        rc, stdout, stderr = idcams(cmd=create_cmd, authorized=True)
+
+        filtered = []
+        iterations = 0
+        while len(filtered) == 0 and iterations < 10:
+            rc, stdout, stderr = idcams(cmd=create_cmd, authorized=True)
+            iterations = iterations + 1
+            elements = ["{0}".format(element.replace(" ", "").upper())
+                        for element in stdout.split("\n")]
+            filtered = list(filter(lambda x: "DEFINECLUSTER" in x, elements))
+
         self.result['idcams_output'] = {
             'rc': rc,
             'stdout': stdout,
@@ -401,7 +408,19 @@ class AnsibleGlobalCatalogModule(object):
         DELETE {0}
         '''.format(self.starting_catalog.name)
 
-        rc, stdout, stderr = idcams(cmd=delete_cmd, authorized=True)
+        filtered = []
+        iterations = 0
+        while len(filtered) == 0 and iterations < 10:
+            rc, stdout, stderr = idcams(cmd=delete_cmd, authorized=True)
+            iterations = iterations + 1
+            elements = ["{0}".format(element.replace(" ", "").upper())
+                        for element in stdout.split("\n")]
+            filtered = list(
+                filter(
+                    lambda x: "ENTRY(C){0}DELETED".format(
+                        self.starting_catalog.name) in x,
+                    elements))
+
         if rc == 0:
             self.result['changed'] = True
 
@@ -417,7 +436,7 @@ class AnsibleGlobalCatalogModule(object):
                 self._fail(
                     "IDCAMS failed with rc {0} and message: {1}".format(
                         idcams_output.rc, idcams_output.msg))
-        sleep(3)
+
         return self.run_dfhrmutl(cmd="SET_AUTO_START=AUTOINIT")
 
     def warm_global_catalog(self):  # type: () -> CatalogResponse

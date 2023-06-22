@@ -8,3 +8,4 @@ ansible-playbook -i zos_inventory -e "@provisioning-variables.yml" playbooks/ini
 ansible-playbook -i zos_inventory -e "@provisioning-variables.yml" playbooks/absent_catalog.yml
 ansible-playbook -i zos_inventory -e "@provisioning-variables.yml" playbooks/check_output.yml
 ansible-playbook -i zos_inventory -e "@provisioning-variables.yml" playbooks/check_bad_gcd_location.yml
+ansible-playbook -i zos_inventory -e "@provisioning-variables.yml" playbooks/check_uppercase_location.yml
