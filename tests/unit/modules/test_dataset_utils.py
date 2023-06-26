@@ -62,15 +62,45 @@ def test_catalog_response_class():
 
 
 def test_update_catalog_props_exists():
-    mock_dep = MagicMock()
-    mock_dep.exists.return_value = True
-    mock_dep.ds_type.return_value = "VSAM"
-    dataset_utils.DataSetUtils = MagicMock(return_value=mock_dep)
+    dataset_utils.listcat = MagicMock(return_value=(0, "1IDCAMS  SYSTEM SERVICES                 "
+                                                    "                          TIME: 13:29:18    "
+                                                    "    06/26/23     PAGE      1\n0        \n  L"
+                                                    "ISTCAT ENTRIES('ANSIBIT.CICS.TESTS.A294D11B."
+                                                    "DFHGCD')\n0CLUSTER ------- ANSIBIT.CICS.TEST"
+                                                    "S.A294D11B.DFHGCD\n      IN-CAT --- ICFCAT.S"
+                                                    "YSPLEX2.CATALOGB\n0   DATA ------- ANSIBIT.C"
+                                                    "ICS.TESTS.A294D11B.DFHGCD.DATA\n      IN-CAT"
+                                                    " --- ICFCAT.SYSPLEX2.CATALOGB\n0   INDEX ---"
+                                                    "--- ANSIBIT.CICS.TESTS.A294D11B.DFHGCD.INDEX"
+                                                    "\n      IN-CAT --- ICFCAT.SYSPLEX2.CATALOGB\n"
+                                                    "1IDCAMS  SYSTEM SERVICES                    "
+                                                    "                       TIME: 13:29:18       "
+                                                    " 06/26/23     PAGE      2\n0         THE NUM"
+                                                    "BER OF ENTRIES PROCESSED WAS:\n             "
+                                                    "       AIX -------------------0\n           "
+                                                    "         ALIAS -----------------0\n         "
+                                                    "           CLUSTER ---------------1\n       "
+                                                    "             DATA ------------------1\n     "
+                                                    "               GDG -------------------0\n   "
+                                                    "                 INDEX -----------------1\n "
+                                                    "                   NONVSAM ---------------0\n"
+                                                    "                    PAGESPACE -------------0\n"
+                                                    "                    PATH ------------------0\n"
+                                                    "                    SPACE -----------------0\n"
+                                                    "                    USERCATALOG -----------0\n"
+                                                    "                    TAPELIBRARY -----------0\n"
+                                                    "                    TAPEVOLUME ------------0\n"
+                                                    "                    TOTAL -----------------3\n"
+                                                    "0         THE NUMBER OF PROTECTED ENTRIES SUPP"
+                                                    "RESSED WAS 0\n0IDC0001I FUNCTION COMPLETED, HI"
+                                                    "GHEST CONDITION CODE WAS 0\n0        \n0IDC000"
+                                                    "2I IDCAMS PROCESSING COMPLETE. MAXIMUM CONDITI"
+                                                    "ON CODE WAS 0", ""))
 
     catalog_size = dataset_utils.CatalogSize(unit="M", primary=10, secondary=1)
     global_catalog = dataset_utils.GlobalCatalog(
         size=catalog_size,
-        name="ANSI.TEST.DFHGCD",
+        name="ANSIBIT.CICS.TESTS.A294D11B.DFHGCD",
         sdfhload="CICSTS.IN56.SDFHLOAD",
         state="initial",
         autostart_override="",
@@ -80,19 +110,46 @@ def test_update_catalog_props_exists():
     result = dataset_utils.update_catalog_props(global_catalog)
     assert result.to_dict()['exists']
     assert result.to_dict()['vsam']
-    mock_dep.exists.assert_called_once()
+    dataset_utils.listcat.assert_called_once()
 
 
 def test_update_catalog_props_vsam():
-    mock_dep = MagicMock()
-    mock_dep.exists.return_value = False
-    mock_dep.ds_type.return_value = None
-    dataset_utils.DataSetUtils = MagicMock(return_value=mock_dep)
+    dataset_utils.listcat = MagicMock(return_value=(0, "\n1IDCAMS  SYSTEM SERVICES                "
+                                                    "                           TIME: 13:57:46    "
+                                                    "    06/26/23    \nPAGE      1\n0        \n  L"
+                                                    "ISTCAT ENTRIES('ANSIBIT.CICS.TESTS.A294D11B.D"
+                                                    "FHGAA')\n0IDC3012I ENTRY ANSIBIT.CICS.TESTS.A"
+                                                    "294D11B.DFHGAA NOT FOUND\n IDC3009I ** VSAM C"
+                                                    "ATALOG RETURN CODE IS 8 - REASON CODE IS IGG0"
+                                                    "CLEG-42\n IDC1566I ** ANSIBIT.CICS.TESTS.A294"
+                                                    "D11B.DFHGAA NOT LISTED\n1IDCAMS  SYSTEM SERVI"
+                                                    "CES                                          "
+                                                    " TIME: 13:57:46        06/26/23    \nPAGE    "
+                                                    "  2\n0         THE NUMBER OF ENTRIES PROCESSE"
+                                                    "D WAS:\n0                   AIX -------------"
+                                                    "------0\n                    ALIAS ----------"
+                                                    "-------0\n                    CLUSTER -------"
+                                                    "--------0\n                    DATA ---------"
+                                                    "---------0\n                    GDG ---------"
+                                                    "----------0\n                    INDEX ------"
+                                                    "-----------0\n                    NONVSAM ---"
+                                                    "------------0\n                    PAGESPACE "
+                                                    "-------------0\n                    PATH ----"
+                                                    "--------------0\n                    SPACE --"
+                                                    "---------------0\n                    USERCAT"
+                                                    "ALOG -----------0\n                    TAPELI"
+                                                    "BRARY -----------0\n                    TAPEV"
+                                                    "OLUME ------------0\n                    TOTA"
+                                                    "L -----------------0\n0         THE NUMBER OF"
+                                                    " PROTECTED ENTRIES SUPPRESSED WAS 0\n0IDC0001"
+                                                    "I FUNCTION COMPLETED, HIGHEST CONDITION CODE "
+                                                    "WAS 4\n0        \n0IDC0002I IDCAMS PROCESSING"
+                                                    " COMPLETE. MAXIMUM CONDITION CODE WAS 4", ""))
 
     catalog_size = dataset_utils.CatalogSize(unit="M", primary=10, secondary=1)
     global_catalog = dataset_utils.GlobalCatalog(
         size=catalog_size,
-        name="ANSI.TEST.DFHGCD",
+        name="ANSIBIT.CICS.TESTS.A294D11B.DFHGAA",
         sdfhload="CICSTS.IN56.SDFHLOAD",
         state="initial",
         autostart_override="",
@@ -102,7 +159,7 @@ def test_update_catalog_props_vsam():
     result = dataset_utils.update_catalog_props(global_catalog)
     assert not result.to_dict()['exists']
     assert not result.to_dict()['vsam']
-    mock_dep.exists.assert_called_once()
+    dataset_utils.listcat.assert_called_once()
 
 
 def test_unit_size_m():
