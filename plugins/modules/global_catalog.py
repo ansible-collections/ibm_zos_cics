@@ -230,15 +230,18 @@ try:
     from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
     from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
     from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
-    from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.system import is_zos
-    from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.mvs_cmd import idcams
 except ImportError:
     ZOS_CORE_IMP_ERR = traceback.format_exc()
 
 ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        GlobalCatalog, CatalogResponse, CatalogSize, update_catalog_props, get_idcams_create_cmd)
+        GlobalCatalog,
+        CatalogResponse,
+        CatalogSize,
+        update_catalog_props,
+        get_idcams_create_cmd,
+        run_idcams)
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
@@ -363,21 +366,21 @@ class AnsibleGlobalCatalogModule(object):
     def create_global_catalog_dataset(self):
         create_cmd = get_idcams_create_cmd(self.starting_catalog)
 
-        filtered = []
-        iterations = 0
-        while len(filtered) == 0 and iterations < 10:
-            rc, stdout, stderr = idcams(cmd=create_cmd, authorized=True)
-            iterations = iterations + 1
-            elements = ["{0}".format(element.replace(" ", "").upper())
-                        for element in stdout.split("\n")]
-            filtered = list(filter(lambda x: "DEFINECLUSTER" in x, elements))
-
+        idcams_output = run_idcams(
+            cmd=create_cmd,
+            name="Create global catalog dataset")
         self.result['idcams_output'] = {
-            'rc': rc,
-            'stdout': stdout,
-            'stderr': stderr,
+            'rc': idcams_output.rc,
+            'stdout': idcams_output.stdout,
+            'stderr': idcams_output.stderr,
         }
-        return CatalogResponse(success=rc == 0, rc=rc, msg=stdout)
+        if idcams_output.rc != 0:
+            self._fail("Error creating KSDS for global catalog")
+
+        return CatalogResponse(
+            success=idcams_output.rc == 0,
+            rc=idcams_output.rc,
+            msg=idcams_output.stdout)
 
     def run_dfhrmutl(self, cmd):  # type: (str) -> CatalogResponse
         dfhrmutl_output = MVSCmd.execute(
@@ -408,23 +411,17 @@ class AnsibleGlobalCatalogModule(object):
         DELETE {0}
         '''.format(self.starting_catalog.name)
 
-        filtered = []
-        iterations = 0
-        while len(filtered) == 0 and iterations < 10:
-            rc, stdout, stderr = idcams(cmd=delete_cmd, authorized=True)
-            iterations = iterations + 1
-            elements = ["{0}".format(element.replace(" ", "").upper())
-                        for element in stdout.split("\n")]
-            filtered = list(
-                filter(
-                    lambda x: "ENTRY(C){0}DELETED".format(
-                        self.starting_catalog.name) in x,
-                    elements))
+        idcams_output = run_idcams(
+            cmd=delete_cmd,
+            name="Removing global catalog dataset")
 
-        if rc == 0:
+        if idcams_output.rc == 0:
             self.result['changed'] = True
 
-        return CatalogResponse(success=rc == 0, rc=rc, msg=stdout)
+        return CatalogResponse(
+            success=idcams_output.rc == 0,
+            rc=idcams_output.rc,
+            msg=idcams_output.stdout)
 
     def init_global_catalog(self):  # type: () -> CatalogResponse
         if self.starting_catalog.exists and self.starting_catalog.autostart_override == AUTO_START_INIT:
@@ -537,7 +534,6 @@ class AnsibleGlobalCatalogModule(object):
         return catalog
 
     def main(self):
-        self.result['is_zos'] = is_zos()
         self.starting_catalog = update_catalog_props(self.starting_catalog)
 
         if self.starting_catalog.exists:

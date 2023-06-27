@@ -4,6 +4,7 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 import traceback
+import re
 
 ZOS_CORE_IMP_ERR = None
 
@@ -77,22 +78,48 @@ class CatalogResponse():
         }
 
 
-def update_catalog_props(catalog):
+class Execution():
+    def __init__(self, name, rc, stdout, stderr):
+        self.name = name
+        self.rc = rc
+        self.stdout = stdout
+        self.stderr = stderr
 
-    filtered = []
-    iterations = 0
-    while len(filtered) == 0 and iterations < 10:
-        rc, stdout, stderr = listcat(catalog)
-        iterations = iterations + 1
-        elements = ["{0}".format(element.replace(" ", "").upper())
-                    for element in stdout.split("\n")]
-        filtered = list(filter(lambda x: "TOTAL---" in x, elements))
-        if len(filtered) != 0:
-            value = filtered[0].replace("-", "").replace("TOTAL", "")
 
-    if rc == 4 or "ENTRY {0} NOT FOUND".format(catalog.name) in stdout:
+def run_idcams(cmd, name):  # type: (str, str) -> Execution
+    for x in range(10):
+        rc, stdout, stderr = idcams(cmd=cmd, authorized=True)
+        if rc == 0 and len(stderr) == 0:
+            output = stdout.replace(" ", "").replace("\n", "")
+            pattern = ".?IDCAMSSYSTEMSERVICESTIME:\\d{2}:\\d{2}:\\d{2}\\d{2}/\\d{2}/\\d{2}PAGE100IDC0002IIDCAMSPROCESSINGCOMPLETE.MAXIMUMCONDITIONCODEWAS0"
+            if re.match(pattern, output) is None:
+                break
+        else:
+            break
+    return Execution(
+        name="IDCAMS - {0}".format(name),
+        rc=rc,
+        stderr=stderr,
+        stdout=stdout
+    )
+
+
+def update_catalog_props(catalog):  # type: (GlobalCatalog) -> GlobalCatalog
+
+    execu = listcat(catalog=catalog)
+    elements = ["{0}".format(element.replace(" ", "").upper())
+                for element in execu.stdout.split("\n")]
+    filtered = list(filter(lambda x: "TOTAL---" in x, elements))
+    value = 0
+    if len(filtered) != 0:
+        value = filtered[0].replace("-", "").replace("TOTAL", "")
+
+    if execu.rc == 4 or "ENTRY{0}NOTFOUND".format(
+        catalog.name.upper()) in execu.stdout.upper().replace(
+        " ",
+            ""):
         catalog.exists = False
-    elif rc == 0:
+    elif execu.rc == 0:
         catalog.exists = True
 
         if "{0}".format(value) == "3":
@@ -100,15 +127,15 @@ def update_catalog_props(catalog):
         else:
             catalog.vsam = False
     else:
-        raise Exception("RC {0} from LISTCAT command".format(rc))
+        raise Exception("RC {0} from LISTCAT command".format(execu.rc))
 
     return catalog
 
 
-def listcat(catalog):
-    listcat_output = idcams(
+def listcat(catalog):  # type: (GlobalCatalog) -> Execution
+    listcat_output = run_idcams(
         cmd=" LISTCAT ENTRIES('{0}')".format(
-            catalog.name), authorized=True)
+            catalog.name), name="Retrieve dataset information (if exists)")
     return listcat_output
 
 
