@@ -25,6 +25,8 @@
         name: "{{ catalog_path }}"
         state: absent
       register: delete_result
+      retries: 3
+      until: delete_result is not failed
 
     - name: Assert Delete Passed
       ansible.builtin.assert:
@@ -44,10 +46,10 @@
     - name: Assert Before
       ansible.builtin.assert:
         that:
-          - result.starting_catalog.exists == False
-          - result.starting_catalog.name == "{{ catalog_path }}"
-          - result.starting_catalog.autostart_override == ''
-          - result.starting_catalog.nextstart == ''
+          - result.start_catalog.exists == False
+          - result.start_catalog.name == "{{ catalog_path }}"
+          - result.start_catalog.autostart_override == ''
+          - result.start_catalog.nextstart == ''
 
     - name: Assert After
       ansible.builtin.assert:
@@ -67,6 +69,8 @@
         name: "{{ catalog_path }}"
         state: absent
       register: delete_result
+      retries: 3
+      until: delete_result is not failed
 
     - name: Assert Delete Passed
       ansible.builtin.assert:

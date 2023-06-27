@@ -118,6 +118,14 @@ class Execution():
         self.stdout = stdout
         self.stderr = stderr
 
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "rc": self.rc,
+            "stdout": self.stdout,
+            "stderr": self.stderr,
+        }
+
 
 def run_idcams(cmd, name):  # type: (str, str) -> Execution
     for x in range(10):

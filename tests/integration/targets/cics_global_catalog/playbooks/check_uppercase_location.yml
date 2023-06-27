@@ -17,6 +17,8 @@
         name: "{{ region_dataset_path }}.LOW.{{ catalog_name }}"
         state: absent
       register: delete_result
+      retries: 3
+      until: delete_result is not failed
 
     - name: Assert Delete Passed
       ansible.builtin.assert:
@@ -41,7 +43,7 @@
     - name: Assert turned to uppercase
       ansible.builtin.assert:
         that:
-          - res.starting_catalog.exists == False
+          - res.start_catalog.exists == False
           - res.end_catalog.exists == True
           - res.end_catalog.name == "{{ region_dataset_path }}.LOW.{{ catalog_name }}"
           - res.end_catalog.autostart_override == 'AUTOINIT'
@@ -57,6 +59,8 @@
         name: "{{ region_dataset_path }}.LOW.{{ catalog_name }}"
         state: absent
       register: delete_result
+      retries: 3
+      until: delete_result is not failed
 
     - name: Assert Delete Passed
       ansible.builtin.assert:

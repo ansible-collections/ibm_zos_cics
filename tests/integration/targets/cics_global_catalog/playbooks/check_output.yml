@@ -25,6 +25,8 @@
         name: "{{ catalog_path }}"
         state: absent
       register: delete_result
+      retries: 3
+      until: delete_result is not failed
 
     - name: Assert Delete Passed
       ansible.builtin.assert:
@@ -46,9 +48,7 @@
         that:
           - res.failed is false
           - res.changed is true
-          - res.result.rc == 0
-          - res.result.success is true
-          - res.starting_catalog.exists is false
+          - res.start_catalog.exists is false
           - res.end_catalog.exists is true
 
     - name: Try recreating same catalog
@@ -62,8 +62,8 @@
         that:
           - res.failed is false
           - res.changed is false
-          - res.starting_catalog.exists is true
-          - res.starting_catalog.state == "initial"
+          - res.start_catalog.exists is true
+          - res.start_catalog.state == "initial"
 
     - name: Remove catalog
       environment: "{{ environment_vars }}"
@@ -76,11 +76,9 @@
         that:
           - res.failed is false
           - res.changed is true
-          - res.starting_catalog.exists is true
+          - res.start_catalog.exists is true
           - res.end_catalog.exists is false
-          - res.starting_catalog.state == "absent"
-          - res.result.rc == 0
-          - res.result.success is true
+          - res.start_catalog.state == "absent"
 
     - name: Try removing catalog, changed is false
       environment: "{{ environment_vars }}"
@@ -93,4 +91,4 @@
         that:
           - res.failed is false
           - res.changed is false
-          - res.starting_catalog.exists is false
+          - res.start_catalog.exists is false

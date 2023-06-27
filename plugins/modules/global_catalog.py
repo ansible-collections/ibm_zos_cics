@@ -241,7 +241,8 @@ try:
         CatalogSize,
         update_catalog_props,
         get_idcams_create_cmd,
-        run_idcams)
+        run_idcams,
+        Execution)
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
@@ -284,13 +285,17 @@ class AnsibleGlobalCatalogModule(object):
         self.result = {}
         self.result['changed'] = False
         self.result['failed'] = False
+        self.result['executions'] = []
+        self.executions = []
         self.validate_parameters()
 
     def _fail(self, msg):  # type: (str) -> None
         self.result['failed'] = True
+        self.result['executions'] = self.executions
         self._module.fail_json(msg=msg, **self.result)
 
     def _exit(self):
+        self.result['executions'] = self.executions
         self._module.exit_json(**self.result)
 
     def init_argument_spec(self):  # type: () -> Dict
@@ -375,12 +380,8 @@ class AnsibleGlobalCatalogModule(object):
 
         idcams_output = run_idcams(
             cmd=create_cmd,
-            name="Create global catalog dataset")
-        self.result['idcams_output'] = {
-            'rc': idcams_output.rc,
-            'stdout': idcams_output.stdout,
-            'stderr': idcams_output.stderr,
-        }
+            name="Create global catalog dataset")  # type: Execution
+        self.executions.append(idcams_output.to_dict())
         if idcams_output.rc != 0:
             self._fail("Error creating KSDS for global catalog")
 
@@ -396,12 +397,14 @@ class AnsibleGlobalCatalogModule(object):
             verbose=True,
             debug=False)
 
+        execu = Execution(
+            name="DFHRMUTL - Initialize catalog",
+            rc=dfhrmutl_output.rc,
+            stdout=dfhrmutl_output.stdout,
+            stderr=dfhrmutl_output.stderr)
+        self.executions.append(execu.to_dict())
+
         if dfhrmutl_output.rc != 0:
-            self.result['DFHRMUTL_error'] = {
-                'rc': dfhrmutl_output.rc,
-                'stdout': dfhrmutl_output.stdout,
-                'stderr': dfhrmutl_output.stderr,
-            }
             self._fail("Error running DFHRMUTL")
 
         self.result['changed'] = True
@@ -420,7 +423,8 @@ class AnsibleGlobalCatalogModule(object):
 
         idcams_output = run_idcams(
             cmd=delete_cmd,
-            name="Removing global catalog dataset")
+            name="Removing global catalog dataset")  # type: Execution
+        self.executions.append(idcams_output.to_dict())
 
         if idcams_output.rc == 0:
             self.result['changed'] = True
@@ -519,12 +523,14 @@ class AnsibleGlobalCatalogModule(object):
             verbose=True,
             debug=False)
 
+        execu = Execution(
+            name="DFHRMUTL - Get current catalog",
+            rc=dfhrmutl_output.rc,
+            stdout=dfhrmutl_output.stdout,
+            stderr=dfhrmutl_output.stderr)
+        self.executions.append(execu.to_dict())
+
         if dfhrmutl_output.rc != 0:
-            self.result['DFHRMUTL_error'] = {
-                'rc': dfhrmutl_output.rc,
-                'stdout': dfhrmutl_output.stdout,
-                'stderr': dfhrmutl_output.stderr,
-            }
             self._fail("Error running DFHRMUTL")
 
         elements = ['{0}'.format(element.replace(" ", "").upper())
@@ -547,14 +553,14 @@ class AnsibleGlobalCatalogModule(object):
             self.starting_catalog = self.get_global_catalog_records(
                 self.starting_catalog)
 
-        self.result['starting_catalog'] = self.starting_catalog.to_dict()
+        self.result['start_catalog'] = self.starting_catalog.to_dict()
 
         if self.starting_catalog.nextstart and self.starting_catalog.nextstart.upper(
         ) == NEXT_START_EMERGENCY:
             self._fail("Next start type is {0}, potential dataloss prevented".format(
                 NEXT_START_EMERGENCY))
 
-        result = self.get_target_method(
+        self.get_target_method(
             self.starting_catalog.state)()
 
         self.end_catalog = self.starting_catalog
@@ -567,7 +573,6 @@ class AnsibleGlobalCatalogModule(object):
             self.end_catalog.autostart_override = ""
             self.end_catalog.nextstart = ""
         self.result['end_catalog'] = self.end_catalog.to_dict()
-        self.result['result'] = result.to_dict()
         self._exit()
 
 
