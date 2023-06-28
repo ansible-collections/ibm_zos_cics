@@ -259,6 +259,10 @@ CATALOG_SPACE_UNIT_OPTIONS = ["K", "M", "REC", "CYL", "TRK"]
 
 CATALOG_SECONDARY_SPACE_VALUE_DEFAULT = 1
 
+CATALOG_RECORD_COUNT_DEFAULT = 4089
+CATALOG_RECORD_SIZE_DEFAULT = 32760
+CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT = 32768
+
 CATALOG_TARGET_STATE_OPTIONS = ['absent', 'initial', 'cold', 'warm']
 
 AUTO_START_WARM = "AUTOASIS"
@@ -354,7 +358,10 @@ class AnsibleGlobalCatalogModule(object):
             size=CatalogSize(
                 result.get('space_type'),
                 result.get('space_primary'),
-                CATALOG_SECONDARY_SPACE_VALUE_DEFAULT),
+                CATALOG_SECONDARY_SPACE_VALUE_DEFAULT,
+                CATALOG_RECORD_COUNT_DEFAULT,
+                CATALOG_RECORD_SIZE_DEFAULT,
+                CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT),
             name=result.get('location'),
             sdfhload=result.get('sdfhload'),
             state=result.get('state'),

@@ -13,17 +13,20 @@ except ImportError:
 
 
 def test_catalog_size_class():
-    catalog_size = dataset_utils.CatalogSize(unit="M", primary=10, secondary=1)
+    catalog_size = dataset_utils.CatalogSize(unit="M", primary=10, secondary=1, record_count=70, record_size=2041, control_interval_size=2048)
     catalog_dict = catalog_size.to_dict()
     assert catalog_dict == {
-        "unit": "M",
-        "primary": 10,
-        "secondary": 1
+        'unit': "M",
+        'primary': 10,
+        'secondary': 1,
+        'record_count': 70,
+        'record_size': 2041,
+        'control_interval_size': 2048
     }
 
 
 def test_global_catalog_class():
-    catalog_size = dataset_utils.CatalogSize(unit="M", primary=10, secondary=1)
+    catalog_size = dataset_utils.CatalogSize(unit="M", primary=10, secondary=1, record_count=4089, record_size=32760, control_interval_size=32768)
     global_catalog = dataset_utils.GlobalCatalog(
         size=catalog_size,
         name="ANSI.TEST.DFHGCD",
@@ -38,7 +41,10 @@ def test_global_catalog_class():
         "size": {
             "unit": "M",
             "primary": 10,
-            "secondary": 1
+            "secondary": 1,
+            "record_count": 4089,
+            "record_size": 32760,
+            "control_interval_size": 32768
         },
         "name": "ANSI.TEST.DFHGCD",
         "sdfhload": "CICSTS.IN56.SDFHLOAD",
@@ -99,7 +105,7 @@ def test_update_catalog_props_exists():
         "ON CODE WAS 0", stderr="", name="")
     dataset_utils.listcat = MagicMock(return_value=execu)
 
-    catalog_size = dataset_utils.CatalogSize(unit="M", primary=10, secondary=1)
+    catalog_size = dataset_utils.CatalogSize(unit="M", primary=10, secondary=1, record_count=4089, record_size=32760, control_interval_size=32768)
     global_catalog = dataset_utils.GlobalCatalog(
         size=catalog_size,
         name="ANSIBIT.CICS.TESTS.A294D11B.DFHGCD",
@@ -150,7 +156,7 @@ def test_update_catalog_props_vsam():
         " COMPLETE. MAXIMUM CONDITION CODE WAS 4", stderr="", name="")
     dataset_utils.listcat = MagicMock(return_value=execu)
 
-    catalog_size = dataset_utils.CatalogSize(unit="M", primary=10, secondary=1)
+    catalog_size = dataset_utils.CatalogSize(unit="M", primary=10, secondary=1, record_count=4089, record_size=32760, control_interval_size=32768)
     global_catalog = dataset_utils.GlobalCatalog(
         size=catalog_size,
         name="ANSIBIT.CICS.TESTS.A294D11B.DFHGAA",
@@ -209,7 +215,7 @@ def test_unit_size_empty():
 
 
 def test_get_idcams_cmd_m():
-    catalog_size = dataset_utils.CatalogSize(unit="M", primary=10, secondary=1)
+    catalog_size = dataset_utils.CatalogSize(unit="M", primary=10, secondary=1, record_count=4089, record_size=32760, control_interval_size=32768)
     catalog = dataset_utils.GlobalCatalog(
         size=catalog_size,
         name="ANSI.TEST.DFHGCD",
@@ -240,7 +246,7 @@ def test_get_idcams_cmd_m():
 
 def test_get_idcams_cmd_cyl():
     catalog_size = dataset_utils.CatalogSize(
-        unit="CYL", primary=3, secondary=1)
+        unit="CYL", primary=3, secondary=1, record_count=4089, record_size=32760, control_interval_size=32768)
     catalog = dataset_utils.GlobalCatalog(
         size=catalog_size,
         name="ANSI.CYLS.DFHGCD",

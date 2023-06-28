@@ -16,16 +16,22 @@ except ImportError:
 
 class CatalogSize():
 
-    def __init__(self, unit, primary, secondary):
+    def __init__(self, unit, primary, secondary, record_count, record_size, control_interval_size):
         self.unit = unit
         self.primary = primary
         self.secondary = secondary
+        self.record_count = record_count
+        self.record_size = record_size
+        self.control_interval_size = control_interval_size
 
     def to_dict(self):
         return {
             'unit': self.unit,
             'primary': self.primary,
             'secondary': self.secondary,
+            'record_count': self.record_count,
+            'record_size': self.record_size,
+            'control_interval_size': self.control_interval_size,
         }
 
 
@@ -58,6 +64,33 @@ class GlobalCatalog():
             'state': self.state,
             'autostart_override': self.autostart_override,
             'nextstart': self.nextstart,
+            'exists': self.exists,
+            'vsam': self.vsam,
+        }
+
+
+class LocalCatalog():
+    def __init__(
+            self,
+            size,
+            name,
+            sdfhload,
+            state,
+            exists,
+            vsam):
+        self.size = size
+        self.name = name
+        self.sdfhload = sdfhload
+        self.state = state
+        self.exists = exists
+        self.vsam = vsam
+
+    def to_dict(self):
+        return {
+            'size': self.size.to_dict(),
+            'name': self.name,
+            'sdfhload': self.sdfhload,
+            'state': self.state,
             'exists': self.exists,
             'vsam': self.vsam,
         }
@@ -157,15 +190,18 @@ def get_idcams_create_cmd(catalog):
         {1}({2} {3})             -
         SHR(2)              -
         FREESPACE(10 10)              -
-        RECORDSIZE(4089 32760)       -
+        RECORDSIZE({4} {5})       -
         REUSE)              -
         DATA                           -
         (NAME({0}.DATA)  -
-        CONTROLINTERVALSIZE(32768)    -
+        CONTROLINTERVALSIZE({6})    -
         KEYS(52 0))  -
         INDEX                          -
         (NAME({0}.INDEX))
     '''.format(catalog.name,
                get_catalog_size_unit(catalog.size.unit),
                catalog.size.primary,
-               catalog.size.secondary)
+               catalog.size.secondary,
+               catalog.size.record_count,
+               catalog.size.record_size,
+               catalog.size.control_interval_size)
