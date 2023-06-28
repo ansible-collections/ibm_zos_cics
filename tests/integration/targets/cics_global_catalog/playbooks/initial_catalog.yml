@@ -31,7 +31,7 @@
     - name: Assert Delete Passed
       ansible.builtin.assert:
         that:
-          - delete_result.failed == False
+          - delete_result.failed == false
 
     # #############################################################################
     # ############################## Module Testing ###############################
@@ -43,21 +43,19 @@
         state: "initial"
       register: result
 
-    - name: Assert Before
+    - name: Assert Created Catalog
       ansible.builtin.assert:
         that:
-          - result.start_catalog.exists == False
-          - result.start_catalog.name == "{{ catalog_path }}"
-          - result.start_catalog.autostart_override == ''
-          - result.start_catalog.nextstart == ''
+          - result.failed is false
+          - result.changed is true
 
-    - name: Assert After
-      ansible.builtin.assert:
-        that:
-          - result.end_catalog.exists == True
-          - result.end_catalog.name == "{{ catalog_path }}"
+          - result.start_catalog.exists == false
+          - result.start_catalog.autostart_override == ''
+          - result.start_catalog.next_start == ''
+
+          - result.end_catalog.exists == true
           - result.end_catalog.autostart_override == 'AUTOINIT'
-          - result.end_catalog.nextstart == 'UNKNOWN'
+          - result.end_catalog.next_start == 'UNKNOWN'
 
     # #############################################################################
     # ################################## Cleanup ##################################
@@ -75,4 +73,4 @@
     - name: Assert Delete Passed
       ansible.builtin.assert:
         that:
-          - delete_result.failed == False
+          - delete_result.failed == false

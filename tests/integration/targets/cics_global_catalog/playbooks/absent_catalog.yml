@@ -31,7 +31,7 @@
     - name: Assert Delete Passed
       ansible.builtin.assert:
         that:
-          - delete_result.failed == False
+          - delete_result.failed == false
 
     # #############################################################################
     # ############################ Initialize Catalog #############################
@@ -43,22 +43,19 @@
         state: "initial"
       register: initial_result
 
-    - name: Assert Before
+    - name: Assert Created
       ansible.builtin.assert:
         that:
-          - initial_result.start_catalog.exists == False
-          - initial_result.start_catalog.name == "{{ catalog_path }}"
+          - initial_result.failed is false
+          - initial_result.changed is true
+
+          - initial_result.start_catalog.exists == false
           - initial_result.start_catalog.autostart_override == ''
-          - initial_result.start_catalog.nextstart == ''
+          - initial_result.start_catalog.next_start == ''
 
-    - name: Assert After
-      ansible.builtin.assert:
-        that:
-          - initial_result.end_catalog.exists == True
-          - initial_result.end_catalog.name == "{{ catalog_path }}"
+          - initial_result.end_catalog.exists == true
           - initial_result.end_catalog.autostart_override == 'AUTOINIT'
-          - initial_result.end_catalog.nextstart == 'UNKNOWN'
-
+          - initial_result.end_catalog.next_start == 'UNKNOWN'
 
     # #############################################################################
     # ############################## Module Testing ###############################
@@ -70,19 +67,19 @@
         state: "absent"
       register: absent_result
 
-    - name: Assert Before
+    - name: Assert Removed
       ansible.builtin.assert:
         that:
-          - absent_result.start_catalog.exists == True
-          - absent_result.start_catalog.name == "{{ catalog_path }}"
+          - absent_result.failed is false
+          - absent_result.changed is true
+
+          - absent_result.start_catalog.exists == true
           - absent_result.start_catalog.autostart_override == 'AUTOINIT'
-          - absent_result.start_catalog.nextstart == 'UNKNOWN'
+          - absent_result.start_catalog.next_start == 'UNKNOWN'
 
-    - name: Assert After
-      ansible.builtin.assert:
-        that:
-          - absent_result.end_catalog.exists == False
-
+          - absent_result.end_catalog.exists is false
+          - absent_result.end_catalog.autostart_override == ''
+          - absent_result.end_catalog.next_start == ''
 
     # #############################################################################
     # ################################## Cleanup ##################################
@@ -100,4 +97,4 @@
     - name: Assert Delete Passed
       ansible.builtin.assert:
         that:
-          - delete_result.failed == False
+          - delete_result.failed == false

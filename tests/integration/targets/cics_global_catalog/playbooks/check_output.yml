@@ -31,7 +31,7 @@
     - name: Assert Delete Passed
       ansible.builtin.assert:
         that:
-          - delete_result.failed == False
+          - delete_result.failed == false
 
     # #############################################################################
     # ############################## Module Testing ###############################
@@ -63,7 +63,7 @@
           - res.failed is false
           - res.changed is false
           - res.start_catalog.exists is true
-          - res.start_catalog.state == "initial"
+          - res.end_catalog.exists is true
 
     - name: Remove catalog
       environment: "{{ environment_vars }}"
@@ -78,7 +78,6 @@
           - res.changed is true
           - res.start_catalog.exists is true
           - res.end_catalog.exists is false
-          - res.start_catalog.state == "absent"
 
     - name: Try removing catalog, changed is false
       environment: "{{ environment_vars }}"
@@ -92,3 +91,4 @@
           - res.failed is false
           - res.changed is false
           - res.start_catalog.exists is false
+          - res.end_catalog.exists is false

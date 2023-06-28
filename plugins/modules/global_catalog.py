@@ -415,6 +415,11 @@ class AnsibleGlobalCatalogModule(object):
 
     def delete_global_catalog(self):  # type: () -> CatalogResponse
         if not self.starting_catalog.exists:
+            self.result['end_catalog'] = {
+                "exists": self.starting_catalog.exists,
+                "autostart_override": self.starting_catalog.autostart_override,
+                "next_start": self.starting_catalog.nextstart,
+            }
             self._exit()
 
         delete_cmd = '''
@@ -436,6 +441,11 @@ class AnsibleGlobalCatalogModule(object):
 
     def init_global_catalog(self):  # type: () -> CatalogResponse
         if self.starting_catalog.exists and self.starting_catalog.autostart_override == AUTO_START_INIT:
+            self.result['end_catalog'] = {
+                "exists": self.starting_catalog.exists,
+                "autostart_override": self.starting_catalog.autostart_override,
+                "next_start": self.starting_catalog.nextstart,
+            }
             self._exit()
 
         if not self.starting_catalog.exists:
@@ -454,6 +464,11 @@ class AnsibleGlobalCatalogModule(object):
                     self.starting_catalog.name))
 
         if self.starting_catalog.autostart_override == AUTO_START_WARM:
+            self.result['end_catalog'] = {
+                "exists": self.starting_catalog.exists,
+                "autostart_override": self.starting_catalog.autostart_override,
+                "next_start": self.starting_catalog.nextstart,
+            }
             self._exit()
 
         if (
@@ -472,6 +487,11 @@ class AnsibleGlobalCatalogModule(object):
                     self.starting_catalog.name))
 
         if self.starting_catalog.autostart_override == AUTO_START_COLD:
+            self.result['end_catalog'] = {
+                "exists": self.starting_catalog.exists,
+                "autostart_override": self.starting_catalog.autostart_override,
+                "next_start": self.starting_catalog.nextstart,
+            }
             self._exit()
 
         if (
@@ -553,7 +573,11 @@ class AnsibleGlobalCatalogModule(object):
             self.starting_catalog = self.get_global_catalog_records(
                 self.starting_catalog)
 
-        self.result['start_catalog'] = self.starting_catalog.to_dict()
+        self.result['start_catalog'] = {
+            "exists": self.starting_catalog.exists,
+            "autostart_override": self.starting_catalog.autostart_override,
+            "next_start": self.starting_catalog.nextstart,
+        }
 
         if self.starting_catalog.nextstart and self.starting_catalog.nextstart.upper(
         ) == NEXT_START_EMERGENCY:
@@ -572,7 +596,11 @@ class AnsibleGlobalCatalogModule(object):
             self.end_catalog.vsam = False
             self.end_catalog.autostart_override = ""
             self.end_catalog.nextstart = ""
-        self.result['end_catalog'] = self.end_catalog.to_dict()
+        self.result['end_catalog'] = {
+            "exists": self.end_catalog.exists,
+            "autostart_override": self.end_catalog.autostart_override,
+            "next_start": self.end_catalog.nextstart,
+        }
         self._exit()
 
 

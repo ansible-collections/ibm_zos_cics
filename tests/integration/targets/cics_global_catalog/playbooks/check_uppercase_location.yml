@@ -23,7 +23,7 @@
     - name: Assert Delete Passed
       ansible.builtin.assert:
         that:
-          - delete_result.failed == False
+          - delete_result.failed == false
 
     # #############################################################################
     # ############################## Module Testing ###############################
@@ -37,17 +37,22 @@
         space_primary: 5
         space_type: "M"
         state: "initial"
-      register: res
+      register: result
       failed_when: false
 
-    - name: Assert turned to uppercase
+    - name: Assert passed with lowercase
       ansible.builtin.assert:
         that:
-          - res.start_catalog.exists == False
-          - res.end_catalog.exists == True
-          - res.end_catalog.name == "{{ region_dataset_path }}.LOW.{{ catalog_name }}"
-          - res.end_catalog.autostart_override == 'AUTOINIT'
-          - res.end_catalog.nextstart == 'UNKNOWN'
+          - result.failed is false
+          - result.changed is true
+
+          - result.start_catalog.exists == false
+          - result.start_catalog.autostart_override == ''
+          - result.start_catalog.next_start == ''
+
+          - result.end_catalog.exists == true
+          - result.end_catalog.autostart_override == 'AUTOINIT'
+          - result.end_catalog.next_start == 'UNKNOWN'
 
     # #############################################################################
     # ################################## Cleanup ##################################
@@ -65,4 +70,4 @@
     - name: Assert Delete Passed
       ansible.builtin.assert:
         that:
-          - delete_result.failed == False
+          - delete_result.failed == false
