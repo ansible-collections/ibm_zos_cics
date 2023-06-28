@@ -220,15 +220,13 @@ result:
 """
 
 
-from typing import Dict, List
+from typing import Dict
 from ansible.module_utils.basic import AnsibleModule
 import traceback
 
 DDStatement = None
 ZOS_CORE_IMP_ERR = None
 try:
-    from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
-    from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
     from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 except ImportError:
     ZOS_CORE_IMP_ERR = traceback.format_exc()
@@ -239,10 +237,11 @@ try:
         GlobalCatalog,
         CatalogResponse,
         CatalogSize,
-        update_catalog_props,
         get_idcams_create_cmd,
         run_idcams,
         Execution)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.listds import run_listds
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dfhrmutl import run_dfhrmutl
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
@@ -374,6 +373,7 @@ class AnsibleGlobalCatalogModule(object):
             nextstart="",
             exists=False,
             vsam=False)
+        self.end_catalog = self.starting_catalog
 
     def create_global_catalog_dataset(self):
         create_cmd = get_idcams_create_cmd(self.starting_catalog)
@@ -385,33 +385,11 @@ class AnsibleGlobalCatalogModule(object):
         if idcams_output.rc != 0:
             self._fail("Error creating KSDS for global catalog")
 
+        self.result['changed'] = True
         return CatalogResponse(
             success=idcams_output.rc == 0,
             rc=idcams_output.rc,
             msg=idcams_output.stdout)
-
-    def run_dfhrmutl(self, cmd):  # type: (str) -> CatalogResponse
-        dfhrmutl_output = MVSCmd.execute(
-            pgm="DFHRMUTL",
-            dds=self.get_rmutl_dds(catalog=self.starting_catalog, cmd=cmd),
-            verbose=True,
-            debug=False)
-
-        execu = Execution(
-            name="DFHRMUTL - Initialize catalog",
-            rc=dfhrmutl_output.rc,
-            stdout=dfhrmutl_output.stdout,
-            stderr=dfhrmutl_output.stderr)
-        self.executions.append(execu.to_dict())
-
-        if dfhrmutl_output.rc != 0:
-            self._fail("Error running DFHRMUTL")
-
-        self.result['changed'] = True
-        return CatalogResponse(
-            success=True,
-            rc=dfhrmutl_output.rc,
-            msg=dfhrmutl_output.stdout)
 
     def delete_global_catalog(self):  # type: () -> CatalogResponse
         if not self.starting_catalog.exists:
@@ -455,7 +433,13 @@ class AnsibleGlobalCatalogModule(object):
                     "IDCAMS failed with rc {0} and message: {1}".format(
                         idcams_output.rc, idcams_output.msg))
 
-        return self.run_dfhrmutl(cmd="SET_AUTO_START=AUTOINIT")
+        dfhrmutl_executions = run_dfhrmutl(
+            self.starting_catalog.name,
+            self.starting_catalog.sdfhload,
+            cmd="SET_AUTO_START=AUTOINIT")
+        self.result['changed'] = True
+        self.executions.append([element.to_dict()
+                                for element in dfhrmutl_executions])
 
     def warm_global_catalog(self):  # type: () -> CatalogResponse
         if not self.starting_catalog.exists:
@@ -478,7 +462,13 @@ class AnsibleGlobalCatalogModule(object):
             self._fail(
                 "Unused Catalog - it must be used by CICS before doing a warm start")
 
-        return self.run_dfhrmutl(cmd="SET_AUTO_START=AUTOASIS")
+        dfhrmutl_executions = run_dfhrmutl(
+            self.starting_catalog.name,
+            self.starting_catalog.sdfhload,
+            cmd="SET_AUTO_START=AUTOASIS")
+        self.result['changed'] = True
+        self.executions.append([element.to_dict()
+                                for element in dfhrmutl_executions])
 
     def cold_global_catalog(self):  # type: () -> CatalogResponse
         if not self.starting_catalog.exists:
@@ -501,7 +491,13 @@ class AnsibleGlobalCatalogModule(object):
             self._fail(
                 "Unused Catalog - it must be used by CICS before doing a cold start")
 
-        return self.run_dfhrmutl(cmd="SET_AUTO_START=AUTOCOLD")
+        dfhrmutl_executions = run_dfhrmutl(
+            self.starting_catalog.name,
+            self.starting_catalog.sdfhload,
+            cmd="SET_AUTO_START=AUTOCOLD")
+        self.result['changed'] = True
+        self.executions.append([element.to_dict()
+                                for element in dfhrmutl_executions])
 
     def invalid_target_state(self):  # type: () -> None
         self._fail("{0} is not a valid target state".format(
@@ -515,63 +511,31 @@ class AnsibleGlobalCatalogModule(object):
             'warm': self.warm_global_catalog,
         }.get(target, self.invalid_target_state)
 
-    def get_rmutl_dds(
-            self,
-            catalog,
-            cmd):  # type: (GlobalCatalog, str) -> List[DDStatement]
-        return [
-            DDStatement('steplib', DatasetDefinition(catalog.sdfhload)),
-            DDStatement('dfhgcd', DatasetDefinition(catalog.name)),
-            DDStatement('sysin', InputDefinition(content=cmd)),
-            DDStatement('sysprint', StdoutDefinition()),
-        ]
+    def update_catalog(self, catalog):
+        listds_executions, ds_status = run_listds(catalog.name)
 
-    def get_value_from_line(self, line):  # type: (List[str]) -> str
-        val = None
-        if len(line) == 1:
-            val = line[0].split(":")[1]
-        return val
+        catalog.exists = ds_status['exists']
+        catalog.vsam = ds_status['vsam']
 
-    def get_filtered_list(self, elements, target):
-        return list(filter(lambda x: target in x, elements))
+        self.executions.append([element.to_dict()
+                                for element in listds_executions])
 
-    def get_global_catalog_records(
-            self, catalog):  # type: (GlobalCatalog) -> GlobalCatalog
-        dfhrmutl_output = MVSCmd.execute(
-            pgm="DFHRMUTL",
-            dds=self.get_rmutl_dds(catalog=catalog, cmd=""),
-            verbose=True,
-            debug=False)
+        if catalog.exists and catalog.vsam:
+            dfhrmutl_executions, catalog_status = run_dfhrmutl(
+                catalog.name, catalog.sdfhload)
 
-        execu = Execution(
-            name="DFHRMUTL - Get current catalog",
-            rc=dfhrmutl_output.rc,
-            stdout=dfhrmutl_output.stdout,
-            stderr=dfhrmutl_output.stderr)
-        self.executions.append(execu.to_dict())
+            catalog.autostart_override = catalog_status['autostart_override']
+            catalog.nextstart = catalog_status['next_start']
 
-        if dfhrmutl_output.rc != 0:
-            self._fail("Error running DFHRMUTL")
-
-        elements = ['{0}'.format(element.replace(" ", "").upper())
-                    for element in dfhrmutl_output.stdout.split("\n")]
-
-        autostart_filtered = self.get_filtered_list(
-            elements, "AUTO-STARTOVERRIDE:")
-        nextstart_filtered = self.get_filtered_list(elements, "NEXTSTARTTYPE:")
-
-        catalog.autostart_override = self.get_value_from_line(
-            autostart_filtered)
-        catalog.nextstart = self.get_value_from_line(nextstart_filtered)
-
+            self.executions.append([element.to_dict()
+                                    for element in dfhrmutl_executions])
+        else:
+            catalog.autostart_override = ""
+            catalog.nextstart = ""
         return catalog
 
     def main(self):
-        self.starting_catalog = update_catalog_props(self.starting_catalog)
-
-        if self.starting_catalog.exists:
-            self.starting_catalog = self.get_global_catalog_records(
-                self.starting_catalog)
+        self.starting_catalog = self.update_catalog(self.starting_catalog)
 
         self.result['start_catalog'] = {
             "exists": self.starting_catalog.exists,
@@ -587,15 +551,8 @@ class AnsibleGlobalCatalogModule(object):
         self.get_target_method(
             self.starting_catalog.state)()
 
-        self.end_catalog = self.starting_catalog
-        self.end_catalog = update_catalog_props(self.end_catalog)
-        if self.end_catalog.exists:
-            self.end_catalog = self.get_global_catalog_records(
-                self.end_catalog)
-        else:
-            self.end_catalog.vsam = False
-            self.end_catalog.autostart_override = ""
-            self.end_catalog.nextstart = ""
+        self.end_catalog = self.update_catalog(self.end_catalog)
+
         self.result['end_catalog'] = {
             "exists": self.end_catalog.exists,
             "autostart_override": self.end_catalog.autostart_override,
