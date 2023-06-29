@@ -378,8 +378,8 @@ class AnsibleGlobalCatalogModule(object):
             name="Create global catalog dataset",
             location=self.starting_catalog.name,
             delete=False)
-        self.executions.append(element.to_dict()
-                               for element in idcams_executions)
+        self.executions = self.executions + \
+            ([element.to_dict() for element in idcams_executions])
 
         self.result['changed'] = True
 
@@ -401,8 +401,8 @@ class AnsibleGlobalCatalogModule(object):
             name="Removing global catalog dataset",
             location=self.starting_catalog.name,
             delete=True)
-        self.executions.append(element.to_dict()
-                               for element in idcams_executions)
+        self.executions = self.executions + \
+            ([element.to_dict() for element in idcams_executions])
         self.result['changed'] = True
 
     def init_global_catalog(self):
@@ -422,8 +422,8 @@ class AnsibleGlobalCatalogModule(object):
             self.starting_catalog.sdfhload,
             cmd="SET_AUTO_START=AUTOINIT")
         self.result['changed'] = True
-        self.executions.append(element.to_dict()
-                               for element in dfhrmutl_executions)
+        self.executions = self.executions + \
+            ([element.to_dict() for element in dfhrmutl_executions])
 
     def warm_global_catalog(self):
         if not self.starting_catalog.exists:
@@ -451,8 +451,8 @@ class AnsibleGlobalCatalogModule(object):
             self.starting_catalog.sdfhload,
             cmd="SET_AUTO_START=AUTOASIS")
         self.result['changed'] = True
-        self.executions.append(element.to_dict()
-                               for element in dfhrmutl_executions)
+        self.executions = self.executions + \
+            ([element.to_dict() for element in dfhrmutl_executions])
 
     def cold_global_catalog(self):
         if not self.starting_catalog.exists:
@@ -480,8 +480,8 @@ class AnsibleGlobalCatalogModule(object):
             self.starting_catalog.sdfhload,
             cmd="SET_AUTO_START=AUTOCOLD")
         self.result['changed'] = True
-        self.executions.append(element.to_dict()
-                               for element in dfhrmutl_executions)
+        self.executions = self.executions + \
+            ([element.to_dict() for element in dfhrmutl_executions])
 
     def invalid_target_state(self):  # type: () -> None
         self._fail("{0} is not a valid target state".format(
@@ -501,8 +501,8 @@ class AnsibleGlobalCatalogModule(object):
         catalog.exists = ds_status['exists']
         catalog.vsam = ds_status['vsam']
 
-        self.executions.append(element.to_dict()
-                               for element in listds_executions)
+        self.executions = self.executions + \
+            ([element.to_dict() for element in listds_executions])
 
         if catalog.exists and catalog.vsam:
             dfhrmutl_executions, catalog_status = run_dfhrmutl(
@@ -511,8 +511,8 @@ class AnsibleGlobalCatalogModule(object):
             catalog.autostart_override = catalog_status['autostart_override']
             catalog.nextstart = catalog_status['next_start']
 
-            self.executions.append(element.to_dict()
-                                   for element in dfhrmutl_executions)
+            self.executions = self.executions + \
+                ([element.to_dict() for element in dfhrmutl_executions])
         else:
             catalog.autostart_override = ""
             catalog.nextstart = ""
