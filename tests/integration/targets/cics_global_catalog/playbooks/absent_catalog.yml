@@ -67,6 +67,10 @@
         state: "absent"
       register: absent_result
 
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ absent_result }}"
+
     - name: Assert Removed
       ansible.builtin.assert:
         that:

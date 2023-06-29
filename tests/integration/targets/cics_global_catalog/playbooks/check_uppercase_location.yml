@@ -40,6 +40,10 @@
       register: result
       failed_when: false
 
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ result }}"
+
     - name: Assert passed with lowercase
       ansible.builtin.assert:
         that:

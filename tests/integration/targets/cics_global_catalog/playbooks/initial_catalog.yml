@@ -43,6 +43,10 @@
         state: "initial"
       register: result
 
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ result }}"
+
     - name: Assert Created Catalog
       ansible.builtin.assert:
         that:

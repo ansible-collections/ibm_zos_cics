@@ -43,6 +43,10 @@
         state: "initial"
       register: res
 
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ res }}"
+
     - name: Assert Catalog Created, changed is true
       ansible.builtin.assert:
         that:
@@ -56,6 +60,10 @@
       ibm.ibm_zos_cics.global_catalog:
         state: "initial"
       register: res
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ res }}"
 
     - name: Assert Catalog Created, changed is false
       ansible.builtin.assert:
@@ -71,6 +79,10 @@
         state: "absent"
       register: res
 
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ res }}"
+
     - name: Assert Catalog Removed, changed is true
       ansible.builtin.assert:
         that:
@@ -84,6 +96,10 @@
       ibm.ibm_zos_cics.global_catalog:
         state: "absent"
       register: res
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ res }}"
 
     - name: Assert Catalog removed, changed is false
       ansible.builtin.assert:

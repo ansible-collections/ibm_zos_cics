@@ -234,13 +234,9 @@ except ImportError:
 ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        GlobalCatalog,
-        CatalogResponse,
-        CatalogSize,
-        get_idcams_create_cmd,
-        run_idcams,
-        Execution)
+        GlobalCatalog, CatalogSize, get_idcams_create_cmd)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.listds import run_listds
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.idcams import run_idcams
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dfhrmutl import run_dfhrmutl
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
@@ -326,32 +322,31 @@ class AnsibleGlobalCatalogModule(object):
         }
 
     def validate_parameters(self):
-        arg_defs = dict(
-            space_primary=dict(
-                arg_type='int',
-                default=CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
-            ),
-            space_type=dict(
-                arg_type='str',
-                choices=CATALOG_SPACE_UNIT_OPTIONS,
-                default=CATALOG_PRIMARY_SPACE_UNIT_DEFAULT,
-            ),
-            location=dict(
-                arg_type='data_set_base',
-                required=True,
-            ),
-            sdfhload=dict(
-                arg_type='data_set_base',
-                required=True,
-            ),
-            state=dict(
-                arg_type='str',
-                choices=CATALOG_TARGET_STATE_OPTIONS,
-                required=True,
-            ),
-        )
-        parser = BetterArgParser(arg_defs)
-        result = parser.parse_args({
+        arg_defs = {
+            CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
+                "arg_type": 'int',
+                "default": CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
+            },
+            CATALOG_PRIMARY_SPACE_UNIT_ALIAS: {
+                "arg_type": 'str',
+                "choices": CATALOG_SPACE_UNIT_OPTIONS,
+                "default": CATALOG_PRIMARY_SPACE_UNIT_DEFAULT,
+            },
+            CATALOG_GCD_ALIAS: {
+                "arg_type": 'data_set_base',
+                "required": True,
+            },
+            CATALOG_STEPLIB_ALIAS: {
+                "arg_type": 'data_set_base',
+                "required": True,
+            },
+            CATALOG_TARGET_STATE_ALIAS: {
+                "arg_type": 'str',
+                "choices": CATALOG_TARGET_STATE_OPTIONS,
+                "required": True,
+            },
+        }
+        result = BetterArgParser(arg_defs).parse_args({
             "space_primary": self._module.params.get(CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
             "space_type": self._module.params.get(CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
             "location": self._module.params.get(CATALOG_GCD_ALIAS).upper(),
@@ -378,20 +373,17 @@ class AnsibleGlobalCatalogModule(object):
     def create_global_catalog_dataset(self):
         create_cmd = get_idcams_create_cmd(self.starting_catalog)
 
-        idcams_output = run_idcams(
+        idcams_executions = run_idcams(
             cmd=create_cmd,
-            name="Create global catalog dataset")  # type: Execution
-        self.executions.append(idcams_output.to_dict())
-        if idcams_output.rc != 0:
-            self._fail("Error creating KSDS for global catalog")
+            name="Create global catalog dataset",
+            location=self.starting_catalog.name,
+            delete=False)
+        self.executions.append([element.to_dict()
+                                for element in idcams_executions])
 
         self.result['changed'] = True
-        return CatalogResponse(
-            success=idcams_output.rc == 0,
-            rc=idcams_output.rc,
-            msg=idcams_output.stdout)
 
-    def delete_global_catalog(self):  # type: () -> CatalogResponse
+    def delete_global_catalog(self):
         if not self.starting_catalog.exists:
             self.result['end_catalog'] = {
                 "exists": self.starting_catalog.exists,
@@ -404,20 +396,16 @@ class AnsibleGlobalCatalogModule(object):
         DELETE {0}
         '''.format(self.starting_catalog.name)
 
-        idcams_output = run_idcams(
+        idcams_executions = run_idcams(
             cmd=delete_cmd,
-            name="Removing global catalog dataset")  # type: Execution
-        self.executions.append(idcams_output.to_dict())
+            name="Removing global catalog dataset",
+            location=self.starting_catalog.name,
+            delete=True)
+        self.executions.append([element.to_dict()
+                                for element in idcams_executions])
+        self.result['changed'] = True
 
-        if idcams_output.rc == 0:
-            self.result['changed'] = True
-
-        return CatalogResponse(
-            success=idcams_output.rc == 0,
-            rc=idcams_output.rc,
-            msg=idcams_output.stdout)
-
-    def init_global_catalog(self):  # type: () -> CatalogResponse
+    def init_global_catalog(self):
         if self.starting_catalog.exists and self.starting_catalog.autostart_override == AUTO_START_INIT:
             self.result['end_catalog'] = {
                 "exists": self.starting_catalog.exists,
@@ -427,11 +415,7 @@ class AnsibleGlobalCatalogModule(object):
             self._exit()
 
         if not self.starting_catalog.exists:
-            idcams_output = self.create_global_catalog_dataset()
-            if not idcams_output.success or idcams_output.rc != 0:
-                self._fail(
-                    "IDCAMS failed with rc {0} and message: {1}".format(
-                        idcams_output.rc, idcams_output.msg))
+            self.create_global_catalog_dataset()
 
         dfhrmutl_executions = run_dfhrmutl(
             self.starting_catalog.name,
@@ -441,7 +425,7 @@ class AnsibleGlobalCatalogModule(object):
         self.executions.append([element.to_dict()
                                 for element in dfhrmutl_executions])
 
-    def warm_global_catalog(self):  # type: () -> CatalogResponse
+    def warm_global_catalog(self):
         if not self.starting_catalog.exists:
             self._fail(
                 "Dataset {0} does not exist.".format(
@@ -470,7 +454,7 @@ class AnsibleGlobalCatalogModule(object):
         self.executions.append([element.to_dict()
                                 for element in dfhrmutl_executions])
 
-    def cold_global_catalog(self):  # type: () -> CatalogResponse
+    def cold_global_catalog(self):
         if not self.starting_catalog.exists:
             self._fail(
                 "Dataset {0} does not exist.".format(
