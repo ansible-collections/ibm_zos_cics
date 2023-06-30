@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# (c) Copyright IBM Corp. 2020,2023
+# (c) Copyright IBM Corp. 2023
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
@@ -95,127 +95,62 @@ failed:
   description: True if the query job failed, otherwise False.
   returned: always
   type: bool
-is_zos:
-  description: True if the target environment is z/OS
-  returned: always
-  type: bool
-starting_catalog:
+start_catalog:
   description:
     - The state of the global catalog before the task
-  returned: success
+  returned: always
   type: dict
   contains:
     autostart_override:
       description: The current autostart override record
-      returned: success
+      returned: always
       type: str
-    name:
-      description: The name of the global catalog dataset
-      returned: success
-      type: str
-    nextstart:
+    next_start:
       description: The next start type listed in the catalog
-      returned: success
-      type: str
-    sdfhload:
-      description: The name of the sdfhload
-      returned: success
-      type: str
-    state:
-      description: The specified target state for the catalog
-      returned: success
+      returned: always
       type: str
     exists:
       description: True if the global catalog dataset exists
       type: bool
-      returned: success
-    vsam:
-      description: True if the global catalog dataset is a VSAM
-      type: bool
-      returned: success
-    size:
-      description: Size parameters of the catalog dataset
-      returned: success
-      type: dict
-      contains:
-        primary:
-          description: The primary size allocated for the catalog
-          type: int
-          returned: success
-        secondary:
-          description: The secondary size allocated for the catalog
-          type: int
-          returned: success
-        unit:
-          description: The size unit used for the catalog
-          type: str
-          returned: success
+      returned: always
 end_catalog:
   description: The state of the global catalog at the end of the task.
-  returned: success
+  returned: always
   type: dict
   contains:
     autostart_override:
       description: The current autostart override record
-      returned: success
+      returned: always
       type: str
-    name:
-      description: The name of the global catalog dataset
-      returned: success
-      type: str
-    nextstart:
+    next_start:
       description: The next start type listed in the catalog
-      returned: success
-      type: str
-    sdfhload:
-      description: The name of the sdfhload
-      returned: success
-      type: str
-    state:
-      description: The specified target state for the catalog
-      returned: success
+      returned: always
       type: str
     exists:
       description: True if the global catalog dataset exists
       type: bool
-      returned: success
-    vsam:
-      description: True if the global catalog dataset is a VSAM
-      type: bool
-      returned: success
-    size:
-      description: Size parameters of the catalog dataset
-      returned: success
-      type: dict
-      contains:
-        primary:
-          description: The primary size allocated for the catalog
-          type: int
-          returned: success
-        secondary:
-          description: The secondary size allocated for the catalog
-          type: int
-          returned: success
-        unit:
-          description: The size unit used for the catalog
-          type: str
-          returned: success
-result:
-  description: The result of the CICS programs run during the module execution.
-  type: dict
-  returned: success
+      returned: always
+executions:
+  description: A list of program executions performed during the task
+  returned: always
+  type: list
+  elements: dict
   contains:
-    msg:
-      description: The string message returned by the CICS program.
+    name:
+      description: Human readable name for the execution
       type: str
       returned: always
     rc:
-      description: The return code of the CICS program.
+      description: The return code for that program execution
       type: int
       returned: always
-    success:
-      description: True if the CICS program was successful
-      type: bool
+    stdout:
+      description: The stdout returned from the program execution
+      type: str
+      returned: always
+    stderr:
+      description: The stderr returned from the program execution
+      type: str
       returned: always
 """
 
