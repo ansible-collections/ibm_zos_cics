@@ -169,10 +169,9 @@ except ImportError:
 ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        GlobalCatalog, CatalogSize, get_idcams_create_cmd)
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.listds import run_listds
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.idcams import run_idcams
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dfhrmutl import run_dfhrmutl
+        _dataset_size, _get_idcams_create_cmd, _run_listds, _run_idcams)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog import (
+        _run_dfhrmutl, _global_catalog)
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
@@ -288,8 +287,8 @@ class AnsibleGlobalCatalogModule(object):
             "sdfhload": self._module.params.get(CATALOG_STEPLIB_ALIAS).upper(),
             "state": self._module.params.get(CATALOG_TARGET_STATE_ALIAS)
         })
-        self.starting_catalog = GlobalCatalog(
-            size=CatalogSize(
+        self.starting_catalog = _global_catalog(
+            size=_dataset_size(
                 result.get('space_type'),
                 result.get('space_primary'),
                 CATALOG_SECONDARY_SPACE_VALUE_DEFAULT,
@@ -306,121 +305,116 @@ class AnsibleGlobalCatalogModule(object):
         self.end_catalog = self.starting_catalog
 
     def create_global_catalog_dataset(self):
-        create_cmd = get_idcams_create_cmd(self.starting_catalog)
+        create_cmd = _get_idcams_create_cmd(self.starting_catalog)
 
-        idcams_executions = run_idcams(
+        idcams_executions = _run_idcams(
             cmd=create_cmd,
             name="Create global catalog dataset",
-            location=self.starting_catalog.name,
+            location=self.starting_catalog["name"],
             delete=False)
-        self.executions = self.executions + \
-            ([element.to_dict() for element in idcams_executions])
+        self.executions = self.executions + idcams_executions
 
         self.result['changed'] = True
 
     def delete_global_catalog(self):
-        if not self.starting_catalog.exists:
+        if not self.starting_catalog["exists"]:
             self.result['end_catalog'] = {
-                "exists": self.starting_catalog.exists,
-                "autostart_override": self.starting_catalog.autostart_override,
-                "next_start": self.starting_catalog.nextstart,
+                "exists": self.starting_catalog["exists"],
+                "autostart_override": self.starting_catalog["autostart_override"],
+                "next_start": self.starting_catalog["nextstart"],
             }
             self._exit()
 
         delete_cmd = '''
         DELETE {0}
-        '''.format(self.starting_catalog.name)
+        '''.format(self.starting_catalog["name"])
 
-        idcams_executions = run_idcams(
+        idcams_executions = _run_idcams(
             cmd=delete_cmd,
             name="Removing global catalog dataset",
-            location=self.starting_catalog.name,
+            location=self.starting_catalog["name"],
             delete=True)
-        self.executions = self.executions + \
-            ([element.to_dict() for element in idcams_executions])
+        self.executions = self.executions + idcams_executions
         self.result['changed'] = True
 
     def init_global_catalog(self):
-        if self.starting_catalog.exists and self.starting_catalog.autostart_override == AUTO_START_INIT:
+        if self.starting_catalog["exists"] and self.starting_catalog["autostart_override"] == AUTO_START_INIT:
             self.result['end_catalog'] = {
-                "exists": self.starting_catalog.exists,
-                "autostart_override": self.starting_catalog.autostart_override,
-                "next_start": self.starting_catalog.nextstart,
+                "exists": self.starting_catalog["exists"],
+                "autostart_override": self.starting_catalog["autostart_override"],
+                "next_start": self.starting_catalog["nextstart"],
             }
             self._exit()
 
-        if not self.starting_catalog.exists:
+        if not self.starting_catalog["exists"]:
             self.create_global_catalog_dataset()
 
-        dfhrmutl_executions = run_dfhrmutl(
-            self.starting_catalog.name,
-            self.starting_catalog.sdfhload,
+        dfhrmutl_executions = _run_dfhrmutl(
+            self.starting_catalog["name"],
+            self.starting_catalog["sdfhload"],
             cmd="SET_AUTO_START=AUTOINIT")
         self.result['changed'] = True
-        self.executions = self.executions + \
-            ([element.to_dict() for element in dfhrmutl_executions])
+        self.executions = self.executions + dfhrmutl_executions
 
     def warm_global_catalog(self):
-        if not self.starting_catalog.exists:
+        if not self.starting_catalog["exists"]:
             self._fail(
                 "Dataset {0} does not exist.".format(
-                    self.starting_catalog.name))
+                    self.starting_catalog["name"]))
 
-        if self.starting_catalog.autostart_override == AUTO_START_WARM:
+        if self.starting_catalog["autostart_override"] == AUTO_START_WARM:
             self.result['end_catalog'] = {
-                "exists": self.starting_catalog.exists,
-                "autostart_override": self.starting_catalog.autostart_override,
-                "next_start": self.starting_catalog.nextstart,
+                "exists": self.starting_catalog["exists"],
+                "autostart_override": self.starting_catalog["autostart_override"],
+                "next_start": self.starting_catalog["nextstart"],
             }
             self._exit()
 
         if (
-            self.starting_catalog.autostart_override == AUTO_START_INIT and
-            self.starting_catalog.nextstart == NEXT_START_UNKNOWN
+            self.starting_catalog["autostart_override"] == AUTO_START_INIT and
+            self.starting_catalog["nextstart"] == NEXT_START_UNKNOWN
         ):
             self._fail(
                 "Unused Catalog - it must be used by CICS before doing a warm start")
 
-        dfhrmutl_executions = run_dfhrmutl(
-            self.starting_catalog.name,
-            self.starting_catalog.sdfhload,
+        dfhrmutl_executions = _run_dfhrmutl(
+            self.starting_catalog["name"],
+            self.starting_catalog["sdfhload"],
             cmd="SET_AUTO_START=AUTOASIS")
         self.result['changed'] = True
-        self.executions = self.executions + \
-            ([element.to_dict() for element in dfhrmutl_executions])
+        self.executions = self.executions + dfhrmutl_executions
 
     def cold_global_catalog(self):
-        if not self.starting_catalog.exists:
+        if not self.starting_catalog["exists"]:
             self._fail(
                 "Dataset {0} does not exist.".format(
-                    self.starting_catalog.name))
+                    self.starting_catalog["name"]))
 
-        if self.starting_catalog.autostart_override == AUTO_START_COLD:
+        if self.starting_catalog["autostart_override"] == AUTO_START_COLD:
             self.result['end_catalog'] = {
-                "exists": self.starting_catalog.exists,
-                "autostart_override": self.starting_catalog.autostart_override,
-                "next_start": self.starting_catalog.nextstart,
+                "exists": self.starting_catalog["exists"],
+                "autostart_override": self.starting_catalog["autostart_override"],
+                "next_start": self.starting_catalog["nextstart"],
             }
             self._exit()
 
         if (
-            self.starting_catalog.autostart_override == AUTO_START_INIT and
-            self.starting_catalog.nextstart == NEXT_START_UNKNOWN
+            self.starting_catalog["autostart_override"] == AUTO_START_INIT and
+            self.starting_catalog["nextstart"] == NEXT_START_UNKNOWN
         ):
             self._fail(
                 "Unused Catalog - it must be used by CICS before doing a cold start")
 
-        dfhrmutl_executions = run_dfhrmutl(
-            self.starting_catalog.name,
-            self.starting_catalog.sdfhload,
+        dfhrmutl_executions = _run_dfhrmutl(
+            self.starting_catalog["name"],
+            self.starting_catalog["sdfhload"],
             cmd="SET_AUTO_START=AUTOCOLD")
         self.result['changed'] = True
-        self.executions = self.executions + \
-            ([element.to_dict() for element in dfhrmutl_executions])
+        self.executions = self.executions + dfhrmutl_executions
 
     def invalid_target_state(self):  # type: () -> None
         self._fail("{0} is not a valid target state".format(
-            self.global_catalog.state))
+            self.global_catalog["state"]))
 
     def get_target_method(self, target):
         return {
@@ -431,51 +425,49 @@ class AnsibleGlobalCatalogModule(object):
         }.get(target, self.invalid_target_state)
 
     def update_catalog(self, catalog):
-        listds_executions, ds_status = run_listds(catalog.name)
+        listds_executions, ds_status = _run_listds(catalog["name"])
 
-        catalog.exists = ds_status['exists']
-        catalog.vsam = ds_status['vsam']
+        catalog["exists"] = ds_status['exists']
+        catalog["vsam"] = ds_status['vsam']
 
-        self.executions = self.executions + \
-            ([element.to_dict() for element in listds_executions])
+        self.executions = self.executions + listds_executions
 
-        if catalog.exists and catalog.vsam:
-            dfhrmutl_executions, catalog_status = run_dfhrmutl(
-                catalog.name, catalog.sdfhload)
+        if catalog["exists"] and catalog["vsam"]:
+            dfhrmutl_executions, catalog_status = _run_dfhrmutl(
+                catalog["name"], catalog["sdfhload"])
 
-            catalog.autostart_override = catalog_status['autostart_override']
-            catalog.nextstart = catalog_status['next_start']
+            catalog["autostart_override"] = catalog_status['autostart_override']
+            catalog["nextstart"] = catalog_status['next_start']
 
-            self.executions = self.executions + \
-                ([element.to_dict() for element in dfhrmutl_executions])
+            self.executions = self.executions + dfhrmutl_executions
         else:
-            catalog.autostart_override = ""
-            catalog.nextstart = ""
+            catalog["autostart_override"] = ""
+            catalog["nextstart"] = ""
         return catalog
 
     def main(self):
         self.starting_catalog = self.update_catalog(self.starting_catalog)
 
         self.result['start_catalog'] = {
-            "exists": self.starting_catalog.exists,
-            "autostart_override": self.starting_catalog.autostart_override,
-            "next_start": self.starting_catalog.nextstart,
+            "exists": self.starting_catalog["exists"],
+            "autostart_override": self.starting_catalog["autostart_override"],
+            "next_start": self.starting_catalog["nextstart"],
         }
 
-        if self.starting_catalog.nextstart and self.starting_catalog.nextstart.upper(
+        if self.starting_catalog["nextstart"] and self.starting_catalog["nextstart"].upper(
         ) == NEXT_START_EMERGENCY:
             self._fail("Next start type is {0}, potential dataloss prevented".format(
                 NEXT_START_EMERGENCY))
 
         self.get_target_method(
-            self.starting_catalog.state)()
+            self.starting_catalog["state"])()
 
         self.end_catalog = self.update_catalog(self.end_catalog)
 
         self.result['end_catalog'] = {
-            "exists": self.end_catalog.exists,
-            "autostart_override": self.end_catalog.autostart_override,
-            "next_start": self.end_catalog.nextstart,
+            "exists": self.end_catalog["exists"],
+            "autostart_override": self.end_catalog["autostart_override"],
+            "next_start": self.end_catalog["nextstart"],
         }
         self._exit()
 

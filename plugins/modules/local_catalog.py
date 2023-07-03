@@ -139,8 +139,6 @@ import traceback
 
 ZOS_CORE_IMP_ERR = None
 try:
-    from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement
-    from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
     from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 except ImportError:
     ZOS_CORE_IMP_ERR = traceback.format_exc()
@@ -148,9 +146,9 @@ except ImportError:
 ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        LocalCatalog, CatalogResponse, CatalogSize, get_idcams_create_cmd)
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.listds import run_listds
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.idcams import run_idcams
+        _dataset_size, _get_idcams_create_cmd, _run_idcams, _run_listds)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog import (
+        _local_catalog, _run_dfhccutl)
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
@@ -262,88 +260,70 @@ class AnsibleLocalCatalogModule(object):
             CATALOG_TARGET_STATE_ATTRIBUTE: self._module.params.get(CATALOG_TARGET_STATE_ATTRIBUTE)
         })
 
-        size = CatalogSize(unit=result.get(CATALOG_SPACE_UNIT_ATTRIBUTE),
-                           primary=result.get(CATALOG_PRIMARY_SPACE_ATTRIBUTE),
-                           secondary=CATALOG_SECONDARY_SPACE_VALUE_DEFAULT,
-                           record_count=CATALOG_RECORD_COUNT_DEFAULT,
-                           record_size=CATALOG_RECORD_SIZE_DEFAULT,
-                           control_interval_size=CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT)
+        size = _dataset_size(
+            unit=result.get(CATALOG_SPACE_UNIT_ATTRIBUTE),
+            primary=result.get(CATALOG_PRIMARY_SPACE_ATTRIBUTE),
+            secondary=CATALOG_SECONDARY_SPACE_VALUE_DEFAULT,
+            record_count=CATALOG_RECORD_COUNT_DEFAULT,
+            record_size=CATALOG_RECORD_SIZE_DEFAULT,
+            control_interval_size=CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT)
 
-        self.starting_catalog = LocalCatalog(size=size,
-                                             name=result.get(LOCAL_CATALOG_DATASET_ATTRIBUTE).upper(),
-                                             sdfhload=result.get(CATALOG_SDFHLOAD_ATTRIBUTE),
-                                             state=result.get(CATALOG_TARGET_STATE_ATTRIBUTE),
-                                             exists=False,
-                                             vsam=False)
+        self.starting_catalog = _local_catalog(
+            size=size,
+            name=result.get(LOCAL_CATALOG_DATASET_ATTRIBUTE).upper(),
+            sdfhload=result.get(CATALOG_SDFHLOAD_ATTRIBUTE),
+            state=result.get(CATALOG_TARGET_STATE_ATTRIBUTE),
+            exists=False,
+            vsam=False)
 
     def create_local_catalog_dataset(self):
-        create_cmd = get_idcams_create_cmd(self.starting_catalog)
+        create_cmd = _get_idcams_create_cmd(self.starting_catalog)
 
-        idcams_executions = run_idcams(
+        idcams_executions = _run_idcams(
             cmd=create_cmd,
             name="Create local catalog dataset",
-            location=self.starting_catalog.name,
+            location=self.starting_catalog["name"],
             delete=False)
-        self.executions = self.executions + \
-            ([element.to_dict() for element in idcams_executions])
+        self.executions = self.executions + idcams_executions
 
         self.result['changed'] = True
 
-    def run_dfhccutl(self, cmd):  # type: (str) -> CatalogResponse
-        self.end_catalog = self.starting_catalog
-        response = MVSCmd.execute(
-            pgm="DFHCCUTL",
-            dds=self.get_ccmutl_dds(catalog=self.end_catalog, cmd=cmd),
-            verbose=True,
-            debug=False)
-
-        if response.rc != 0:
-            self.result['DFHCCUTL_error'] = {
-                'rc': response.rc,
-                'stdout': response.stdout,
-                'stderr': response.stderr,
-            }
-            self._fail("Error running DFHCCUTL")
-
-        return CatalogResponse(success=True, rc=response.rc, msg=response.stdout)
-
-    def delete_local_catalog(self):  # type: () -> CatalogResponse
-        if not self.starting_catalog.exists:
+    def delete_local_catalog(self):
+        if not self.starting_catalog["exists"]:
             self.result['end_state'] = {
-                "exists": self.starting_catalog.exists,
-                "vsam": self.starting_catalog.vsam
+                "exists": self.starting_catalog["exists"],
+                "vsam": self.starting_catalog["vsam"]
             }
             self._exit()
 
         delete_cmd = '''
         DELETE {0}
-        '''.format(self.starting_catalog.name)
+        '''.format(self.starting_catalog["name"])
 
-        idcams_executions = run_idcams(
+        idcams_executions = _run_idcams(
             cmd=delete_cmd,
             name="Removing local catalog dataset",
-            location=self.starting_catalog.name,
+            location=self.starting_catalog["name"],
             delete=True)
-        self.executions = self.executions + \
-            ([element.to_dict() for element in idcams_executions])
+        self.executions = self.executions + idcams_executions
         self.result['changed'] = True
 
-    def init_local_catalog(self):  # type: () -> CatalogResponse
-        if self.starting_catalog.exists:
+    def init_local_catalog(self):
+        if self.starting_catalog["exists"]:
             self.result['end_state'] = {
-                "exists": self.starting_catalog.exists,
-                "vsam": self.starting_catalog.vsam
+                "exists": self.starting_catalog["exists"],
+                "vsam": self.starting_catalog["vsam"]
             }
             self._exit()
 
-        if not self.starting_catalog.exists:
+        if not self.starting_catalog["exists"]:
             return self.create_local_catalog_dataset()
 
-        return self.run_dfhccutl(cmd="*")
+        return _run_dfhccutl(self.starting_catalog, cmd="*")
 
     def invalid_state(self):  # type: () -> None
         self._fail("{0} is not a valid target state".format(
-            self.local_catalog.state))
+            self.local_catalog["state"]))
 
     def get_target_method(self, target):
         return {
@@ -351,22 +331,13 @@ class AnsibleLocalCatalogModule(object):
             CATALOG_TARGET_STATE_INITIAL: self.init_local_catalog
         }.get(target, self.invalid_state)
 
-    def get_ccmutl_dds(self, catalog, cmd):  # type: (LocalCatalog, str) -> list[DDStatement]
-        return [
-            DDStatement('steplib', DatasetDefinition(catalog.sdfhload)),
-            DDStatement('sysprint', StdoutDefinition()),
-            DDStatement('sysudump', StdoutDefinition()),
-            DDStatement('dfhlcd', DatasetDefinition(dataset_name=catalog.name, disposition="SHR")),
-        ]
-
     def get_catalog_state(self, catalog):
-        listds_executions, ds_status = run_listds(catalog.name)
+        listds_executions, ds_status = _run_listds(catalog["name"])
 
-        catalog.exists = ds_status['exists']
-        catalog.vsam = ds_status['vsam']
+        catalog["exists"] = ds_status['exists']
+        catalog["vsam"] = ds_status['vsam']
 
-        self.executions = self.executions + \
-            ([element.to_dict() for element in listds_executions])
+        self.executions = self.executions + listds_executions
 
         return catalog
 
@@ -374,20 +345,22 @@ class AnsibleLocalCatalogModule(object):
         self.starting_catalog = self.get_catalog_state(self.starting_catalog)
 
         self.result['start_state'] = {
-            "exists": self.starting_catalog.exists,
-            "vsam": self.starting_catalog.vsam
+            "exists": self.starting_catalog["exists"],
+            "vsam": self.starting_catalog["vsam"]
         }
 
-        if self.starting_catalog.exists and not self.starting_catalog.vsam:
-            self._fail("Dataset {0} does not appear to be a KSDS".format(self.starting_catalog.name))
+        if self.starting_catalog["exists"] and not self.starting_catalog["vsam"]:
+            self._fail(
+                "Dataset {0} does not appear to be a KSDS".format(
+                    self.starting_catalog["name"]))
 
-        self.get_target_method(self.starting_catalog.state)()
+        self.get_target_method(self.starting_catalog["state"])()
 
         self.end_catalog = self.get_catalog_state(self.starting_catalog)
 
         self.result['end_state'] = {
-            "exists": self.end_catalog.exists,
-            "vsam": self.end_catalog.vsam
+            "exists": self.end_catalog["exists"],
+            "vsam": self.end_catalog["vsam"]
         }
 
         self._exit()
