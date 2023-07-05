@@ -72,6 +72,7 @@ class GlobalCatalog():
 
 
 class LocalCatalog():
+
     def __init__(
             self,
             size,

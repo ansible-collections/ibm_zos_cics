@@ -56,6 +56,33 @@ def test_global_catalog_class():
     }
 
 
+def test_local_catalog_class():
+    catalog_size = dataset_utils.CatalogSize(unit="M", primary=10, secondary=1, record_count=4089, record_size=32760, control_interval_size=32768)
+    global_catalog = dataset_utils.LocalCatalog(
+        size=catalog_size,
+        name="ANSI.TEST.DFHLCD",
+        sdfhload="CICSTS.IN56.SDFHLOAD",
+        state="initial",
+        exists=False,
+        vsam=False)
+    catalog_dict = global_catalog.to_dict()
+    assert catalog_dict == {
+        "size": {
+            "unit": "M",
+            "primary": 10,
+            "secondary": 1,
+            "record_count": 4089,
+            "record_size": 32760,
+            "control_interval_size": 32768
+        },
+        "name": "ANSI.TEST.DFHLCD",
+        "sdfhload": "CICSTS.IN56.SDFHLOAD",
+        "state": "initial",
+        "exists": False,
+        "vsam": False,
+    }
+
+
 def test_catalog_response_class():
     catalog_resp = dataset_utils.CatalogResponse(
         success=True, rc=0, msg="Great success!")
