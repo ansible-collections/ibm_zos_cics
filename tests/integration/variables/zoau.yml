@@ -1,6 +1,5 @@
 pyz: "/usr/lpp/IBM/cyp/v3r8/pyz"
 
-# the path to root of ZOAU installation
 zoau: "/usr/lpp/IBM/zoautil"
 
 environment_vars:

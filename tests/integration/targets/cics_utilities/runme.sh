@@ -4,4 +4,10 @@
 set -eux # This is important to ensure that return codes from failing tests are propagated
 
 export ANSIBLE_COLLECTIONS_PATH=/root/.ansible/collections:$ANSIBLE_COLLECTIONS_PATH
-ANSIBLE_LIBRARY=./library ansible-playbook -e "@variables.yml" -i zos_inventory playbooks/cics_get_version.yml
+export ANSIBLE_LIBRARY=./library
+
+VAR_PATH="/root/ansible_collections/ibm/ibm_zos_cics/tests/integration/variables/utilities.yml"
+INV_PATH="/root/ansible_collections/ibm/ibm_zos_cics/tests/integration/zos_inventory"
+ZOAU_ENV="/root/ansible_collections/ibm/ibm_zos_cics/tests/integration/variables/zoau.yml"
+
+ansible-playbook -i $INV_PATH -e "@$VAR_PATH" -e "@$ZOAU_ENV" playbooks/cics_get_version.yml
