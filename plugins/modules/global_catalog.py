@@ -95,7 +95,7 @@ failed:
   description: True if the query job failed, otherwise False.
   returned: always
   type: bool
-start_catalog:
+start_state:
   description:
     - The state of the global catalog before the task
   returned: always
@@ -113,7 +113,7 @@ start_catalog:
       description: True if the global catalog dataset exists
       type: bool
       returned: always
-end_catalog:
+end_state:
   description: The state of the global catalog at the end of the task.
   returned: always
   type: dict
@@ -302,7 +302,7 @@ class AnsibleGlobalCatalogModule(object):
             nextstart="",
             exists=False,
             vsam=False)
-        self.end_catalog = self.starting_catalog
+        self.end_state = self.starting_catalog
 
     def create_global_catalog_dataset(self):
         create_cmd = _get_idcams_create_cmd(self.starting_catalog)
@@ -318,7 +318,7 @@ class AnsibleGlobalCatalogModule(object):
 
     def delete_global_catalog(self):
         if not self.starting_catalog["exists"]:
-            self.result['end_catalog'] = {
+            self.result['end_state'] = {
                 "exists": self.starting_catalog["exists"],
                 "autostart_override": self.starting_catalog["autostart_override"],
                 "next_start": self.starting_catalog["nextstart"],
@@ -339,7 +339,7 @@ class AnsibleGlobalCatalogModule(object):
 
     def init_global_catalog(self):
         if self.starting_catalog["exists"] and self.starting_catalog["autostart_override"] == AUTO_START_INIT:
-            self.result['end_catalog'] = {
+            self.result['end_state'] = {
                 "exists": self.starting_catalog["exists"],
                 "autostart_override": self.starting_catalog["autostart_override"],
                 "next_start": self.starting_catalog["nextstart"],
@@ -363,7 +363,7 @@ class AnsibleGlobalCatalogModule(object):
                     self.starting_catalog["name"]))
 
         if self.starting_catalog["autostart_override"] == AUTO_START_WARM:
-            self.result['end_catalog'] = {
+            self.result['end_state'] = {
                 "exists": self.starting_catalog["exists"],
                 "autostart_override": self.starting_catalog["autostart_override"],
                 "next_start": self.starting_catalog["nextstart"],
@@ -391,7 +391,7 @@ class AnsibleGlobalCatalogModule(object):
                     self.starting_catalog["name"]))
 
         if self.starting_catalog["autostart_override"] == AUTO_START_COLD:
-            self.result['end_catalog'] = {
+            self.result['end_state'] = {
                 "exists": self.starting_catalog["exists"],
                 "autostart_override": self.starting_catalog["autostart_override"],
                 "next_start": self.starting_catalog["nextstart"],
@@ -448,7 +448,7 @@ class AnsibleGlobalCatalogModule(object):
     def main(self):
         self.starting_catalog = self.update_catalog(self.starting_catalog)
 
-        self.result['start_catalog'] = {
+        self.result['start_state'] = {
             "exists": self.starting_catalog["exists"],
             "autostart_override": self.starting_catalog["autostart_override"],
             "next_start": self.starting_catalog["nextstart"],
@@ -462,12 +462,12 @@ class AnsibleGlobalCatalogModule(object):
         self.get_target_method(
             self.starting_catalog["state"])()
 
-        self.end_catalog = self.update_catalog(self.end_catalog)
+        self.end_state = self.update_catalog(self.end_state)
 
-        self.result['end_catalog'] = {
-            "exists": self.end_catalog["exists"],
-            "autostart_override": self.end_catalog["autostart_override"],
-            "next_start": self.end_catalog["nextstart"],
+        self.result['end_state'] = {
+            "exists": self.end_state["exists"],
+            "autostart_override": self.end_state["autostart_override"],
+            "next_start": self.end_state["nextstart"],
         }
         self._exit()
 

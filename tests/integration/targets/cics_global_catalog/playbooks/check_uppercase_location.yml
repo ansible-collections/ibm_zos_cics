@@ -53,13 +53,13 @@
           - result.failed is false
           - result.changed is true
 
-          - result.start_catalog.exists == false
-          - result.start_catalog.autostart_override == ''
-          - result.start_catalog.next_start == ''
+          - result.start_state.exists == false
+          - result.start_state.autostart_override == ''
+          - result.start_state.next_start == ''
 
-          - result.end_catalog.exists == true
-          - result.end_catalog.autostart_override == 'AUTOINIT'
-          - result.end_catalog.next_start == 'UNKNOWN'
+          - result.end_state.exists == true
+          - result.end_state.autostart_override == 'AUTOINIT'
+          - result.end_state.next_start == 'UNKNOWN'
 
     # #############################################################################
     # ################################## Cleanup ##################################

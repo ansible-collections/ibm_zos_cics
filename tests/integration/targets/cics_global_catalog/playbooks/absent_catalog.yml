@@ -52,13 +52,13 @@
           - initial_result.failed is false
           - initial_result.changed is true
 
-          - initial_result.start_catalog.exists == false
-          - initial_result.start_catalog.autostart_override == ''
-          - initial_result.start_catalog.next_start == ''
+          - initial_result.start_state.exists == false
+          - initial_result.start_state.autostart_override == ''
+          - initial_result.start_state.next_start == ''
 
-          - initial_result.end_catalog.exists == true
-          - initial_result.end_catalog.autostart_override == 'AUTOINIT'
-          - initial_result.end_catalog.next_start == 'UNKNOWN'
+          - initial_result.end_state.exists == true
+          - initial_result.end_state.autostart_override == 'AUTOINIT'
+          - initial_result.end_state.next_start == 'UNKNOWN'
 
     # #############################################################################
     # ############################## Module Testing ###############################
@@ -80,13 +80,13 @@
           - absent_result.failed is false
           - absent_result.changed is true
 
-          - absent_result.start_catalog.exists == true
-          - absent_result.start_catalog.autostart_override == 'AUTOINIT'
-          - absent_result.start_catalog.next_start == 'UNKNOWN'
+          - absent_result.start_state.exists == true
+          - absent_result.start_state.autostart_override == 'AUTOINIT'
+          - absent_result.start_state.next_start == 'UNKNOWN'
 
-          - absent_result.end_catalog.exists is false
-          - absent_result.end_catalog.autostart_override == ''
-          - absent_result.end_catalog.next_start == ''
+          - absent_result.end_state.exists is false
+          - absent_result.end_state.autostart_override == ''
+          - absent_result.end_state.next_start == ''
 
     # #############################################################################
     # ################################## Cleanup ##################################

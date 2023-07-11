@@ -55,8 +55,8 @@
         that:
           - res.failed is false
           - res.changed is true
-          - res.start_catalog.exists is false
-          - res.end_catalog.exists is true
+          - res.start_state.exists is false
+          - res.end_state.exists is true
 
     - name: Try recreating same catalog
       environment: "{{ environment_vars }}"
@@ -73,8 +73,8 @@
         that:
           - res.failed is false
           - res.changed is false
-          - res.start_catalog.exists is true
-          - res.end_catalog.exists is true
+          - res.start_state.exists is true
+          - res.end_state.exists is true
 
     - name: Remove catalog
       environment: "{{ environment_vars }}"
@@ -91,8 +91,8 @@
         that:
           - res.failed is false
           - res.changed is true
-          - res.start_catalog.exists is true
-          - res.end_catalog.exists is false
+          - res.start_state.exists is true
+          - res.end_state.exists is false
 
     - name: Try removing catalog, changed is false
       environment: "{{ environment_vars }}"
@@ -109,5 +109,5 @@
         that:
           - res.failed is false
           - res.changed is false
-          - res.start_catalog.exists is false
-          - res.end_catalog.exists is false
+          - res.start_state.exists is false
+          - res.end_state.exists is false

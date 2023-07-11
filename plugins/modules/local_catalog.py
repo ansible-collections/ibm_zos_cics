@@ -356,11 +356,11 @@ class AnsibleLocalCatalogModule(object):
 
         self.get_target_method(self.starting_catalog["state"])()
 
-        self.end_catalog = self.get_catalog_state(self.starting_catalog)
+        self.end_state = self.get_catalog_state(self.starting_catalog)
 
         self.result['end_state'] = {
-            "exists": self.end_catalog["exists"],
-            "vsam": self.end_catalog["vsam"]
+            "exists": self.end_state["exists"],
+            "vsam": self.end_state["vsam"]
         }
 
         self._exit()
