@@ -22,5 +22,5 @@ def get_dataset_member_version_record(dataset):  # type: (str) -> str
             raise Exception("CICS version was too long")
         else:
             return result
-    except ZOAUExceptions.ZOAUException:
-        raise Exception("Error reading dataset for calculating CICS version.")
+    except ZOAUExceptions.ZOAUException as e:
+        raise Exception("Error reading dataset for calculating CICS version - {0}".format(e))

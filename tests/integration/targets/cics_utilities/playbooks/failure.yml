@@ -1,0 +1,269 @@
+# (c) Copyright IBM Corp. 2023
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: CICS Version Failure Case
+  hosts: "all"
+  gather_facts: false
+  vars:
+    ds_name: "{{ zos_user }}.{{ uniquename }}"
+
+  tasks:
+    # #############################################################################
+    # ############################## Initial cleanup ##############################
+    # #############################################################################
+
+    - name: Delete Dataset if it exists
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ ds_name }}"
+        state: absent
+      register: delete_result
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == false
+
+    ############################################################################
+    # Fail to get CICS version from non-existent dataset
+    ############################################################################
+    - name: Fail to get CICS version information from non-existent dataset
+      environment: "{{ environment_vars }}"
+      cics_version:
+        CICS_HLQ: "{{ ds_name }}"
+      register: result
+      failed_when: false
+
+    - name: Assert non-existent
+      ansible.builtin.assert:
+        that:
+          - result is not changed
+          - result.rc == 1
+          - "'exception' in result"
+
+    ############################################################################
+    # Create a empty dataset
+    ############################################################################
+    - name: Create PDS dataset
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ ds_name }}.SDFHSAMP"
+        type: PDS
+      retries: 10
+      register: created_result
+      until: created_result.failed is false
+      delay: 5
+
+    - name: Wait until created
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_find:
+        patterns:
+          - "{{ ds_name }}.SDFHSAMP"
+      register: datasets
+      until: datasets.data_sets != []
+      retries: 10
+      delay: 5
+
+    - name: Create PDS Member
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ ds_name }}.SDFHSAMP(DFH0SINX)"
+        type: MEMBER
+      retries: 10
+      register: created_result
+      until: created_result.failed is false
+      delay: 5
+
+    - name: Wait until created
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_find:
+        patterns:
+          - "DFH0SINX"
+        pds_patterns:
+          - "{{ ds_name }}.SDFHSAMP"
+      register: datasets
+      until: datasets.data_sets != []
+      retries: 10
+      delay: 5
+
+    ############################################################################
+    # Try to read empty dataset
+    ############################################################################
+
+    - name: Fail to get CICS version information from empty dataset
+      environment: "{{ environment_vars }}"
+      cics_version:
+        CICS_HLQ: "{{ ds_name }}"
+      register: result
+      failed_when: false
+
+    - name: Assert failed on empty Member
+      ansible.builtin.assert:
+        that:
+          - result is not changed
+          - result.rc != 0
+          - "'exception' in result"
+
+    ############################################################################
+    # Create some data and read a non numeric STATUS value
+    ############################################################################
+
+    - name: Write data to the dataset to test for STATUS field
+      environment: "{{ environment_vars }}"
+      ansible.builtin.shell:
+      args:
+        executable: /rocket/bin/bash
+        cmd: decho 'STATUS = TEST' "{{ ds_name }}.SDFHSAMP(DFH0SINX)"
+
+    - name: Wait until written
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_find:
+        patterns:
+          - "DFH0SINX"
+        pds_patterns:
+          - "{{ ds_name }}.SDFHSAMP"
+        contains: "STATUS = TEST"
+      register: datasets
+      until: datasets.data_sets != []
+      retries: 10
+      delay: 5
+
+    - name: Get CICS version from new dataset
+      environment: "{{ environment_vars }}"
+      cics_version:
+        CICS_HLQ: "{{ ds_name }}"
+      register: result
+      failed_when: false
+
+    - name: Assert string content fails
+      ansible.builtin.assert:
+        that:
+          - result is not changed
+          - result.cics_version == 'TEST'
+          - result.rc == 0
+          - "'exception' not in result"
+
+    ############################################################################
+    # Create and read from dataset where STATUS is EOF
+    ############################################################################
+        
+    - name: Write data to the dataset to test for no data after STATUS
+      environment: "{{ environment_vars }}"
+      ansible.builtin.shell:
+      args:
+        executable: /rocket/bin/bash
+        cmd: decho 'STATUS =' "{{ ds_name }}.SDFHSAMP(DFH0SINX)"
+
+    - name: Wait until written
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_find:
+        patterns:
+          - "DFH0SINX"
+        pds_patterns:
+          - "{{ ds_name }}.SDFHSAMP"
+        contains: "STATUS ="
+      register: datasets
+      until: datasets.data_sets != []
+      retries: 10
+      delay: 5
+      
+    - name: Attempt to read data from STATUS which is EOF
+      environment: "{{ environment_vars }}"
+      cics_version:
+        CICS_HLQ: "{{ ds_name }}"
+      register: result
+      failed_when: false
+
+    - name: Assert status EOF fails
+      ansible.builtin.assert:
+        that:
+          - result is not changed
+          - result.rc != 0
+          - "'exception' in result"
+
+    # #############################################################################
+    # ################################# Teardown ##################################
+    # #############################################################################
+
+    - name: Delete Dataset
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        state: absent
+        name: "{{ ds_name }}.SDFHSAMP"
+      register: delete_result
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == false
+
+
+    ############################################################################
+    # Create and read from a SEQ dataset
+    ############################################################################
+    - name: Create SEQ dataset
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ ds_name }}.SEQ"
+        type: SEQ
+      retries: 10
+      register: created_result
+      until: created_result.failed is false
+      delay: 5
+
+    - name: Wait until created
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_find:
+        patterns:
+          - "{{ ds_name }}.SEQ"
+      register: datasets
+      until: datasets.data_sets != []
+      retries: 10
+      delay: 5
+
+    - name: Write data to SEQ dataset
+      environment: "{{ environment_vars }}"
+      ansible.builtin.shell:
+      args:
+        executable: /rocket/bin/bash
+        cmd: decho 'STATUS = 1.0.0' "{{ ds_name }}.SEQ"
+
+    - name: Wait until created
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_find:
+        patterns:
+          - "{{ ds_name }}.SEQ"
+        contains: "STATUS = 1.0.0"
+      register: datasets
+      until: datasets.data_sets != []
+      retries: 10
+      delay: 5
+
+    - name: Read version from SEQ dataset
+      environment: "{{ environment_vars }}"
+      cics_version:
+        CICS_HLQ: "{{ ds_name }}"
+      register: result
+      failed_when: false
+
+    - name: Assert Seq dataset fails
+      ansible.builtin.assert:
+        that:
+          - result is not changed
+          - "'exception' in result"
+
+    # #############################################################################
+    # ################################# Teardown ##################################
+    # #############################################################################
+
+    - name: Delete Dataset
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        state: absent
+        name: "{{ ds_name }}.SEQ"
+      register: delete_result
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == false
