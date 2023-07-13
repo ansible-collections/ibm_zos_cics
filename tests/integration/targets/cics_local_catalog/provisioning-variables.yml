@@ -1,0 +1,3 @@
+cics_steplib: CTS560.CICS730.SDFHLOAD
+cics_test_area_initial: A200D14A
+cics_test_area_absent: A200D14B
