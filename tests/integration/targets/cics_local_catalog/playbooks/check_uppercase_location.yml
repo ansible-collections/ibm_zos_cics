@@ -47,6 +47,15 @@
       ansible.builtin.debug:
         msg: "{{ result }}"
 
+    - name: Debug2
+      ansible.builtin.debug:
+        msg: "{{ region_dataset_path }}.low.{{ catalog_name }}"
+
+    - name: Debug3
+      ansible.builtin.debug:
+        msg: "{{ environment_vars }}"
+
+
     - name: Assert passed with lowercase
       ansible.builtin.assert:
         that:
@@ -54,12 +63,10 @@
           - result.changed is true
 
           - result.start_state.exists == false
-          - result.start_state.autostart_override == ''
-          - result.start_state.next_start == ''
+          - result.start_state.vsam == false
 
           - result.end_state.exists == true
-          - result.end_state.autostart_override == 'AUTOINIT'
-          - result.end_state.next_start == 'UNKNOWN'
+          - result.end_state.vsam == true
 
     # #############################################################################
     # ################################## Cleanup ##################################

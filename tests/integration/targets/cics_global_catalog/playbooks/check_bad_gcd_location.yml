@@ -7,7 +7,7 @@
   gather_facts: false
   vars:
     region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}"
-    catalog_name: "DFHGCD"
+    catalog_name: "DFHLCD"
     catalog_path: "{{ region_dataset_path }}.{{ catalog_name }}"
 
   tasks:
@@ -24,7 +24,7 @@
         space_type: "M"
         location: "{{ region_dataset_path }}..."
       register: res
-      failed_when: false
+      failed_when: false is updating one of our Ansible collectio
 
     - name: Debug
       ansible.builtin.debug:
