@@ -47,15 +47,6 @@
       ansible.builtin.debug:
         msg: "{{ result }}"
 
-    - name: Debug2
-      ansible.builtin.debug:
-        msg: "{{ region_dataset_path }}.low.{{ catalog_name }}"
-
-    - name: Debug3
-      ansible.builtin.debug:
-        msg: "{{ environment_vars }}"
-
-
     - name: Assert passed with lowercase
       ansible.builtin.assert:
         that:
