@@ -68,7 +68,10 @@
         patterns:
           - "{{ ds_name }}.SDFHSAMP"
       register: datasets
-      until: datasets.data_sets != []
+      until:
+        - datasets is defined
+        - datasets.data_sets is defined
+        - datasets.data_sets != []
       retries: 10
       delay: 5
 
@@ -98,7 +101,10 @@
         pds_patterns:
           - "{{ ds_name }}.SDFHSAMP"
       register: datasets
-      until: datasets.data_sets != []
+      until:
+        - datasets is defined
+        - datasets.data_sets is defined
+        - datasets.data_sets != []
       retries: 10
       delay: 5
 
@@ -144,7 +150,10 @@
           - "{{ ds_name }}.SDFHSAMP"
         contains: "STATUS = TEST"
       register: datasets
-      until: datasets.data_sets != []
+      until:
+        - datasets is defined
+        - datasets.data_sets is defined
+        - datasets.data_sets != []
       retries: 10
       delay: 5
 
@@ -192,7 +201,10 @@
           - "{{ ds_name }}.SDFHSAMP"
         contains: "STATUS ="
       register: datasets
-      until: datasets.data_sets != []
+      until:
+        - datasets is defined
+        - datasets.data_sets is defined
+        - datasets.data_sets != []
       retries: 10
       delay: 5
 
@@ -259,7 +271,10 @@
         patterns:
           - "{{ ds_name }}.SEQ"
       register: datasets
-      until: datasets.data_sets != []
+      until:
+        - datasets is defined
+        - datasets.data_sets is defined
+        - datasets.data_sets != []
       retries: 10
       delay: 5
 
@@ -281,7 +296,10 @@
           - "{{ ds_name }}.SEQ"
         contains: "STATUS = 1.0.0"
       register: datasets
-      until: datasets.data_sets != []
+      until:
+        - datasets is defined
+        - datasets.data_sets is defined
+        - datasets.data_sets != []
       retries: 10
       delay: 5
 
