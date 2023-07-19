@@ -58,7 +58,7 @@ options:
     description:
       - The name of the global catalog data set, e.g.
         C(REGIONS.ABCD0001.DFHGCD).
-      - This data set must be cataloged.
+      - If it already exists, this data set must be cataloged.
     type: str
     required: true
   sdfhload:

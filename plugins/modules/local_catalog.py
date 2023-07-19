@@ -56,7 +56,7 @@ options:
     description:
       - The name of the local catalog data set, e.g.
         C(REGIONS.ABCD0001.DFHLCD).
-      - This data set must be cataloged.
+      - If it already exists, this data set must be cataloged.
     type: str
     required: true
   sdfhload:
