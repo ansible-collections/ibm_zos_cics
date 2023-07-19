@@ -10,18 +10,41 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: global_catalog
-short_description: Create and initialize CICS® global catalog.
-description: Create, update, and remove a CICS® global catalog dataset to be used by a CICS® region, achieved by running the IDCAMS and DFHRMUTL programs.
+short_description: Create, remove, and manage the CICS global catalog
+description:
+  - Create, remove, and manage the L(global catalog,https://www.ibm.com/docs/en/cics-ts/latest?topic=catalogs-global-catalog)
+    data set used by a CICS® region.
+  - Useful when provisioning or de-provisioning a CICS region, or when managing
+    the state of the global catalog during upgrades or restarts.
+  - Use the O(state) option to specify the intended state for the global
+    catalog. For example, O(state=initial) will create and initialize a global
+    catalog data set if it doesn't yet exist, or it will take an existing
+    global catalog and set its autostart override record to C(AUTOINIT). In
+    either case, a CICS region using this global catalog and the
+    C(START=AUTO) system initialization parameter will perform an initial start.
 author: Andrew Twydell (@AndrewTwydell)
 version_added: 1.1.0-beta.1
+seealso:
+  - module: local_catalog
 options:
   space_primary:
-    description: Specifies the size of the global catalog dataset. Note, this is just the value; the unit is specified with space_type.
+    description:
+      - The size of the global catalog data set's primary space allocation.
+        Note, this is just the value; the unit is specified with O(space_type).
+      - This option only takes effect when the global catalog is being created.
+        If it already exists, it has no effect.
+      - The global catalog data set's secondary space allocation is set to 1.
     type: int
     required: false
     default: 5
   space_type:
-    description: Specifies the unit to be used for the global catalog size. Note, this is just the unit; the value is specified with space_primary.
+    description:
+      - The unit portion of the global catalog data set size. Note, this is
+        just the unit; the value is specified with O(space_primary).
+      - This option only takes effect when the global catalog is being created.
+        If it already exists, it has no effect.
+      - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
+        records (V(REC)), cylinders (V(CYL)), or tracks (V(TRK)).
     required: false
     type: str
     choices:
@@ -32,18 +55,35 @@ options:
       - TRK
     default: M
   location:
-    description: The name of the dataset to be used as the global catalog dataset.
+    description:
+      - The name of the global catalog data set, e.g.
+        C(REGIONS.ABCD0001.DFHGCD).
+      - If it already exists, this data set must be cataloged.
     type: str
     required: true
   sdfhload:
-    description: The location of SDFHLOAD for the CICS install to be used to create the global catalog.
+    description:
+      - The name of the C(SDFHLOAD) data set, e.g. C(CICSTS61.CICS.SDFHLOAD).
+      - This module uses the C(DFHRMUTL) utility internally, which is found in
+        the C(SDFHLOAD) data set in the CICS installation.
     type: str
     required: true
   state:
-    description: The state the catalog will end up in after the task has run.
+    description:
+      - The desired state for the global catalog, which the module will aim to
+        achieve.
+      - V(absent) will remove the global catalog data set entirely, if it
+        already exists.
+      - V(initial) will set the autostart override record to C(AUTOINIT),
+        creating the global catalog data set if it does not already exist.
+      - V(cold) will set an existing global catalog's autostart override record
+        to C(AUTOCOLD).
+      - V(warm) will set an existing global catalog's autostart override record
+        to C(AUTOASIS), undoing any previous setting of C(AUTOINIT) or
+        C(AUTOCOLD).
     choices:
-      - "initial"
       - "absent"
+      - "initial"
       - "cold"
       - "warm"
     required: true
@@ -54,34 +94,34 @@ options:
 EXAMPLES = r"""
 - name: Initialize a global catalog
   ibm.ibm_zos_cics.global_catalog:
-    location: "CICS.INSTALL.REG01.DFHGCD"
-    sdfhload: "CTS560.CICS730.SDFHLOAD"
+    location: "REGIONS.ABCD0001.DFHGCD"
+    sdfhload: "CICSTS61.CICS.SDFHLOAD"
     state: "initial"
 
 - name: Initialize a large catalog
   ibm.ibm_zos_cics.global_catalog:
-    location: "CICS.INSTALL.REG01.DFHGCD"
-    sdfhload: "CTS560.CICS730.SDFHLOAD"
+    location: "REGIONS.ABCD0001.DFHGCD"
+    sdfhload: "CICSTS61.CICS.SDFHLOAD"
     space_primary: 100
     space_type: "M"
     state: "initial"
 
-- name: Set AUTO_START_OVERRIDE record to be AUTOASIS
+- name: Set autostart override record to AUTOASIS
   ibm.ibm_zos_cics.global_catalog:
-    location: "CICS.INSTALL.REG01.DFHGCD"
-    sdfhload: "CTS560.CICS730.SDFHLOAD"
+    location: "REGIONS.ABCD0001.DFHGCD"
+    sdfhload: "CICSTS61.CICS.SDFHLOAD"
     state: "warm"
 
-- name: Set AUTO_START_OVERRIDE record to be AUTOCOLD
+- name: Set autostart override record to AUTOCOLD
   ibm.ibm_zos_cics.global_catalog:
-    location: "CICS.INSTALL.REG01.DFHGCD"
-    sdfhload: "CTS560.CICS730.SDFHLOAD"
+    location: "REGIONS.ABCD0001.DFHGCD"
+    sdfhload: "CICSTS61.CICS.SDFHLOAD"
     state: "cold"
 
 - name: Delete global catalog
   ibm.ibm_zos_cics.global_catalog:
-    location: "CICS.INSTALL.REG01.DFHGCD"
-    sdfhload: "CTS560.CICS730.SDFHLOAD"
+    location: "REGIONS.ABCD0001.DFHGCD"
+    sdfhload: "CICSTS61.CICS.SDFHLOAD"
     state: "absent"
 """
 
@@ -97,20 +137,20 @@ failed:
   type: bool
 start_state:
   description:
-    - The state of the global catalog before the task
+    - The state of the global catalog before the task runs.
   returned: always
   type: dict
   contains:
     autostart_override:
-      description: The current autostart override record
+      description: The current autostart override record.
       returned: always
       type: str
     next_start:
-      description: The next start type listed in the catalog
+      description: The next start type listed in the global catalog.
       returned: always
       type: str
     exists:
-      description: True if the global catalog dataset exists
+      description: True if the global catalog data set exists.
       type: bool
       returned: always
 end_state:
@@ -119,37 +159,37 @@ end_state:
   type: dict
   contains:
     autostart_override:
-      description: The current autostart override record
+      description: The current autostart override record.
       returned: always
       type: str
     next_start:
-      description: The next start type listed in the catalog
+      description: The next start type listed in the global catalog
       returned: always
       type: str
     exists:
-      description: True if the global catalog dataset exists
+      description: True if the global catalog data set exists.
       type: bool
       returned: always
 executions:
-  description: A list of program executions performed during the task
+  description: A list of program executions performed during the task.
   returned: always
   type: list
   elements: dict
   contains:
     name:
-      description: Human readable name for the execution
+      description: A human-readable name for the program execution.
       type: str
       returned: always
     rc:
-      description: The return code for that program execution
+      description: The return code for the program execution.
       type: int
       returned: always
     stdout:
-      description: The stdout returned from the program execution
+      description: The standard out stream returned by the program execution.
       type: str
       returned: always
     stderr:
-      description: The stderr returned from the program execution
+      description: The standard error stream returned from the program execution.
       type: str
       returned: always
 """
@@ -309,7 +349,7 @@ class AnsibleGlobalCatalogModule(object):
 
         idcams_executions = _run_idcams(
             cmd=create_cmd,
-            name="Create global catalog dataset",
+            name="Create global catalog data set",
             location=self.starting_catalog["name"],
             delete=False)
         self.executions = self.executions + idcams_executions
@@ -331,7 +371,7 @@ class AnsibleGlobalCatalogModule(object):
 
         idcams_executions = _run_idcams(
             cmd=delete_cmd,
-            name="Removing global catalog dataset",
+            name="Removing global catalog data set",
             location=self.starting_catalog["name"],
             delete=True)
         self.executions = self.executions + idcams_executions
@@ -359,7 +399,7 @@ class AnsibleGlobalCatalogModule(object):
     def warm_global_catalog(self):
         if not self.starting_catalog["exists"]:
             self._fail(
-                "Dataset {0} does not exist.".format(
+                "Data set {0} does not exist.".format(
                     self.starting_catalog["name"]))
 
         if self.starting_catalog["autostart_override"] == AUTO_START_WARM:
@@ -375,7 +415,7 @@ class AnsibleGlobalCatalogModule(object):
             self.starting_catalog["nextstart"] == NEXT_START_UNKNOWN
         ):
             self._fail(
-                "Unused Catalog - it must be used by CICS before doing a warm start")
+                "Unused catalog. The catalog must be used by CICS before doing a warm start.")
 
         dfhrmutl_executions = _run_dfhrmutl(
             self.starting_catalog["name"],
@@ -387,7 +427,7 @@ class AnsibleGlobalCatalogModule(object):
     def cold_global_catalog(self):
         if not self.starting_catalog["exists"]:
             self._fail(
-                "Dataset {0} does not exist.".format(
+                "Data set {0} does not exist.".format(
                     self.starting_catalog["name"]))
 
         if self.starting_catalog["autostart_override"] == AUTO_START_COLD:
@@ -403,7 +443,7 @@ class AnsibleGlobalCatalogModule(object):
             self.starting_catalog["nextstart"] == NEXT_START_UNKNOWN
         ):
             self._fail(
-                "Unused Catalog - it must be used by CICS before doing a cold start")
+                "Unused catalog. The catalog must be used by CICS before doing a cold start.")
 
         dfhrmutl_executions = _run_dfhrmutl(
             self.starting_catalog["name"],
@@ -413,7 +453,7 @@ class AnsibleGlobalCatalogModule(object):
         self.executions = self.executions + dfhrmutl_executions
 
     def invalid_target_state(self):  # type: () -> None
-        self._fail("{0} is not a valid target state".format(
+        self._fail("{0} is not a valid target state.".format(
             self.global_catalog["state"]))
 
     def get_target_method(self, target):
@@ -456,7 +496,7 @@ class AnsibleGlobalCatalogModule(object):
 
         if self.starting_catalog["nextstart"] and self.starting_catalog["nextstart"].upper(
         ) == NEXT_START_EMERGENCY:
-            self._fail("Next start type is {0}, potential dataloss prevented".format(
+            self._fail("Next start type is {0}. Potential data loss prevented.".format(
                 NEXT_START_EMERGENCY))
 
         self.get_target_method(

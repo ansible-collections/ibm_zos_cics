@@ -10,18 +10,39 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: local_catalog
-short_description: Create and initialize CICS® local catalog.
-description: Create, update, and remove a CICS® local catalog dataset to be used by a CICS® region, achieved by running the IDCAMS and DFHCCUTL programs.
+short_description: Create, remove, and manage the CICS local catalog
+description:
+  - Create, remove, and manage the L(local catalog,https://www.ibm.com/docs/en/cics-ts/latest?topic=catalogs-local-catalog)
+    data set used by a CICS® region.
+  - Useful when provisioning or de-provisioning a CICS region, or when managing
+    the state of the local catalog during upgrades or restarts.
+  - Use the O(state) option to specify the intended state for the local
+    catalog. For example, O(state=initial) will create and initialize a local
+    catalog data set if it doesn't yet exist, or it will take an existing
+    local catalog and empty it of all records.
 author: Enam Khan (@enam-khan)
-version_added: 1.1.0-beta.1
+version_added: 1.1.0-beta.2
+seealso:
+  - module: global_catalog
 options:
   space_primary:
-    description: Specifies the size of the local catalog dataset. Note, this is just the value; the unit is specified with space_type.
+    description:
+      - The size of the local catalog data set's primary space allocation.
+        Note, this is just the value; the unit is specified with O(space_type).
+      - This option only takes effect when the local catalog is being created.
+        If it already exists, it has no effect.
+      - The local catalog data set's secondary space allocation is set to 1.
     type: int
     required: false
     default: 200
   space_type:
-    description: Specifies the unit to be used for the local catalog size. Note, this is just the unit; the value is specified with space_primary.
+    description:
+      - The unit portion of the local catalog data set size. Note, this is
+        just the unit; the value is specified with O(space_primary).
+      - This option only takes effect when the local catalog is being created.
+        If it already exists, it has no effect.
+      - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
+        records (V(REC)), cylinders (V(CYL)), or tracks (V(TRK)).
     required: false
     type: str
     choices:
@@ -32,15 +53,28 @@ options:
       - TRK
     default: REC
   location:
-    description: The name of the dataset to be used as the local catalog dataset.
+    description:
+      - The name of the local catalog data set, e.g.
+        C(REGIONS.ABCD0001.DFHLCD).
+      - If it already exists, this data set must be cataloged.
     type: str
     required: true
   sdfhload:
-    description: The location of SDFHLOAD for the CICS install to be used to create the local catalog.
+    description:
+      - The name of the C(SDFHLOAD) data set, e.g. C(CICSTS61.CICS.SDFHLOAD).
+      - This module uses the C(DFHCCUTL) utility internally, which is found in
+        the C(SDFHLOAD) data set in the CICS installation.
     type: str
     required: true
   state:
-    description: The state the local catalog will end up in after the task has run.
+    description:
+      - The desired state for the local catalog, which the module will aim to
+        achieve.
+      - V(absent) will remove the local catalog data set entirely, if it
+        already exists.
+      - V(initial) will create the local catalog data set if it does not
+        already exist, and empty it of all existing records.
+      - V(warm) will retain an existing local catalog in its current state.
     choices:
       - "initial"
       - "absent"
@@ -52,22 +86,22 @@ options:
 EXAMPLES = r"""
 - name: Initialize a local catalog
   ibm.ibm_zos_cics.local_catalog:
-    location: "CICS.INSTALL.REG01.DFHLCD"
-    sdfhload: "CTS560.CICS730.SDFHLOAD"
+    location: "REGIONS.ABCD0001.DFHLCD"
+    sdfhload: "CICSTS61.CICS.SDFHLOAD"
     state: "initial"
 
 - name: Initialize a large catalog
   ibm.ibm_zos_cics.local_catalog:
-    location: "CICS.INSTALL.REG01.DFHLCD"
-    sdfhload: "CTS560.CICS730.SDFHLOAD"
+    location: "REGIONS.ABCD0001.DFHLCD"
+    sdfhload: "CICSTS61.CICS.SDFHLOAD"
     space_primary: 500
     space_type: "REC"
     state: "initial"
 
 - name: Delete local catalog
   ibm.ibm_zos_cics.local_catalog:
-    location: "CICS.INSTALL.REG01.DFHLCD"
-    sdfhload: "CTS560.CICS730.SDFHLOAD"
+    location: "REGIONS.ABCD0001.DFHLCD"
+    sdfhload: "CICSTS61.CICS.SDFHLOAD"
     state: "absent"
 """
 
@@ -83,16 +117,16 @@ failed:
   type: bool
 start_state:
   description:
-    - The state of the local catalog before the task
+    - The state of the local catalog before the task runs.
   returned: always
   type: dict
   contains:
     vsam:
-      description: True if the data set is of type vsam
+      description: True if the data set is a VSAM data set.
       returned: always
       type: bool
     exists:
-      description: True if the local catalog dataset exists
+      description: True if the local catalog data set exists.
       type: bool
       returned: always
 end_state:
@@ -101,33 +135,33 @@ end_state:
   type: dict
   contains:
     vsam:
-      description: True if the data set is of type vsam
+      description: True if the data set is a VSAM data set.
       returned: always
       type: bool
     exists:
-      description: True if the local catalog dataset exists
+      description: True if the local catalog data set exists.
       type: bool
       returned: always
 executions:
-  description: A list of program executions performed during the task
+  description: A list of program executions performed during the task.
   returned: always
   type: list
   elements: dict
   contains:
     name:
-      description: Human readable name for the execution
+      description: A human-readable name for the program execution.
       type: str
       returned: always
     rc:
-      description: The return code for that program execution
+      description: The return code for the program execution.
       type: int
       returned: always
     stdout:
-      description: The stdout returned from the program execution
+      description: The standard out stream returned by the program execution.
       type: str
       returned: always
     stderr:
-      description: The stderr returned from the program execution
+      description: The standard error stream returned from the program execution.
       type: str
       returned: always
 """
@@ -281,7 +315,7 @@ class AnsibleLocalCatalogModule(object):
 
         idcams_executions = _run_idcams(
             cmd=create_cmd,
-            name="Create local catalog dataset",
+            name="Create local catalog data set",
             location=self.starting_catalog["name"],
             delete=False)
         self.executions = self.executions + idcams_executions
@@ -302,7 +336,7 @@ class AnsibleLocalCatalogModule(object):
 
         idcams_executions = _run_idcams(
             cmd=delete_cmd,
-            name="Removing local catalog dataset",
+            name="Removing local catalog data set",
             location=self.starting_catalog["name"],
             delete=True)
         self.executions = self.executions + idcams_executions
@@ -323,7 +357,7 @@ class AnsibleLocalCatalogModule(object):
         self.executions = self.executions + ccutl_executions
 
     def invalid_state(self):  # type: () -> None
-        self._fail("{0} is not a valid target state".format(
+        self._fail("{0} is not a valid target state.".format(
             self.local_catalog["state"]))
 
     def get_target_method(self, target):
@@ -352,7 +386,7 @@ class AnsibleLocalCatalogModule(object):
 
         if self.starting_catalog["exists"] and not self.starting_catalog["vsam"]:
             self._fail(
-                "Dataset {0} does not appear to be a KSDS".format(
+                "Data set {0} does not appear to be a KSDS.".format(
                     self.starting_catalog["name"]))
 
         self.get_target_method(self.starting_catalog["state"])()

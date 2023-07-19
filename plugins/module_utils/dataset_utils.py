@@ -67,13 +67,13 @@ def _run_idcams(cmd, name, location, delete=False):
             "").replace(
             "\n",
                 ""):
-            raise Exception("RC {0} when deleting dataset".format(rc))
+            raise Exception("RC {0} when deleting data set".format(rc))
     else:
         if rc == 12 and "NOTDEFINEDBECAUSEDUPLICATENAMEEXISTSINCATALOG" in stdout.upper(
         ).replace(" ", "").replace("\n", ""):
             return executions
         if rc != 0:
-            raise Exception("RC {0} when creating dataset".format(rc))
+            raise Exception("RC {0} when creating data set".format(rc))
 
     return executions
 
@@ -121,7 +121,7 @@ def _run_listds(location):
         rc, stdout, stderr = ikjeft01(cmd=cmd, authorized=True)
         executions.append(
             _execution(
-                name="IKJEFT01 - Get Dataset Status - Run {0}".format(
+                name="IKJEFT01 - Get Data Set Status - Run {0}".format(
                     x + 1),
                 rc=rc,
                 stdout=stdout,

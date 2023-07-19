@@ -14,7 +14,7 @@
     # ############################## Initial cleanup ##############################
     # #############################################################################
 
-    - name: Delete Catalog Dataset if it exists
+    - name: Delete Catalog Data Set if it exists
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
         name: "{{ region_dataset_path }}.LOW.{{ catalog_name }}"
@@ -63,7 +63,7 @@
     # ################################## Cleanup ##################################
     # #############################################################################
 
-    - name: Delete Catalog Dataset
+    - name: Delete Catalog Data Set
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
         name: "{{ region_dataset_path }}.LOW.{{ catalog_name }}"

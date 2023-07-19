@@ -16,7 +16,7 @@ This release contains a new Global Catalog module
 New Modules
 -----------
 
-- ibm.ibm_zos_cics.global_catalog - Create and initialize CICS® global catalog.
+- ibm.ibm_zos_cics.global_catalog - Create and initialize CICS global catalog.
 
 v1.0.5
 ======
