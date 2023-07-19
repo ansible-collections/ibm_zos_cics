@@ -33,15 +33,15 @@ def _local_catalog(size, name, sdfhload, state, exists, vsam):
     }
 
 
-def _get_ccmutl_dds(catalog):
+def _get_ccmutl_dds(catalog, cmd):
     return [
-        DDStatement('steplib', DatasetDefinition(catalog.sdfhload)),
+        DDStatement('steplib', DatasetDefinition(catalog["sdfhload"])),
         DDStatement('sysprint', StdoutDefinition()),
         DDStatement('sysudump', StdoutDefinition()),
         DDStatement(
             'dfhlcd',
             DatasetDefinition(
-                dataset_name=catalog.name,
+                dataset_name=catalog["name"],
                 disposition="SHR")),
     ]
 
