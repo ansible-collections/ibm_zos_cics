@@ -40,7 +40,7 @@ def test__run_listds_exists_vsam():
 
     assert len(result_exececutions) == 1
     assert result_exececutions[0] == {
-        "name": "IKJEFT01 - Get Dataset Status - Run 1",
+        "name": "IKJEFT01 - Get Data Set Status - Run 1",
         "rc": rc,
         "stdout": stdout,
         "stderr": stderr,
@@ -78,7 +78,7 @@ def test__run_listds_exists_not_vsam():
 
     assert len(result_exececutions) == 1
     assert result_exececutions[0] == {
-        "name": "IKJEFT01 - Get Dataset Status - Run 1",
+        "name": "IKJEFT01 - Get Data Set Status - Run 1",
         "rc": rc,
         "stdout": stdout,
         "stderr": stderr,
@@ -126,7 +126,7 @@ def test__run_listds_not_exists():
 
     assert len(result_exececutions) == 1
     assert result_exececutions[0] == {
-        "name": "IKJEFT01 - Get Dataset Status - Run 1",
+        "name": "IKJEFT01 - Get Data Set Status - Run 1",
         "rc": rc,
         "stdout": stdout,
         "stderr": stderr,

@@ -357,7 +357,7 @@ class AnsibleLocalCatalogModule(object):
         self.executions = self.executions + ccutl_executions
 
     def invalid_state(self):  # type: () -> None
-        self._fail("{0} is not a valid target state".format(
+        self._fail("{0} is not a valid target state.".format(
             self.local_catalog["state"]))
 
     def get_target_method(self, target):

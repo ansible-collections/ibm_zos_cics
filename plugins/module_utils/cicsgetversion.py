@@ -23,4 +23,4 @@ def get_dataset_member_version_record(dataset):  # type: (str) -> str
         else:
             return result
     except ZOAUExceptions.ZOAUException as e:
-        raise Exception("Error reading dataset for calculating CICS version - {0}".format(e))
+        raise Exception("Error reading data set for calculating CICS version - {0}".format(e))

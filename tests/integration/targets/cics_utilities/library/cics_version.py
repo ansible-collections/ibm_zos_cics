@@ -47,7 +47,7 @@ class CicsVersion(object):
         except Exception as e:
             self.result['rc'] = 1
             self.result['exception'] = e
-            self._fail("Error fetching version information from dataset with {0}".format(self._module.params.get(HIGH_LEVEL_QUALIFIER)))
+            self._fail("Error fetching version information from data set with {0}".format(self._module.params.get(HIGH_LEVEL_QUALIFIER)))
 
 
 def main():
