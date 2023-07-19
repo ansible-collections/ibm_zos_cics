@@ -19,6 +19,10 @@
         state: absent
       register: delete_result
 
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ delete_result }}"
+
     - name: Assert Delete Passed
       ansible.builtin.assert:
         that:
@@ -54,6 +58,10 @@
       until: created_result.failed is false
       delay: 5
 
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ created_result }}"
+
     - name: Wait until created
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_find:
@@ -64,6 +72,10 @@
       retries: 10
       delay: 5
 
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ datasets }}"
+
     - name: Create PDS Member
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
@@ -73,6 +85,10 @@
       register: created_result
       until: created_result.failed is false
       delay: 5
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ created_result }}"
 
     - name: Wait until created
       environment: "{{ environment_vars }}"
@@ -85,6 +101,10 @@
       until: datasets.data_sets != []
       retries: 10
       delay: 5
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ datasets }}"
 
     ############################################################################
     # Try to read empty dataset
@@ -128,6 +148,10 @@
       retries: 10
       delay: 5
 
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ datasets }}"
+
     - name: Get CICS version from new dataset
       environment: "{{ environment_vars }}"
       cics_version:
@@ -153,6 +177,11 @@
       args:
         executable: /rocket/bin/bash
         cmd: decho 'STATUS =' "{{ ds_name }}.SDFHSAMP(DFH0SINX)"
+      register: res
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ res }}"
 
     - name: Wait until written
       environment: "{{ environment_vars }}"
@@ -166,7 +195,11 @@
       until: datasets.data_sets != []
       retries: 10
       delay: 5
-      
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ datasets }}"
+
     - name: Attempt to read data from STATUS which is EOF
       environment: "{{ environment_vars }}"
       cics_version:
@@ -192,6 +225,11 @@
         name: "{{ ds_name }}.SDFHSAMP"
       register: delete_result
 
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ delete_result }}"
+
+
     - name: Assert Delete Passed
       ansible.builtin.assert:
         that:
@@ -211,6 +249,10 @@
       until: created_result.failed is false
       delay: 5
 
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ created_result }}"
+
     - name: Wait until created
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_find:
@@ -220,6 +262,10 @@
       until: datasets.data_sets != []
       retries: 10
       delay: 5
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ datasets }}"
 
     - name: Write data to SEQ dataset
       environment: "{{ environment_vars }}"
@@ -238,6 +284,10 @@
       until: datasets.data_sets != []
       retries: 10
       delay: 5
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ datasets }}"
 
     - name: Read version from SEQ dataset
       environment: "{{ environment_vars }}"
@@ -262,6 +312,10 @@
         state: absent
         name: "{{ ds_name }}.SEQ"
       register: delete_result
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ delete_result }}"
 
     - name: Assert Delete Passed
       ansible.builtin.assert:
