@@ -19,24 +19,24 @@ except ImportError:
 
 ZOS_CICS_IMP_ERR = None
 try:
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        Execution)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
+        _execution)
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
 
-def get_value_from_line(line):
+def _get_value_from_line(line):
     val = None
     if len(line) == 1:
         val = line[0].split(":")[1]
     return val
 
 
-def get_filtered_list(elements, target):
+def _get_filtered_list(elements, target):
     return list(filter(lambda x: target in x, elements))
 
 
-def get_rmutl_dds(
+def _get_rmutl_dds(
         location,
         sdfhload,
         cmd):  # type: (str, str, str) -> List[DDStatement]
@@ -48,7 +48,7 @@ def get_rmutl_dds(
     ]
 
 
-def get_reason_code(filtered):
+def _get_reason_code(filtered):
     if len(filtered) == 0:
         raise Exception(
             "DFHRMUTL failed with RC 16 but no reason code was found")
@@ -64,17 +64,17 @@ def get_reason_code(filtered):
     return elements3[1]
 
 
-def get_catalog_records(stdout):
+def _get_catalog_records(stdout):
     elements = ['{0}'.format(element.replace(" ", "").upper())
                 for element in stdout.split("\n")]
 
-    autostart_filtered = get_filtered_list(
+    autostart_filtered = _get_filtered_list(
         elements, "AUTO-STARTOVERRIDE:")
-    nextstart_filtered = get_filtered_list(elements, "NEXTSTARTTYPE:")
+    nextstart_filtered = _get_filtered_list(elements, "NEXTSTARTTYPE:")
 
-    autostart_override = get_value_from_line(
+    autostart_override = _get_value_from_line(
         autostart_filtered)
-    nextstart = get_value_from_line(nextstart_filtered)
+    nextstart = _get_value_from_line(nextstart_filtered)
 
     return {
         "autostart_override": autostart_override,
@@ -82,18 +82,18 @@ def get_catalog_records(stdout):
     }
 
 
-def run_dfhrmutl(location, sdfhload, cmd=""):
+def _run_dfhrmutl(location, sdfhload, cmd=""):
 
     executions = []
 
     for x in range(10):
         dfhrmutl_response = MVSCmd.execute(
             pgm="DFHRMUTL",
-            dds=get_rmutl_dds(location=location, sdfhload=sdfhload, cmd=cmd),
+            dds=_get_rmutl_dds(location=location, sdfhload=sdfhload, cmd=cmd),
             verbose=True,
             debug=False)
         executions.append(
-            Execution(
+            _execution(
                 name="DFHRMUTL - {0} - Run {1}".format(
                     "Get current catalog" if cmd == "" else "Updating autostart override",
                     x + 1),
@@ -108,7 +108,7 @@ def run_dfhrmutl(location, sdfhload, cmd=""):
                         for element in dfhrmutl_response.stdout.split("\n")]
             filtered = list(filter(lambda x: "REASON:X" in x, elements))
 
-            reason_code = get_reason_code(filtered)
+            reason_code = _get_reason_code(filtered)
             if reason_code != "A8":
                 raise Exception(
                     "DFHRMUTL failed with RC 16 - {0}".format(filtered[0]))
@@ -120,4 +120,25 @@ def run_dfhrmutl(location, sdfhload, cmd=""):
     if cmd != "":
         return executions
 
-    return executions, get_catalog_records(dfhrmutl_response.stdout)
+    return executions, _get_catalog_records(dfhrmutl_response.stdout)
+
+
+def _global_catalog(
+        size,
+        name,
+        sdfhload,
+        state,
+        autostart_override,
+        nextstart,
+        exists,
+        vsam):
+    return {
+        'size': size,
+        'name': name,
+        'sdfhload': sdfhload,
+        'state': state,
+        'autostart_override': autostart_override,
+        'nextstart': nextstart,
+        'exists': exists,
+        'vsam': vsam,
+    }

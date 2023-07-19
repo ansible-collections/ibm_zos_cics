@@ -5,14 +5,14 @@
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import idcams
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
 try:
     from unittest.mock import MagicMock
 except ImportError:
     from mock import MagicMock
 
 
-def test_run_idcams_create():
+def test__run_idcams_create():
 
     rc = 0
     stdout = (
@@ -42,7 +42,7 @@ def test_run_idcams_create():
         "        \n"
         "0IDC0002I IDCAMS PROCESSING COMPLETE. MAXIMUM CONDITION CODE WAS 0")
     stderr = ""
-    idcams.idcams = MagicMock(return_value=[rc, stdout, stderr])
+    dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
     cmd = '''
     DEFINE CLUSTER -
@@ -61,14 +61,14 @@ def test_run_idcams_create():
         (NAME(ANSIBIT.CICS.IYTWYD03.DFHGCD.INDEX))
     '''
 
-    result_exececutions = idcams.run_idcams(
+    result_exececutions = dataset_utils._run_idcams(
         cmd=cmd,
         name="Create Catalog",
         location="ANSIBIT.CICS.IYTWYD03.DFHGCD",
         delete=False)
 
     assert len(result_exececutions) == 1
-    assert result_exececutions[0].to_dict() == {
+    assert result_exececutions[0] == {
         "name": "IDCAMS - Create Catalog - Run 1",
         "rc": rc,
         "stdout": stdout,
@@ -76,7 +76,7 @@ def test_run_idcams_create():
     }
 
 
-def test_run_idcams_create_exists():
+def test__run_idcams_create_exists():
 
     rc = 12
     stdout = (
@@ -109,7 +109,7 @@ def test_run_idcams_create_exists():
         "\n"
         "0IDC0002I IDCAMS PROCESSING COMPLETE. MAXIMUM CONDITION CODE WAS 12")
     stderr = ""
-    idcams.idcams = MagicMock(return_value=[rc, stdout, stderr])
+    dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
     cmd = '''
     DEFINE CLUSTER -
@@ -128,14 +128,14 @@ def test_run_idcams_create_exists():
         (NAME(ANSIBIT.CICS.IYTWYD01.DFHGCD.INDEX))
     '''
 
-    result_exececutions = idcams.run_idcams(
+    result_exececutions = dataset_utils._run_idcams(
         cmd=cmd,
         name="Create Catalog",
         location="ANSIBIT.CICS.IYTWYD01.DFHGCD",
         delete=False)
 
     assert len(result_exececutions) == 1
-    assert result_exececutions[0].to_dict() == {
+    assert result_exececutions[0] == {
         "name": "IDCAMS - Create Catalog - Run 1",
         "rc": rc,
         "stdout": stdout,
@@ -143,7 +143,7 @@ def test_run_idcams_create_exists():
     }
 
 
-def test_run_idcams_delete():
+def test__run_idcams_delete():
 
     rc = 0
     stdout = (
@@ -159,20 +159,20 @@ def test_run_idcams_delete():
         "\n"
         "0IDC0002I IDCAMS PROCESSING COMPLETE. MAXIMUM CONDITION CODE WAS 0")
     stderr = ""
-    idcams.idcams = MagicMock(return_value=[rc, stdout, stderr])
+    dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
     cmd = '''
         DELETE ANSIBIT.CICS.IYTWYD03.DFHGCD
     '''
 
-    result_exececutions = idcams.run_idcams(
+    result_exececutions = dataset_utils._run_idcams(
         cmd=cmd,
         name="Remove Catalog",
         location="ANSIBIT.CICS.IYTWYD03.DFHGCD",
         delete=True)
 
     assert len(result_exececutions) == 1
-    assert result_exececutions[0].to_dict() == {
+    assert result_exececutions[0] == {
         "name": "IDCAMS - Remove Catalog - Run 1",
         "rc": rc,
         "stdout": stdout,
@@ -180,7 +180,7 @@ def test_run_idcams_delete():
     }
 
 
-def test_run_idcams_delete_no_exist():
+def test__run_idcams_delete_no_exist():
 
     rc = 8
     stdout = (
@@ -196,20 +196,20 @@ def test_run_idcams_delete_no_exist():
         "    \n"
         "0IDC0002I IDCAMS PROCESSING COMPLETE. MAXIMUM CONDITION CODE WAS 8")
     stderr = ""
-    idcams.idcams = MagicMock(return_value=[rc, stdout, stderr])
+    dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
     cmd = '''
         DELETE ANSIBIT.CICS.IYTWYD02.DFHGCD
     '''
 
-    result_exececutions = idcams.run_idcams(
+    result_exececutions = dataset_utils._run_idcams(
         cmd=cmd,
         name="Remove Catalog",
         location="ANSIBIT.CICS.IYTWYD02.DFHGCD",
         delete=True)
 
     assert len(result_exececutions) == 1
-    assert result_exececutions[0].to_dict() == {
+    assert result_exececutions[0] == {
         "name": "IDCAMS - Remove Catalog - Run 1",
         "rc": rc,
         "stdout": stdout,

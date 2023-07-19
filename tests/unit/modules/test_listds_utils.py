@@ -5,7 +5,7 @@
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import listds
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
 import pytest
 try:
     from unittest.mock import MagicMock
@@ -13,7 +13,7 @@ except ImportError:
     from mock import MagicMock
 
 
-def test_run_listds_exists_vsam():
+def test__run_listds_exists_vsam():
 
     rc = 0
     stdout = (
@@ -33,13 +33,13 @@ def test_run_listds_exists_vsam():
         "                    \n END                                                "
         "                                                                     \n")
     stderr = ""
-    listds.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
-    result_exececutions, result_status = listds.run_listds(
+    result_exececutions, result_status = dataset_utils._run_listds(
         "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD")
 
     assert len(result_exececutions) == 1
-    assert result_exececutions[0].to_dict() == {
+    assert result_exececutions[0] == {
         "name": "IKJEFT01 - Get Dataset Status - Run 1",
         "rc": rc,
         "stdout": stdout,
@@ -51,7 +51,7 @@ def test_run_listds_exists_vsam():
     }
 
 
-def test_run_listds_exists_not_vsam():
+def test__run_listds_exists_not_vsam():
 
     rc = 0
     stdout = (
@@ -71,13 +71,13 @@ def test_run_listds_exists_not_vsam():
         "                    \n END                                                "
         "                                                                     \n")
     stderr = ""
-    listds.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
-    result_exececutions, result_status = listds.run_listds(
+    result_exececutions, result_status = dataset_utils._run_listds(
         "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD")
 
     assert len(result_exececutions) == 1
-    assert result_exececutions[0].to_dict() == {
+    assert result_exececutions[0] == {
         "name": "IKJEFT01 - Get Dataset Status - Run 1",
         "rc": rc,
         "stdout": stdout,
@@ -89,21 +89,21 @@ def test_run_listds_exists_not_vsam():
     }
 
 
-def test_run_listds_bad_rc():
+def test__run_listds_bad_rc():
 
     rc = 16
     stdout = ""
     stderr = ""
-    listds.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
     with pytest.raises(Exception) as e_info:
-        result_exececutions, result_status = listds.run_listds(
+        result_exececutions, result_status = dataset_utils._run_listds(
             "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD")
 
         assert e_info == "LISTDS Command output not recognised"
 
 
-def test_run_listds_not_exists():
+def test__run_listds_not_exists():
 
     rc = 8
     stdout = (
@@ -119,13 +119,13 @@ def test_run_listds_not_exists():
         "                                                       \n"
         "END")
     stderr = ""
-    listds.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
-    result_exececutions, result_status = listds.run_listds(
+    result_exececutions, result_status = dataset_utils._run_listds(
         "ANSIBIT.CICS.TESTS.A294D11B.DFHGaCD")
 
     assert len(result_exececutions) == 1
-    assert result_exececutions[0].to_dict() == {
+    assert result_exececutions[0] == {
         "name": "IKJEFT01 - Get Dataset Status - Run 1",
         "rc": rc,
         "stdout": stdout,
