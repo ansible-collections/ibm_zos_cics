@@ -2,6 +2,6 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 -r dev-requirements.txt
 
-ansible-doc-extractor==0.1.6; python_version >= '3'
+ansible-doc-extractor==0.1.10; python_version >= '3'
 Sphinx==3.4.3; python_version >= '3'
 sphinx-rtd-theme==0.5.1; python_version >= '3'
