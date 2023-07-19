@@ -270,7 +270,7 @@ class AnsibleLocalCatalogModule(object):
                            control_interval_size=CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT)
 
         self.starting_catalog = LocalCatalog(size=size,
-                                             name=result.get(LOCAL_CATALOG_DATASET_ATTRIBUTE),
+                                             name=result.get(LOCAL_CATALOG_DATASET_ATTRIBUTE).upper(),
                                              sdfhload=result.get(CATALOG_SDFHLOAD_ATTRIBUTE),
                                              state=result.get(CATALOG_TARGET_STATE_ATTRIBUTE),
                                              exists=False,
