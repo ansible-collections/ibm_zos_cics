@@ -353,7 +353,7 @@ class AnsibleLocalCatalogModule(object):
         if not self.starting_catalog["exists"]:
             self.create_local_catalog_dataset()
 
-        ccutl_executions = _run_dfhccutl(self.starting_catalog, cmd="*")
+        ccutl_executions = _run_dfhccutl(self.starting_catalog)
         self.executions = self.executions + ccutl_executions
 
     def invalid_state(self):  # type: () -> None
