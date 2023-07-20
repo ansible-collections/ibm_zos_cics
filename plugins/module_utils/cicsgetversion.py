@@ -5,8 +5,8 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 try:
-    import zoautil_py.datasets as Datasets
-    import zoautil_py.exceptions as ZOAUExceptions
+    from zoautil_py.datasets import read
+    from zoautil_py.exceptions import ZOAUException
 except ImportError as imp_exc:
     ZOAUTIL_IMPORT_ERROR = imp_exc
 else:
@@ -15,12 +15,12 @@ else:
 
 def get_dataset_member_version_record(dataset):  # type: (str) -> str
     try:
-        result = Datasets.read("%s.SDFHSAMP(DFH0SINX)" % dataset).split("STATUS = ", 1)[1].split(" ")[0]
+        result = read("%s.SDFHSAMP(DFH0SINX)" % dataset).split("STATUS = ", 1)[1].split(" ")[0]
         if not result or result == "":
             raise Exception("CICS version was blank")
         elif len(result) >= 10:
             raise Exception("CICS version was too long")
         else:
             return result
-    except ZOAUExceptions.ZOAUException:
+    except ZOAUException:
         raise Exception("Error reading dataset for calculating CICS version.")
