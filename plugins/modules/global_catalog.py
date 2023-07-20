@@ -212,37 +212,9 @@ try:
         _dataset_size, _get_idcams_create_cmd, _run_listds, _run_idcams)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog import (
         _run_dfhrmutl, _global_catalog)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import catalog_constants as constants
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
-
-
-CATALOG_GCD_ALIAS = "location"
-CATALOG_STEPLIB_ALIAS = "sdfhload"
-CATALOG_TARGET_STATE_ALIAS = "state"
-
-CATALOG_PRIMARY_SPACE_VALUE_ALIAS = "space_primary"
-CATALOG_PRIMARY_SPACE_VALUE_DEFAULT = 5
-
-CATALOG_PRIMARY_SPACE_UNIT_ALIAS = "space_type"
-CATALOG_PRIMARY_SPACE_UNIT_DEFAULT = "M"
-CATALOG_SPACE_UNIT_OPTIONS = ["K", "M", "REC", "CYL", "TRK"]
-
-CATALOG_SECONDARY_SPACE_VALUE_DEFAULT = 1
-
-CATALOG_RECORD_COUNT_DEFAULT = 4089
-CATALOG_RECORD_SIZE_DEFAULT = 32760
-CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT = 32768
-
-CATALOG_TARGET_STATE_OPTIONS = ['absent', 'initial', 'cold', 'warm']
-
-AUTO_START_WARM = "AUTOASIS"
-AUTO_START_COLD = "AUTOCOLD"
-AUTO_START_INIT = "AUTOINIT"
-
-NEXT_START_EMERGENCY = "EMERGENCY"
-NEXT_START_WARM = "WARM"
-NEXT_START_COLD = "COLD"
-NEXT_START_UNKNOWN = "UNKNOWN"
 
 
 class AnsibleGlobalCatalogModule(object):
@@ -269,72 +241,72 @@ class AnsibleGlobalCatalogModule(object):
 
     def init_argument_spec(self):  # type: () -> Dict
         return {
-            CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
+            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
                 'required': False,
                 'type': 'int',
-                'default': CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
+                'default': constants.GLOBAL_CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
             },
-            CATALOG_PRIMARY_SPACE_UNIT_ALIAS: {
+            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: {
                 'required': False,
                 'type': 'str',
-                'choices': CATALOG_SPACE_UNIT_OPTIONS,
-                'default': CATALOG_PRIMARY_SPACE_UNIT_DEFAULT,
+                'choices': constants.CATALOG_SPACE_UNIT_OPTIONS,
+                'default': constants.GLOBAL_CATALOG_SPACE_UNIT_DEFAULT,
             },
-            CATALOG_GCD_ALIAS: {
+            constants.CATALOG_DATASET_ALIAS: {
                 'required': True,
                 'type': 'str',
             },
-            CATALOG_STEPLIB_ALIAS: {
+            constants.CATALOG_SDFHLOAD_ALIAS: {
                 'required': True,
                 'type': 'str',
             },
-            CATALOG_TARGET_STATE_ALIAS: {
+            constants.CATALOG_TARGET_STATE_ALIAS: {
                 'required': True,
                 'type': 'str',
-                'choices': CATALOG_TARGET_STATE_OPTIONS,
+                'choices': constants.GLOBAL_CATALOG_TARGET_STATE_OPTIONS,
             },
         }
 
     def validate_parameters(self):
         arg_defs = {
-            CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
+            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
                 "arg_type": 'int',
-                "default": CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
+                "default": constants.GLOBAL_CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
             },
-            CATALOG_PRIMARY_SPACE_UNIT_ALIAS: {
+            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: {
                 "arg_type": 'str',
-                "choices": CATALOG_SPACE_UNIT_OPTIONS,
-                "default": CATALOG_PRIMARY_SPACE_UNIT_DEFAULT,
+                "choices": constants.CATALOG_SPACE_UNIT_OPTIONS,
+                "default": constants.GLOBAL_CATALOG_SPACE_UNIT_DEFAULT,
             },
-            CATALOG_GCD_ALIAS: {
+            constants.CATALOG_DATASET_ALIAS: {
                 "arg_type": 'data_set_base',
                 "required": True,
             },
-            CATALOG_STEPLIB_ALIAS: {
+            constants.CATALOG_SDFHLOAD_ALIAS: {
                 "arg_type": 'data_set_base',
                 "required": True,
             },
-            CATALOG_TARGET_STATE_ALIAS: {
+            constants.CATALOG_TARGET_STATE_ALIAS: {
                 "arg_type": 'str',
-                "choices": CATALOG_TARGET_STATE_OPTIONS,
+                "choices": constants.GLOBAL_CATALOG_TARGET_STATE_OPTIONS,
                 "required": True,
             },
         }
         result = BetterArgParser(arg_defs).parse_args({
-            "space_primary": self._module.params.get(CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
-            "space_type": self._module.params.get(CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
-            "location": self._module.params.get(CATALOG_GCD_ALIAS).upper(),
-            "sdfhload": self._module.params.get(CATALOG_STEPLIB_ALIAS).upper(),
-            "state": self._module.params.get(CATALOG_TARGET_STATE_ALIAS)
+            "space_primary": self._module.params.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
+            "space_type": self._module.params.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
+            "location": self._module.params.get(constants.CATALOG_DATASET_ALIAS).upper(),
+            "sdfhload": self._module.params.get(constants.CATALOG_SDFHLOAD_ALIAS).upper(),
+            "state": self._module.params.get(constants.CATALOG_TARGET_STATE_ALIAS)
         })
         self.starting_catalog = _global_catalog(
             size=_dataset_size(
                 result.get('space_type'),
                 result.get('space_primary'),
-                CATALOG_SECONDARY_SPACE_VALUE_DEFAULT,
-                CATALOG_RECORD_COUNT_DEFAULT,
-                CATALOG_RECORD_SIZE_DEFAULT,
-                CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT),
+                constants.GLOBAL_CATALOG_SECONDARY_SPACE_VALUE_DEFAULT,
+                constants.GLOBAL_CATALOG_RECORD_COUNT_DEFAULT,
+                constants.GLOBAL_CATALOG_RECORD_SIZE_DEFAULT,
+                constants.GLOBAL_CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT),
             name=result.get('location'),
             sdfhload=result.get('sdfhload'),
             state=result.get('state'),
@@ -378,7 +350,7 @@ class AnsibleGlobalCatalogModule(object):
         self.result['changed'] = True
 
     def init_global_catalog(self):
-        if self.starting_catalog["exists"] and self.starting_catalog["autostart_override"] == AUTO_START_INIT:
+        if self.starting_catalog["exists"] and self.starting_catalog["autostart_override"] == constants.AUTO_START_INIT:
             self.result['end_state'] = {
                 "exists": self.starting_catalog["exists"],
                 "autostart_override": self.starting_catalog["autostart_override"],
@@ -402,7 +374,7 @@ class AnsibleGlobalCatalogModule(object):
                 "Data set {0} does not exist.".format(
                     self.starting_catalog["name"]))
 
-        if self.starting_catalog["autostart_override"] == AUTO_START_WARM:
+        if self.starting_catalog["autostart_override"] == constants.AUTO_START_WARM:
             self.result['end_state'] = {
                 "exists": self.starting_catalog["exists"],
                 "autostart_override": self.starting_catalog["autostart_override"],
@@ -411,8 +383,8 @@ class AnsibleGlobalCatalogModule(object):
             self._exit()
 
         if (
-            self.starting_catalog["autostart_override"] == AUTO_START_INIT and
-            self.starting_catalog["nextstart"] == NEXT_START_UNKNOWN
+            self.starting_catalog["autostart_override"] == constants.AUTO_START_INIT and
+            self.starting_catalog["nextstart"] == constants.NEXT_START_UNKNOWN
         ):
             self._fail(
                 "Unused catalog. The catalog must be used by CICS before doing a warm start.")
@@ -430,7 +402,7 @@ class AnsibleGlobalCatalogModule(object):
                 "Data set {0} does not exist.".format(
                     self.starting_catalog["name"]))
 
-        if self.starting_catalog["autostart_override"] == AUTO_START_COLD:
+        if self.starting_catalog["autostart_override"] == constants.AUTO_START_COLD:
             self.result['end_state'] = {
                 "exists": self.starting_catalog["exists"],
                 "autostart_override": self.starting_catalog["autostart_override"],
@@ -439,8 +411,8 @@ class AnsibleGlobalCatalogModule(object):
             self._exit()
 
         if (
-            self.starting_catalog["autostart_override"] == AUTO_START_INIT and
-            self.starting_catalog["nextstart"] == NEXT_START_UNKNOWN
+            self.starting_catalog["autostart_override"] == constants.AUTO_START_INIT and
+            self.starting_catalog["nextstart"] == constants.NEXT_START_UNKNOWN
         ):
             self._fail(
                 "Unused catalog. The catalog must be used by CICS before doing a cold start.")
@@ -495,9 +467,9 @@ class AnsibleGlobalCatalogModule(object):
         }
 
         if self.starting_catalog["nextstart"] and self.starting_catalog["nextstart"].upper(
-        ) == NEXT_START_EMERGENCY:
+        ) == constants.NEXT_START_EMERGENCY:
             self._fail("Next start type is {0}. Potential data loss prevented.".format(
-                NEXT_START_EMERGENCY))
+                constants.NEXT_START_EMERGENCY))
 
         self.get_target_method(
             self.starting_catalog["state"])()

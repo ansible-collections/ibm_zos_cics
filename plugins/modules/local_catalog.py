@@ -183,31 +183,9 @@ try:
         _dataset_size, _get_idcams_create_cmd, _run_idcams, _run_listds)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog import (
         _local_catalog, _run_dfhccutl)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import catalog_constants as constants
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
-
-
-LOCAL_CATALOG_DATASET_ATTRIBUTE = "location"
-CATALOG_SDFHLOAD_ATTRIBUTE = "sdfhload"
-CATALOG_TARGET_STATE_ATTRIBUTE = "state"
-
-CATALOG_PRIMARY_SPACE_ATTRIBUTE = "space_primary"
-CATALOG_PRIMARY_SPACE_VALUE_DEFAULT = "200"
-
-CATALOG_SPACE_UNIT_ATTRIBUTE = "space_type"
-CATALOG_SPACE_UNIT_DEFAULT = "REC"
-CATALOG_SPACE_UNIT_OPTIONS = ["K", "M", "REC", "CYL", "TRK"]
-
-CATALOG_SECONDARY_SPACE_VALUE_DEFAULT = "5"
-
-CATALOG_TARGET_STATE_ABSENT = 'absent'
-CATALOG_TARGET_STATE_INITIAL = 'initial'
-CATALOG_TARGET_STATE_OPTIONS = [CATALOG_TARGET_STATE_ABSENT,
-                                CATALOG_TARGET_STATE_INITIAL]
-
-CATALOG_RECORD_COUNT_DEFAULT = 70
-CATALOG_RECORD_SIZE_DEFAULT = 2041
-CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT = 2048
 
 
 class AnsibleLocalCatalogModule(object):
@@ -233,29 +211,29 @@ class AnsibleLocalCatalogModule(object):
 
     def init_argument_spec(self):  # type: () -> Dict
         return {
-            CATALOG_PRIMARY_SPACE_ATTRIBUTE: {
+            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
                 'required': False,
                 'type': 'int',
-                'default': CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
+                'default': constants.LOCAL_CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
             },
-            CATALOG_SPACE_UNIT_ATTRIBUTE: {
+            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: {
                 'required': False,
                 'type': 'str',
-                'choices': CATALOG_SPACE_UNIT_OPTIONS,
-                'default': CATALOG_SPACE_UNIT_DEFAULT,
+                'choices': constants.CATALOG_SPACE_UNIT_OPTIONS,
+                'default': constants.LOCAL_CATALOG_SPACE_UNIT_DEFAULT,
             },
-            LOCAL_CATALOG_DATASET_ATTRIBUTE: {
+            constants.CATALOG_DATASET_ALIAS: {
                 'required': True,
                 'type': 'str',
             },
-            CATALOG_SDFHLOAD_ATTRIBUTE: {
+            constants.CATALOG_SDFHLOAD_ALIAS: {
                 'required': True,
                 'type': 'str',
             },
-            CATALOG_TARGET_STATE_ATTRIBUTE: {
+            constants.CATALOG_TARGET_STATE_ALIAS: {
                 'required': True,
                 'type': 'str',
-                'choices': CATALOG_TARGET_STATE_OPTIONS,
+                'choices': constants.LOCAL_CATALOG_TARGET_STATE_OPTIONS,
             }
         }
 
@@ -263,12 +241,12 @@ class AnsibleLocalCatalogModule(object):
         arg_defs = dict(
             space_primary=dict(
                 arg_type='int',
-                default=CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
+                default=constants.LOCAL_CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
             ),
             space_type=dict(
                 arg_type='str',
-                choices=CATALOG_SPACE_UNIT_OPTIONS,
-                default=CATALOG_SPACE_UNIT_DEFAULT,
+                choices=constants.CATALOG_SPACE_UNIT_OPTIONS,
+                default=constants.LOCAL_CATALOG_SPACE_UNIT_DEFAULT,
             ),
             location=dict(
                 arg_type='data_set_base',
@@ -280,33 +258,33 @@ class AnsibleLocalCatalogModule(object):
             ),
             state=dict(
                 arg_type='str',
-                choices=CATALOG_TARGET_STATE_OPTIONS,
+                choices=constants.LOCAL_CATALOG_TARGET_STATE_OPTIONS,
                 required=True,
             ),
         )
         parser = BetterArgParser(arg_defs)
 
         result = parser.parse_args({
-            CATALOG_PRIMARY_SPACE_ATTRIBUTE: self._module.params.get(CATALOG_PRIMARY_SPACE_ATTRIBUTE),
-            CATALOG_SPACE_UNIT_ATTRIBUTE: self._module.params.get(CATALOG_SPACE_UNIT_ATTRIBUTE),
-            LOCAL_CATALOG_DATASET_ATTRIBUTE: self._module.params.get(LOCAL_CATALOG_DATASET_ATTRIBUTE),
-            CATALOG_SDFHLOAD_ATTRIBUTE: self._module.params.get(CATALOG_SDFHLOAD_ATTRIBUTE),
-            CATALOG_TARGET_STATE_ATTRIBUTE: self._module.params.get(CATALOG_TARGET_STATE_ATTRIBUTE)
+            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
+            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
+            constants.CATALOG_DATASET_ALIAS: self._module.params.get(constants.CATALOG_DATASET_ALIAS),
+            constants.CATALOG_SDFHLOAD_ALIAS: self._module.params.get(constants.CATALOG_SDFHLOAD_ALIAS),
+            constants.CATALOG_TARGET_STATE_ALIAS: self._module.params.get(constants.CATALOG_TARGET_STATE_ALIAS)
         })
 
         size = _dataset_size(
-            unit=result.get(CATALOG_SPACE_UNIT_ATTRIBUTE),
-            primary=result.get(CATALOG_PRIMARY_SPACE_ATTRIBUTE),
-            secondary=CATALOG_SECONDARY_SPACE_VALUE_DEFAULT,
-            record_count=CATALOG_RECORD_COUNT_DEFAULT,
-            record_size=CATALOG_RECORD_SIZE_DEFAULT,
-            control_interval_size=CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT)
+            unit=result.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
+            primary=result.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
+            secondary=constants.LOCAL_CATALOG_SECONDARY_SPACE_VALUE_DEFAULT,
+            record_count=constants.LOCAL_CATALOG_RECORD_COUNT_DEFAULT,
+            record_size=constants.LOCAL_CATALOG_RECORD_SIZE_DEFAULT,
+            control_interval_size=constants.LOCAL_CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT)
 
         self.starting_catalog = _local_catalog(
             size=size,
-            name=result.get(LOCAL_CATALOG_DATASET_ATTRIBUTE).upper(),
-            sdfhload=result.get(CATALOG_SDFHLOAD_ATTRIBUTE),
-            state=result.get(CATALOG_TARGET_STATE_ATTRIBUTE),
+            name=result.get(constants.CATALOG_DATASET_ALIAS).upper(),
+            sdfhload=result.get(constants.CATALOG_SDFHLOAD_ALIAS),
+            state=result.get(constants.CATALOG_TARGET_STATE_ALIAS),
             exists=False,
             vsam=False)
 
@@ -362,8 +340,8 @@ class AnsibleLocalCatalogModule(object):
 
     def get_target_method(self, target):
         return {
-            CATALOG_TARGET_STATE_ABSENT: self.delete_local_catalog,
-            CATALOG_TARGET_STATE_INITIAL: self.init_local_catalog
+            constants.LOCAL_CATALOG_TARGET_STATE_ABSENT: self.delete_local_catalog,
+            constants.LOCAL_CATALOG_TARGET_STATE_INITIAL: self.init_local_catalog
         }.get(target, self.invalid_state)
 
     def get_catalog_state(self, catalog):
