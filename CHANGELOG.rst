@@ -5,6 +5,30 @@ ibm.ibm_zos_cics Release Notes
 .. contents:: Topics
 
 
+v1.1.0-beta.2
+=============
+
+Release Summary
+---------------
+
+This release improves the return values for the ``global_catalog`` module, fixes bugs related to its input parameters, and includes a new ``local_catalog`` module for provisioning a local catalog data set.
+
+Minor Changes
+-------------
+
+- Return values for ``global_catalog`` - changes the values returned to include ``start_state``, ``end_state``, and ``executions``.
+
+Bugfixes
+--------
+
+- Input parameters for ``global_catalog`` failed when lowercase. Now these parameters are not case sensitive.
+- The ``changed`` flag did not always correspond with actions taken during the ``global_catalog`` execution. Now this flag represents if changes were made.
+
+New Modules
+-----------
+
+- ibm.ibm_zos_cics.local_catalog - Create, remove, and manage the CICS local catalog
+
 v1.1.0-beta.1
 =============
 
