@@ -89,9 +89,7 @@ state
 
   \ :literal:`absent`\  will remove the local catalog data set entirely, if it already exists.
 
-  \ :literal:`initial`\  will create the local catalog data set if it does not already exist, and empty it of all existing records.
-
-  \ :literal:`warm`\  will retain an existing local catalog in its current state.
+  \ :literal:`initial`\  will create the local catalog data set if it does not already exist.
 
 
   | **required**: True
