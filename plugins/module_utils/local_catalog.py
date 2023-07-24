@@ -33,7 +33,7 @@ def _local_catalog(size, name, sdfhload, state, exists, vsam):
     }
 
 
-def _get_ccmutl_dds(catalog, cmd):
+def _get_ccmutl_dds(catalog):
     return [
         DDStatement('steplib', DatasetDefinition(catalog["sdfhload"])),
         DDStatement('sysprint', StdoutDefinition()),
@@ -46,11 +46,11 @@ def _get_ccmutl_dds(catalog, cmd):
     ]
 
 
-def _run_dfhccutl(starting_catalog, cmd):
+def _run_dfhccutl(starting_catalog):
     executions = []
     dfhccutl_response = MVSCmd.execute(
         pgm="DFHCCUTL",
-        dds=_get_ccmutl_dds(catalog=starting_catalog, cmd=cmd),
+        dds=_get_ccmutl_dds(catalog=starting_catalog),
         verbose=True,
         debug=False)
 
