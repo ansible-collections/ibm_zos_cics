@@ -113,6 +113,32 @@ def _get_idcams_create_cmd(dataset):
                dataset["size"]["control_interval_size"])
 
 
+def _get_idcams_create_cmd2(dataset):
+    return '''
+    DEFINE CLUSTER -
+        (NAME({0}) -
+        LOG(UNDO)-
+        INDEXED                      -
+        {1}({2} {3})             -
+        SHR(2)              -
+        FREESPACE(0 10)              -
+        RECORDSIZE({4} {5})       -
+        )              -
+        DATA                           -
+        (NAME({0}.DATA)  -
+        CONTROLINTERVALSIZE({6})    -
+        KEYS(40 0))  -
+        INDEX                          -
+        (NAME({0}.INDEX))
+    '''.format(dataset["name"],
+               _get_dataset_size_unit(dataset["size"]["unit"]),
+               dataset["size"]["primary"],
+               dataset["size"]["secondary"],
+               dataset["size"]["record_count"],
+               dataset["size"]["record_size"],
+               dataset["size"]["control_interval_size"])
+
+
 def _run_listds(location):
     cmd = " LISTDS '{0}'".format(location)
     executions = []
