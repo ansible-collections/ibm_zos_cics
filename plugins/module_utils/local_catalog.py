@@ -18,19 +18,10 @@ ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
         _execution)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
+        _build_idcams_define_cmd)
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
-
-
-def _local_catalog(size, name, sdfhload, state, exists, vsam):
-    return {
-        'size': size,
-        'name': name,
-        'sdfhload': sdfhload,
-        'state': state,
-        'exists': exists,
-        'vsam': vsam,
-    }
 
 
 def _get_ccmutl_dds(catalog):
@@ -67,3 +58,35 @@ def _run_dfhccutl(starting_catalog):
         stderr=dfhccutl_response.stderr))
 
     return executions
+
+
+def _get_idcams_cmd_lcd(dataset):
+    defaults = {
+        "CLUSTER": {
+            "RECORDSIZE": "70 2041",
+            "INDEXED": None,
+            "KEYS": "52 0",
+            "FREESPACE": "10 10",
+            "SHAREOPTIONS": "2",
+            "REUSE": None
+        },
+        "DATA": {
+            "CONTROLINTERVALSIZE": "2048"
+        },
+        "INDEX": {
+            None
+        }
+    }
+    defaults.update(dataset)
+    return _build_idcams_define_cmd(defaults)
+
+
+def _local_catalog(size, name, sdfhload, state, exists, vsam):
+    return {
+        'size': size,
+        'name': name,
+        'sdfhload': sdfhload,
+        'state': state,
+        'exists': exists,
+        'vsam': vsam,
+    }

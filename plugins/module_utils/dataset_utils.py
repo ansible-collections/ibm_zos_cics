@@ -88,29 +88,70 @@ def _get_dataset_size_unit(unit_symbol):  # type: (str) -> str
     }.get(unit_symbol, "MEGABYTES")
 
 
-def _get_idcams_create_cmd(dataset):
+def _build_idcams_define_cmd(dataset):
     return '''
-    DEFINE CLUSTER -
-        (NAME({0}) -
-        INDEXED                      -
-        {1}({2} {3})             -
-        SHR(2)              -
-        FREESPACE(10 10)              -
-        RECORDSIZE({4} {5})       -
-        REUSE)              -
-        DATA                           -
-        (NAME({0}.DATA)  -
-        CONTROLINTERVALSIZE({6})    -
-        KEYS(52 0))  -
-        INDEX                          -
-        (NAME({0}.INDEX))
-    '''.format(dataset["name"],
-               _get_dataset_size_unit(dataset["size"]["unit"]),
-               dataset["size"]["primary"],
-               dataset["size"]["secondary"],
-               dataset["size"]["record_count"],
-               dataset["size"]["record_size"],
-               dataset["size"]["control_interval_size"])
+    DEFINE CLUSTER ({0}) -
+    DATA ({1}) -
+    INDEX({2})
+    '''.format(_build_idcams_define_cluster_parms(dataset),
+               _build_idcams_define_data_parms(dataset),
+               _build_idcams_define_index_parms(dataset))
+
+
+def _build_idcams_define_cluster_parms(dataset):
+    clusterStr = "NAME({0}) -\n    {1}({2} {3})".format(
+        dataset["name"],
+        _get_dataset_size_unit(
+            dataset["size"]["unit"]),
+        dataset["size"]["primary"],
+        dataset["size"]["secondary"])
+    if isinstance(dataset["CLUSTER"], dict):
+        clusterStr += " -\n    "
+        for key, value in dataset["CLUSTER"].items():
+            if value is not None:
+                clusterStr += "{0}({1})".format(key, value)
+                if key != list(dataset["CLUSTER"].keys())[-1]:
+                    clusterStr += " -\n    "
+            elif key is not None:
+                clusterStr += "{0}".format(key)
+                if key != list(dataset["CLUSTER"].keys())[-1]:
+                    clusterStr += " -\n    "
+
+    return clusterStr
+
+
+def _build_idcams_define_data_parms(dataset):
+    dataStr = "NAME({0}.DATA)".format(dataset["name"])
+    if isinstance(dataset["DATA"], dict):
+        dataStr += " -\n    "
+        for key, value in dataset["DATA"].items():
+            if value is not None:
+                dataStr += "{0}({1})".format(key, value)
+                if key != list(dataset["DATA"].keys())[-1]:
+                    dataStr += " -\n    "
+            elif key is not None:
+                dataStr += "{0}".format(key)
+                if key != list(dataset["DATA"].keys())[-1]:
+                    dataStr += " -\n    "
+
+    return dataStr
+
+
+def _build_idcams_define_index_parms(dataset):
+    indexStr = "NAME({0}.INDEX)".format(dataset["name"])
+    if isinstance(dataset["INDEX"], dict):
+        indexStr += " -\n    "
+        for key, value in dataset["INDEX"].items():
+            if value is not None:
+                indexStr += "{0}({1})".format(key, value)
+                if key != list(dataset["INDEX"].keys())[-1]:
+                    indexStr += " -\n    "
+            elif key is not None:
+                indexStr += "{0}".format(key)
+                if key != list(dataset["INDEX"].keys())[-1]:
+                    indexStr += " -\n    "
+
+    return indexStr
 
 
 def _run_listds(location):

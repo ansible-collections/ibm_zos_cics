@@ -21,6 +21,8 @@ ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
         _execution)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
+        _build_idcams_define_cmd)
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
@@ -121,6 +123,27 @@ def _run_dfhrmutl(location, sdfhload, cmd=""):
         return executions
 
     return executions, _get_catalog_records(dfhrmutl_response.stdout)
+
+
+def _get_idcams_cmd_gcd(dataset):
+    defaults = {
+        "CLUSTER": {
+            "RECORDSIZE": "4089 32760",
+            "INDEXED": None,
+            "KEYS": "52 0",
+            "FREESPACE": "10 10",
+            "SHAREOPTIONS": "2",
+            "REUSE": None
+        },
+        "DATA": {
+            "CONTROLINTERVALSIZE": "32768"
+        },
+        "INDEX": {
+            None
+        }
+    }
+    defaults.update(dataset)
+    return _build_idcams_define_cmd(defaults)
 
 
 def _global_catalog(
