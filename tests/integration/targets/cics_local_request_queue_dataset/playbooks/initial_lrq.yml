@@ -6,7 +6,7 @@
   hosts: "all"
   gather_facts: false
   vars:
-    region_dataset_path: "HUGHEA.CICS.TESTS.{{ cics_test_area_initial }}"
+    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}"
     lrq_name: "DFHLRQ"
     lrq_path: "{{ region_dataset_path }}.{{ lrq_name }}"
 
