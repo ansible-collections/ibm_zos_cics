@@ -180,9 +180,9 @@ except ImportError:
 ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _dataset_size, _get_idcams_create_cmd, _run_idcams, _run_listds)
+        _dataset_size, _run_idcams, _run_listds)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog import (
-        _local_catalog, _run_dfhccutl)
+        _local_catalog, _run_dfhccutl, _get_idcams_cmd_lcd)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import catalog_constants as constants
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
@@ -289,7 +289,7 @@ class AnsibleLocalCatalogModule(object):
             vsam=False)
 
     def create_local_catalog_dataset(self):
-        create_cmd = _get_idcams_create_cmd(self.starting_catalog)
+        create_cmd = _get_idcams_cmd_lcd(self.starting_catalog)
 
         idcams_executions = _run_idcams(
             cmd=create_cmd,

@@ -209,9 +209,9 @@ except ImportError:
 ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _dataset_size, _get_idcams_create_cmd, _run_listds, _run_idcams)
+        _dataset_size, _run_listds, _run_idcams)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog import (
-        _run_dfhrmutl, _global_catalog)
+        _run_dfhrmutl, _global_catalog, _get_idcams_cmd_gcd)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import catalog_constants as constants
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
@@ -317,7 +317,7 @@ class AnsibleGlobalCatalogModule(object):
         self.end_state = self.starting_catalog
 
     def create_global_catalog_dataset(self):
-        create_cmd = _get_idcams_create_cmd(self.starting_catalog)
+        create_cmd = _get_idcams_cmd_gcd(self.starting_catalog)
 
         idcams_executions = _run_idcams(
             cmd=create_cmd,

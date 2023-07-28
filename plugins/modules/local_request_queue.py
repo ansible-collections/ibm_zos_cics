@@ -165,9 +165,10 @@ except ImportError:
 ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _dataset_size, _get_idcams_create_cmd2, _run_idcams, _run_listds)
+        _dataset_size, _run_idcams, _run_listds)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import catalog_constants as constants
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_request_queue import _local_request_queue
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_request_queue import (
+        _local_request_queue, _get_idcams_cmd_lrq)
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
@@ -263,7 +264,7 @@ class AnsibleLocalRequestQueueModule(object):
             vsam=False)
 
     def create_local_request_queue_dataset(self):
-        create_cmd = _get_idcams_create_cmd2(self.queue_definition)
+        create_cmd = _get_idcams_cmd_lrq(self.queue_definition)
 
         idcams_executions = _run_idcams(
             cmd=create_cmd,
