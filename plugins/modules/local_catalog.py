@@ -220,7 +220,8 @@ try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog import (
         _local_catalog, _run_dfhccutl, _get_idcams_cmd_lcd)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import (_run_icetool)
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import catalog_constants as constants
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog import _local_catalog_constants as lc_constants
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import _dataset_constants as ds_constants
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
@@ -248,7 +249,7 @@ class AnsibleLocalCatalogModule(object):
 
     def init_argument_spec(self):  # type: () -> Dict
         return {
-            constants.REGION_DATA_SETS_ALIAS: {
+            ds_constants["REGION_DATA_SETS_ALIAS"]: {
                 'type': 'dict',
                 'required': True,
                 'options': {
@@ -268,7 +269,7 @@ class AnsibleLocalCatalogModule(object):
                     },
                 },
             },
-            constants.CICS_DATA_SETS_ALIAS: {
+            ds_constants["CICS_DATA_SETS_ALIAS"]: {
                 'type': 'dict',
                 'required': True,
                 'options': {
@@ -282,27 +283,27 @@ class AnsibleLocalCatalogModule(object):
                     },
                 },
             },
-            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
+            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: {
                 'required': False,
                 'type': 'int',
-                'default': constants.LOCAL_CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
+                'default': lc_constants["PRIMARY_SPACE_VALUE_DEFAULT"],
             },
-            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: {
+            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: {
                 'required': False,
                 'type': 'str',
-                'choices': constants.CATALOG_SPACE_UNIT_OPTIONS,
-                'default': constants.LOCAL_CATALOG_SPACE_UNIT_DEFAULT,
+                'choices': ds_constants["SPACE_UNIT_OPTIONS"],
+                'default': lc_constants["SPACE_UNIT_DEFAULT"],
             },
-            constants.CATALOG_TARGET_STATE_ALIAS: {
+            ds_constants["TARGET_STATE_ALIAS"]: {
                 'required': True,
                 'type': 'str',
-                'choices': constants.LOCAL_CATALOG_TARGET_STATE_OPTIONS,
+                'choices': lc_constants["TARGET_STATE_OPTIONS"],
             }
         }
 
     def validate_parameters(self):
         arg_defs = {
-            constants.REGION_DATA_SETS_ALIAS: {
+            ds_constants["REGION_DATA_SETS_ALIAS"]: {
                 "arg_type": "dict",
                 "required": True,
                 "options": {
@@ -322,7 +323,7 @@ class AnsibleLocalCatalogModule(object):
                     },
                 },
             },
-            constants.CICS_DATA_SETS_ALIAS: {
+            ds_constants["CICS_DATA_SETS_ALIAS"]: {
                 "arg_type": "dict",
                 "required": True,
                 "options": {
@@ -336,40 +337,40 @@ class AnsibleLocalCatalogModule(object):
                     },
                 },
             },
-            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
+            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: {
                 "arg_type": 'int',
-                "default": constants.LOCAL_CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
+                "default": lc_constants["PRIMARY_SPACE_VALUE_DEFAULT"],
             },
-            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: {
+            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: {
                 "arg_type": 'str',
-                "choices": constants.CATALOG_SPACE_UNIT_OPTIONS,
-                "default": constants.LOCAL_CATALOG_SPACE_UNIT_DEFAULT,
+                "choices": ds_constants["SPACE_UNIT_OPTIONS"],
+                "default": lc_constants["SPACE_UNIT_DEFAULT"],
             },
-            constants.CATALOG_TARGET_STATE_ALIAS: {
+            ds_constants["TARGET_STATE_ALIAS"]: {
                 "arg_type": 'str',
-                "choices": constants.LOCAL_CATALOG_TARGET_STATE_OPTIONS,
+                "choices": lc_constants["TARGET_STATE_OPTIONS"],
                 "required": True,
             },
         }
 
         result = BetterArgParser(arg_defs).parse_args({
-            constants.REGION_DATA_SETS_ALIAS: self._module.params.get(constants.REGION_DATA_SETS_ALIAS),
-            constants.CICS_DATA_SETS_ALIAS: self._module.params.get(constants.CICS_DATA_SETS_ALIAS),
-            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
-            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
-            constants.CATALOG_TARGET_STATE_ALIAS: self._module.params.get(constants.CATALOG_TARGET_STATE_ALIAS)
+            ds_constants["REGION_DATA_SETS_ALIAS"]: self._module.params.get(ds_constants["REGION_DATA_SETS_ALIAS"]),
+            ds_constants["CICS_DATA_SETS_ALIAS"]: self._module.params.get(ds_constants["CICS_DATA_SETS_ALIAS"]),
+            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
+            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
+            ds_constants["TARGET_STATE_ALIAS"]: self._module.params.get(ds_constants["TARGET_STATE_ALIAS"])
         })
 
         size = _dataset_size(
-            unit=result.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
-            primary=result.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
-            secondary=constants.LOCAL_CATALOG_SECONDARY_SPACE_VALUE_DEFAULT)
+            unit=result.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
+            primary=result.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
+            secondary=lc_constants["SECONDARY_SPACE_VALUE_DEFAULT"])
 
         self.starting_catalog = _local_catalog(
             size=size,
-            name=result.get(constants.REGION_DATA_SETS_ALIAS).get('dfhlcd').get('dsn').upper(),
-            sdfhload=result.get(constants.CICS_DATA_SETS_ALIAS).get('sdfhload').upper(),
-            state=result.get(constants.CATALOG_TARGET_STATE_ALIAS),
+            name=result.get(ds_constants["REGION_DATA_SETS_ALIAS"]).get('dfhlcd').get('dsn').upper(),
+            sdfhload=result.get(ds_constants["CICS_DATA_SETS_ALIAS"]).get('sdfhload').upper(),
+            state=result.get(ds_constants["TARGET_STATE_ALIAS"]),
             exists=False,
             vsam=False)
 
@@ -436,9 +437,9 @@ class AnsibleLocalCatalogModule(object):
 
     def get_target_method(self, target):
         return {
-            constants.TARGET_STATE_ABSENT: self.delete_local_catalog,
-            constants.TARGET_STATE_INITIAL: self.init_local_catalog,
-            constants.TARGET_STATE_WARM: self.warm_local_catalog
+            ds_constants["TARGET_STATE_ABSENT"]: self.delete_local_catalog,
+            ds_constants["TARGET_STATE_INITIAL"]: self.init_local_catalog,
+            ds_constants["TARGET_STATE_WARM"]: self.warm_local_catalog
         }.get(target, self.invalid_state)
 
     def get_catalog_state(self, catalog):

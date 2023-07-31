@@ -37,6 +37,17 @@ def _get_idcams_cmd_lrq(dataset):
     return _build_idcams_define_cmd(defaults)
 
 
+_local_request_queue_constants = {
+    "PRIMARY_SPACE_VALUE_DEFAULT": 4,
+    "SECONDARY_SPACE_VALUE_DEFAULT": 1,
+    "SPACE_UNIT_DEFAULT": "M",
+    "TARGET_STATE_OPTIONS": ["absent", "initial"],
+    "RECORD_COUNT_DEFAULT": 2232,
+    "RECORD_SIZE_DEFAULT": 2400,
+    "CONTROL_INTERVAL_SIZE_DEFAULT": 2560
+}
+
+
 def _local_request_queue(size, name, state, exists, vsam):
     return {
         'size': size,

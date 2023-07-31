@@ -66,7 +66,6 @@ options:
     choices:
       - "initial"
       - "absent"
-      - "warm"
     required: true
     type: str
 '''
@@ -167,9 +166,10 @@ ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
         _dataset_size, _run_idcams, _run_listds)
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import catalog_constants as constants
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_request_queue import (
         _local_request_queue, _get_idcams_cmd_lrq)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_request_queue import _local_request_queue_constants as lrq_constants
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import _dataset_constants as ds_constants
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
@@ -197,67 +197,66 @@ class AnsibleLocalRequestQueueModule(object):
 
     def init_argument_spec(self):  # type: () -> Dict
         return {
-            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
+            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: {
                 'required': False,
                 'type': 'int',
-                'default': 4,
+                'default': lrq_constants["PRIMARY_SPACE_VALUE_DEFAULT"],
             },
-            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: {
+            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: {
                 'required': False,
                 'type': 'str',
-                'choices': constants.CATALOG_SPACE_UNIT_OPTIONS,
-                'default': "M",
+                'choices': ds_constants["SPACE_UNIT_OPTIONS"],
+                'default': lrq_constants["SPACE_UNIT_DEFAULT"],
             },
-            constants.CATALOG_DATASET_ALIAS: {
+            ds_constants["DATASET_LOCATION_ALIAS"]: {
                 'required': True,
                 'type': 'str',
             },
-            constants.CATALOG_TARGET_STATE_ALIAS: {
+            ds_constants["TARGET_STATE_ALIAS"]: {
                 'required': True,
                 'type': 'str',
-                'choices': constants.LOCAL_CATALOG_TARGET_STATE_OPTIONS,
+                'choices': lrq_constants["TARGET_STATE_OPTIONS"],
             }
         }
 
     def validate_parameters(self):
-        arg_defs = dict(
-            space_primary=dict(
-                arg_type='int',
-                default=4,
-            ),
-            space_type=dict(
-                arg_type='str',
-                choices=constants.CATALOG_SPACE_UNIT_OPTIONS,
-                default="M",
-            ),
-            location=dict(
-                arg_type='data_set_base',
-                required=True,
-            ),
-            state=dict(
-                arg_type='str',
-                choices=constants.LOCAL_CATALOG_TARGET_STATE_OPTIONS,
-                required=True,
-            ),
-        )
-        parser = BetterArgParser(arg_defs)
+        arg_defs = {
+            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: {
+                "arg_type": "int",
+                "default": lrq_constants["PRIMARY_SPACE_VALUE_DEFAULT"],
+            },
+            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: {
+                "arg_type": "str",
+                "choices": ds_constants["SPACE_UNIT_OPTIONS"],
+                "default": lrq_constants["SPACE_UNIT_DEFAULT"],
+            },
+            ds_constants["DATASET_LOCATION_ALIAS"]: {
+                "arg_type": "data_set_base",
+                "required": True,
+            },
+            ds_constants["TARGET_STATE_ALIAS"]: {
+                "arg_type": "str",
+                "choices": lrq_constants["TARGET_STATE_OPTIONS"],
+                "required": True,
+            },
+        }
 
-        result = parser.parse_args({
-            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
-            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
-            constants.CATALOG_DATASET_ALIAS: self._module.params.get(constants.CATALOG_DATASET_ALIAS),
-            constants.CATALOG_TARGET_STATE_ALIAS: self._module.params.get(constants.CATALOG_TARGET_STATE_ALIAS)
+        result = BetterArgParser(arg_defs).parse_args({
+            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
+            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
+            ds_constants["DATASET_LOCATION_ALIAS"]: self._module.params.get(ds_constants["DATASET_LOCATION_ALIAS"]),
+            ds_constants["TARGET_STATE_ALIAS"]: self._module.params.get(ds_constants["TARGET_STATE_ALIAS"])
         })
 
         size = _dataset_size(
-            unit=result.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
-            primary=result.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
+            unit=result.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
+            primary=result.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
             secondary=1)
 
         self.queue_definition = _local_request_queue(
             size=size,
-            name=result.get(constants.CATALOG_DATASET_ALIAS).upper(),
-            state=result.get(constants.CATALOG_TARGET_STATE_ALIAS),
+            name=result.get(ds_constants["DATASET_LOCATION_ALIAS"]).upper(),
+            state=result.get(ds_constants["TARGET_STATE_ALIAS"]),
             exists=False,
             vsam=False)
 
@@ -310,8 +309,8 @@ class AnsibleLocalRequestQueueModule(object):
 
     def get_target_method(self, target):
         return {
-            constants.TARGET_STATE_ABSENT: self.delete_local_request_queue_dataset,
-            constants.TARGET_STATE_INITIAL: self.init_local_request_queue,
+            ds_constants["TARGET_STATE_ABSENT"]: self.delete_local_request_queue_dataset,
+            ds_constants["TARGET_STATE_INITIAL"]: self.init_local_request_queue,
 
         }.get(target, self.invalid_state)
 

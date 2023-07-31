@@ -198,3 +198,19 @@ def _run_listds(location):
             "exists": True,
             "vsam": True,
         }
+
+
+_dataset_constants = {
+    "DATASET_LOCATION_ALIAS": "location",
+    "SDFHLOAD_ALIAS": "sdfhload",
+    "TARGET_STATE_ALIAS": "state",
+    "PRIMARY_SPACE_VALUE_ALIAS": "space_primary",
+    "PRIMARY_SPACE_UNIT_ALIAS": "space_type",
+    "SPACE_UNIT_OPTIONS": ["K", "M", "REC", "CYL", "TRK"],
+    "TARGET_STATE_ABSENT": "absent",
+    "TARGET_STATE_INITIAL": "initial",
+    "TARGET_STATE_WARM": "warm",
+    "TARGET_STATE_COLD": "cold",
+    "CICS_DATA_SETS_ALIAS": "cics_data_sets",
+    "REGION_DATA_SETS_ALIAS": "region_data_sets",
+}

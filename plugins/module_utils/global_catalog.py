@@ -23,6 +23,7 @@ try:
         _execution)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
         _build_idcams_define_cmd)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import _dataset_constants as ds_constants
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
@@ -144,6 +145,29 @@ def _get_idcams_cmd_gcd(dataset):
     }
     defaults.update(dataset)
     return _build_idcams_define_cmd(defaults)
+
+
+_global_catalog_constants = {
+    "AUTO_START_WARM": "AUTOASIS",
+    "AUTO_START_COLD": "AUTOCOLD",
+    "AUTO_START_INIT": "AUTOINIT",
+    "NEXT_START_EMERGENCY": "EMERGENCY",
+    "NEXT_START_WARM": "WARM",
+    "NEXT_START_COLD": "COLD",
+    "NEXT_START_UNKNOWN": "UNKNOWN",
+    "PRIMARY_SPACE_VALUE_DEFAULT": 5,
+    "SECONDARY_SPACE_VALUE_DEFAULT": 1,
+    "SPACE_UNIT_DEFAULT": "M",
+    "TARGET_STATE_OPTIONS": [
+        ds_constants["TARGET_STATE_ABSENT"],
+        ds_constants["TARGET_STATE_INITIAL"],
+        ds_constants["TARGET_STATE_COLD"],
+        ds_constants["TARGET_STATE_WARM"]
+    ],
+    "RECORD_COUNT_DEFAULT": 4089,
+    "RECORD_SIZE_DEFAULT": 32760,
+    "CONTROL_INTERVAL_SIZE_DEFAULT": 32768,
+}
 
 
 def _global_catalog(

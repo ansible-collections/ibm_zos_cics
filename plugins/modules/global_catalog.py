@@ -251,7 +251,8 @@ try:
         _dataset_size, _run_listds, _run_idcams)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog import (
         _run_dfhrmutl, _global_catalog, _get_idcams_cmd_gcd)
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import catalog_constants as constants
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog import _global_catalog_constants as gc_constants
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import _dataset_constants as ds_constants
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
@@ -280,7 +281,7 @@ class AnsibleGlobalCatalogModule(object):
 
     def init_argument_spec(self):  # type: () -> Dict
         return {
-            constants.REGION_DATA_SETS_ALIAS: {
+            ds_constants["REGION_DATA_SETS_ALIAS"]: {
                 'type': 'dict',
                 'required': True,
                 'options': {
@@ -300,7 +301,7 @@ class AnsibleGlobalCatalogModule(object):
                     },
                 },
             },
-            constants.CICS_DATA_SETS_ALIAS: {
+            ds_constants["CICS_DATA_SETS_ALIAS"]: {
                 'type': 'dict',
                 'required': True,
                 'options': {
@@ -314,27 +315,27 @@ class AnsibleGlobalCatalogModule(object):
                     },
                 },
             },
-            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
+            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: {
                 'required': False,
                 'type': 'int',
-                'default': constants.GLOBAL_CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
+                'default': gc_constants["PRIMARY_SPACE_VALUE_DEFAULT"],
             },
-            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: {
+            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: {
                 'required': False,
                 'type': 'str',
-                'choices': constants.CATALOG_SPACE_UNIT_OPTIONS,
-                'default': constants.GLOBAL_CATALOG_SPACE_UNIT_DEFAULT,
+                'choices': ds_constants["SPACE_UNIT_OPTIONS"],
+                'default': gc_constants["SPACE_UNIT_DEFAULT"],
             },
-            constants.CATALOG_TARGET_STATE_ALIAS: {
+            ds_constants["TARGET_STATE_ALIAS"]: {
                 'required': True,
                 'type': 'str',
-                'choices': constants.GLOBAL_CATALOG_TARGET_STATE_OPTIONS,
+                'choices': gc_constants["TARGET_STATE_OPTIONS"],
             },
         }
 
     def validate_parameters(self):
         arg_defs = {
-            constants.REGION_DATA_SETS_ALIAS: {
+            ds_constants["REGION_DATA_SETS_ALIAS"]: {
                 "arg_type": "dict",
                 "required": True,
                 "options": {
@@ -354,7 +355,7 @@ class AnsibleGlobalCatalogModule(object):
                     },
                 },
             },
-            constants.CICS_DATA_SETS_ALIAS: {
+            ds_constants["CICS_DATA_SETS_ALIAS"]: {
                 "arg_type": "dict",
                 "required": True,
                 "options": {
@@ -368,36 +369,36 @@ class AnsibleGlobalCatalogModule(object):
                     },
                 },
             },
-            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
+            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: {
                 "arg_type": 'int',
-                "default": constants.GLOBAL_CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
+                "default": gc_constants["PRIMARY_SPACE_VALUE_DEFAULT"],
             },
-            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: {
+            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: {
                 "arg_type": 'str',
-                "choices": constants.CATALOG_SPACE_UNIT_OPTIONS,
-                "default": constants.GLOBAL_CATALOG_SPACE_UNIT_DEFAULT,
+                "choices": ds_constants["SPACE_UNIT_OPTIONS"],
+                "default": gc_constants["SPACE_UNIT_DEFAULT"],
             },
-            constants.CATALOG_TARGET_STATE_ALIAS: {
+            ds_constants["TARGET_STATE_ALIAS"]: {
                 "arg_type": 'str',
-                "choices": constants.GLOBAL_CATALOG_TARGET_STATE_OPTIONS,
+                "choices": gc_constants["TARGET_STATE_OPTIONS"],
                 "required": True,
             },
         }
         result = BetterArgParser(arg_defs).parse_args({
-            constants.REGION_DATA_SETS_ALIAS: self._module.params.get(constants.REGION_DATA_SETS_ALIAS),
-            constants.CICS_DATA_SETS_ALIAS: self._module.params.get(constants.CICS_DATA_SETS_ALIAS),
-            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
-            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
-            constants.CATALOG_TARGET_STATE_ALIAS: self._module.params.get(constants.CATALOG_TARGET_STATE_ALIAS)
+            ds_constants["REGION_DATA_SETS_ALIAS"]: self._module.params.get(ds_constants["REGION_DATA_SETS_ALIAS"]),
+            ds_constants["CICS_DATA_SETS_ALIAS"]: self._module.params.get(ds_constants["CICS_DATA_SETS_ALIAS"]),
+            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
+            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
+            ds_constants["TARGET_STATE_ALIAS"]: self._module.params.get(ds_constants["TARGET_STATE_ALIAS"])
         })
         self.starting_catalog = _global_catalog(
             size=_dataset_size(
-                result.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
-                result.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
-                constants.GLOBAL_CATALOG_SECONDARY_SPACE_VALUE_DEFAULT),
-            name=result.get(constants.REGION_DATA_SETS_ALIAS).get('dfhgcd').get('dsn').upper(),
-            sdfhload=result.get(constants.CICS_DATA_SETS_ALIAS).get('sdfhload').upper(),
-            state=result.get('state'),
+                result.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
+                result.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
+                gc_constants["SECONDARY_SPACE_VALUE_DEFAULT"]),
+            name=result.get(ds_constants["REGION_DATA_SETS_ALIAS"]).get('dfhgcd').get('dsn').upper(),
+            sdfhload=result.get(ds_constants["CICS_DATA_SETS_ALIAS"]).get('sdfhload').upper(),
+            state=result.get(ds_constants["TARGET_STATE_ALIAS"]),
             autostart_override="",
             nextstart="",
             exists=False,
@@ -438,7 +439,7 @@ class AnsibleGlobalCatalogModule(object):
         self.result['changed'] = True
 
     def init_global_catalog(self):
-        if self.starting_catalog["exists"] and self.starting_catalog["autostart_override"] == constants.AUTO_START_INIT:
+        if self.starting_catalog["exists"] and self.starting_catalog["autostart_override"] == gc_constants["AUTO_START_INIT"]:
             self.result['end_state'] = {
                 "exists": self.starting_catalog["exists"],
                 "autostart_override": self.starting_catalog["autostart_override"],
@@ -451,7 +452,7 @@ class AnsibleGlobalCatalogModule(object):
 
         dfhrmutl_executions = _run_dfhrmutl(
             self.starting_catalog["name"],
-            self.starting_catalog["sdfhload"],
+            self.starting_catalog[ds_constants["SDFHLOAD_ALIAS"]],
             cmd="SET_AUTO_START=AUTOINIT")
         self.result['changed'] = True
         self.executions = self.executions + dfhrmutl_executions
@@ -462,7 +463,7 @@ class AnsibleGlobalCatalogModule(object):
                 "Data set {0} does not exist.".format(
                     self.starting_catalog["name"]))
 
-        if self.starting_catalog["autostart_override"] == constants.AUTO_START_WARM:
+        if self.starting_catalog["autostart_override"] == gc_constants["AUTO_START_WARM"]:
             self.result['end_state'] = {
                 "exists": self.starting_catalog["exists"],
                 "autostart_override": self.starting_catalog["autostart_override"],
@@ -471,15 +472,15 @@ class AnsibleGlobalCatalogModule(object):
             self._exit()
 
         if (
-            self.starting_catalog["autostart_override"] == constants.AUTO_START_INIT and
-            self.starting_catalog["nextstart"] == constants.NEXT_START_UNKNOWN
+            self.starting_catalog["autostart_override"] == gc_constants["AUTO_START_INIT"] and
+            self.starting_catalog["nextstart"] == gc_constants["NEXT_START_UNKNOWN"]
         ):
             self._fail(
                 "Unused catalog. The catalog must be used by CICS before doing a warm start.")
 
         dfhrmutl_executions = _run_dfhrmutl(
             self.starting_catalog["name"],
-            self.starting_catalog["sdfhload"],
+            self.starting_catalog[ds_constants["SDFHLOAD_ALIAS"]],
             cmd="SET_AUTO_START=AUTOASIS")
         self.result['changed'] = True
         self.executions = self.executions + dfhrmutl_executions
@@ -490,7 +491,7 @@ class AnsibleGlobalCatalogModule(object):
                 "Data set {0} does not exist.".format(
                     self.starting_catalog["name"]))
 
-        if self.starting_catalog["autostart_override"] == constants.AUTO_START_COLD:
+        if self.starting_catalog["autostart_override"] == gc_constants["AUTO_START_COLD"]:
             self.result['end_state'] = {
                 "exists": self.starting_catalog["exists"],
                 "autostart_override": self.starting_catalog["autostart_override"],
@@ -499,15 +500,15 @@ class AnsibleGlobalCatalogModule(object):
             self._exit()
 
         if (
-            self.starting_catalog["autostart_override"] == constants.AUTO_START_INIT and
-            self.starting_catalog["nextstart"] == constants.NEXT_START_UNKNOWN
+            self.starting_catalog["autostart_override"] == gc_constants["AUTO_START_INIT"] and
+            self.starting_catalog["nextstart"] == gc_constants["NEXT_START_UNKNOWN"]
         ):
             self._fail(
                 "Unused catalog. The catalog must be used by CICS before doing a cold start.")
 
         dfhrmutl_executions = _run_dfhrmutl(
             self.starting_catalog["name"],
-            self.starting_catalog["sdfhload"],
+            self.starting_catalog[ds_constants["SDFHLOAD_ALIAS"]],
             cmd="SET_AUTO_START=AUTOCOLD")
         self.result['changed'] = True
         self.executions = self.executions + dfhrmutl_executions
@@ -518,10 +519,10 @@ class AnsibleGlobalCatalogModule(object):
 
     def get_target_method(self, target):
         return {
-            'absent': self.delete_global_catalog,
-            'initial': self.init_global_catalog,
-            'cold': self.cold_global_catalog,
-            'warm': self.warm_global_catalog,
+            ds_constants["TARGET_STATE_ABSENT"]: self.delete_global_catalog,
+            ds_constants["TARGET_STATE_INITIAL"]: self.init_global_catalog,
+            ds_constants["TARGET_STATE_COLD"]: self.cold_global_catalog,
+            ds_constants["TARGET_STATE_WARM"]: self.warm_global_catalog,
         }.get(target, self.invalid_target_state)
 
     def update_catalog(self, catalog):
@@ -534,7 +535,7 @@ class AnsibleGlobalCatalogModule(object):
 
         if catalog["exists"] and catalog["vsam"]:
             dfhrmutl_executions, catalog_status = _run_dfhrmutl(
-                catalog["name"], catalog["sdfhload"])
+                catalog["name"], catalog[ds_constants["SDFHLOAD_ALIAS"]])
 
             catalog["autostart_override"] = catalog_status['autostart_override']
             catalog["nextstart"] = catalog_status['next_start']
@@ -555,10 +556,10 @@ class AnsibleGlobalCatalogModule(object):
         }
 
         if self.starting_catalog["nextstart"] and self.starting_catalog["nextstart"].upper(
-        ) == constants.NEXT_START_EMERGENCY:
+        ) == gc_constants["NEXT_START_EMERGENCY"]:
             self._fail(
                 "Next start type is {0}. Potential data loss prevented.".format(
-                    constants.NEXT_START_EMERGENCY))
+                    gc_constants["NEXT_START_EMERGENCY"]))
 
         self.get_target_method(
             self.starting_catalog["state"])()
