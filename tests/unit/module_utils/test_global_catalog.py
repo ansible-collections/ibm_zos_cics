@@ -12,8 +12,8 @@ import sys
 
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
-def test_get_idcams_cmd_m():
-    catalog_size = dataset_utils._dataset_size(unit="M", primary=10, secondary=1, record_count=4089, record_size=32760, control_interval_size=32768)
+def test_get_idcams_cmd_megabytes():
+    catalog_size = dataset_utils._dataset_size(unit="M", primary=10, secondary=1)
     catalog = global_catalog._global_catalog(
         size=catalog_size,
         name="ANSI.TEST.DFHGCD",
@@ -40,9 +40,9 @@ def test_get_idcams_cmd_m():
 
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
-def test_get_idcams_cmd_cyl():
+def test_get_idcams_cmd_cylinders():
     catalog_size = dataset_utils._dataset_size(
-        unit="CYL", primary=3, secondary=1, record_count=4089, record_size=32760, control_interval_size=32768)
+        unit="CYL", primary=3, secondary=1)
     catalog = global_catalog._global_catalog(
         size=catalog_size,
         name="ANSI.CYLS.DFHGCD",
@@ -66,3 +66,30 @@ def test_get_idcams_cmd_cyl():
     CONTROLINTERVALSIZE(32768)) -
     INDEX(NAME(ANSI.CYLS.DFHGCD.INDEX))
     '''
+
+
+def test_global_catalog_class():
+    catalog_size = dataset_utils._dataset_size(unit="M", primary=10, secondary=1)
+    catalog = global_catalog._global_catalog(
+        size=catalog_size,
+        name="ANSI.TEST.DFHGCD",
+        sdfhload="CICSTS.IN56.SDFHLOAD",
+        state="initial",
+        autostart_override="",
+        nextstart="",
+        exists=False,
+        vsam=False)
+    assert catalog == {
+        "size": {
+            "unit": "M",
+            "primary": 10,
+            "secondary": 1
+        },
+        "name": "ANSI.TEST.DFHGCD",
+        "sdfhload": "CICSTS.IN56.SDFHLOAD",
+        "state": "initial",
+        "autostart_override": "",
+        "nextstart": "",
+        "exists": False,
+        "vsam": False,
+    }
