@@ -363,10 +363,7 @@ class AnsibleLocalCatalogModule(object):
         size = _dataset_size(
             unit=result.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
             primary=result.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
-            secondary=constants.LOCAL_CATALOG_SECONDARY_SPACE_VALUE_DEFAULT,
-            record_count=constants.LOCAL_CATALOG_RECORD_COUNT_DEFAULT,
-            record_size=constants.LOCAL_CATALOG_RECORD_SIZE_DEFAULT,
-            control_interval_size=constants.LOCAL_CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT)
+            secondary=constants.LOCAL_CATALOG_SECONDARY_SPACE_VALUE_DEFAULT)
 
         self.starting_catalog = _local_catalog(
             size=size,

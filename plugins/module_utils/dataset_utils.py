@@ -22,15 +22,11 @@ except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
 
-def _dataset_size(unit, primary, secondary, record_count,
-                  record_size, control_interval_size):
+def _dataset_size(unit, primary, secondary):
     return {
         'unit': unit,
         'primary': primary,
-        'secondary': secondary,
-        'record_count': record_count,
-        'record_size': record_size,
-        'control_interval_size': control_interval_size,
+        'secondary': secondary
     }
 
 

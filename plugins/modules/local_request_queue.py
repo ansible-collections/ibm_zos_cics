@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# (c) Copyright IBM Corp. 2020,2023
+# (c) Copyright IBM Corp. 2023
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
@@ -252,10 +252,7 @@ class AnsibleLocalRequestQueueModule(object):
         size = _dataset_size(
             unit=result.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
             primary=result.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
-            secondary=1,
-            record_count=2232,
-            record_size=2400,
-            control_interval_size=2560)
+            secondary=1)
 
         self.queue_definition = _local_request_queue(
             size=size,

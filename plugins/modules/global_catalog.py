@@ -394,10 +394,7 @@ class AnsibleGlobalCatalogModule(object):
             size=_dataset_size(
                 result.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
                 result.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
-                constants.GLOBAL_CATALOG_SECONDARY_SPACE_VALUE_DEFAULT,
-                constants.GLOBAL_CATALOG_RECORD_COUNT_DEFAULT,
-                constants.GLOBAL_CATALOG_RECORD_SIZE_DEFAULT,
-                constants.GLOBAL_CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT),
+                constants.GLOBAL_CATALOG_SECONDARY_SPACE_VALUE_DEFAULT),
             name=result.get(constants.REGION_DATA_SETS_ALIAS).get('dfhgcd').get('dsn').upper(),
             sdfhload=result.get(constants.CICS_DATA_SETS_ALIAS).get('sdfhload').upper(),
             state=result.get('state'),
