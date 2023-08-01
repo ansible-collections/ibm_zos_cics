@@ -152,20 +152,12 @@ executions:
 """
 
 
-from ansible.module_utils.basic import AnsibleModule
 import traceback
-
-DDStatement = None
-ZOS_CORE_IMP_ERR = None
-try:
-    from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
-except ImportError:
-    ZOS_CORE_IMP_ERR = traceback.format_exc()
 
 ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _dataset_size, _run_idcams, _run_listds)
+        _run_idcams, AnsibleDataSetModule)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_request_queue import (
         _local_request_queue, _get_idcams_cmd_lrq)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_request_queue import _local_request_queue_constants as lrq_constants
@@ -174,179 +166,80 @@ except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
 
-class AnsibleLocalRequestQueueModule(object):
+class AnsibleLocalRequestQueueModule(AnsibleDataSetModule):
     def __init__(self):
-        self._module = AnsibleModule(
-            argument_spec=self.init_argument_spec(),
-        )
-        self.result = {}
-        self.result['changed'] = False
-        self.result['failed'] = False
-        self.result['executions'] = []
-        self.executions = []
-        self.validate_parameters()
-
-    def _fail(self, msg):  # type: (str) -> None
-        self.result['failed'] = True
-        self.result['executions'] = self.executions
-        self._module.fail_json(msg=msg, **self.result)
-
-    def _exit(self):
-        self.result['executions'] = self.executions
-        self._module.exit_json(**self.result)
+        super(AnsibleLocalRequestQueueModule, self).__init__()
 
     def init_argument_spec(self):  # type: () -> Dict
-        return {
-            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: {
-                'required': False,
-                'type': 'int',
-                'default': lrq_constants["PRIMARY_SPACE_VALUE_DEFAULT"],
-            },
-            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: {
-                'required': False,
-                'type': 'str',
-                'choices': ds_constants["SPACE_UNIT_OPTIONS"],
-                'default': lrq_constants["SPACE_UNIT_DEFAULT"],
-            },
-            ds_constants["DATASET_LOCATION_ALIAS"]: {
-                'required': True,
-                'type': 'str',
-            },
-            ds_constants["TARGET_STATE_ALIAS"]: {
-                'required': True,
-                'type': 'str',
-                'choices': lrq_constants["TARGET_STATE_OPTIONS"],
-            }
-        }
+        arg_spec = super(AnsibleLocalRequestQueueModule, self).init_argument_spec()
 
-    def validate_parameters(self):
-        arg_defs = {
-            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: {
-                "arg_type": "int",
-                "default": lrq_constants["PRIMARY_SPACE_VALUE_DEFAULT"],
-            },
-            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: {
-                "arg_type": "str",
-                "choices": ds_constants["SPACE_UNIT_OPTIONS"],
-                "default": lrq_constants["SPACE_UNIT_DEFAULT"],
-            },
-            ds_constants["DATASET_LOCATION_ALIAS"]: {
-                "arg_type": "data_set_base",
-                "required": True,
-            },
-            ds_constants["TARGET_STATE_ALIAS"]: {
-                "arg_type": "str",
-                "choices": lrq_constants["TARGET_STATE_OPTIONS"],
-                "required": True,
-            },
-        }
-
-        result = BetterArgParser(arg_defs).parse_args({
-            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
-            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
-            ds_constants["DATASET_LOCATION_ALIAS"]: self._module.params.get(ds_constants["DATASET_LOCATION_ALIAS"]),
-            ds_constants["TARGET_STATE_ALIAS"]: self._module.params.get(ds_constants["TARGET_STATE_ALIAS"])
+        arg_spec[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
+            "default": lrq_constants["PRIMARY_SPACE_VALUE_DEFAULT"],
+        })
+        arg_spec[ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]].update({
+            "default": lrq_constants["SPACE_UNIT_DEFAULT"],
+        })
+        arg_spec[ds_constants["TARGET_STATE_ALIAS"]].update({
+            "choices": lrq_constants["TARGET_STATE_OPTIONS"],
         })
 
-        size = _dataset_size(
-            unit=result.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
-            primary=result.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
-            secondary=1)
+        return arg_spec
 
-        self.queue_definition = _local_request_queue(
+    def _get_data_set_object(self, size, result):
+        return _local_request_queue(
             size=size,
             name=result.get(ds_constants["DATASET_LOCATION_ALIAS"]).upper(),
             state=result.get(ds_constants["TARGET_STATE_ALIAS"]),
             exists=False,
-            vsam=False)
+            vsam=False
+        )
 
-    def create_local_request_queue_dataset(self):
-        create_cmd = _get_idcams_cmd_lrq(self.queue_definition)
+    def _get_arg_defs(self):
+        arg_def = super(AnsibleLocalRequestQueueModule, self)._get_arg_defs()
+
+        arg_def[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
+            "default": lrq_constants["PRIMARY_SPACE_VALUE_DEFAULT"]
+        })
+        arg_def[ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]].update({
+            "default": lrq_constants["SPACE_UNIT_DEFAULT"]
+        }),
+        arg_def[ds_constants["TARGET_STATE_ALIAS"]].update({
+            "choices": lrq_constants["TARGET_STATE_OPTIONS"]
+        })
+
+        return arg_def
+
+    def create_dataset(self):
+        create_cmd = _get_idcams_cmd_lrq(self.data_set_definition)
 
         idcams_executions = _run_idcams(
             cmd=create_cmd,
             name="Create local request queue data set",
-            location=self.queue_definition["name"],
+            location=self.data_set_definition["name"],
             delete=False)
         self.executions = self.executions + idcams_executions
 
-        self.result['changed'] = True
+        self.result["changed"] = True
 
-    def delete_local_request_queue_dataset(self):
-        if not self.queue_definition["exists"]:
+    def delete_data_set(self):
+        if not self.data_set_definition["exists"]:
             self.result['end_state'] = {
-                "exists": self.queue_definition["exists"],
-                "vsam": self.queue_definition["vsam"]
+                "exists": self.data_set_definition["exists"],
+                "vsam": self.data_set_definition["vsam"]
             }
             self._exit()
 
         delete_cmd = '''
         DELETE {0}
-        '''.format(self.queue_definition["name"])
+        '''.format(self.data_set_definition["name"])
 
         idcams_executions = _run_idcams(
             cmd=delete_cmd,
             name="Removing local request queue data set",
-            location=self.queue_definition["name"],
+            location=self.data_set_definition["name"],
             delete=True)
         self.executions = self.executions + idcams_executions
-        self.result['changed'] = True
-
-    def init_local_request_queue(self):
-        if self.queue_definition["exists"]:
-            self.result['end_state'] = {
-                "exists": self.queue_definition["exists"],
-                "vsam": self.queue_definition["vsam"]
-            }
-            self._exit()
-
-        if not self.queue_definition["exists"]:
-            self.create_local_request_queue_dataset()
-
-    def invalid_state(self):  # type: () -> None
-        self._fail("{0} is not a valid target state.".format(
-            self.local_request_queue["state"]))
-
-    def get_target_method(self, target):
-        return {
-            ds_constants["TARGET_STATE_ABSENT"]: self.delete_local_request_queue_dataset,
-            ds_constants["TARGET_STATE_INITIAL"]: self.init_local_request_queue,
-
-        }.get(target, self.invalid_state)
-
-    def get_dataset_state(self, dataset):
-        listds_executions, ds_status = _run_listds(dataset["name"])
-
-        dataset["exists"] = ds_status['exists']
-        dataset["vsam"] = ds_status['vsam']
-
-        self.executions = self.executions + listds_executions
-
-        return dataset
-
-    def main(self):
-        self.queue_definition = self.get_dataset_state(self.queue_definition)
-
-        self.result['start_state'] = {
-            "exists": self.queue_definition["exists"],
-            "vsam": self.queue_definition["vsam"]
-        }
-
-        if self.queue_definition["exists"] and not self.queue_definition["vsam"]:
-            self._fail(
-                "Data set {0} does not appear to be a KSDS.".format(
-                    self.queue_definition["name"]))
-
-        self.get_target_method(self.queue_definition["state"])()
-
-        self.end_state = self.get_dataset_state(self.queue_definition)
-
-        self.result['end_state'] = {
-            "exists": self.end_state["exists"],
-            "vsam": self.end_state["vsam"]
-        }
-
-        self._exit()
+        self.result["changed"] = True
 
 
 def main():
