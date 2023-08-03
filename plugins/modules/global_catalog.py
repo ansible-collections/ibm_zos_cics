@@ -241,6 +241,40 @@ class AnsibleGlobalCatalogModule(object):
 
     def init_argument_spec(self):  # type: () -> Dict
         return {
+            constants.REGION_DATASETS_ALIAS: {
+                'type': dict,
+                'required': True,
+                'options': {
+                    'template': {
+                        'type': 'str',
+                        'required': False,
+                    },
+                    'dfhgcd': {
+                        'type': dict,
+                        'required': False,
+                        'options': {
+                            'dsn': {
+                                'type': 'str',
+                                'required': False,
+                            },
+                        },
+                    },
+                },
+            },
+            constants.CICS_INSTALL_ALIAS: {
+                'type': dict,
+                'required': True,
+                'options': {
+                    'template': {
+                        'type': 'str',
+                        'required': True,
+                    },
+                    'sdfhload': {
+                        'type': 'str',
+                        'required': False,
+                    },
+                },
+            },
             constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
                 'required': False,
                 'type': 'int',
@@ -252,14 +286,6 @@ class AnsibleGlobalCatalogModule(object):
                 'choices': constants.CATALOG_SPACE_UNIT_OPTIONS,
                 'default': constants.GLOBAL_CATALOG_SPACE_UNIT_DEFAULT,
             },
-            constants.CATALOG_DATASET_ALIAS: {
-                'required': True,
-                'type': 'str',
-            },
-            constants.CATALOG_SDFHLOAD_ALIAS: {
-                'required': True,
-                'type': 'str',
-            },
             constants.CATALOG_TARGET_STATE_ALIAS: {
                 'required': True,
                 'type': 'str',
@@ -269,6 +295,40 @@ class AnsibleGlobalCatalogModule(object):
 
     def validate_parameters(self):
         arg_defs = {
+            constants.REGION_DATASETS_ALIAS: {
+                "arg_type": "dict",
+                "required": True,
+                "options": {
+                    "template": {
+                        "arg_type": "str",
+                        "required": False,
+                    },
+                    "dfhgcd": {
+                        "arg_type": "dict",
+                        "required": False,
+                        "options": {
+                            "dsn": {
+                                "arg_type": "str",
+                                "required": False,  
+                            },
+                        },
+                    },
+                },
+            },
+            constants.CICS_INSTALL_ALIAS: {
+                "arg_type": "dict",
+                "required": True,
+                "options": {
+                    "template": {
+                        "arg_type": "str",
+                        "required": False,
+                    },
+                    "sdfhload": {
+                        "arg_type": "data_set_base",
+                        "required": False,
+                    },  
+                },
+            },
             constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
                 "arg_type": 'int',
                 "default": constants.GLOBAL_CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
@@ -278,14 +338,6 @@ class AnsibleGlobalCatalogModule(object):
                 "choices": constants.CATALOG_SPACE_UNIT_OPTIONS,
                 "default": constants.GLOBAL_CATALOG_SPACE_UNIT_DEFAULT,
             },
-            constants.CATALOG_DATASET_ALIAS: {
-                "arg_type": 'data_set_base',
-                "required": True,
-            },
-            constants.CATALOG_SDFHLOAD_ALIAS: {
-                "arg_type": 'data_set_base',
-                "required": True,
-            },
             constants.CATALOG_TARGET_STATE_ALIAS: {
                 "arg_type": 'str',
                 "choices": constants.GLOBAL_CATALOG_TARGET_STATE_OPTIONS,
@@ -293,10 +345,10 @@ class AnsibleGlobalCatalogModule(object):
             },
         }
         result = BetterArgParser(arg_defs).parse_args({
+            "region_datasets": self._module.params.get(constants.REGION_DATASETS_ALIAS),
+            "cics_install": self._module.params.get(constants.CICS_INSTALL_ALIAS),
             "space_primary": self._module.params.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
             "space_type": self._module.params.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
-            "location": self._module.params.get(constants.CATALOG_DATASET_ALIAS).upper(),
-            "sdfhload": self._module.params.get(constants.CATALOG_SDFHLOAD_ALIAS).upper(),
             "state": self._module.params.get(constants.CATALOG_TARGET_STATE_ALIAS)
         })
         self.starting_catalog = _global_catalog(
@@ -307,8 +359,8 @@ class AnsibleGlobalCatalogModule(object):
                 constants.GLOBAL_CATALOG_RECORD_COUNT_DEFAULT,
                 constants.GLOBAL_CATALOG_RECORD_SIZE_DEFAULT,
                 constants.GLOBAL_CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT),
-            name=result.get('location'),
-            sdfhload=result.get('sdfhload'),
+            name=result.get('region_datasets').get('dfhgcd').get('dsn').upper(),
+            sdfhload=result.get('cics_install').get('sdfhload').upper(),
             state=result.get('state'),
             autostart_override="",
             nextstart="",

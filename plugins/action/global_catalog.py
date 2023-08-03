@@ -12,24 +12,41 @@ class ActionModule(ActionBase):
         super(ActionModule, self).run(tmp, task_vars)
         module_args = self._task.args.copy()
 
-        # data_set_template = module_args["region_datasets"]
+        region_datasets = module_args["region_datasets"]
+        cics_install = module_args["cics_install"]
 
-        # task_vars2 = task_vars.copy()
-        # task_vars2.update(data_set_name="DFHGCD")
-        # dfhgcd = self._templar.copy_with_new_env(
-        #     variable_start_string="<<",
-        #     variable_end_string=">>",
-        #     available_variables=task_vars2
-        # ).template(data_set_template)
+        if region_datasets.get("dfhgcd", None) is None or region_datasets.get("dfhgcd").get("dsn", None) is None:
+            dsn = self.template_dsn(task_vars, "data_set_name", "DFHGCD", region_datasets.get("template"))
+            module_args.update({
+                'region_datasets': {
+                    'dfhgcd': {
+                        'dsn': dsn,
+                    },
+                    'template': region_datasets.get("template"),
+                },
+            })
+        
+        if cics_install.get("sdfhload", None) is None:
+            dsn = self.template_dsn(task_vars, "lib_name", "SDFHLOAD", cics_install.get("template"))
 
-        # module_args.update({
-        #     'global_catalog_dataset': dfhgcd,
-        # })
+            module_args.update({
+                'cics_install': {
+                    'sdfhload': dsn,
+                    'template': cics_install.get("template"),
+                },
+            })
 
-        module_return = self._execute_module(
+        return self._execute_module(
             module_name='ibm.ibm_zos_cics.global_catalog',
             module_args=module_args,
             task_vars=task_vars,
             tmp=tmp)
 
-        return module_return
+    def template_dsn(self, task_vars, var_name, replace_val, template):
+        cpy = task_vars.copy()
+        cpy.update({var_name: replace_val})
+        return self._templar.copy_with_new_env(
+            variable_start_string="<<",
+            variable_end_string=">>",
+            available_variables=cpy
+        ).template(template)
