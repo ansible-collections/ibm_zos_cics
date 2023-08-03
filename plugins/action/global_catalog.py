@@ -15,8 +15,16 @@ class ActionModule(ActionBase):
         region_datasets = module_args["region_datasets"]
         cics_install = module_args["cics_install"]
 
-        if region_datasets.get("dfhgcd", None) is None or region_datasets.get("dfhgcd").get("dsn", None) is None:
-            dsn = self.template_dsn(task_vars, "data_set_name", "DFHGCD", region_datasets.get("template"))
+        if region_datasets.get(
+                "dfhgcd",
+                None) is None or region_datasets.get("dfhgcd").get(
+                "dsn",
+                None) is None:
+            dsn = self.template_dsn(
+                task_vars,
+                "data_set_name",
+                "DFHGCD",
+                region_datasets.get("template"))
             module_args.update({
                 'region_datasets': {
                     'dfhgcd': {
@@ -25,9 +33,13 @@ class ActionModule(ActionBase):
                     'template': region_datasets.get("template"),
                 },
             })
-        
+
         if cics_install.get("sdfhload", None) is None:
-            dsn = self.template_dsn(task_vars, "lib_name", "SDFHLOAD", cics_install.get("template"))
+            dsn = self.template_dsn(
+                task_vars,
+                "lib_name",
+                "SDFHLOAD",
+                cics_install.get("template"))
 
             module_args.update({
                 'cics_install': {

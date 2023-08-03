@@ -17,7 +17,7 @@
       space_primary: 5
       space_type: "M"
       region_datasets:
-        dfhgcd: 
+        dfhgcd:
           dsn: "{{ region_dataset_path }}..."
 
   tasks:

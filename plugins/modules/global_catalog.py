@@ -54,20 +54,49 @@ options:
       - CYL
       - TRK
     default: M
-  location:
+  region_datasets:
     description:
-      - The name of the global catalog data set, e.g.
-        C(REGIONS.ABCD0001.DFHGCD).
+      - The location of the region's data sets using a template, e.g.
+        C(REGIONS.ABCD0001.<< data_set_name >>).
       - If it already exists, this data set must be cataloged.
-    type: str
+    type: dict
     required: true
-  sdfhload:
+    suboptions:
+      template:
+        description:
+          - The base location of the region's data sets with a template.
+        required: false
+        type: str
+      dfhgcd:
+        description:
+          - Overrides the templated location for the global catalog data set.
+        required: false
+        type: dict
+        suboptions:
+          dsn:
+            description:
+              - Data set name of the global catalog to override the template.
+            type: str
+            required: false
+  cics_install:
     description:
       - The name of the C(SDFHLOAD) data set, e.g. C(CICSTS61.CICS.SDFHLOAD).
       - This module uses the C(DFHRMUTL) utility internally, which is found in
         the C(SDFHLOAD) data set in the CICS installation.
-    type: str
+    type: dict
     required: true
+    suboptions:
+      template:
+        description:
+          - Templated location of the cics install data sets.
+        required: false
+        type: str
+      sdfhload:
+        description:
+          - Location of the sdfhload data set.
+          - Overrides the templated location for sdfhload.
+        type: str
+        required: false
   state:
     description:
       - The desired state for the global catalog, which the module will aim to
@@ -242,7 +271,7 @@ class AnsibleGlobalCatalogModule(object):
     def init_argument_spec(self):  # type: () -> Dict
         return {
             constants.REGION_DATASETS_ALIAS: {
-                'type': dict,
+                'type': 'dict',
                 'required': True,
                 'options': {
                     'template': {
@@ -250,7 +279,7 @@ class AnsibleGlobalCatalogModule(object):
                         'required': False,
                     },
                     'dfhgcd': {
-                        'type': dict,
+                        'type': 'dict',
                         'required': False,
                         'options': {
                             'dsn': {
@@ -262,12 +291,12 @@ class AnsibleGlobalCatalogModule(object):
                 },
             },
             constants.CICS_INSTALL_ALIAS: {
-                'type': dict,
+                'type': 'dict',
                 'required': True,
                 'options': {
                     'template': {
                         'type': 'str',
-                        'required': True,
+                        'required': False,
                     },
                     'sdfhload': {
                         'type': 'str',
@@ -308,8 +337,8 @@ class AnsibleGlobalCatalogModule(object):
                         "required": False,
                         "options": {
                             "dsn": {
-                                "arg_type": "str",
-                                "required": False,  
+                                "arg_type": "data_set_base",
+                                "required": False,
                             },
                         },
                     },
@@ -326,7 +355,7 @@ class AnsibleGlobalCatalogModule(object):
                     "sdfhload": {
                         "arg_type": "data_set_base",
                         "required": False,
-                    },  
+                    },
                 },
             },
             constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
@@ -520,8 +549,9 @@ class AnsibleGlobalCatalogModule(object):
 
         if self.starting_catalog["nextstart"] and self.starting_catalog["nextstart"].upper(
         ) == constants.NEXT_START_EMERGENCY:
-            self._fail("Next start type is {0}. Potential data loss prevented.".format(
-                constants.NEXT_START_EMERGENCY))
+            self._fail(
+                "Next start type is {0}. Potential data loss prevented.".format(
+                    constants.NEXT_START_EMERGENCY))
 
         self.get_target_method(
             self.starting_catalog["state"])()
