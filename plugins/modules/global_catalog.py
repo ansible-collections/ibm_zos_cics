@@ -248,9 +248,9 @@ except ImportError:
 ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _dataset_size, _run_listds, _run_idcams)
+        _dataset_size, _run_listds, _run_idcams, _data_set)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog import (
-        _run_dfhrmutl, _global_catalog, _get_idcams_cmd_gcd)
+        _run_dfhrmutl, _get_idcams_cmd_gcd)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog import _global_catalog_constants as gc_constants
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import _dataset_constants as ds_constants
 except ImportError:
@@ -275,7 +275,7 @@ class AnsibleGlobalCatalogModule(object):
         self.result['executions'] = self.executions
         self._module.fail_json(msg=msg, **self.result)
 
-    def _exit(self):
+    def _exit(self):  # type: () -> None
         self.result['executions'] = self.executions
         self._module.exit_json(**self.result)
 
@@ -333,7 +333,7 @@ class AnsibleGlobalCatalogModule(object):
             },
         }
 
-    def validate_parameters(self):
+    def validate_parameters(self):  # type: () -> None
         arg_defs = {
             ds_constants["REGION_DATA_SETS_ALIAS"]: {
                 "arg_type": "dict",
@@ -391,7 +391,7 @@ class AnsibleGlobalCatalogModule(object):
             ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
             ds_constants["TARGET_STATE_ALIAS"]: self._module.params.get(ds_constants["TARGET_STATE_ALIAS"])
         })
-        self.starting_catalog = _global_catalog(
+        self.starting_catalog = _data_set(
             size=_dataset_size(
                 result.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
                 result.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),

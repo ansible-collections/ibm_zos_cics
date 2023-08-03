@@ -7,6 +7,7 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 from ansible.module_utils.basic import AnsibleModule
 import traceback
+from typing import Dict, List
 
 ZOS_CORE_IMP_ERR = None
 
@@ -19,20 +20,20 @@ except ImportError:
 ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
-        _execution)
+        _execution, _response, _state)
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
 
-def _dataset_size(unit, primary, secondary):
+def _dataset_size(unit, primary, secondary):  # type: (str,int,int) -> Dict
     return {
-        'unit': unit,
-        'primary': primary,
-        'secondary': secondary
+        "unit": unit,
+        "primary": primary,
+        "secondary": secondary
     }
 
 
-def _run_idcams(cmd, name, location, delete=False):
+def _run_idcams(cmd, name, location, delete=False):  # type: (str, str, str, bool) -> List
     executions = []
 
     for x in range(10):
@@ -78,15 +79,15 @@ def _run_idcams(cmd, name, location, delete=False):
 
 def _get_dataset_size_unit(unit_symbol):  # type: (str) -> str
     return {
-        'M': "MEGABYTES",
-        'K': "KILOBYTES",
-        'CYL': "CYLINDERS",
-        'REC': "RECORDS",
-        'TRK': "TRACKS"
+        "M": "MEGABYTES",
+        "K": "KILOBYTES",
+        "CYL": "CYLINDERS",
+        "REC": "RECORDS",
+        "TRK": "TRACKS"
     }.get(unit_symbol, "MEGABYTES")
 
 
-def _build_idcams_define_cmd(dataset):
+def _build_idcams_define_cmd(dataset):  # type: (Dict) -> str
     return '''
     DEFINE CLUSTER ({0}) -
     DATA ({1}) -
@@ -96,7 +97,8 @@ def _build_idcams_define_cmd(dataset):
                _build_idcams_define_index_parms(dataset))
 
 
-def _build_idcams_define_cluster_parms(dataset):
+def _build_idcams_define_cluster_parms(dataset):  # type: (Dict) -> str
+
     clusterStr = "NAME({0}) -\n    {1}({2} {3})".format(
         dataset["name"],
         _get_dataset_size_unit(
@@ -118,7 +120,7 @@ def _build_idcams_define_cluster_parms(dataset):
     return clusterStr
 
 
-def _build_idcams_define_data_parms(dataset):
+def _build_idcams_define_data_parms(dataset):  # type: (Dict) -> str
     dataStr = "NAME({0}.DATA)".format(dataset["name"])
     if isinstance(dataset["DATA"], dict):
         dataStr += " -\n    "
@@ -135,7 +137,7 @@ def _build_idcams_define_data_parms(dataset):
     return dataStr
 
 
-def _build_idcams_define_index_parms(dataset):
+def _build_idcams_define_index_parms(dataset):  # type: (Dict) -> str
     indexStr = "NAME({0}.INDEX)".format(dataset["name"])
     if isinstance(dataset["INDEX"], dict):
         indexStr += " -\n    "
@@ -152,7 +154,7 @@ def _build_idcams_define_index_parms(dataset):
     return indexStr
 
 
-def _run_listds(location):
+def _run_listds(location):  # type: (str) -> [List, _state]
     cmd = " LISTDS '{0}'".format(location)
     executions = []
 
@@ -174,10 +176,7 @@ def _run_listds(location):
     # DS Name in output, good output
 
     if rc == 8 and "NOT IN CATALOG" in stdout:
-        return executions, {
-            "exists": False,
-            "vsam": False,
-        }
+        return executions, _state(exists=False, vsam=False)
 
     # Exists
 
@@ -191,15 +190,9 @@ def _run_listds(location):
     filtered = list(filter(lambda x: "VSAM" in x, elements))
 
     if len(filtered) == 0:
-        return executions, {
-            "exists": True,
-            "vsam": False,
-        }
+        return executions, _state(exists=True, vsam=False)
     else:
-        return executions, {
-            "exists": True,
-            "vsam": True,
-        }
+        return executions, _state(exists=True, vsam=True)
 
 
 _dataset_constants = {
@@ -218,14 +211,16 @@ _dataset_constants = {
 }
 
 
-def _data_set(size, name, state, exists, vsam):
-    return {
+def _data_set(size, name, state, exists, vsam, **kwargs):  # type: (_dataset_size, str, str, bool, bool, Dict) -> Dict
+    data_set = {
         "size": size,
         "name": name,
         "state": state,
         "exists": exists,
         "vsam": vsam,
     }
+    data_set.update(kwargs)
+    return data_set
 
 
 class AnsibleDataSetModule(object):
@@ -233,20 +228,14 @@ class AnsibleDataSetModule(object):
         self._module = AnsibleModule(
             argument_spec=self.init_argument_spec(),
         )
-        self.result = {}
-        self.result["changed"] = False
-        self.result["failed"] = False
-        self.result["executions"] = []
-        self.executions = []
+        self.result = _response(executions=[], start_state=_state(exists=False), end_state=_state(exists=False))
         self.validate_parameters()
 
     def _fail(self, msg):  # type: (str) -> None
         self.result["failed"] = True
-        self.result["executions"] = self.executions
         self._module.fail_json(msg=msg, **self.result)
 
-    def _exit(self):
-        self.result["executions"] = self.executions
+    def _exit(self):  # type: () -> None
         self._module.exit_json(**self.result)
 
     def init_argument_spec(self):  # type: () -> Dict
@@ -270,7 +259,7 @@ class AnsibleDataSetModule(object):
             }
         }
 
-    def _get_arg_defs(self):
+    def _get_arg_defs(self):  # type: () -> Dict
         return {
             _dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]: {
                 "arg_type": "int",
@@ -289,7 +278,7 @@ class AnsibleDataSetModule(object):
             },
         }
 
-    def _get_data_set_object(self, size, result):
+    def _get_data_set_object(self, size, result):  # type: (_dataset_size, Dict) -> _data_set
         return _data_set(
             size=size,
             name=result.get(_dataset_constants["DATASET_LOCATION_ALIAS"]).upper(),
@@ -297,7 +286,7 @@ class AnsibleDataSetModule(object):
             exists=False,
             vsam=False)
 
-    def validate_parameters(self):
+    def validate_parameters(self):  # type: () -> None
         arg_defs = self._get_arg_defs()
 
         result = BetterArgParser(arg_defs).parse_args({
@@ -312,65 +301,63 @@ class AnsibleDataSetModule(object):
             primary=result.get(_dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
             secondary=1)
 
-        self.data_set_definition = self._get_data_set_object(size, result)
+        self.data_set = self._get_data_set_object(size, result)
 
-    def create_dataset(self):
+    def create_data_set(self):  # type: () -> None
         self.result["changed"] = True
 
-    def delete_data_set(self):
+    def delete_data_set(self):  # type: () -> None
         self.result["changed"] = True
 
-    def init_data_set(self):
-        if self.data_set_definition["exists"]:
-            self.result["end_state"] = {
-                "exists": self.data_set_definition["exists"],
-                "vsam": self.data_set_definition["vsam"]
-            }
+    def init_data_set(self):  # type: () -> None
+        if self.data_set["exists"]:
+            self.result["end_state"] = _state(exists=self.data_set["exists"], vsam=self.data_set["vsam"])
             self._exit()
 
-        if not self.data_set_definition["exists"]:
-            self.create_dataset()
+        if not self.data_set["exists"]:
+            self.create_data_set()
+
+    def warm_data_set(self):  # type: () -> None
+        if not self.data_set["exists"]:
+            self._fail(
+                "Data set {0} does not exist.".format(
+                    self.data_set["name"]))
 
     def invalid_state(self):  # type: () -> None
         self._fail("{0} is not a valid target state.".format(
-            self.data_set_definition["state"]))
+            self.data_set["state"]))
 
-    def get_target_method(self, target):
+    def get_target_method(self, target):  # type: (str) -> [str | invalid_state]
         return {
             _dataset_constants["TARGET_STATE_ABSENT"]: self.delete_data_set,
-            _dataset_constants["TARGET_STATE_INITIAL"]: self.init_data_set
+            _dataset_constants["TARGET_STATE_INITIAL"]: self.init_data_set,
+            _dataset_constants["TARGET_STATE_WARM"]: self.warm_data_set,
         }.get(target, self.invalid_state)
 
-    def get_dataset_state(self, dataset):
-        listds_executions, ds_status = _run_listds(dataset["name"])
+    def get_data_set_state(self, data_set):  # type: (Dict) -> Dict
+        listds_executions, ds_status = _run_listds(data_set["name"])
 
-        dataset["exists"] = ds_status["exists"]
-        dataset["vsam"] = ds_status["vsam"]
+        data_set["exists"] = ds_status["exists"]
+        data_set["vsam"] = ds_status["vsam"]
 
-        self.executions = self.executions + listds_executions
+        self.result["executions"] = self.result["executions"] + listds_executions
 
-        return dataset
+        return data_set
 
     def main(self):
-        self.data_set_definition = self.get_dataset_state(self.data_set_definition)
+        self.data_set = self.get_data_set_state(self.data_set)
 
-        self.result["start_state"] = {
-            "exists": self.data_set_definition["exists"],
-            "vsam": self.data_set_definition["vsam"]
-        }
+        self.result["start_state"] = _state(exists=self.data_set["exists"], vsam=self.data_set["vsam"])
 
-        if self.data_set_definition["exists"] and not self.data_set_definition["vsam"]:
+        if self.data_set["exists"] and not self.data_set["vsam"]:
             self._fail(
                 "Data set {0} does not appear to be a KSDS.".format(
-                    self.data_set_definition["name"]))
+                    self.data_set["name"]))
 
-        self.get_target_method(self.data_set_definition["state"])()
+        self.get_target_method(self.data_set["state"])()
 
-        self.end_state = self.get_dataset_state(self.data_set_definition)
+        self.end_state = self.get_data_set_state(self.data_set)
 
-        self.result["end_state"] = {
-            "exists": self.end_state["exists"],
-            "vsam": self.end_state["vsam"]
-        }
+        self.result["end_state"] = _state(exists=self.end_state["exists"], vsam=self.end_state["vsam"])
 
         self._exit()

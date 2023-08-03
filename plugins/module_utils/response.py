@@ -5,9 +5,10 @@
 
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
+from typing import Dict, List
 
 
-def _execution(name, rc, stdout, stderr):
+def _execution(name, rc, stdout, stderr):  # type: (str, str, str, str) -> Dict
     return {
         "name": name,
         "rc": rc,
@@ -16,7 +17,7 @@ def _execution(name, rc, stdout, stderr):
     }
 
 
-def _state(exists, **kwargs):
+def _state(exists, **kwargs):  # type: (bool, Dict) -> Dict
     state = {
         "exists": exists
     }
@@ -24,8 +25,10 @@ def _state(exists, **kwargs):
     return state
 
 
-def _response(executions, start_state, end_state):
+def _response(executions, start_state, end_state):  # type: (List, Dict, Dict) -> Dict
     return {
+        "changed": False,
+        "failed": False,
         "executions": executions,
         "start_state": start_state,
         "end_state": end_state,

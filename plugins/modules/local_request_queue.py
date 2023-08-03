@@ -153,13 +153,16 @@ executions:
 
 
 import traceback
+from typing import Dict
 
 ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _run_idcams, AnsibleDataSetModule)
+        _run_idcams, _build_idcams_define_cmd, AnsibleDataSetModule)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_request_queue import (
-        _local_request_queue, _get_idcams_cmd_lrq)
+        _get_idcams_cmd_lrq)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
+        _state)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_request_queue import _local_request_queue_constants as lrq_constants
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import _dataset_constants as ds_constants
 except ImportError:
@@ -185,16 +188,7 @@ class AnsibleLocalRequestQueueModule(AnsibleDataSetModule):
 
         return arg_spec
 
-    def _get_data_set_object(self, size, result):
-        return _local_request_queue(
-            size=size,
-            name=result.get(ds_constants["DATASET_LOCATION_ALIAS"]).upper(),
-            state=result.get(ds_constants["TARGET_STATE_ALIAS"]),
-            exists=False,
-            vsam=False
-        )
-
-    def _get_arg_defs(self):
+    def _get_arg_defs(self):  # type: () -> Dict
         arg_def = super(AnsibleLocalRequestQueueModule, self)._get_arg_defs()
 
         arg_def[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
@@ -209,36 +203,33 @@ class AnsibleLocalRequestQueueModule(AnsibleDataSetModule):
 
         return arg_def
 
-    def create_dataset(self):
-        create_cmd = _get_idcams_cmd_lrq(self.data_set_definition)
+    def create_data_set(self):  # type: () -> None
+        create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_lrq(self.data_set))
 
         idcams_executions = _run_idcams(
             cmd=create_cmd,
             name="Create local request queue data set",
-            location=self.data_set_definition["name"],
+            location=self.data_set["name"],
             delete=False)
-        self.executions = self.executions + idcams_executions
+        self.result["executions"] = self.result["executions"] + idcams_executions
 
         self.result["changed"] = True
 
-    def delete_data_set(self):
-        if not self.data_set_definition["exists"]:
-            self.result['end_state'] = {
-                "exists": self.data_set_definition["exists"],
-                "vsam": self.data_set_definition["vsam"]
-            }
+    def delete_data_set(self):  # type: () -> None
+        if not self.data_set["exists"]:
+            self.result['end_state'] = _state(exists=self.data_set["exists"], vsam=self.data_set["vsam"])
             self._exit()
 
         delete_cmd = '''
         DELETE {0}
-        '''.format(self.data_set_definition["name"])
+        '''.format(self.data_set["name"])
 
         idcams_executions = _run_idcams(
             cmd=delete_cmd,
             name="Removing local request queue data set",
-            location=self.data_set_definition["name"],
+            location=self.data_set["name"],
             delete=True)
-        self.executions = self.executions + idcams_executions
+        self.result["executions"] = self.result["executions"] + idcams_executions
         self.result["changed"] = True
 
 

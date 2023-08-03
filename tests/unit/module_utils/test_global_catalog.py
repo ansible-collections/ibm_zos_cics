@@ -14,7 +14,7 @@ import sys
 @pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_get_idcams_cmd_megabytes():
     catalog_size = dataset_utils._dataset_size(unit="M", primary=10, secondary=1)
-    catalog = global_catalog._global_catalog(
+    catalog = dataset_utils._data_set(
         size=catalog_size,
         name="ANSI.TEST.DFHGCD",
         sdfhload="CICSTS.IN56.SDFHLOAD",
@@ -43,7 +43,7 @@ def test_get_idcams_cmd_megabytes():
 def test_get_idcams_cmd_cylinders():
     catalog_size = dataset_utils._dataset_size(
         unit="CYL", primary=3, secondary=1)
-    catalog = global_catalog._global_catalog(
+    catalog = dataset_utils._data_set(
         size=catalog_size,
         name="ANSI.CYLS.DFHGCD",
         sdfhload="CICSTS.IN56.SDFHLOAD",
@@ -70,7 +70,7 @@ def test_get_idcams_cmd_cylinders():
 
 def test_global_catalog_class():
     catalog_size = dataset_utils._dataset_size(unit="M", primary=10, secondary=1)
-    catalog = global_catalog._global_catalog(
+    catalog = dataset_utils._data_set(
         size=catalog_size,
         name="ANSI.TEST.DFHGCD",
         sdfhload="CICSTS.IN56.SDFHLOAD",

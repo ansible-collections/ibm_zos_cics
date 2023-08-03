@@ -168,24 +168,3 @@ _global_catalog_constants = {
     "RECORD_SIZE_DEFAULT": 32760,
     "CONTROL_INTERVAL_SIZE_DEFAULT": 32768,
 }
-
-
-def _global_catalog(
-        size,
-        name,
-        sdfhload,
-        state,
-        autostart_override,
-        nextstart,
-        exists,
-        vsam):
-    return {
-        'size': size,
-        'name': name,
-        'sdfhload': sdfhload,
-        'state': state,
-        'autostart_override': autostart_override,
-        'nextstart': nextstart,
-        'exists': exists,
-        'vsam': vsam,
-    }
