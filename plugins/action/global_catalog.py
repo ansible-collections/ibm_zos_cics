@@ -12,25 +12,25 @@ class ActionModule(ActionBase):
         super(ActionModule, self).run(tmp, task_vars)
         module_args = self._task.args.copy()
 
-        region_datasets = module_args["region_datasets"]
+        region_data_sets = module_args["region_data_sets"]
         cics_install = module_args["cics_install"]
 
-        if region_datasets.get(
+        if region_data_sets.get(
                 "dfhgcd",
-                None) is None or region_datasets.get("dfhgcd").get(
+                None) is None or region_data_sets.get("dfhgcd").get(
                 "dsn",
                 None) is None:
             dsn = self.template_dsn(
                 task_vars,
                 "data_set_name",
                 "DFHGCD",
-                region_datasets.get("template"))
+                region_data_sets.get("template"))
             module_args.update({
-                'region_datasets': {
+                'region_data_sets': {
                     'dfhgcd': {
                         'dsn': dsn,
                     },
-                    'template': region_datasets.get("template"),
+                    'template': region_data_sets.get("template"),
                 },
             })
 

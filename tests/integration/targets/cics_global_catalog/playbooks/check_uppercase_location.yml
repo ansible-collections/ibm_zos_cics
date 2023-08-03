@@ -15,7 +15,7 @@
         sdfhload: "{{ cics_steplib }}"
       space_primary: 5
       space_type: "M"
-      region_datasets:
+      region_data_sets:
         template: "{{ region_dataset_path }}.low.<< data_set_name >>"
 
   tasks:

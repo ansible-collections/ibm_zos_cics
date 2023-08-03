@@ -54,7 +54,7 @@ options:
       - CYL
       - TRK
     default: M
-  region_datasets:
+  region_data_sets:
     description:
       - The location of the region's data sets using a template, e.g.
         C(REGIONS.ABCD0001.<< data_set_name >>).
@@ -270,7 +270,7 @@ class AnsibleGlobalCatalogModule(object):
 
     def init_argument_spec(self):  # type: () -> Dict
         return {
-            constants.REGION_DATASETS_ALIAS: {
+            constants.REGION_DATA_SETS_ALIAS: {
                 'type': 'dict',
                 'required': True,
                 'options': {
@@ -324,7 +324,7 @@ class AnsibleGlobalCatalogModule(object):
 
     def validate_parameters(self):
         arg_defs = {
-            constants.REGION_DATASETS_ALIAS: {
+            constants.REGION_DATA_SETS_ALIAS: {
                 "arg_type": "dict",
                 "required": True,
                 "options": {
@@ -374,7 +374,7 @@ class AnsibleGlobalCatalogModule(object):
             },
         }
         result = BetterArgParser(arg_defs).parse_args({
-            "region_datasets": self._module.params.get(constants.REGION_DATASETS_ALIAS),
+            "region_data_sets": self._module.params.get(constants.REGION_DATA_SETS_ALIAS),
             "cics_install": self._module.params.get(constants.CICS_INSTALL_ALIAS),
             "space_primary": self._module.params.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
             "space_type": self._module.params.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
@@ -388,7 +388,7 @@ class AnsibleGlobalCatalogModule(object):
                 constants.GLOBAL_CATALOG_RECORD_COUNT_DEFAULT,
                 constants.GLOBAL_CATALOG_RECORD_SIZE_DEFAULT,
                 constants.GLOBAL_CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT),
-            name=result.get('region_datasets').get('dfhgcd').get('dsn').upper(),
+            name=result.get('region_data_sets').get('dfhgcd').get('dsn').upper(),
             sdfhload=result.get('cics_install').get('sdfhload').upper(),
             state=result.get('state'),
             autostart_override="",
