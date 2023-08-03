@@ -10,6 +10,16 @@
     catalog_name: "DFHGCD"
     catalog_path: "{{ region_dataset_path }}.{{ catalog_name }}"
 
+  module_defaults:
+    ibm.ibm_zos_cics.global_catalog:
+      cics_install:
+        sdfhload: "{{ cics_steplib }}"
+      space_primary: 5
+      space_type: "M"
+      region_datasets:
+        dfhgcd: 
+          dsn: "{{ region_dataset_path }}..."
+
   tasks:
     # #############################################################################
     # ############################## Module Testing ###############################
@@ -19,10 +29,6 @@
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_cics.global_catalog:
         state: "initial"
-        sdfhload: "{{ cics_steplib }}"
-        space_primary: 5
-        space_type: "M"
-        location: "{{ region_dataset_path }}..."
       register: res
       failed_when: false
 

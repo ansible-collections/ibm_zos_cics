@@ -12,10 +12,12 @@
 
   module_defaults:
     ibm.ibm_zos_cics.global_catalog:
-      sdfhload: "{{ cics_steplib }}"
+      cics_install:
+        sdfhload: "{{ cics_steplib }}"
       space_primary: 5
       space_type: "M"
-      location: "{{ region_dataset_path }}.DFHGCD"
+      region_datasets:
+        template: "{{ region_dataset_path }}.<< data_set_name >>"
 
   tasks:
     # #############################################################################
