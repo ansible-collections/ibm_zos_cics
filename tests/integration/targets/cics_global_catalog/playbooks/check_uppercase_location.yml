@@ -11,7 +11,7 @@
 
   module_defaults:
     ibm.ibm_zos_cics.global_catalog:
-      cics_install:
+      cics_data_sets:
         sdfhload: "{{ cics_steplib }}"
       space_primary: 5
       space_type: "M"

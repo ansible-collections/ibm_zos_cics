@@ -78,7 +78,7 @@ options:
               - Data set name of the global catalog to override the template.
             type: str
             required: false
-  cics_install:
+  cics_data_sets:
     description:
       - The name of the C(SDFHLOAD) data set, e.g. C(CICSTS61.CICS.SDFHLOAD).
       - This module uses the C(DFHRMUTL) utility internally, which is found in
@@ -123,34 +123,44 @@ options:
 EXAMPLES = r"""
 - name: Initialize a global catalog
   ibm.ibm_zos_cics.global_catalog:
-    location: "REGIONS.ABCD0001.DFHGCD"
-    sdfhload: "CICSTS61.CICS.SDFHLOAD"
+    region_data_sets: 
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    cics_data_sets:
+      template: "CICSTS61.CICS.<< lib_name >>"
     state: "initial"
 
 - name: Initialize a large catalog
   ibm.ibm_zos_cics.global_catalog:
-    location: "REGIONS.ABCD0001.DFHGCD"
-    sdfhload: "CICSTS61.CICS.SDFHLOAD"
+    region_data_sets: 
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    cics_data_sets:
+      template: "CICSTS61.CICS.<< lib_name >>"
     space_primary: 100
     space_type: "M"
     state: "initial"
 
 - name: Set autostart override record to AUTOASIS
   ibm.ibm_zos_cics.global_catalog:
-    location: "REGIONS.ABCD0001.DFHGCD"
-    sdfhload: "CICSTS61.CICS.SDFHLOAD"
+    region_data_sets: 
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    cics_data_sets:
+      template: "CICSTS61.CICS.<< lib_name >>"
     state: "warm"
 
 - name: Set autostart override record to AUTOCOLD
   ibm.ibm_zos_cics.global_catalog:
-    location: "REGIONS.ABCD0001.DFHGCD"
-    sdfhload: "CICSTS61.CICS.SDFHLOAD"
+    region_data_sets: 
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    cics_data_sets:
+      template: "CICSTS61.CICS.<< lib_name >>"
     state: "cold"
 
 - name: Delete global catalog
   ibm.ibm_zos_cics.global_catalog:
-    location: "REGIONS.ABCD0001.DFHGCD"
-    sdfhload: "CICSTS61.CICS.SDFHLOAD"
+    region_data_sets: 
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    cics_data_sets:
+      template: "CICSTS61.CICS.<< lib_name >>"
     state: "absent"
 """
 
@@ -290,7 +300,7 @@ class AnsibleGlobalCatalogModule(object):
                     },
                 },
             },
-            constants.CICS_INSTALL_ALIAS: {
+            constants.CICS_DATA_SETS_ALIAS: {
                 'type': 'dict',
                 'required': True,
                 'options': {
@@ -344,7 +354,7 @@ class AnsibleGlobalCatalogModule(object):
                     },
                 },
             },
-            constants.CICS_INSTALL_ALIAS: {
+            constants.CICS_DATA_SETS_ALIAS: {
                 "arg_type": "dict",
                 "required": True,
                 "options": {
@@ -375,7 +385,7 @@ class AnsibleGlobalCatalogModule(object):
         }
         result = BetterArgParser(arg_defs).parse_args({
             "region_data_sets": self._module.params.get(constants.REGION_DATA_SETS_ALIAS),
-            "cics_install": self._module.params.get(constants.CICS_INSTALL_ALIAS),
+            "cics_data_sets": self._module.params.get(constants.CICS_DATA_SETS_ALIAS),
             "space_primary": self._module.params.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
             "space_type": self._module.params.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
             "state": self._module.params.get(constants.CATALOG_TARGET_STATE_ALIAS)
@@ -389,7 +399,7 @@ class AnsibleGlobalCatalogModule(object):
                 constants.GLOBAL_CATALOG_RECORD_SIZE_DEFAULT,
                 constants.GLOBAL_CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT),
             name=result.get('region_data_sets').get('dfhgcd').get('dsn').upper(),
-            sdfhload=result.get('cics_install').get('sdfhload').upper(),
+            sdfhload=result.get('cics_data_sets').get('sdfhload').upper(),
             state=result.get('state'),
             autostart_override="",
             nextstart="",

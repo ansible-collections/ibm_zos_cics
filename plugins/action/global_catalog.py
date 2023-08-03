@@ -1,9 +1,10 @@
-# (c) Copyright IBM Corp. 2020,2023
+# (c) Copyright IBM Corp. 2023
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.parameter_templating import template_dsn
 from ansible.plugins.action import ActionBase
 
 
@@ -13,14 +14,14 @@ class ActionModule(ActionBase):
         module_args = self._task.args.copy()
 
         region_data_sets = module_args["region_data_sets"]
-        cics_install = module_args["cics_install"]
+        cics_data_sets = module_args["cics_data_sets"]
 
         if region_data_sets.get(
                 "dfhgcd",
                 None) is None or region_data_sets.get("dfhgcd").get(
                 "dsn",
                 None) is None:
-            dsn = self.template_dsn(
+            dsn = template_dsn(
                 task_vars,
                 "data_set_name",
                 "DFHGCD",
@@ -34,17 +35,17 @@ class ActionModule(ActionBase):
                 },
             })
 
-        if cics_install.get("sdfhload", None) is None:
-            dsn = self.template_dsn(
+        if cics_data_sets.get("sdfhload", None) is None:
+            dsn = template_dsn(
                 task_vars,
                 "lib_name",
                 "SDFHLOAD",
-                cics_install.get("template"))
+                cics_data_sets.get("template"))
 
             module_args.update({
-                'cics_install': {
+                'cics_data_sets': {
                     'sdfhload': dsn,
-                    'template': cics_install.get("template"),
+                    'template': cics_data_sets.get("template"),
                 },
             })
 
@@ -53,12 +54,3 @@ class ActionModule(ActionBase):
             module_args=module_args,
             task_vars=task_vars,
             tmp=tmp)
-
-    def template_dsn(self, task_vars, var_name, replace_val, template):
-        cpy = task_vars.copy()
-        cpy.update({var_name: replace_val})
-        return self._templar.copy_with_new_env(
-            variable_start_string="<<",
-            variable_end_string=">>",
-            available_variables=cpy
-        ).template(template)
