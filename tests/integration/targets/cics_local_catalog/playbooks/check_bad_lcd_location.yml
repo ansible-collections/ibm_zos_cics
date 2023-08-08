@@ -24,7 +24,8 @@
         space_primary: 5
         space_type: "M"
         region_data_sets:
-          dfhlcd: "{{ region_dataset_path }}..."
+          dfhlcd:
+            dsn: "{{ region_dataset_path }}..."
       register: res
       failed_when: false
 

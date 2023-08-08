@@ -36,7 +36,8 @@
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_cics.local_catalog:
         region_data_sets:
-          dfhlcd: "{{ region_dataset_path }}.low.{{ catalog_name }}"
+          dfhlcd:
+            dsn: "{{ region_dataset_path }}.low.{{ catalog_name }}"
         cics_data_sets:
           sdfhload: "{{ cics_steplib }}"
         space_primary: 5
