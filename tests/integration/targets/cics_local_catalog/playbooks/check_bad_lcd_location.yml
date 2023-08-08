@@ -19,10 +19,12 @@
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_cics.local_catalog:
         state: "initial"
-        sdfhload: "{{ cics_steplib }}"
+        cics_data_sets:
+          sdfhload: "{{ cics_steplib }}"
         space_primary: 5
         space_type: "M"
-        location: "{{ region_dataset_path }}..."
+        region_data_sets:
+          dfhlcd: "{{ region_dataset_path }}..."
       register: res
       failed_when: false
 
