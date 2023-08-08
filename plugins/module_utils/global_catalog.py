@@ -21,8 +21,6 @@ ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
         _execution)
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _build_idcams_define_cmd)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import _dataset_constants as ds_constants
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
@@ -144,7 +142,7 @@ def _get_idcams_cmd_gcd(dataset):
         }
     }
     defaults.update(dataset)
-    return _build_idcams_define_cmd(defaults)
+    return defaults
 
 
 _global_catalog_constants = {

@@ -23,7 +23,7 @@ def test_get_idcams_cmd_megabytes():
         nextstart="",
         exists=False,
         vsam=False)
-    idcams_cmd_gcd = global_catalog._get_idcams_cmd_gcd(catalog)
+    idcams_cmd_gcd = dataset_utils._build_idcams_define_cmd(global_catalog._get_idcams_cmd_gcd(catalog))
     assert idcams_cmd_gcd == '''
     DEFINE CLUSTER (NAME(ANSI.TEST.DFHGCD) -
     MEGABYTES(10 1) -
@@ -52,7 +52,7 @@ def test_get_idcams_cmd_cylinders():
         nextstart="",
         exists=False,
         vsam=False)
-    idcams_cmd_gcd = global_catalog._get_idcams_cmd_gcd(catalog)
+    idcams_cmd_gcd = dataset_utils._build_idcams_define_cmd(global_catalog._get_idcams_cmd_gcd(catalog))
     assert idcams_cmd_gcd == '''
     DEFINE CLUSTER (NAME(ANSI.CYLS.DFHGCD) -
     CYLINDERS(3 1) -

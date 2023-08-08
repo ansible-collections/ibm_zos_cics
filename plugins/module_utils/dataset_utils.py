@@ -249,10 +249,6 @@ class AnsibleDataSetModule(object):
                 "type": "str",
                 "choices": _dataset_constants["SPACE_UNIT_OPTIONS"],
             },
-            _dataset_constants["DATASET_LOCATION_ALIAS"]: {
-                "required": True,
-                "type": "str",
-            },
             _dataset_constants["TARGET_STATE_ALIAS"]: {
                 "required": True,
                 "type": "str",
@@ -267,10 +263,6 @@ class AnsibleDataSetModule(object):
             _dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]: {
                 "arg_type": "str",
                 "choices": _dataset_constants["SPACE_UNIT_OPTIONS"],
-            },
-            _dataset_constants["DATASET_LOCATION_ALIAS"]: {
-                "arg_type": "data_set_base",
-                "required": True,
             },
             _dataset_constants["TARGET_STATE_ALIAS"]: {
                 "arg_type": "str",
@@ -323,16 +315,16 @@ class AnsibleDataSetModule(object):
                 "Data set {0} does not exist.".format(
                     self.data_set["name"]))
 
-    def invalid_state(self):  # type: () -> None
+    def invalid_target_state(self):  # type: () -> None
         self._fail("{0} is not a valid target state.".format(
             self.data_set["state"]))
 
-    def get_target_method(self, target):  # type: (str) -> [str | invalid_state]
+    def get_target_method(self, target):  # type: (str) -> [str | invalid_target_state]
         return {
             _dataset_constants["TARGET_STATE_ABSENT"]: self.delete_data_set,
             _dataset_constants["TARGET_STATE_INITIAL"]: self.init_data_set,
             _dataset_constants["TARGET_STATE_WARM"]: self.warm_data_set,
-        }.get(target, self.invalid_state)
+        }.get(target, self.invalid_target_state)
 
     def get_data_set_state(self, data_set):  # type: (Dict) -> Dict
         listds_executions, ds_status = _run_listds(data_set["name"])
@@ -349,6 +341,7 @@ class AnsibleDataSetModule(object):
 
         self.result["start_state"] = _state(exists=self.data_set["exists"], vsam=self.data_set["vsam"])
 
+        # Change below to account for non vsams
         if self.data_set["exists"] and not self.data_set["vsam"]:
             self._fail(
                 "Data set {0} does not appear to be a KSDS.".format(

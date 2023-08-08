@@ -185,7 +185,12 @@ class AnsibleLocalRequestQueueModule(AnsibleDataSetModule):
         arg_spec[ds_constants["TARGET_STATE_ALIAS"]].update({
             "choices": lrq_constants["TARGET_STATE_OPTIONS"],
         })
-
+        arg_spec.update({
+            ds_constants["DATASET_LOCATION_ALIAS"]: {
+                'required': True,
+                'type': 'str',
+            }
+        })
         return arg_spec
 
     def _get_arg_defs(self):  # type: () -> Dict
@@ -199,6 +204,12 @@ class AnsibleLocalRequestQueueModule(AnsibleDataSetModule):
         }),
         arg_def[ds_constants["TARGET_STATE_ALIAS"]].update({
             "choices": lrq_constants["TARGET_STATE_OPTIONS"]
+        })
+        arg_def.update({
+            ds_constants["DATASET_LOCATION_ALIAS"]: {
+                "arg_type": "data_set_base",
+                "required": True,
+            }
         })
 
         return arg_def
