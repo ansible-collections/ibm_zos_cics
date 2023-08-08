@@ -21,7 +21,14 @@ class ActionModule(ActionBase):
                 None) is None or region_data_sets.get("dfhgcd").get(
                 "dsn",
                 None) is None:
+            if region_data_sets.get("template", None) is None:
+                return {
+                    'failed': True,
+                    'changed': False,
+                    'msg': 'Specify either template or dfhlcd in region_data_sets',
+                }
             dsn = template_dsn(
+                self._templar,
                 task_vars,
                 "data_set_name",
                 "DFHGCD",
@@ -36,7 +43,14 @@ class ActionModule(ActionBase):
             })
 
         if cics_data_sets.get("sdfhload", None) is None:
+            if cics_data_sets.get("template", None) is None:
+                return {
+                    'failed': True,
+                    'changed': False,
+                    'msg': 'Specify either template or sdfhload in cics_data_sets',
+                }
             dsn = template_dsn(
+                self._templar,
                 task_vars,
                 "lib_name",
                 "SDFHLOAD",

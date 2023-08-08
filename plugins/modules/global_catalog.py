@@ -384,22 +384,22 @@ class AnsibleGlobalCatalogModule(object):
             },
         }
         result = BetterArgParser(arg_defs).parse_args({
-            "region_data_sets": self._module.params.get(constants.REGION_DATA_SETS_ALIAS),
-            "cics_data_sets": self._module.params.get(constants.CICS_DATA_SETS_ALIAS),
-            "space_primary": self._module.params.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
-            "space_type": self._module.params.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
-            "state": self._module.params.get(constants.CATALOG_TARGET_STATE_ALIAS)
+            constants.REGION_DATA_SETS_ALIAS: self._module.params.get(constants.REGION_DATA_SETS_ALIAS),
+            constants.CICS_DATA_SETS_ALIAS: self._module.params.get(constants.CICS_DATA_SETS_ALIAS),
+            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
+            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
+            constants.CATALOG_TARGET_STATE_ALIAS: self._module.params.get(constants.CATALOG_TARGET_STATE_ALIAS)
         })
         self.starting_catalog = _global_catalog(
             size=_dataset_size(
-                result.get('space_type'),
-                result.get('space_primary'),
+                result.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
+                result.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
                 constants.GLOBAL_CATALOG_SECONDARY_SPACE_VALUE_DEFAULT,
                 constants.GLOBAL_CATALOG_RECORD_COUNT_DEFAULT,
                 constants.GLOBAL_CATALOG_RECORD_SIZE_DEFAULT,
                 constants.GLOBAL_CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT),
-            name=result.get('region_data_sets').get('dfhgcd').get('dsn').upper(),
-            sdfhload=result.get('cics_data_sets').get('sdfhload').upper(),
+            name=result.get(constants.REGION_DATA_SETS_ALIAS).get('dfhgcd').get('dsn').upper(),
+            sdfhload=result.get(constants.CICS_DATA_SETS_ALIAS).get('sdfhload').upper(),
             state=result.get('state'),
             autostart_override="",
             nextstart="",
