@@ -21,7 +21,7 @@ class ActionModule(ActionBase):
                 None) is None or region_data_sets.get("dfhlcd").get(
                 "dsn",
                 None) is None:
-            
+
             if region_data_sets.get("template", None) is None:
                 return {
                     'failed': True,
@@ -69,5 +69,3 @@ class ActionModule(ActionBase):
             module_args=module_args,
             task_vars=task_vars,
             tmp=tmp)
-
-

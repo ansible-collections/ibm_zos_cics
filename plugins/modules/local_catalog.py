@@ -115,7 +115,7 @@ options:
 EXAMPLES = r"""
 - name: Initialize a local catalog
   ibm.ibm_zos_cics.local_catalog:
-   region_data_sets: 
+    region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
@@ -123,7 +123,7 @@ EXAMPLES = r"""
 
 - name: Initialize a large catalog
   ibm.ibm_zos_cics.local_catalog:
-    region_data_sets: 
+    region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
@@ -133,7 +133,7 @@ EXAMPLES = r"""
 
 - name: Delete local catalog
   ibm.ibm_zos_cics.local_catalog:
-    region_data_sets: 
+    region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
@@ -349,7 +349,7 @@ class AnsibleLocalCatalogModule(object):
                 "required": True,
             },
         }
-        
+
         result = BetterArgParser(arg_defs).parse_args({
             constants.REGION_DATA_SETS_ALIAS: self._module.params.get(constants.REGION_DATA_SETS_ALIAS),
             constants.CICS_DATA_SETS_ALIAS: self._module.params.get(constants.CICS_DATA_SETS_ALIAS),

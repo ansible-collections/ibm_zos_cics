@@ -123,7 +123,7 @@ options:
 EXAMPLES = r"""
 - name: Initialize a global catalog
   ibm.ibm_zos_cics.global_catalog:
-    region_data_sets: 
+    region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
@@ -131,7 +131,7 @@ EXAMPLES = r"""
 
 - name: Initialize a large catalog
   ibm.ibm_zos_cics.global_catalog:
-    region_data_sets: 
+    region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
@@ -141,7 +141,7 @@ EXAMPLES = r"""
 
 - name: Set autostart override record to AUTOASIS
   ibm.ibm_zos_cics.global_catalog:
-    region_data_sets: 
+    region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
@@ -149,7 +149,7 @@ EXAMPLES = r"""
 
 - name: Set autostart override record to AUTOCOLD
   ibm.ibm_zos_cics.global_catalog:
-    region_data_sets: 
+    region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
@@ -157,7 +157,7 @@ EXAMPLES = r"""
 
 - name: Delete global catalog
   ibm.ibm_zos_cics.global_catalog:
-    region_data_sets: 
+    region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
