@@ -13,6 +13,19 @@ class ActionModule(ActionBase):
         super(ActionModule, self).run(tmp, task_vars)
         module_args = self._task.args.copy()
 
+        if not module_args.get("region_data_sets", None):
+            return {
+                'failed': True,
+                'changed': False,
+                'msg': 'region_data_sets required',
+            }
+        if not module_args.get("cics_data_sets", None):
+            return {
+                'failed': True,
+                'changed': False,
+                'msg': 'cics_data_sets required',
+            }
+
         region_data_sets = module_args["region_data_sets"]
         cics_data_sets = module_args["cics_data_sets"]
 

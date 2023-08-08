@@ -57,8 +57,18 @@
       ibm.ibm_zos_cics.global_catalog:
         state: "initial"
       register: initial_result_glo
+      failed_when: false
+
+    - name: Assert Failed for python 2.7
+      when: ansible_version.minor <= 11
+      ansible.builtin.assert:
+        that:
+          - initial_result_glo.failed is false
+          - initial_result_glo.changed is false
+          - initial_result_glo.msg == 'region_data_sets required'
 
     - name: Assert Created
+      when: ansible_version.minor > 11
       ansible.builtin.assert:
         that:
           - initial_result_glo.failed is false
@@ -77,8 +87,18 @@
       ibm.ibm_zos_cics.local_catalog:
         state: "initial"
       register: initial_result_loc
+      failed_when: false
+
+    - name: Assert Failed for python 2.7
+      when: ansible_version.minor <= 11
+      ansible.builtin.assert:
+        that:
+          - initial_result_glo.failed is false
+          - initial_result_glo.changed is false
+          - initial_result_glo.msg == 'region_data_sets required'
 
     - name: Assert Created
+      when: ansible_version.minor > 11
       ansible.builtin.assert:
         that:
           - initial_result_loc.failed is false
