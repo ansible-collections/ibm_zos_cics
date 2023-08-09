@@ -35,8 +35,11 @@
     - name: Give lowercase LCD location
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_cics.local_catalog:
-        location: "{{ region_dataset_path }}.low.{{ catalog_name }}"
-        sdfhload: "{{ cics_steplib }}"
+        region_data_sets:
+          dfhlcd:
+            dsn: "{{ region_dataset_path }}.low.{{ catalog_name }}"
+        cics_data_sets:
+          sdfhload: "{{ cics_steplib }}"
         space_primary: 5
         space_type: "M"
         state: "initial"

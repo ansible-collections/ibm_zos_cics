@@ -52,20 +52,49 @@ options:
       - CYL
       - TRK
     default: REC
-  location:
+  region_data_sets:
     description:
-      - The name of the local catalog data set, e.g.
-        C(REGIONS.ABCD0001.DFHLCD).
+      - The location of the region's data sets using a template, e.g.
+        C(REGIONS.ABCD0001.<< data_set_name >>).
       - If it already exists, this data set must be cataloged.
-    type: str
+    type: dict
     required: true
-  sdfhload:
+    suboptions:
+      template:
+        description:
+          - The base location of the region's data sets with a template.
+        required: false
+        type: str
+      dfhlcd:
+        description:
+          - Overrides the templated location for the local catalog data set.
+        required: false
+        type: dict
+        suboptions:
+          dsn:
+            description:
+              - Data set name of the local catalog to override the template.
+            type: str
+            required: false
+  cics_data_sets:
     description:
       - The name of the C(SDFHLOAD) data set, e.g. C(CICSTS61.CICS.SDFHLOAD).
       - This module uses the C(DFHCCUTL) utility internally, which is found in
         the C(SDFHLOAD) data set in the CICS installation.
-    type: str
+    type: dict
     required: true
+    suboptions:
+      template:
+        description:
+          - Templated location of the cics install data sets.
+        required: false
+        type: str
+      sdfhload:
+        description:
+          - Location of the sdfhload data set.
+          - Overrides the templated location for sdfhload.
+        type: str
+        required: false
   state:
     description:
       - The desired state for the local catalog, which the module will aim to
@@ -86,22 +115,28 @@ options:
 EXAMPLES = r"""
 - name: Initialize a local catalog
   ibm.ibm_zos_cics.local_catalog:
-    location: "REGIONS.ABCD0001.DFHLCD"
-    sdfhload: "CICSTS61.CICS.SDFHLOAD"
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    cics_data_sets:
+      template: "CICSTS61.CICS.<< lib_name >>"
     state: "initial"
 
 - name: Initialize a large catalog
   ibm.ibm_zos_cics.local_catalog:
-    location: "REGIONS.ABCD0001.DFHLCD"
-    sdfhload: "CICSTS61.CICS.SDFHLOAD"
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    cics_data_sets:
+      template: "CICSTS61.CICS.<< lib_name >>"
     space_primary: 500
     space_type: "REC"
     state: "initial"
 
 - name: Delete local catalog
   ibm.ibm_zos_cics.local_catalog:
-    location: "REGIONS.ABCD0001.DFHLCD"
-    sdfhload: "CICSTS61.CICS.SDFHLOAD"
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    cics_data_sets:
+      template: "CICSTS61.CICS.<< lib_name >>"
     state: "absent"
 """
 
@@ -211,6 +246,40 @@ class AnsibleLocalCatalogModule(object):
 
     def init_argument_spec(self):  # type: () -> Dict
         return {
+            constants.REGION_DATA_SETS_ALIAS: {
+                'type': 'dict',
+                'required': True,
+                'options': {
+                    'template': {
+                        'type': 'str',
+                        'required': False,
+                    },
+                    'dfhlcd': {
+                        'type': 'dict',
+                        'required': False,
+                        'options': {
+                            'dsn': {
+                                'type': 'str',
+                                'required': False,
+                            },
+                        },
+                    },
+                },
+            },
+            constants.CICS_DATA_SETS_ALIAS: {
+                'type': 'dict',
+                'required': True,
+                'options': {
+                    'template': {
+                        'type': 'str',
+                        'required': False,
+                    },
+                    'sdfhload': {
+                        'type': 'str',
+                        'required': False,
+                    },
+                },
+            },
             constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
                 'required': False,
                 'type': 'int',
@@ -222,14 +291,6 @@ class AnsibleLocalCatalogModule(object):
                 'choices': constants.CATALOG_SPACE_UNIT_OPTIONS,
                 'default': constants.LOCAL_CATALOG_SPACE_UNIT_DEFAULT,
             },
-            constants.CATALOG_DATASET_ALIAS: {
-                'required': True,
-                'type': 'str',
-            },
-            constants.CATALOG_SDFHLOAD_ALIAS: {
-                'required': True,
-                'type': 'str',
-            },
             constants.CATALOG_TARGET_STATE_ALIAS: {
                 'required': True,
                 'type': 'str',
@@ -238,37 +299,62 @@ class AnsibleLocalCatalogModule(object):
         }
 
     def validate_parameters(self):
-        arg_defs = dict(
-            space_primary=dict(
-                arg_type='int',
-                default=constants.LOCAL_CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
-            ),
-            space_type=dict(
-                arg_type='str',
-                choices=constants.CATALOG_SPACE_UNIT_OPTIONS,
-                default=constants.LOCAL_CATALOG_SPACE_UNIT_DEFAULT,
-            ),
-            location=dict(
-                arg_type='data_set_base',
-                required=True,
-            ),
-            sdfhload=dict(
-                arg_type='data_set_base',
-                required=True,
-            ),
-            state=dict(
-                arg_type='str',
-                choices=constants.LOCAL_CATALOG_TARGET_STATE_OPTIONS,
-                required=True,
-            ),
-        )
-        parser = BetterArgParser(arg_defs)
+        arg_defs = {
+            constants.REGION_DATA_SETS_ALIAS: {
+                "arg_type": "dict",
+                "required": True,
+                "options": {
+                    "template": {
+                        "arg_type": "str",
+                        "required": False,
+                    },
+                    "dfhlcd": {
+                        "arg_type": "dict",
+                        "required": False,
+                        "options": {
+                            "dsn": {
+                                "arg_type": "data_set_base",
+                                "required": False,
+                            },
+                        },
+                    },
+                },
+            },
+            constants.CICS_DATA_SETS_ALIAS: {
+                "arg_type": "dict",
+                "required": True,
+                "options": {
+                    "template": {
+                        "arg_type": "str",
+                        "required": False,
+                    },
+                    "sdfhload": {
+                        "arg_type": "data_set_base",
+                        "required": False,
+                    },
+                },
+            },
+            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
+                "arg_type": 'int',
+                "default": constants.LOCAL_CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
+            },
+            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: {
+                "arg_type": 'str',
+                "choices": constants.CATALOG_SPACE_UNIT_OPTIONS,
+                "default": constants.LOCAL_CATALOG_SPACE_UNIT_DEFAULT,
+            },
+            constants.CATALOG_TARGET_STATE_ALIAS: {
+                "arg_type": 'str',
+                "choices": constants.LOCAL_CATALOG_TARGET_STATE_OPTIONS,
+                "required": True,
+            },
+        }
 
-        result = parser.parse_args({
+        result = BetterArgParser(arg_defs).parse_args({
+            constants.REGION_DATA_SETS_ALIAS: self._module.params.get(constants.REGION_DATA_SETS_ALIAS),
+            constants.CICS_DATA_SETS_ALIAS: self._module.params.get(constants.CICS_DATA_SETS_ALIAS),
             constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
             constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
-            constants.CATALOG_DATASET_ALIAS: self._module.params.get(constants.CATALOG_DATASET_ALIAS),
-            constants.CATALOG_SDFHLOAD_ALIAS: self._module.params.get(constants.CATALOG_SDFHLOAD_ALIAS),
             constants.CATALOG_TARGET_STATE_ALIAS: self._module.params.get(constants.CATALOG_TARGET_STATE_ALIAS)
         })
 
@@ -282,8 +368,8 @@ class AnsibleLocalCatalogModule(object):
 
         self.starting_catalog = _local_catalog(
             size=size,
-            name=result.get(constants.CATALOG_DATASET_ALIAS).upper(),
-            sdfhload=result.get(constants.CATALOG_SDFHLOAD_ALIAS),
+            name=result.get(constants.REGION_DATA_SETS_ALIAS).get('dfhlcd').get('dsn').upper(),
+            sdfhload=result.get(constants.CICS_DATA_SETS_ALIAS).get('sdfhload').upper(),
             state=result.get(constants.CATALOG_TARGET_STATE_ALIAS),
             exists=False,
             vsam=False)

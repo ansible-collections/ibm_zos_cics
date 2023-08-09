@@ -30,10 +30,11 @@ class ActionModule(ActionBase):
         cics_data_sets = module_args["cics_data_sets"]
 
         if region_data_sets.get(
-                "dfhgcd",
-                None) is None or region_data_sets.get("dfhgcd").get(
+                "dfhlcd",
+                None) is None or region_data_sets.get("dfhlcd").get(
                 "dsn",
                 None) is None:
+
             if region_data_sets.get("template", None) is None:
                 return {
                     'failed': True,
@@ -41,14 +42,14 @@ class ActionModule(ActionBase):
                     'msg': 'Specify either template or dfhlcd in region_data_sets',
                 }
             dsn = template_dsn(
-                self._templar,
-                task_vars,
-                "data_set_name",
-                "DFHGCD",
-                region_data_sets.get("template"))
+                _templar=self._templar,
+                task_vars=task_vars,
+                var_name="data_set_name",
+                replace_val="DFHLCD",
+                template=region_data_sets.get("template", None))
             module_args.update({
                 'region_data_sets': {
-                    'dfhgcd': {
+                    'dfhlcd': {
                         'dsn': dsn,
                     },
                     'template': region_data_sets.get("template"),
@@ -63,11 +64,11 @@ class ActionModule(ActionBase):
                     'msg': 'Specify either template or sdfhload in cics_data_sets',
                 }
             dsn = template_dsn(
-                self._templar,
-                task_vars,
-                "lib_name",
-                "SDFHLOAD",
-                cics_data_sets.get("template"))
+                _templar=self._templar,
+                task_vars=task_vars,
+                var_name="lib_name",
+                replace_val="SDFHLOAD",
+                template=cics_data_sets.get("template", None))
 
             module_args.update({
                 'cics_data_sets': {
@@ -77,7 +78,7 @@ class ActionModule(ActionBase):
             })
 
         return self._execute_module(
-            module_name='ibm.ibm_zos_cics.global_catalog',
+            module_name='ibm.ibm_zos_cics.local_catalog',
             module_args=module_args,
             task_vars=task_vars,
             tmp=tmp)

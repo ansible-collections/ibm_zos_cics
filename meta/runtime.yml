@@ -7,3 +7,6 @@ action_groups:
     - cmci_delete
     - cmci_get
     - cmci_update
+  region_group:
+    - global_catalog
+    - local_catalog
