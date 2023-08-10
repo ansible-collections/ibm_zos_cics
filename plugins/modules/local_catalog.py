@@ -107,6 +107,7 @@ options:
     choices:
       - "initial"
       - "absent"
+      - "warm"
     required: true
     type: str
 '''
@@ -218,6 +219,7 @@ try:
         _dataset_size, _run_idcams, _run_listds)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog import (
         _local_catalog, _run_dfhccutl, _get_idcams_cmd_lcd)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import (_run_icetool)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import catalog_constants as constants
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
@@ -406,6 +408,17 @@ class AnsibleLocalCatalogModule(object):
         self.executions = self.executions + idcams_executions
         self.result['changed'] = True
 
+    def warm_local_catalog(self):
+        if not self.starting_catalog["exists"]:
+            self._fail("Data set {0} does not exist.".format(self.starting_catalog["name"]))
+
+        icetool_executions, record_count = _run_icetool(self.starting_catalog["name"])
+        if record_count["record_count"] == 0:
+            self._fail("Unused catalog. The catalog must be used by CICS before doing a warm start.")
+
+        self.executions = self.executions + icetool_executions
+        self.result['changed'] = False
+
     def init_local_catalog(self):
         if self.starting_catalog["exists"]:
             self.result['end_state'] = {
@@ -426,8 +439,9 @@ class AnsibleLocalCatalogModule(object):
 
     def get_target_method(self, target):
         return {
-            constants.LOCAL_CATALOG_TARGET_STATE_ABSENT: self.delete_local_catalog,
-            constants.LOCAL_CATALOG_TARGET_STATE_INITIAL: self.init_local_catalog
+            constants.TARGET_STATE_ABSENT: self.delete_local_catalog,
+            constants.TARGET_STATE_INITIAL: self.init_local_catalog,
+            constants.TARGET_STATE_WARM: self.warm_local_catalog
         }.get(target, self.invalid_state)
 
     def get_catalog_state(self, catalog):

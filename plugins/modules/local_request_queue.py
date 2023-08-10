@@ -66,6 +66,7 @@ options:
     choices:
       - "initial"
       - "absent"
+      - "warm"
     required: true
     type: str
 '''
@@ -312,8 +313,9 @@ class AnsibleLocalRequestQueueModule(object):
 
     def get_target_method(self, target):
         return {
-            constants.LOCAL_CATALOG_TARGET_STATE_ABSENT: self.delete_local_request_queue_dataset,
-            constants.LOCAL_CATALOG_TARGET_STATE_INITIAL: self.init_local_request_queue
+            constants.TARGET_STATE_ABSENT: self.delete_local_request_queue_dataset,
+            constants.TARGET_STATE_INITIAL: self.init_local_request_queue,
+
         }.get(target, self.invalid_state)
 
     def get_dataset_state(self, dataset):
