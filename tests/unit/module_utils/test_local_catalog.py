@@ -15,14 +15,14 @@ import sys
 def test_get_idcams_cmd_megabytes():
     catalog_size = dataset_utils._dataset_size(
         unit="M", primary=3, secondary=1)
-    catalog = local_catalog._local_catalog(
+    catalog = local_catalog._data_set(
         size=catalog_size,
         name="ANSI.CYLS.DFHLCD",
         sdfhload="CICSTS.IN56.SDFHLOAD",
         state="initial",
         exists=False,
         vsam=False)
-    idcams_cmd_lcd = local_catalog._get_idcams_cmd_lcd(catalog)
+    idcams_cmd_lcd = dataset_utils._build_idcams_define_cmd(local_catalog._get_idcams_cmd_lcd(catalog))
     assert idcams_cmd_lcd == '''
     DEFINE CLUSTER (NAME(ANSI.CYLS.DFHLCD) -
     MEGABYTES(3 1) -
@@ -42,14 +42,14 @@ def test_get_idcams_cmd_megabytes():
 def test_get_idcams_cmd_cylinders():
     catalog_size = dataset_utils._dataset_size(
         unit="CYL", primary=3, secondary=1)
-    catalog = local_catalog._local_catalog(
+    catalog = local_catalog._data_set(
         size=catalog_size,
         name="ANSI.CYLS.DFHLCD",
         sdfhload="CICSTS.IN56.SDFHLOAD",
         state="initial",
         exists=False,
         vsam=False)
-    idcams_cmd_lcd = local_catalog._get_idcams_cmd_lcd(catalog)
+    idcams_cmd_lcd = dataset_utils._build_idcams_define_cmd(local_catalog._get_idcams_cmd_lcd(catalog))
     assert idcams_cmd_lcd == '''
     DEFINE CLUSTER (NAME(ANSI.CYLS.DFHLCD) -
     CYLINDERS(3 1) -
@@ -67,7 +67,7 @@ def test_get_idcams_cmd_cylinders():
 
 def test_local_catalog_class():
     catalog_size = dataset_utils._dataset_size(unit="M", primary=10, secondary=1)
-    catalog = local_catalog._local_catalog(
+    catalog = local_catalog._data_set(
         size=catalog_size,
         name="ANSI.TEST.DFHLCD",
         sdfhload="CICSTS.IN56.SDFHLOAD",

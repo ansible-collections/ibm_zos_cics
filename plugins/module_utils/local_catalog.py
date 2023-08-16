@@ -18,8 +18,6 @@ ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
         _execution)
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _build_idcams_define_cmd)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import _dataset_constants as ds_constants
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
@@ -79,7 +77,7 @@ def _get_idcams_cmd_lcd(dataset):
         }
     }
     defaults.update(dataset)
-    return _build_idcams_define_cmd(defaults)
+    return defaults
 
 
 _local_catalog_constants = {
@@ -95,14 +93,3 @@ _local_catalog_constants = {
     "RECORD_SIZE_DEFAULT": 2041,
     "CONTROL_INTERVAL_SIZE_DEFAULT": 2048
 }
-
-
-def _local_catalog(size, name, sdfhload, state, exists, vsam):
-    return {
-        'size': size,
-        'name': name,
-        'sdfhload': sdfhload,
-        'state': state,
-        'exists': exists,
-        'vsam': vsam,
-    }
