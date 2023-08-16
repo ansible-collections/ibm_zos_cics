@@ -364,12 +364,9 @@ class AnsibleGlobalCatalogModule(AnsibleDataSetModule):
 
         return arg_def
 
-    def _get_data_set_object(self, result):
+    def _get_data_set_object(self, size, result):  # type: (_dataset_size, Dict) -> _data_set
         return _data_set(
-            size=_dataset_size(
-                result.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
-                result.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
-                gc_constants["SECONDARY_SPACE_VALUE_DEFAULT"]),
+            size=size,
             name=result.get(ds_constants["REGION_DATA_SETS_ALIAS"]).get('dfhgcd').get('dsn').upper(),
             sdfhload=result.get(ds_constants["CICS_DATA_SETS_ALIAS"]).get('sdfhload').upper(),
             state=result.get(ds_constants["TARGET_STATE_ALIAS"]),
@@ -377,6 +374,12 @@ class AnsibleGlobalCatalogModule(AnsibleDataSetModule):
             nextstart="",
             exists=False,
             vsam=False)
+
+    def _get_data_set_size(self, result):
+        return _dataset_size(
+            unit=result.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
+            primary=result.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
+            secondary=gc_constants["SECONDARY_SPACE_VALUE_DEFAULT"])
 
     def validate_parameters(self):  # type: () -> None
         arg_defs = self._get_arg_defs()
@@ -389,7 +392,8 @@ class AnsibleGlobalCatalogModule(AnsibleDataSetModule):
             ds_constants["TARGET_STATE_ALIAS"]: self._module.params.get(ds_constants["TARGET_STATE_ALIAS"])
         })
 
-        self.data_set = self._get_data_set_object(result)
+        size = self._get_data_set_size(result)
+        self.data_set = self._get_data_set_object(size, result)
         self.end_state = self.data_set
 
     def create_data_set(self):

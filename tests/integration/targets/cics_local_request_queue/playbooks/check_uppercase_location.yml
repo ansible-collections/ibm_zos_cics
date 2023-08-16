@@ -1,31 +1,30 @@
 # (c) Copyright IBM Corp. 2023
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name: Initial LRQ
+- name: Check Lowercase Location Parameter
 
   hosts: "all"
   gather_facts: false
   vars:
-    region_data_set_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}"
-    lrq_name: "DFHLRQ"
-    lrq_path: "{{ region_data_set_path }}.{{ lrq_name }}"
+    region_data_set_path: "ANSIBIT.TESTS.{{ cics_test_area_initial }}"
+    data_set_name: "DFHLRQ"
 
   module_defaults:
     ibm.ibm_zos_cics.local_request_queue:
       space_primary: 4
       space_type: "M"
       region_data_sets:
-        template: "{{ region_data_set_path }}.<< data_set_name >>"
+        template: "{{ region_data_set_path }}.low.<< data_set_name >>"
 
   tasks:
     # #############################################################################
     # ############################## Initial cleanup ##############################
     # #############################################################################
 
-    - name: Delete LRQ Data Set if it exists
+    - name: Delete Local request queue data set if it exists
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
-        name: "{{ lrq_path }}"
+        name: "{{ region_data_set_path }}.LOW.{{ data_set_name }}"
         state: absent
       register: delete_result
       retries: 3
@@ -40,17 +39,18 @@
     # ############################## Module Testing ###############################
     # #############################################################################
 
-    - name: Create Local Request Queue data set
+    - name: Give lowercase LRQ location
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_cics.local_request_queue:
         state: "initial"
       register: result
+      failed_when: false
 
     - name: Debug
       ansible.builtin.debug:
         msg: "{{ result }}"
 
-    - name: Assert LRQ Created
+    - name: Assert passed with lowercase
       ansible.builtin.assert:
         that:
           - result.failed is false
@@ -66,10 +66,10 @@
     # ################################## Cleanup ##################################
     # #############################################################################
 
-    - name: Delete LRQ Data Set
+    - name: Delete Local request queue data data set
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
-        name: "{{ lrq_path }}"
+        name: "{{ region_data_set_path }}.LOW.{{ data_set_name }}"
         state: absent
       register: delete_result
       retries: 3

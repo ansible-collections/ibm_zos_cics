@@ -9,4 +9,4 @@ VAR_PATH="/root/ansible_collections/ibm/ibm_zos_cics/tests/integration/variables
 INV_PATH="/root/ansible_collections/ibm/ibm_zos_cics/tests/integration/zos_inventory"
 ZOAU_ENV="/root/ansible_collections/ibm/ibm_zos_cics/tests/integration/variables/zoau.yml"
 
-ansible-playbook -i $INV_PATH -e "@$VAR_PATH" -e "@$ZOAU_ENV" playbooks/catalogs.yml
+ansible-playbook -i $INV_PATH -e "@$VAR_PATH" -e "@$ZOAU_ENV" playbooks/data_sets.yml

@@ -201,6 +201,7 @@ _dataset_constants = {
     "TARGET_STATE_ALIAS": "state",
     "PRIMARY_SPACE_VALUE_ALIAS": "space_primary",
     "PRIMARY_SPACE_UNIT_ALIAS": "space_type",
+    "SECONDARY_SPACE_VALUE_DEFAULT": 0,
     "SPACE_UNIT_OPTIONS": ["K", "M", "REC", "CYL", "TRK"],
     "TARGET_STATE_ABSENT": "absent",
     "TARGET_STATE_INITIAL": "initial",
@@ -278,6 +279,12 @@ class AnsibleDataSetModule(object):
             exists=False,
             vsam=False)
 
+    def _get_data_set_size(self, result):
+        return _dataset_size(
+            unit=result.get(_dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
+            primary=result.get(_dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
+            secondary=_dataset_constants["SECONDARY_SPACE_VALUE_DEFAULT"])
+
     def validate_parameters(self):  # type: () -> None
         arg_defs = self._get_arg_defs()
 
@@ -288,11 +295,7 @@ class AnsibleDataSetModule(object):
             _dataset_constants["TARGET_STATE_ALIAS"]: self._module.params.get(_dataset_constants["TARGET_STATE_ALIAS"])
         })
 
-        size = _dataset_size(
-            unit=result.get(_dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
-            primary=result.get(_dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
-            secondary=1)
-
+        size = self._get_data_set_size(result)
         self.data_set = self._get_data_set_object(size, result)
 
     def create_data_set(self):  # type: () -> None
