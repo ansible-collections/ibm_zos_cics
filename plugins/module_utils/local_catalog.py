@@ -62,15 +62,15 @@ def _run_dfhccutl(starting_catalog):
 def _get_idcams_cmd_lcd(dataset):
     defaults = {
         "CLUSTER": {
-            "RECORDSIZE": "70 2041",
+            "RECORDSIZE": "{0} {1}".format(_local_catalog_constants["RECORD_COUNT_DEFAULT"], _local_catalog_constants["RECORD_SIZE_DEFAULT"]),
             "INDEXED": None,
-            "KEYS": "52 0",
-            "FREESPACE": "10 10",
-            "SHAREOPTIONS": "2",
+            "KEYS": "{0} {1}".format(_local_catalog_constants["KEY_LENGTH"], _local_catalog_constants["KEY_OFFSET"]),
+            "FREESPACE": "{0} {1}".format(_local_catalog_constants["CI_PERCENT"], _local_catalog_constants["CA_PERCENT"]),
+            "SHAREOPTIONS": "{0}".format(_local_catalog_constants["SHARE_CROSSREGION"]),
             "REUSE": None
         },
         "DATA": {
-            "CONTROLINTERVALSIZE": "2048"
+            "CONTROLINTERVALSIZE": "{0}".format(_local_catalog_constants["CONTROL_INTERVAL_SIZE_DEFAULT"])
         },
         "INDEX": {
             None
@@ -91,5 +91,10 @@ _local_catalog_constants = {
     ],
     "RECORD_COUNT_DEFAULT": 70,
     "RECORD_SIZE_DEFAULT": 2041,
-    "CONTROL_INTERVAL_SIZE_DEFAULT": 2048
+    "CONTROL_INTERVAL_SIZE_DEFAULT": 2048,
+    "KEY_LENGTH": 52,
+    "KEY_OFFSET": 0,
+    "CI_PERCENT": 10,
+    "CA_PERCENT": 10,
+    "SHARE_CROSSREGION": 2
 }
