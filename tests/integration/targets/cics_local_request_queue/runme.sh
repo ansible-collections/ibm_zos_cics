@@ -10,3 +10,7 @@ INV_PATH="/root/ansible_collections/ibm/ibm_zos_cics/tests/integration/zos_inven
 ZOAU_ENV="/root/ansible_collections/ibm/ibm_zos_cics/tests/integration/variables/zoau.yml"
 
 ansible-playbook -i $INV_PATH -e "@$VAR_PATH" -e "@$ZOAU_ENV" playbooks/initial_lrq.yml
+ansible-playbook -i $INV_PATH -e "@$VAR_PATH" -e "@$ZOAU_ENV" playbooks/absent_lrq.yml
+ansible-playbook -i $INV_PATH -e "@$VAR_PATH" -e "@$ZOAU_ENV" playbooks/check_output.yml
+ansible-playbook -i $INV_PATH -e "@$VAR_PATH" -e "@$ZOAU_ENV" playbooks/check_bad_lrq_location.yml
+ansible-playbook -i $INV_PATH -e "@$VAR_PATH" -e "@$ZOAU_ENV" playbooks/check_uppercase_location.yml

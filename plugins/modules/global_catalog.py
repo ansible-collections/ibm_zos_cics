@@ -235,7 +235,6 @@ executions:
 
 
 from typing import Dict
-from ansible.module_utils.basic import AnsibleModule
 import traceback
 
 DDStatement = None
@@ -248,39 +247,35 @@ except ImportError:
 ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _dataset_size, _run_listds, _run_idcams)
+        _dataset_size, _run_listds, _run_idcams, _data_set, _build_idcams_define_cmd, AnsibleDataSetModule)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog import (
-        _run_dfhrmutl, _global_catalog, _get_idcams_cmd_gcd)
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import catalog_constants as constants
+        _run_dfhrmutl, _get_idcams_cmd_gcd)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _state
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog import _global_catalog_constants as gc_constants
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import _dataset_constants as ds_constants
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
 
-class AnsibleGlobalCatalogModule(object):
+class AnsibleGlobalCatalogModule(AnsibleDataSetModule):
 
     def __init__(self):
-        self._module = AnsibleModule(
-            argument_spec=self.init_argument_spec(),
-        )
-        self.result = {}
-        self.result['changed'] = False
-        self.result['failed'] = False
-        self.result['executions'] = []
-        self.executions = []
-        self.validate_parameters()
-
-    def _fail(self, msg):  # type: (str) -> None
-        self.result['failed'] = True
-        self.result['executions'] = self.executions
-        self._module.fail_json(msg=msg, **self.result)
-
-    def _exit(self):
-        self.result['executions'] = self.executions
-        self._module.exit_json(**self.result)
+        super(AnsibleGlobalCatalogModule, self).__init__()
 
     def init_argument_spec(self):  # type: () -> Dict
-        return {
-            constants.REGION_DATA_SETS_ALIAS: {
+        arg_spec = super(AnsibleGlobalCatalogModule, self).init_argument_spec()
+
+        arg_spec[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
+            "default": gc_constants["PRIMARY_SPACE_VALUE_DEFAULT"]
+        })
+        arg_spec[ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]].update({
+            "default": gc_constants["SPACE_UNIT_DEFAULT"]
+        })
+        arg_spec[ds_constants["TARGET_STATE_ALIAS"]].update({
+            "choices": gc_constants["TARGET_STATE_OPTIONS"]
+        })
+        arg_spec.update({
+            ds_constants["REGION_DATA_SETS_ALIAS"]: {
                 'type': 'dict',
                 'required': True,
                 'options': {
@@ -300,7 +295,7 @@ class AnsibleGlobalCatalogModule(object):
                     },
                 },
             },
-            constants.CICS_DATA_SETS_ALIAS: {
+            ds_constants["CICS_DATA_SETS_ALIAS"]: {
                 'type': 'dict',
                 'required': True,
                 'options': {
@@ -314,27 +309,24 @@ class AnsibleGlobalCatalogModule(object):
                     },
                 },
             },
-            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
-                'required': False,
-                'type': 'int',
-                'default': constants.GLOBAL_CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
-            },
-            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: {
-                'required': False,
-                'type': 'str',
-                'choices': constants.CATALOG_SPACE_UNIT_OPTIONS,
-                'default': constants.GLOBAL_CATALOG_SPACE_UNIT_DEFAULT,
-            },
-            constants.CATALOG_TARGET_STATE_ALIAS: {
-                'required': True,
-                'type': 'str',
-                'choices': constants.GLOBAL_CATALOG_TARGET_STATE_OPTIONS,
-            },
-        }
+        })
 
-    def validate_parameters(self):
-        arg_defs = {
-            constants.REGION_DATA_SETS_ALIAS: {
+        return arg_spec
+
+    def _get_arg_defs(self):  # type: () -> Dict
+        arg_def = super(AnsibleGlobalCatalogModule, self)._get_arg_defs()
+
+        arg_def[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
+            "default": gc_constants["PRIMARY_SPACE_VALUE_DEFAULT"]
+        })
+        arg_def[ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]].update({
+            "default": gc_constants["SPACE_UNIT_DEFAULT"]
+        })
+        arg_def[ds_constants["TARGET_STATE_ALIAS"]].update({
+            "choices": gc_constants["TARGET_STATE_OPTIONS"],
+        })
+        arg_def.update({
+            ds_constants["REGION_DATA_SETS_ALIAS"]: {
                 "arg_type": "dict",
                 "required": True,
                 "options": {
@@ -354,7 +346,7 @@ class AnsibleGlobalCatalogModule(object):
                     },
                 },
             },
-            constants.CICS_DATA_SETS_ALIAS: {
+            ds_constants["CICS_DATA_SETS_ALIAS"]: {
                 "arg_type": "dict",
                 "required": True,
                 "options": {
@@ -368,211 +360,204 @@ class AnsibleGlobalCatalogModule(object):
                     },
                 },
             },
-            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
-                "arg_type": 'int',
-                "default": constants.GLOBAL_CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
-            },
-            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: {
-                "arg_type": 'str',
-                "choices": constants.CATALOG_SPACE_UNIT_OPTIONS,
-                "default": constants.GLOBAL_CATALOG_SPACE_UNIT_DEFAULT,
-            },
-            constants.CATALOG_TARGET_STATE_ALIAS: {
-                "arg_type": 'str',
-                "choices": constants.GLOBAL_CATALOG_TARGET_STATE_OPTIONS,
-                "required": True,
-            },
-        }
-        result = BetterArgParser(arg_defs).parse_args({
-            constants.REGION_DATA_SETS_ALIAS: self._module.params.get(constants.REGION_DATA_SETS_ALIAS),
-            constants.CICS_DATA_SETS_ALIAS: self._module.params.get(constants.CICS_DATA_SETS_ALIAS),
-            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
-            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
-            constants.CATALOG_TARGET_STATE_ALIAS: self._module.params.get(constants.CATALOG_TARGET_STATE_ALIAS)
         })
-        self.starting_catalog = _global_catalog(
-            size=_dataset_size(
-                result.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
-                result.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
-                constants.GLOBAL_CATALOG_SECONDARY_SPACE_VALUE_DEFAULT,
-                constants.GLOBAL_CATALOG_RECORD_COUNT_DEFAULT,
-                constants.GLOBAL_CATALOG_RECORD_SIZE_DEFAULT,
-                constants.GLOBAL_CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT),
-            name=result.get(constants.REGION_DATA_SETS_ALIAS).get('dfhgcd').get('dsn').upper(),
-            sdfhload=result.get(constants.CICS_DATA_SETS_ALIAS).get('sdfhload').upper(),
-            state=result.get('state'),
+
+        return arg_def
+
+    def _get_data_set_object(self, size, result):  # type: (_dataset_size, Dict) -> _data_set
+        return _data_set(
+            size=size,
+            name=result.get(ds_constants["REGION_DATA_SETS_ALIAS"]).get('dfhgcd').get('dsn').upper(),
+            sdfhload=result.get(ds_constants["CICS_DATA_SETS_ALIAS"]).get('sdfhload').upper(),
+            state=result.get(ds_constants["TARGET_STATE_ALIAS"]),
             autostart_override="",
             nextstart="",
             exists=False,
             vsam=False)
-        self.end_state = self.starting_catalog
 
-    def create_global_catalog_dataset(self):
-        create_cmd = _get_idcams_cmd_gcd(self.starting_catalog)
+    def _get_data_set_size(self, result):
+        return _dataset_size(
+            unit=result.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
+            primary=result.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
+            secondary=gc_constants["SECONDARY_SPACE_VALUE_DEFAULT"])
+
+    def validate_parameters(self):  # type: () -> None
+        arg_defs = self._get_arg_defs()
+
+        result = BetterArgParser(arg_defs).parse_args({
+            ds_constants["REGION_DATA_SETS_ALIAS"]: self._module.params.get(ds_constants["REGION_DATA_SETS_ALIAS"]),
+            ds_constants["CICS_DATA_SETS_ALIAS"]: self._module.params.get(ds_constants["CICS_DATA_SETS_ALIAS"]),
+            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
+            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
+            ds_constants["TARGET_STATE_ALIAS"]: self._module.params.get(ds_constants["TARGET_STATE_ALIAS"])
+        })
+
+        size = self._get_data_set_size(result)
+        self.data_set = self._get_data_set_object(size, result)
+        self.end_state = self.data_set
+
+    def create_data_set(self):
+        create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_gcd(self.data_set))
 
         idcams_executions = _run_idcams(
             cmd=create_cmd,
             name="Create global catalog data set",
-            location=self.starting_catalog["name"],
+            location=self.data_set["name"],
             delete=False)
-        self.executions = self.executions + idcams_executions
+        self.result["executions"] = self.result["executions"] + idcams_executions
 
-        self.result['changed'] = True
+        self.result["changed"] = True
 
-    def delete_global_catalog(self):
-        if not self.starting_catalog["exists"]:
-            self.result['end_state'] = {
-                "exists": self.starting_catalog["exists"],
-                "autostart_override": self.starting_catalog["autostart_override"],
-                "next_start": self.starting_catalog["nextstart"],
+    def delete_data_set(self):
+        if not self.data_set["exists"]:
+            self.result["end_state"] = {
+                "exists": self.data_set["exists"],
+                "autostart_override": self.data_set["autostart_override"],
+                "next_start": self.data_set["nextstart"],
             }
             self._exit()
 
         delete_cmd = '''
         DELETE {0}
-        '''.format(self.starting_catalog["name"])
+        '''.format(self.data_set["name"])
 
         idcams_executions = _run_idcams(
             cmd=delete_cmd,
             name="Removing global catalog data set",
-            location=self.starting_catalog["name"],
+            location=self.data_set["name"],
             delete=True)
-        self.executions = self.executions + idcams_executions
-        self.result['changed'] = True
+        self.result["executions"] = self.result["executions"] + idcams_executions
+        self.result["changed"] = True
 
-    def init_global_catalog(self):
-        if self.starting_catalog["exists"] and self.starting_catalog["autostart_override"] == constants.AUTO_START_INIT:
-            self.result['end_state'] = {
-                "exists": self.starting_catalog["exists"],
-                "autostart_override": self.starting_catalog["autostart_override"],
-                "next_start": self.starting_catalog["nextstart"],
-            }
+    def init_data_set(self):
+        if self.data_set["exists"] and self.data_set["autostart_override"] == gc_constants["AUTO_START_INIT"]:
+            self.result["end_state"] = _state(
+                exists=self.data_set["exists"],
+                autostart_override=self.data_set["autostart_override"],
+                next_start=self.data_set["nextstart"],
+            )
             self._exit()
 
-        if not self.starting_catalog["exists"]:
-            self.create_global_catalog_dataset()
+        if not self.data_set["exists"]:
+            self.create_data_set()
 
         dfhrmutl_executions = _run_dfhrmutl(
-            self.starting_catalog["name"],
-            self.starting_catalog["sdfhload"],
+            self.data_set["name"],
+            self.data_set[ds_constants["SDFHLOAD_ALIAS"]],
             cmd="SET_AUTO_START=AUTOINIT")
-        self.result['changed'] = True
-        self.executions = self.executions + dfhrmutl_executions
+        self.result["changed"] = True
+        self.result["executions"] = self.result["executions"] + dfhrmutl_executions
 
-    def warm_global_catalog(self):
-        if not self.starting_catalog["exists"]:
+    def warm_data_set(self):
+        if not self.data_set["exists"]:
             self._fail(
                 "Data set {0} does not exist.".format(
-                    self.starting_catalog["name"]))
+                    self.data_set["name"]))
 
-        if self.starting_catalog["autostart_override"] == constants.AUTO_START_WARM:
-            self.result['end_state'] = {
-                "exists": self.starting_catalog["exists"],
-                "autostart_override": self.starting_catalog["autostart_override"],
-                "next_start": self.starting_catalog["nextstart"],
-            }
+        if self.data_set["autostart_override"] == gc_constants["AUTO_START_WARM"]:
+            self.result["end_state"] = _state(
+                exists=self.data_set["exists"],
+                autostart_override=self.data_set["autostart_override"],
+                next_start=self.data_set["nextstart"],
+            )
             self._exit()
 
         if (
-            self.starting_catalog["autostart_override"] == constants.AUTO_START_INIT and
-            self.starting_catalog["nextstart"] == constants.NEXT_START_UNKNOWN
+            self.data_set["autostart_override"] == gc_constants["AUTO_START_INIT"] and
+            self.data_set["nextstart"] == gc_constants["NEXT_START_UNKNOWN"]
         ):
             self._fail(
                 "Unused catalog. The catalog must be used by CICS before doing a warm start.")
 
         dfhrmutl_executions = _run_dfhrmutl(
-            self.starting_catalog["name"],
-            self.starting_catalog["sdfhload"],
+            self.data_set["name"],
+            self.data_set[ds_constants["SDFHLOAD_ALIAS"]],
             cmd="SET_AUTO_START=AUTOASIS")
-        self.result['changed'] = True
-        self.executions = self.executions + dfhrmutl_executions
+        self.result["changed"] = True
+        self.result["executions"] = self.result["executions"] + dfhrmutl_executions
 
-    def cold_global_catalog(self):
-        if not self.starting_catalog["exists"]:
+    def cold_data_set(self):
+        if not self.data_set["exists"]:
             self._fail(
                 "Data set {0} does not exist.".format(
-                    self.starting_catalog["name"]))
+                    self.data_set["name"]))
 
-        if self.starting_catalog["autostart_override"] == constants.AUTO_START_COLD:
-            self.result['end_state'] = {
-                "exists": self.starting_catalog["exists"],
-                "autostart_override": self.starting_catalog["autostart_override"],
-                "next_start": self.starting_catalog["nextstart"],
+        if self.data_set["autostart_override"] == gc_constants["AUTO_START_COLD"]:
+            self.result["end_state"] = {
+                "exists": self.data_set["exists"],
+                "autostart_override": self.data_set["autostart_override"],
+                "next_start": self.data_set["nextstart"],
             }
             self._exit()
 
         if (
-            self.starting_catalog["autostart_override"] == constants.AUTO_START_INIT and
-            self.starting_catalog["nextstart"] == constants.NEXT_START_UNKNOWN
+            self.data_set["autostart_override"] == gc_constants["AUTO_START_INIT"] and
+            self.data_set["nextstart"] == gc_constants["NEXT_START_UNKNOWN"]
         ):
             self._fail(
                 "Unused catalog. The catalog must be used by CICS before doing a cold start.")
 
         dfhrmutl_executions = _run_dfhrmutl(
-            self.starting_catalog["name"],
-            self.starting_catalog["sdfhload"],
+            self.data_set["name"],
+            self.data_set[ds_constants["SDFHLOAD_ALIAS"]],
             cmd="SET_AUTO_START=AUTOCOLD")
-        self.result['changed'] = True
-        self.executions = self.executions + dfhrmutl_executions
-
-    def invalid_target_state(self):  # type: () -> None
-        self._fail("{0} is not a valid target state.".format(
-            self.global_catalog["state"]))
+        self.result["changed"] = True
+        self.result["executions"] = self.result["executions"] + dfhrmutl_executions
 
     def get_target_method(self, target):
         return {
-            'absent': self.delete_global_catalog,
-            'initial': self.init_global_catalog,
-            'cold': self.cold_global_catalog,
-            'warm': self.warm_global_catalog,
+            ds_constants["TARGET_STATE_ABSENT"]: self.delete_data_set,
+            ds_constants["TARGET_STATE_INITIAL"]: self.init_data_set,
+            ds_constants["TARGET_STATE_COLD"]: self.cold_data_set,
+            ds_constants["TARGET_STATE_WARM"]: self.warm_data_set,
         }.get(target, self.invalid_target_state)
 
-    def update_catalog(self, catalog):
-        listds_executions, ds_status = _run_listds(catalog["name"])
+    def get_data_set_state(self, data_set):
+        listds_executions, ds_status = _run_listds(data_set["name"])
 
-        catalog["exists"] = ds_status['exists']
-        catalog["vsam"] = ds_status['vsam']
+        data_set["exists"] = ds_status['exists']
+        data_set["vsam"] = ds_status['vsam']
 
-        self.executions = self.executions + listds_executions
+        self.result["executions"] = self.result["executions"] + listds_executions
 
-        if catalog["exists"] and catalog["vsam"]:
+        if data_set["exists"] and data_set["vsam"]:
             dfhrmutl_executions, catalog_status = _run_dfhrmutl(
-                catalog["name"], catalog["sdfhload"])
+                data_set["name"], data_set[ds_constants["SDFHLOAD_ALIAS"]])
 
-            catalog["autostart_override"] = catalog_status['autostart_override']
-            catalog["nextstart"] = catalog_status['next_start']
+            data_set["autostart_override"] = catalog_status['autostart_override']
+            data_set["nextstart"] = catalog_status['next_start']
 
-            self.executions = self.executions + dfhrmutl_executions
+            self.result["executions"] = self.result["executions"] + dfhrmutl_executions
         else:
-            catalog["autostart_override"] = ""
-            catalog["nextstart"] = ""
-        return catalog
+            data_set["autostart_override"] = ""
+            data_set["nextstart"] = ""
+        return data_set
 
     def main(self):
-        self.starting_catalog = self.update_catalog(self.starting_catalog)
+        self.data_set = self.get_data_set_state(self.data_set)
 
-        self.result['start_state'] = {
-            "exists": self.starting_catalog["exists"],
-            "autostart_override": self.starting_catalog["autostart_override"],
-            "next_start": self.starting_catalog["nextstart"],
-        }
+        self.result["start_state"] = _state(
+            exists=self.data_set["exists"],
+            autostart_override=self.data_set["autostart_override"],
+            next_start=self.data_set["nextstart"],
+            vsam=self.data_set["vsam"])
 
-        if self.starting_catalog["nextstart"] and self.starting_catalog["nextstart"].upper(
-        ) == constants.NEXT_START_EMERGENCY:
+        if self.data_set["nextstart"] and self.data_set["nextstart"].upper(
+        ) == gc_constants["NEXT_START_EMERGENCY"]:
             self._fail(
                 "Next start type is {0}. Potential data loss prevented.".format(
-                    constants.NEXT_START_EMERGENCY))
+                    gc_constants["NEXT_START_EMERGENCY"]))
 
-        self.get_target_method(
-            self.starting_catalog["state"])()
+        self.get_target_method(self.data_set["state"])()
 
-        self.end_state = self.update_catalog(self.end_state)
+        self.end_state = self.get_data_set_state(self.data_set)
 
-        self.result['end_state'] = {
-            "exists": self.end_state["exists"],
-            "autostart_override": self.end_state["autostart_override"],
-            "next_start": self.end_state["nextstart"],
-        }
+        self.result["end_state"] = _state(
+            exists=self.end_state["exists"],
+            autostart_override=self.end_state["autostart_override"],
+            next_start=self.end_state["nextstart"],
+            vsam=self.end_state["vsam"])
+
         self._exit()
 
 

@@ -1,7 +1,7 @@
 # (c) Copyright IBM Corp. 2023
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name: Catalogs
+- name: Data sets
 
   hosts: "all"
   gather_facts: false
@@ -25,28 +25,42 @@
       ibm.ibm_zos_core.zos_data_set:
         name: "{{ region_dataset_path }}.DFHGCD"
         state: absent
-      register: delete_result
+      register: delete_result_glo
       retries: 3
-      until: delete_result is not failed
+      until: delete_result_glo is not failed
 
     - name: Assert Delete Passed
       ansible.builtin.assert:
         that:
-          - delete_result.failed == false
+          - delete_result_glo.failed == false
 
     - name: Delete local catalog data set if it exists
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
         name: "{{ region_dataset_path }}.DFHLCD"
         state: absent
-      register: delete_result
+      register: delete_result_loc
       retries: 3
-      until: delete_result is not failed
+      until: delete_result_loc is not failed
 
     - name: Assert Delete Passed
       ansible.builtin.assert:
         that:
-          - delete_result.failed == false
+          - delete_result_loc.failed == false
+
+    - name: Delete Local Request Queue data set if it exists
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ region_dataset_path }}.DFHLRQ"
+        state: absent
+      register: delete_result_lrq
+      retries: 3
+      until: delete_result_lrq is not failed
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result_lrq.failed == false
 
     # #############################################################################
     # ############################## Module Testing ###############################
@@ -93,9 +107,9 @@
       when: ansible_version.minor <= 11
       ansible.builtin.assert:
         that:
-          - initial_result_glo.failed is false
-          - initial_result_glo.changed is false
-          - initial_result_glo.msg == 'region_data_sets required'
+          - initial_result_loc.failed is false
+          - initial_result_loc.changed is false
+          - initial_result_loc.msg == 'region_data_sets required'
 
     - name: Assert Created
       when: ansible_version.minor > 11
@@ -110,6 +124,38 @@
           - initial_result_loc.end_state.exists == true
           - initial_result_loc.end_state.vsam == true
 
+    - name: Run Local Request Queue module with Initial target state
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.local_request_queue:
+        state: "initial"
+      register: initial_result_lrq
+      failed_when: false
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ initial_result_lrq }}"
+
+    - name: Assert Failed for python 2.7
+      when: ansible_version.minor <= 11
+      ansible.builtin.assert:
+        that:
+          - initial_result_lrq.failed is false
+          - initial_result_lrq.changed is false
+          - initial_result_lrq.msg == 'region_data_sets required'
+
+    - name: Assert Created
+      when: ansible_version.minor > 11
+      ansible.builtin.assert:
+        that:
+          - initial_result_lrq.failed is false
+          - initial_result_lrq.changed is true
+
+          - initial_result_lrq.start_state.exists == false
+          - initial_result_lrq.start_state.vsam == false
+
+          - initial_result_lrq.end_state.exists == true
+          - initial_result_lrq.end_state.vsam == true
+
 
     # #############################################################################
     # ################################## Cleanup ##################################
@@ -120,25 +166,39 @@
       ibm.ibm_zos_core.zos_data_set:
         name: "{{ region_dataset_path }}.DFHGCD"
         state: absent
-      register: delete_result
+      register: delete_result_glo
       retries: 3
-      until: delete_result is not failed
+      until: delete_result_glo is not failed
 
     - name: Assert Delete Passed
       ansible.builtin.assert:
         that:
-          - delete_result.failed == false
+          - delete_result_glo.failed == false
 
     - name: Delete local catalog data set if it exists
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
         name: "{{ region_dataset_path }}.DFHLCD"
         state: absent
-      register: delete_result
+      register: delete_result_loc
       retries: 3
-      until: delete_result is not failed
+      until: delete_result_loc is not failed
 
     - name: Assert Delete Passed
       ansible.builtin.assert:
         that:
-          - delete_result.failed == false
+          - delete_result_loc.failed == false
+
+    - name: Delete Local Request Queue data set if it exists
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ region_dataset_path }}.DFHLRQ"
+        state: absent
+      register: delete_result_lrq
+      retries: 3
+      until: delete_result_lrq is not failed
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result_lrq.failed == false

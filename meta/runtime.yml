@@ -10,3 +10,4 @@ action_groups:
   region_group:
     - global_catalog
     - local_catalog
+    - local_request_queue

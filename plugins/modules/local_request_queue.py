@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# (c) Copyright IBM Corp. 2020,2023
+# (c) Copyright IBM Corp. 2023
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
@@ -49,12 +49,46 @@ options:
       - CYL
       - TRK
     default: M
-  location:
+  region_data_sets:
     description:
-      - The name of the local request queue data set, e.g.
-        C(REGIONS.ABCD0001.DFHLCD).
-    type: str
+      - The location of the region's data sets using a template, e.g.
+        C(REGIONS.ABCD0001.<< data_set_name >>).
+    type: dict
     required: true
+    suboptions:
+      template:
+        description:
+          - The base location of the region's data sets with a template.
+        required: false
+        type: str
+      dfhlrq:
+        description:
+          - Overrides the templated location for the local request queue data set.
+        required: false
+        type: dict
+        suboptions:
+          dsn:
+            description:
+              - Data set name of the local request queue to override the template.
+            type: str
+            required: false
+  cics_data_sets:
+    description:
+      - The name of the C(SDFHLOAD) data set, e.g. C(CICSTS61.CICS.SDFHLOAD).
+    type: dict
+    required: false
+    suboptions:
+      template:
+        description:
+          - Templated location of the cics install data sets.
+        required: false
+        type: str
+      sdfhload:
+        description:
+          - Location of the sdfhload data set.
+          - Overrides the templated location for sdfhload.
+        type: str
+        required: false
   state:
     description:
       - The desired state for the local request queue, which the module will aim to
@@ -66,7 +100,6 @@ options:
     choices:
       - "initial"
       - "absent"
-      - "warm"
     required: true
     type: str
 '''
@@ -75,19 +108,22 @@ options:
 EXAMPLES = r"""
 - name: Initialize a local request queue
   ibm.ibm_zos_cics.local_request_queue:
-    location: "REGIONS.ABCD0001.DFHLRQ"
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: "initial"
 
 - name: Initialize a large request queue
   ibm.ibm_zos_cics.local_request_queue:
-    location: "REGIONS.ABCD0001.DFHLRQ"
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
     space_primary: 50
     space_type: "M"
     state: "initial"
 
 - name: Delete local request queue
   ibm.ibm_zos_cics.local_request_queue:
-    location: "REGIONS.ABCD0001.DFHLRQ"
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: "absent"
 """
 
@@ -153,10 +189,9 @@ executions:
 """
 
 
-from ansible.module_utils.basic import AnsibleModule
 import traceback
+from typing import Dict
 
-DDStatement = None
 ZOS_CORE_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
@@ -166,191 +201,179 @@ except ImportError:
 ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _dataset_size, _run_idcams, _run_listds)
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import catalog_constants as constants
+        _run_idcams, _build_idcams_define_cmd, _dataset_size, _data_set, AnsibleDataSetModule)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_request_queue import (
-        _local_request_queue, _get_idcams_cmd_lrq)
+        _get_idcams_cmd_lrq)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
+        _state)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_request_queue import _local_request_queue_constants as lrq_constants
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import _dataset_constants as ds_constants
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
 
-class AnsibleLocalRequestQueueModule(object):
+class AnsibleLocalRequestQueueModule(AnsibleDataSetModule):
     def __init__(self):
-        self._module = AnsibleModule(
-            argument_spec=self.init_argument_spec(),
-        )
-        self.result = {}
-        self.result['changed'] = False
-        self.result['failed'] = False
-        self.result['executions'] = []
-        self.executions = []
-        self.validate_parameters()
-
-    def _fail(self, msg):  # type: (str) -> None
-        self.result['failed'] = True
-        self.result['executions'] = self.executions
-        self._module.fail_json(msg=msg, **self.result)
-
-    def _exit(self):
-        self.result['executions'] = self.executions
-        self._module.exit_json(**self.result)
+        super(AnsibleLocalRequestQueueModule, self).__init__()
 
     def init_argument_spec(self):  # type: () -> Dict
-        return {
-            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
-                'required': False,
-                'type': 'int',
-                'default': 4,
-            },
-            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: {
-                'required': False,
-                'type': 'str',
-                'choices': constants.CATALOG_SPACE_UNIT_OPTIONS,
-                'default': "M",
-            },
-            constants.CATALOG_DATASET_ALIAS: {
-                'required': True,
-                'type': 'str',
-            },
-            constants.CATALOG_TARGET_STATE_ALIAS: {
-                'required': True,
-                'type': 'str',
-                'choices': constants.LOCAL_CATALOG_TARGET_STATE_OPTIONS,
-            }
-        }
+        arg_spec = super(AnsibleLocalRequestQueueModule, self).init_argument_spec()
 
-    def validate_parameters(self):
-        arg_defs = dict(
-            space_primary=dict(
-                arg_type='int',
-                default=4,
-            ),
-            space_type=dict(
-                arg_type='str',
-                choices=constants.CATALOG_SPACE_UNIT_OPTIONS,
-                default="M",
-            ),
-            location=dict(
-                arg_type='data_set_base',
-                required=True,
-            ),
-            state=dict(
-                arg_type='str',
-                choices=constants.LOCAL_CATALOG_TARGET_STATE_OPTIONS,
-                required=True,
-            ),
-        )
-        parser = BetterArgParser(arg_defs)
+        arg_spec[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
+            "default": lrq_constants["PRIMARY_SPACE_VALUE_DEFAULT"],
+        })
+        arg_spec[ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]].update({
+            "default": lrq_constants["SPACE_UNIT_DEFAULT"],
+        })
+        arg_spec[ds_constants["TARGET_STATE_ALIAS"]].update({
+            "choices": lrq_constants["TARGET_STATE_OPTIONS"],
+        })
+        arg_spec.update({
+            ds_constants["REGION_DATA_SETS_ALIAS"]: {
+                "type": "dict",
+                "required": True,
+                "options": {
+                    "template": {
+                        "type": "str",
+                        "required": False,
+                    },
+                    "dfhlrq": {
+                        "type": "dict",
+                        "required": False,
+                        "options": {
+                            "dsn": {
+                                "type": "str",
+                                "required": False,
+                            },
+                        },
+                    },
+                },
+            },
+            ds_constants["CICS_DATA_SETS_ALIAS"]: {
+                "type": "dict",
+                "required": False,
+                "options": {
+                    "template": {
+                        "type": "str",
+                        "required": False,
+                    },
+                    "sdfhload": {
+                        "type": "str",
+                        "required": False,
+                    },
+                },
+            },
+        })
+        return arg_spec
 
-        result = parser.parse_args({
-            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
-            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
-            constants.CATALOG_DATASET_ALIAS: self._module.params.get(constants.CATALOG_DATASET_ALIAS),
-            constants.CATALOG_TARGET_STATE_ALIAS: self._module.params.get(constants.CATALOG_TARGET_STATE_ALIAS)
+    def _get_arg_defs(self):  # type: () -> Dict
+        arg_def = super(AnsibleLocalRequestQueueModule, self)._get_arg_defs()
+
+        arg_def[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
+            "default": lrq_constants["PRIMARY_SPACE_VALUE_DEFAULT"]
+        })
+        arg_def[ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]].update({
+            "default": lrq_constants["SPACE_UNIT_DEFAULT"]
+        }),
+        arg_def[ds_constants["TARGET_STATE_ALIAS"]].update({
+            "choices": lrq_constants["TARGET_STATE_OPTIONS"]
+        })
+        arg_def.update({
+            ds_constants["REGION_DATA_SETS_ALIAS"]: {
+                "arg_type": "dict",
+                "required": True,
+                "options": {
+                    "template": {
+                        "arg_type": "str",
+                        "required": False,
+                    },
+                    "dfhlrq": {
+                        "arg_type": "dict",
+                        "required": False,
+                        "options": {
+                            "dsn": {
+                                "arg_type": "data_set_base",
+                                "required": False,
+                            },
+                        },
+                    },
+                },
+            },
+            ds_constants["CICS_DATA_SETS_ALIAS"]: {
+                "arg_type": "dict",
+                "required": False,
+                "options": {
+                    "template": {
+                        "arg_type": "str",
+                        "required": False,
+                    },
+                    "sdfhload": {
+                        "arg_type": "data_set_base",
+                        "required": False,
+                    },
+                },
+            },
         })
 
-        size = _dataset_size(
-            unit=result.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
-            primary=result.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
-            secondary=1,
-            record_count=2232,
-            record_size=2400,
-            control_interval_size=2560)
+        return arg_def
 
-        self.queue_definition = _local_request_queue(
+    def _get_data_set_object(self, size, result):
+        return _data_set(
             size=size,
-            name=result.get(constants.CATALOG_DATASET_ALIAS).upper(),
-            state=result.get(constants.CATALOG_TARGET_STATE_ALIAS),
+            name=result.get(ds_constants["REGION_DATA_SETS_ALIAS"]).get("dfhlrq").get("dsn").upper(),
+            state=result.get(ds_constants["TARGET_STATE_ALIAS"]),
             exists=False,
             vsam=False)
 
-    def create_local_request_queue_dataset(self):
-        create_cmd = _get_idcams_cmd_lrq(self.queue_definition)
+    def _get_data_set_size(self, result):
+        return _dataset_size(
+            unit=result.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
+            primary=result.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
+            secondary=lrq_constants["SECONDARY_SPACE_VALUE_DEFAULT"])
+
+    def validate_parameters(self):  # type: () -> None
+        arg_defs = self._get_arg_defs()
+
+        result = BetterArgParser(arg_defs).parse_args({
+            ds_constants["REGION_DATA_SETS_ALIAS"]: self._module.params.get(ds_constants["REGION_DATA_SETS_ALIAS"]),
+            ds_constants["CICS_DATA_SETS_ALIAS"]: self._module.params.get(ds_constants["CICS_DATA_SETS_ALIAS"]),
+            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
+            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
+            ds_constants["DATASET_LOCATION_ALIAS"]: self._module.params.get(ds_constants["DATASET_LOCATION_ALIAS"]),
+            ds_constants["TARGET_STATE_ALIAS"]: self._module.params.get(ds_constants["TARGET_STATE_ALIAS"])
+        })
+
+        size = self._get_data_set_size(result)
+        self.data_set = self._get_data_set_object(size, result)
+
+    def create_data_set(self):  # type: () -> None
+        create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_lrq(self.data_set))
 
         idcams_executions = _run_idcams(
             cmd=create_cmd,
             name="Create local request queue data set",
-            location=self.queue_definition["name"],
+            location=self.data_set["name"],
             delete=False)
-        self.executions = self.executions + idcams_executions
+        self.result["executions"] = self.result["executions"] + idcams_executions
 
-        self.result['changed'] = True
+        self.result["changed"] = True
 
-    def delete_local_request_queue_dataset(self):
-        if not self.queue_definition["exists"]:
-            self.result['end_state'] = {
-                "exists": self.queue_definition["exists"],
-                "vsam": self.queue_definition["vsam"]
-            }
+    def delete_data_set(self):  # type: () -> None
+        if not self.data_set["exists"]:
+            self.result['end_state'] = _state(exists=self.data_set["exists"], vsam=self.data_set["vsam"])
             self._exit()
 
         delete_cmd = '''
         DELETE {0}
-        '''.format(self.queue_definition["name"])
+        '''.format(self.data_set["name"])
 
         idcams_executions = _run_idcams(
             cmd=delete_cmd,
             name="Removing local request queue data set",
-            location=self.queue_definition["name"],
+            location=self.data_set["name"],
             delete=True)
-        self.executions = self.executions + idcams_executions
-        self.result['changed'] = True
-
-    def init_local_request_queue(self):
-        if self.queue_definition["exists"]:
-            self.result['end_state'] = {
-                "exists": self.queue_definition["exists"],
-                "vsam": self.queue_definition["vsam"]
-            }
-            self._exit()
-
-        if not self.queue_definition["exists"]:
-            self.create_local_request_queue_dataset()
-
-    def invalid_state(self):  # type: () -> None
-        self._fail("{0} is not a valid target state.".format(
-            self.local_request_queue["state"]))
-
-    def get_target_method(self, target):
-        return {
-            constants.TARGET_STATE_ABSENT: self.delete_local_request_queue_dataset,
-            constants.TARGET_STATE_INITIAL: self.init_local_request_queue,
-
-        }.get(target, self.invalid_state)
-
-    def get_dataset_state(self, dataset):
-        listds_executions, ds_status = _run_listds(dataset["name"])
-
-        dataset["exists"] = ds_status['exists']
-        dataset["vsam"] = ds_status['vsam']
-
-        self.executions = self.executions + listds_executions
-
-        return dataset
-
-    def main(self):
-        self.queue_definition = self.get_dataset_state(self.queue_definition)
-
-        self.result['start_state'] = {
-            "exists": self.queue_definition["exists"],
-            "vsam": self.queue_definition["vsam"]
-        }
-
-        if self.queue_definition["exists"] and not self.queue_definition["vsam"]:
-            self._fail(
-                "Data set {0} does not appear to be a KSDS.".format(
-                    self.queue_definition["name"]))
-
-        self.get_target_method(self.queue_definition["state"])()
-
-        self.end_state = self.get_dataset_state(self.queue_definition)
-
-        self.result['end_state'] = {
-            "exists": self.end_state["exists"],
-            "vsam": self.end_state["vsam"]
-        }
-
-        self._exit()
+        self.result["executions"] = self.result["executions"] + idcams_executions
+        self.result["changed"] = True
 
 
 def main():

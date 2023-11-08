@@ -204,7 +204,6 @@ executions:
 
 
 from typing import Dict
-from ansible.module_utils.basic import AnsibleModule
 import traceback
 
 ZOS_CORE_IMP_ERR = None
@@ -216,93 +215,84 @@ except ImportError:
 ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _dataset_size, _run_idcams, _run_listds)
+        _dataset_size, _run_idcams, _data_set, _build_idcams_define_cmd, AnsibleDataSetModule)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog import (
-        _local_catalog, _run_dfhccutl, _get_idcams_cmd_lcd)
+        _run_dfhccutl, _get_idcams_cmd_lcd)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import (_run_icetool)
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import catalog_constants as constants
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog import _local_catalog_constants as lc_constants
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import _dataset_constants as ds_constants
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
 
-class AnsibleLocalCatalogModule(object):
+class AnsibleLocalCatalogModule(AnsibleDataSetModule):
     def __init__(self):
-        self._module = AnsibleModule(
-            argument_spec=self.init_argument_spec(),
-        )
-        self.result = {}
-        self.result['changed'] = False
-        self.result['failed'] = False
-        self.result['executions'] = []
-        self.executions = []
-        self.validate_parameters()
-
-    def _fail(self, msg):  # type: (str) -> None
-        self.result['failed'] = True
-        self.result['executions'] = self.executions
-        self._module.fail_json(msg=msg, **self.result)
-
-    def _exit(self):
-        self.result['executions'] = self.executions
-        self._module.exit_json(**self.result)
+        super(AnsibleLocalCatalogModule, self).__init__()
 
     def init_argument_spec(self):  # type: () -> Dict
-        return {
-            constants.REGION_DATA_SETS_ALIAS: {
-                'type': 'dict',
-                'required': True,
-                'options': {
-                    'template': {
-                        'type': 'str',
-                        'required': False,
+        arg_spec = super(AnsibleLocalCatalogModule, self).init_argument_spec()
+
+        arg_spec[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
+            "default": lc_constants["PRIMARY_SPACE_VALUE_DEFAULT"]
+        })
+        arg_spec[ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]].update({
+            "default": lc_constants["SPACE_UNIT_DEFAULT"]
+        })
+        arg_spec[ds_constants["TARGET_STATE_ALIAS"]].update({
+            "choices": lc_constants["TARGET_STATE_OPTIONS"]
+        })
+        arg_spec.update({
+            ds_constants["REGION_DATA_SETS_ALIAS"]: {
+                "type": "dict",
+                "required": True,
+                "options": {
+                    "template": {
+                        "type": "str",
+                        "required": False,
                     },
-                    'dfhlcd': {
-                        'type': 'dict',
-                        'required': False,
-                        'options': {
-                            'dsn': {
-                                'type': 'str',
-                                'required': False,
+                    "dfhlcd": {
+                        "type": "dict",
+                        "required": False,
+                        "options": {
+                            "dsn": {
+                                "type": "str",
+                                "required": False,
                             },
                         },
                     },
                 },
             },
-            constants.CICS_DATA_SETS_ALIAS: {
-                'type': 'dict',
-                'required': True,
-                'options': {
-                    'template': {
-                        'type': 'str',
-                        'required': False,
+            ds_constants["CICS_DATA_SETS_ALIAS"]: {
+                "type": "dict",
+                "required": True,
+                "options": {
+                    "template": {
+                        "type": "str",
+                        "required": False,
                     },
-                    'sdfhload': {
-                        'type': 'str',
-                        'required': False,
+                    "sdfhload": {
+                        "type": "str",
+                        "required": False,
                     },
                 },
             },
-            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
-                'required': False,
-                'type': 'int',
-                'default': constants.LOCAL_CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
-            },
-            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: {
-                'required': False,
-                'type': 'str',
-                'choices': constants.CATALOG_SPACE_UNIT_OPTIONS,
-                'default': constants.LOCAL_CATALOG_SPACE_UNIT_DEFAULT,
-            },
-            constants.CATALOG_TARGET_STATE_ALIAS: {
-                'required': True,
-                'type': 'str',
-                'choices': constants.LOCAL_CATALOG_TARGET_STATE_OPTIONS,
-            }
-        }
+        })
+        return arg_spec
 
-    def validate_parameters(self):
-        arg_defs = {
-            constants.REGION_DATA_SETS_ALIAS: {
+    def _get_arg_defs(self):  # type: () -> Dict
+        arg_def = super(AnsibleLocalCatalogModule, self)._get_arg_defs()
+
+        arg_def[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
+            "default": lc_constants["PRIMARY_SPACE_VALUE_DEFAULT"]
+        })
+        arg_def[ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]].update({
+            "default": lc_constants["SPACE_UNIT_DEFAULT"]
+        })
+        arg_def[ds_constants["TARGET_STATE_ALIAS"]].update({
+            "choices": lc_constants["TARGET_STATE_OPTIONS"],
+        })
+        arg_def.update({
+            ds_constants["REGION_DATA_SETS_ALIAS"]: {
                 "arg_type": "dict",
                 "required": True,
                 "options": {
@@ -322,7 +312,7 @@ class AnsibleLocalCatalogModule(object):
                     },
                 },
             },
-            constants.CICS_DATA_SETS_ALIAS: {
+            ds_constants["CICS_DATA_SETS_ALIAS"]: {
                 "arg_type": "dict",
                 "required": True,
                 "options": {
@@ -336,147 +326,95 @@ class AnsibleLocalCatalogModule(object):
                     },
                 },
             },
-            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: {
-                "arg_type": 'int',
-                "default": constants.LOCAL_CATALOG_PRIMARY_SPACE_VALUE_DEFAULT,
-            },
-            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: {
-                "arg_type": 'str',
-                "choices": constants.CATALOG_SPACE_UNIT_OPTIONS,
-                "default": constants.LOCAL_CATALOG_SPACE_UNIT_DEFAULT,
-            },
-            constants.CATALOG_TARGET_STATE_ALIAS: {
-                "arg_type": 'str',
-                "choices": constants.LOCAL_CATALOG_TARGET_STATE_OPTIONS,
-                "required": True,
-            },
-        }
-
-        result = BetterArgParser(arg_defs).parse_args({
-            constants.REGION_DATA_SETS_ALIAS: self._module.params.get(constants.REGION_DATA_SETS_ALIAS),
-            constants.CICS_DATA_SETS_ALIAS: self._module.params.get(constants.CICS_DATA_SETS_ALIAS),
-            constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
-            constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS: self._module.params.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
-            constants.CATALOG_TARGET_STATE_ALIAS: self._module.params.get(constants.CATALOG_TARGET_STATE_ALIAS)
         })
 
-        size = _dataset_size(
-            unit=result.get(constants.CATALOG_PRIMARY_SPACE_UNIT_ALIAS),
-            primary=result.get(constants.CATALOG_PRIMARY_SPACE_VALUE_ALIAS),
-            secondary=constants.LOCAL_CATALOG_SECONDARY_SPACE_VALUE_DEFAULT,
-            record_count=constants.LOCAL_CATALOG_RECORD_COUNT_DEFAULT,
-            record_size=constants.LOCAL_CATALOG_RECORD_SIZE_DEFAULT,
-            control_interval_size=constants.LOCAL_CATALOG_CONTROL_INTERVAL_SIZE_DEFAULT)
+        return arg_def
 
-        self.starting_catalog = _local_catalog(
+    def _get_data_set_object(self, size, result):  # type: (_dataset_size, Dict) -> _data_set
+        return _data_set(
             size=size,
-            name=result.get(constants.REGION_DATA_SETS_ALIAS).get('dfhlcd').get('dsn').upper(),
-            sdfhload=result.get(constants.CICS_DATA_SETS_ALIAS).get('sdfhload').upper(),
-            state=result.get(constants.CATALOG_TARGET_STATE_ALIAS),
+            name=result.get(ds_constants["REGION_DATA_SETS_ALIAS"]).get("dfhlcd").get("dsn").upper(),
+            sdfhload=result.get(ds_constants["CICS_DATA_SETS_ALIAS"]).get("sdfhload").upper(),
+            state=result.get(ds_constants["TARGET_STATE_ALIAS"]),
             exists=False,
             vsam=False)
 
-    def create_local_catalog_dataset(self):
-        create_cmd = _get_idcams_cmd_lcd(self.starting_catalog)
+    def _get_data_set_size(self, result):
+        return _dataset_size(
+            unit=result.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
+            primary=result.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
+            secondary=lc_constants["SECONDARY_SPACE_VALUE_DEFAULT"])
+
+    def validate_parameters(self):
+        arg_defs = self._get_arg_defs()
+
+        result = BetterArgParser(arg_defs).parse_args({
+            ds_constants["REGION_DATA_SETS_ALIAS"]: self._module.params.get(ds_constants["REGION_DATA_SETS_ALIAS"]),
+            ds_constants["CICS_DATA_SETS_ALIAS"]: self._module.params.get(ds_constants["CICS_DATA_SETS_ALIAS"]),
+            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
+            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
+            ds_constants["TARGET_STATE_ALIAS"]: self._module.params.get(ds_constants["TARGET_STATE_ALIAS"])
+        })
+
+        size = self._get_data_set_size(result)
+        self.data_set = self._get_data_set_object(size, result)
+
+    def create_data_set(self):
+        create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_lcd(self.data_set))
 
         idcams_executions = _run_idcams(
             cmd=create_cmd,
             name="Create local catalog data set",
-            location=self.starting_catalog["name"],
+            location=self.data_set["name"],
             delete=False)
-        self.executions = self.executions + idcams_executions
+        self.result["executions"] = self.result["executions"] + idcams_executions
 
-        self.result['changed'] = True
+        self.result["changed"] = True
 
-    def delete_local_catalog(self):
-        if not self.starting_catalog["exists"]:
-            self.result['end_state'] = {
-                "exists": self.starting_catalog["exists"],
-                "vsam": self.starting_catalog["vsam"]
+    def delete_data_set(self):
+        if not self.data_set["exists"]:
+            self.result["end_state"] = {
+                "exists": self.data_set["exists"],
+                "vsam": self.data_set["vsam"]
             }
             self._exit()
 
         delete_cmd = '''
         DELETE {0}
-        '''.format(self.starting_catalog["name"])
+        '''.format(self.data_set["name"])
 
         idcams_executions = _run_idcams(
             cmd=delete_cmd,
             name="Removing local catalog data set",
-            location=self.starting_catalog["name"],
+            location=self.data_set["name"],
             delete=True)
-        self.executions = self.executions + idcams_executions
-        self.result['changed'] = True
+        self.result["executions"] = self.result["executions"] + idcams_executions
+        self.result["changed"] = True
 
-    def warm_local_catalog(self):
-        if not self.starting_catalog["exists"]:
-            self._fail("Data set {0} does not exist.".format(self.starting_catalog["name"]))
+    def warm_data_set(self):
+        if not self.data_set["exists"]:
+            self._fail("Data set {0} does not exist.".format(self.data_set["name"]))
 
-        icetool_executions, record_count = _run_icetool(self.starting_catalog["name"])
+        icetool_executions, record_count = _run_icetool(self.data_set["name"])
         if record_count["record_count"] == 0:
             self._fail("Unused catalog. The catalog must be used by CICS before doing a warm start.")
 
-        self.executions = self.executions + icetool_executions
+        self.result["executions"] = self.result["executions"] + icetool_executions
         self.result['changed'] = False
 
-    def init_local_catalog(self):
-        if self.starting_catalog["exists"]:
-            self.result['end_state'] = {
-                "exists": self.starting_catalog["exists"],
-                "vsam": self.starting_catalog["vsam"]
+    def init_data_set(self):
+        if self.data_set["exists"]:
+            self.result["end_state"] = {
+                "exists": self.data_set["exists"],
+                "vsam": self.data_set["vsam"]
             }
             self._exit()
 
-        if not self.starting_catalog["exists"]:
-            self.create_local_catalog_dataset()
+        if not self.data_set["exists"]:
+            self.create_data_set()
 
-        ccutl_executions = _run_dfhccutl(self.starting_catalog)
-        self.executions = self.executions + ccutl_executions
-
-    def invalid_state(self):  # type: () -> None
-        self._fail("{0} is not a valid target state.".format(
-            self.local_catalog["state"]))
-
-    def get_target_method(self, target):
-        return {
-            constants.TARGET_STATE_ABSENT: self.delete_local_catalog,
-            constants.TARGET_STATE_INITIAL: self.init_local_catalog,
-            constants.TARGET_STATE_WARM: self.warm_local_catalog
-        }.get(target, self.invalid_state)
-
-    def get_catalog_state(self, catalog):
-        listds_executions, ds_status = _run_listds(catalog["name"])
-
-        catalog["exists"] = ds_status['exists']
-        catalog["vsam"] = ds_status['vsam']
-
-        self.executions = self.executions + listds_executions
-
-        return catalog
-
-    def main(self):
-        self.starting_catalog = self.get_catalog_state(self.starting_catalog)
-
-        self.result['start_state'] = {
-            "exists": self.starting_catalog["exists"],
-            "vsam": self.starting_catalog["vsam"]
-        }
-
-        if self.starting_catalog["exists"] and not self.starting_catalog["vsam"]:
-            self._fail(
-                "Data set {0} does not appear to be a KSDS.".format(
-                    self.starting_catalog["name"]))
-
-        self.get_target_method(self.starting_catalog["state"])()
-
-        self.end_state = self.get_catalog_state(self.starting_catalog)
-
-        self.result['end_state'] = {
-            "exists": self.end_state["exists"],
-            "vsam": self.end_state["vsam"]
-        }
-
-        self._exit()
+        ccutl_executions = _run_dfhccutl(self.data_set)
+        self.result["executions"] = self.result["executions"] + ccutl_executions
 
 
 def main():
