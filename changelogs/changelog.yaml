@@ -68,3 +68,33 @@ releases:
     - include-requirements-txt.yaml
     - release_summary.yaml
     release_date: '2023-05-16'
+  1.1.0-beta.1:
+    changes:
+      release_summary: This release contains a new Global Catalog module
+    fragments:
+    - beta.yml
+    modules:
+    - description: "Create and initialize CICS global catalog."
+      name: global_catalog
+      namespace: ''
+    release_date: '2023-06-14'
+  1.1.0-beta.2:
+    changes:
+      bugfixes:
+      - Input parameters for ``global_catalog`` failed when lowercase. Now these parameters
+        are not case sensitive.
+      - The ``changed`` flag did not always correspond with actions taken during the
+        ``global_catalog`` execution. Now this flag represents if changes were made.
+      minor_changes:
+      - Return values for ``global_catalog`` - changes the values returned to include
+        ``start_state``, ``end_state``, and ``executions``.
+      release_summary: This release improves the return values for the ``global_catalog``
+        module, fixes bugs related to its input parameters, and includes a new ``local_catalog``
+        module for provisioning a local catalog data set.
+    fragments:
+    - beta.yml
+    modules:
+    - description: Create, remove, and manage the CICS local catalog
+      name: local_catalog
+      namespace: ''
+    release_date: '2023-07-20'

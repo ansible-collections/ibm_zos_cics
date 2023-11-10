@@ -1,0 +1,12 @@
+cmci_host:
+cmci_port:
+cmci_secure_port:
+cmci_user:
+cmci_password:
+cmci_context:
+cmci_scope:
+cmci_scope_region_1:
+cmci_scope_region_2:
+cmci_program_name_1:
+cmci_program_name_2:
+cmci_program_filter:

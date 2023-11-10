@@ -1,10 +1,12 @@
-objects: {}
+objects:
+  role: {}
 plugins:
   become: {}
   cache: {}
   callback: {}
   cliconf: {}
   connection: {}
+  filter: {}
   httpapi: {}
   inventory: {}
   lookup: {}
@@ -34,8 +36,19 @@ plugins:
       name: cmci_update
       namespace: ''
       version_added: 1.0.0
+    global_catalog:
+      description: Create, remove, and manage the CICS global catalog
+      name: global_catalog
+      namespace: ''
+      version_added: 1.1.0-beta.1
+    local_catalog:
+      description: Create, remove, and manage the CICS local catalog
+      name: local_catalog
+      namespace: ''
+      version_added: 1.1.0-beta.2
   netconf: {}
   shell: {}
   strategy: {}
+  test: {}
   vars: {}
-version: 1.0.5
+version: 1.1.0-beta.2

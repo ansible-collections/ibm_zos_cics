@@ -1,0 +1,85 @@
+# (c) Copyright IBM Corp. 2023
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Check Lowercase Location Parameter
+
+  hosts: "all"
+  gather_facts: false
+  vars:
+    region_dataset_path: "ANSIBIT.TESTS.{{ cics_test_area_initial }}"
+    catalog_name: "DFHGCD"
+
+  module_defaults:
+    ibm.ibm_zos_cics.global_catalog:
+      cics_data_sets:
+        sdfhload: "{{ cics_steplib }}"
+      space_primary: 5
+      space_type: "M"
+      region_data_sets:
+        template: "{{ region_dataset_path }}.low.<< data_set_name >>"
+
+  tasks:
+    # #############################################################################
+    # ############################## Initial cleanup ##############################
+    # #############################################################################
+
+    - name: Delete catalog data set if it exists
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ region_dataset_path }}.LOW.{{ catalog_name }}"
+        state: absent
+      register: delete_result
+      retries: 3
+      until: delete_result is not failed
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == false
+
+    # #############################################################################
+    # ############################## Module Testing ###############################
+    # #############################################################################
+
+    - name: Give lowercase GCD location
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.global_catalog:
+        state: "initial"
+      register: result
+      failed_when: false
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ result }}"
+
+    - name: Assert passed with lowercase
+      ansible.builtin.assert:
+        that:
+          - result.failed is false
+          - result.changed is true
+
+          - result.start_state.exists == false
+          - result.start_state.autostart_override == ''
+          - result.start_state.next_start == ''
+
+          - result.end_state.exists == true
+          - result.end_state.autostart_override == 'AUTOINIT'
+          - result.end_state.next_start == 'UNKNOWN'
+
+    # #############################################################################
+    # ################################## Cleanup ##################################
+    # #############################################################################
+
+    - name: Delete catalog data set
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ region_dataset_path }}.LOW.{{ catalog_name }}"
+        state: absent
+      register: delete_result
+      retries: 3
+      until: delete_result is not failed
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == false
