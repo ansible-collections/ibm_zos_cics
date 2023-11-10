@@ -3,5 +3,5 @@ source_system:
     zos_host:
       ansible_host: __ANSIBLE_TEST_HOST__
       ansible_user: __ANSIBLE_TEST_USER__
-      ansible_python_interpreter: /usr/lpp/IBM/cyp/v3r8/pyz/bin/python3.8
+      ansible_python_interpreter: /python/v3r9/usr/lpp/IBM/cyp/v3r9/pyz/bin/python3.9
       ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
