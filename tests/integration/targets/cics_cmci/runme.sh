@@ -3,7 +3,7 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 set -eux # This is important to ensure that return codes from failing tests are propagated
 
-VAR_PATH="/root/ansible_collections/ibm/ibm_zos_cics/tests/integration/variables/cmci.yml"
+VAR_PATH="$ANSIBLE_COLLECTIONS_PATH/ansible_collections/ibm/ibm_zos_cics/tests/integration/variables/cmci.yml"
 
 ansible-playbook -e "@$VAR_PATH" playbooks/cics_cmci_https.yml
 ansible-playbook -e "@$VAR_PATH" playbooks/cmci_insecure_false.yml
