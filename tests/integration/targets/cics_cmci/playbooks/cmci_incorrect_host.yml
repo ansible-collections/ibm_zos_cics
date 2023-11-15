@@ -24,4 +24,4 @@
         that:
           - result.failed is false
           - '{{ result.msg[:51] == "Error performing CMCI request: <urllib3.connection." }}'
-          - '{{ result.msg[-25:] == "Name or service not known" }}'
+          - '{{ result.msg[-26:] == "Name or service not known)" }}'
