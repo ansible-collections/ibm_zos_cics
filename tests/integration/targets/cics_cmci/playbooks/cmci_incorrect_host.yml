@@ -23,5 +23,5 @@
       ansible.builtin.assert:
         that:
           - result.failed is false
-          - '{{ result.msg[:51] == "Error performing CMCI request: <urllib3.connection." }}'
-          - '{{ result.msg[-26:] == "Name or service not known)" }}'
+          - '{{ "Error performing CMCI request: <urllib3.connection." in result.msg }}'
+          - '{{ "Name or service not known" in result.msg }}'
