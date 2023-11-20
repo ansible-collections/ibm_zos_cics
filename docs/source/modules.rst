@@ -37,7 +37,7 @@ use these default groups within the *cics_global_catalog* module.
         state: "initial"
 
 
-In the above example the Global Catalog will created at the data set location 
+In the above example the global catalog will be created at the data set location 
 *REGIONS.ABCD0001.DFHGCD* and the CICS load libraries can be found at the 
 location *CICSTS61.CICS*, meaning the library SDFHLOAD could be found at 
 *CICSTS61.CICS.SDFHLOAD*.
