@@ -12,7 +12,7 @@ module on the target node and returns the result back to the controller.
 The **IBM® z/OS® CICS® collection** provides modules for interacting with CMCI 
 over an HTTP connection by leveraging the `CMCI REST API`_, as well as modules
 to automate provisioning of a CICS TS region. These modules have different 
-requirements of the managed node for more detail see :doc:`requirements_managed`
+requirements of the managed node. For more detail see :doc:`requirements_managed`.
 
 .. _CMCI REST API:
    https://www.ibm.com/docs/en/cics-ts/latest?topic=cmci-how-it-works-rest-api
@@ -44,8 +44,8 @@ the CICS provisioning modules will use the same high level qualifier for the
 regions data sets, and the location of the CICS installation only has to be 
 declared once for all the modules.
 
-To override a specific modules data set location and/or name you can provide an
-additional parameter to the region_data_sets group as shown in the example 
+To override a specific task's data set location and/or name you can provide an
+additional parameter to the ``region_data_sets`` group as shown in the example 
 for a global catalog data set below.
 
 .. code-block:: yaml+jinja
