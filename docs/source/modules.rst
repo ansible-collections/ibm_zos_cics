@@ -12,13 +12,10 @@ module on the target node and returns the result back to the controller.
 The **IBM® z/OS® CICS® collection** provides modules for interacting with CMCI 
 over an HTTP connection by leveraging the `CMCI REST API`_, as well as modules
 to automate provisioning of a CICS TS region. These modules have different 
-requirements of the managed node which are explained in more detail `here`_.
+requirements of the managed node for more detail see :doc:`requirements_managed`
 
 .. _CMCI REST API:
    https://www.ibm.com/docs/en/cics-ts/latest?topic=cmci-how-it-works-rest-api
-
-.. _here:
-   https://ibm.github.io/z_ansible_collections_doc/ibm_zos_core/docs/source/requirements_managed.html
 
 The region provisioning modules make use of two defaults groups that allow a 
 user to specify the location of a CICS installation and a high level qualifier 
