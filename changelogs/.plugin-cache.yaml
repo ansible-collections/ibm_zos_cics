@@ -46,9 +46,14 @@ plugins:
       name: local_catalog
       namespace: ''
       version_added: 1.1.0-beta.2
+    local_request_queue:
+      description: Create and remove the CICS local request queue
+      name: local_request_queue
+      namespace: ''
+      version_added: 1.1.0-beta.3
   netconf: {}
   shell: {}
   strategy: {}
   test: {}
   vars: {}
-version: 1.1.0-beta.2
+version: 1.1.0-beta.3

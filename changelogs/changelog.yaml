@@ -74,7 +74,7 @@ releases:
     fragments:
     - beta.yml
     modules:
-    - description: "Create and initialize CICS global catalog."
+    - description: Create and initialize CICS global catalog.
       name: global_catalog
       namespace: ''
     release_date: '2023-06-14'
@@ -98,3 +98,19 @@ releases:
       name: local_catalog
       namespace: ''
     release_date: '2023-07-20'
+  1.1.0-beta.3:
+    changes:
+      breaking_changes:
+      - Introduction of ``region_data_sets`` and ``cics_data_sets`` defaults group
+      release_summary: 'This release introduces changes to the global and local catalog
+        modules by adding support for the ``region_data_sets`` and ``cics_data_sets``
+        defaults groups. This changes the way you specifiy the data set location for
+        these modules. A new ``local_request_queue`` module is also included to support
+        provisioning a local request queue data set. '
+    fragments:
+    - beta.yml
+    modules:
+    - description: Create and remove the CICS local request queue
+      name: local_request_queue
+      namespace: ''
+    release_date: '2023-11-21'
