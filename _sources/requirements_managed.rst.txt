@@ -5,6 +5,12 @@
 Requirements of managed nodes
 =============================
 
+The tasks in the **IBM® z/OS® CICS® collection** can be classified into two 
+types that have different requirements of the managed node. 
+
+CMCI tasks
+----------
+
 The CMCI tasks in the **IBM® z/OS® CICS® collection** interact
 with the managed node over an HTTP connection by leveraging the `CMCI REST API`_.
 Therefore, an SSH connection is not required. Instead, you can delegate
@@ -56,11 +62,7 @@ The requirements of the managed node are as follows:
 .. _CICS sample playbook:
    https://github.com/IBM/z_ansible_collections_samples/tree/main/zos_subsystems/cics/cmci/reporting
 
-
-If you use the CICS collection in conjunction with other IBM z/OS collections,
-your managed node must also follow the requirements of those collections, for example, `IBM z/OS core managed node requirements`_.
-
-If you use the CICS collection alone but don't delegate the CICS tasks to your localhost, your managed node must also follow the `IBM z/OS core managed node requirements`_ except that IBM Z Open Automation Utilities (ZOAU) is not required.
+If you only use the CMCI tasks in the CICS collection but don't delegate the CMCI tasks to your localhost, your managed node must also follow the `IBM z/OS core managed node requirements`_ except that IBM Z Open Automation Utilities (ZOAU) is not required.
 
 .. _z/OS OpenSSH:
    https://www.ibm.com/docs/en/zos/latest?topic=descriptions-zos-openssh
@@ -75,3 +77,22 @@ If you use the CICS collection alone but don't delegate the CICS tasks to your l
    https://ibm.github.io/z_ansible_collections_doc/ibm_zos_core/docs/source/requirements_managed.html
 .. _Controlling where tasks run:
    https://docs.ansible.com/ansible/latest/user_guide/playbooks_delegation.html#delegating-tasks
+
+
+Provisioning tasks
+------------------
+
+The provisioning tasks in the **IBM® z/OS® CICS® collection** interact with a 
+z/OS managed node over SSH and therefore have different requirements to the 
+CMCI tasks. The provisioning modules follow the requirements of the other z/OS 
+collections as documented here `IBM z/OS core managed node requirements`_.
+
+These requirements include an installation of the following components:
+- z/OS
+- z/OS OpenSSH
+- IBM Open Enterprise SDK for Python (previously IBM Open Enterprise Python for z/OS)
+- IBM Z Open Automation Utilities (ZOAU)
+- The z/OS shell
+
+For specific versions of these dependencies and additional information review 
+the `IBM z/OS core managed node requirements`_ page.

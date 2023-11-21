@@ -3,13 +3,13 @@
 .. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
 .. ...............................................................................
 
-:github_url: https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/local_catalog.py
+:github_url: https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/local_request_queue.py
 
-.. _local_catalog_module:
+.. _local_request_queue_module:
 
 
-local_catalog -- Create, remove, and manage the CICS local catalog
-==================================================================
+local_request_queue -- Create and remove the CICS local request queue
+=====================================================================
 
 
 
@@ -20,9 +20,9 @@ local_catalog -- Create, remove, and manage the CICS local catalog
 
 Synopsis
 --------
-- Create, remove, and manage the \ `local catalog <https://www.ibm.com/docs/en/cics-ts/latest?topic=catalogs-local-catalog>`__\  data set used by a CICS® region.
-- Useful when provisioning or de-provisioning a CICS region, or when managing the state of the local catalog during upgrades or restarts.
-- Use the \ :literal:`state`\  option to specify the intended state for the local catalog. For example, \ :literal:`state=initial`\  will create and initialize a local catalog data set if it doesn't yet exist, or it will take an existing local catalog and empty it of all records.
+- Create and remove the \ `local request queue <https://www.ibm.com/docs/en/cics-ts/latest?topic=sets-local-request-queue-data-set>`__\  data set used by a CICS® region.
+- Useful when provisioning or de-provisioning a CICS region.
+- Use the \ :literal:`state`\  option to specify the intended state for the local request queue. For example, \ :literal:`state=initial`\  will create a local request queue data set if it doesn't yet exist, or it will take an existing local request queue and empty it of all records.
 
 
 
@@ -36,10 +36,8 @@ Parameters
 cics_data_sets
   The name of the \ :literal:`SDFHLOAD`\  data set, e.g. \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
 
-  This module uses the \ :literal:`DFHCCUTL`\  utility internally, which is found in the \ :literal:`SDFHLOAD`\  data set in the CICS installation.
 
-
-  | **required**: True
+  | **required**: False
   | **type**: dict
 
 
@@ -68,16 +66,14 @@ cics_data_sets
 region_data_sets
   The location of the region's data sets using a template, e.g. \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
 
-  If it already exists, this data set must be cataloged.
-
 
   | **required**: True
   | **type**: dict
 
 
      
-  dfhlcd
-    Overrides the templated location for the local catalog data set.
+  dfhlrq
+    Overrides the templated location for the local request queue data set.
 
 
     | **required**: False
@@ -86,7 +82,7 @@ region_data_sets
 
      
     dsn
-      Data set name of the local catalog to override the template.
+      Data set name of the local request queue to override the template.
 
 
       | **required**: False
@@ -106,47 +102,45 @@ region_data_sets
 
      
 space_primary
-  The size of the local catalog data set's primary space allocation. Note, this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+  The size of the local request queue data set's primary space allocation. Note, this is just the value; the unit is specified with \ :literal:`space\_type`\ .
 
-  This option only takes effect when the local catalog is being created. If it already exists, it has no effect.
+  This option only takes effect when the local request queue is being created. If it already exists, it has no effect.
 
-  The local catalog data set's secondary space allocation is set to 1.
+  The local request queue data set's secondary space allocation is set to 1.
 
 
   | **required**: False
   | **type**: int
-  | **default**: 200
+  | **default**: 4
 
 
      
 space_type
-  The unit portion of the local catalog data set size. Note, this is just the unit; the value is specified with \ :literal:`space\_primary`\ .
+  The unit portion of the local request queue data set size. Note, this is just the unit; the value is specified with \ :literal:`space\_primary`\ .
 
-  This option only takes effect when the local catalog is being created. If it already exists, it has no effect.
+  This option only takes effect when the local request queue is being created. If it already exists, it has no effect.
 
   The size can be specified in megabytes (\ :literal:`M`\ ), kilobytes (\ :literal:`K`\ ), records (\ :literal:`REC`\ ), cylinders (\ :literal:`CYL`\ ), or tracks (\ :literal:`TRK`\ ).
 
 
   | **required**: False
   | **type**: str
-  | **default**: REC
+  | **default**: M
   | **choices**: M, K, REC, CYL, TRK
 
 
      
 state
-  The desired state for the local catalog, which the module will aim to achieve.
+  The desired state for the local request queue, which the module will aim to achieve.
 
-  \ :literal:`absent`\  will remove the local catalog data set entirely, if it already exists.
+  \ :literal:`absent`\  will remove the local request queue data set entirely, if it already exists.
 
-  \ :literal:`initial`\  will create the local catalog data set if it does not already exist, and empty it of all existing records.
-
-  \ :literal:`warm`\  will retain an existing local catalog in its current state.
+  \ :literal:`initial`\  will create the local request queue data set if it does not already exist, and empty it of all existing records.
 
 
   | **required**: True
   | **type**: str
-  | **choices**: initial, absent, warm
+  | **choices**: initial, absent
 
 
 
@@ -157,30 +151,24 @@ Examples
 .. code-block:: yaml+jinja
 
    
-   - name: Initialize a local catalog
-     ibm.ibm_zos_cics.local_catalog:
+   - name: Initialize a local request queue
+     ibm.ibm_zos_cics.local_request_queue:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
-       cics_data_sets:
-         template: "CICSTS61.CICS.<< lib_name >>"
        state: "initial"
 
-   - name: Initialize a large catalog
-     ibm.ibm_zos_cics.local_catalog:
+   - name: Initialize a large request queue
+     ibm.ibm_zos_cics.local_request_queue:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
-       cics_data_sets:
-         template: "CICSTS61.CICS.<< lib_name >>"
-       space_primary: 500
-       space_type: "REC"
+       space_primary: 50
+       space_type: "M"
        state: "initial"
 
-   - name: Delete local catalog
-     ibm.ibm_zos_cics.local_catalog:
+   - name: Delete local request queue
+     ibm.ibm_zos_cics.local_request_queue:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
-       cics_data_sets:
-         template: "CICSTS61.CICS.<< lib_name >>"
        state: "absent"
 
 
@@ -188,12 +176,6 @@ Examples
 
 
 
-See Also
---------
-
-.. seealso::
-
-   - :ref:`global_catalog_module`
 
 
 
@@ -220,7 +202,7 @@ Return Values
       
                               
        start_state
-        | The state of the local catalog before the task runs.
+        | The state of the local request queue before the task runs.
       
         | **returned**: always
         | **type**: dict
@@ -236,7 +218,7 @@ Return Values
       
                               
         exists
-          | True if the local catalog data set exists.
+          | True if the local request queue data set exists.
       
           | **returned**: always
           | **type**: bool
@@ -246,7 +228,7 @@ Return Values
       
                               
        end_state
-        | The state of the local catalog at the end of the task.
+        | The state of the local request queue at the end of the task.
       
         | **returned**: always
         | **type**: dict
@@ -262,7 +244,7 @@ Return Values
       
                               
         exists
-          | True if the local catalog data set exists.
+          | True if the local request queue data set exists.
       
           | **returned**: always
           | **type**: bool

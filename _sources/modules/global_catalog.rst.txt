@@ -33,25 +33,75 @@ Parameters
 
 
      
-location
-  The name of the global catalog data set, e.g. \ :literal:`REGIONS.ABCD0001.DFHGCD`\ .
-
-  If it already exists, this data set must be cataloged.
-
-
-  | **required**: True
-  | **type**: str
-
-
-     
-sdfhload
+cics_data_sets
   The name of the \ :literal:`SDFHLOAD`\  data set, e.g. \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
 
   This module uses the \ :literal:`DFHRMUTL`\  utility internally, which is found in the \ :literal:`SDFHLOAD`\  data set in the CICS installation.
 
 
   | **required**: True
-  | **type**: str
+  | **type**: dict
+
+
+     
+  sdfhload
+    Location of the sdfhload data set.
+
+    Overrides the templated location for sdfhload.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  template
+    Templated location of the cics install data sets.
+
+
+    | **required**: False
+    | **type**: str
+
+
+
+     
+region_data_sets
+  The location of the region's data sets using a template, e.g. \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
+
+  If it already exists, this data set must be cataloged.
+
+
+  | **required**: True
+  | **type**: dict
+
+
+     
+  dfhgcd
+    Overrides the templated location for the global catalog data set.
+
+
+    | **required**: False
+    | **type**: dict
+
+
+     
+    dsn
+      Data set name of the global catalog to override the template.
+
+
+      | **required**: False
+      | **type**: str
+
+
+
+     
+  template
+    The base location of the region's data sets with a template.
+
+
+    | **required**: False
+    | **type**: str
+
 
 
      
@@ -111,34 +161,44 @@ Examples
    
    - name: Initialize a global catalog
      ibm.ibm_zos_cics.global_catalog:
-       location: "REGIONS.ABCD0001.DFHGCD"
-       sdfhload: "CICSTS61.CICS.SDFHLOAD"
+       region_data_sets:
+         template: "REGIONS.ABCD0001.<< data_set_name >>"
+       cics_data_sets:
+         template: "CICSTS61.CICS.<< lib_name >>"
        state: "initial"
 
    - name: Initialize a large catalog
      ibm.ibm_zos_cics.global_catalog:
-       location: "REGIONS.ABCD0001.DFHGCD"
-       sdfhload: "CICSTS61.CICS.SDFHLOAD"
+       region_data_sets:
+         template: "REGIONS.ABCD0001.<< data_set_name >>"
+       cics_data_sets:
+         template: "CICSTS61.CICS.<< lib_name >>"
        space_primary: 100
        space_type: "M"
        state: "initial"
 
    - name: Set autostart override record to AUTOASIS
      ibm.ibm_zos_cics.global_catalog:
-       location: "REGIONS.ABCD0001.DFHGCD"
-       sdfhload: "CICSTS61.CICS.SDFHLOAD"
+       region_data_sets:
+         template: "REGIONS.ABCD0001.<< data_set_name >>"
+       cics_data_sets:
+         template: "CICSTS61.CICS.<< lib_name >>"
        state: "warm"
 
    - name: Set autostart override record to AUTOCOLD
      ibm.ibm_zos_cics.global_catalog:
-       location: "REGIONS.ABCD0001.DFHGCD"
-       sdfhload: "CICSTS61.CICS.SDFHLOAD"
+       region_data_sets:
+         template: "REGIONS.ABCD0001.<< data_set_name >>"
+       cics_data_sets:
+         template: "CICSTS61.CICS.<< lib_name >>"
        state: "cold"
 
    - name: Delete global catalog
      ibm.ibm_zos_cics.global_catalog:
-       location: "REGIONS.ABCD0001.DFHGCD"
-       sdfhload: "CICSTS61.CICS.SDFHLOAD"
+       region_data_sets:
+         template: "REGIONS.ABCD0001.<< data_set_name >>"
+       cics_data_sets:
+         template: "CICSTS61.CICS.<< lib_name >>"
        state: "absent"
 
 

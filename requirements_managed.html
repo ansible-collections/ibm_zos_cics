@@ -1,99 +1,90 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <title>Requirements of managed nodes &mdash; IBM Z CICS Collection 1.1.0-beta.2 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-
-  
-  
+  <title>Requirements of managed nodes &mdash; IBM Z CICS Collection 1.1.0-beta.3 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/ansible.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/rtd-ethical-ads.css" type="text/css" />
     <link rel="shortcut icon" href="_static/cics-transaction-server-light-theme.svg"/>
-  
-
-  
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
         <script src="_static/beta-banner/index.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installation" href="installation.html" />
-    <link rel="prev" title="Requirements" href="requirements.html" /> 
+    <link rel="prev" title="Requirements" href="requirements.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
 </head>
 
-<body class="wy-body-for-nav">
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
 
-   
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/ansiblefest" target="_blank">AnsibleFest</a></li>
+    <li><a href="https://www.ansible.com/tower" target="_blank">Products</a></li>
+    <li><a href="https://www.ansible.com/community" target="_blank">Community</a></li>
+    <li><a href="https://www.ansible.com/webinars-training" target="_blank">Webinars & Training</a></li>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="/" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">IBM Z CICS Collection 1.1.0-beta.3 documentation</div>
+</a>
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="index.html" class="icon icon-home"> IBM Z CICS Collection
           
+          <a href="index.html" class="icon icon-home">
+            IBM Z CICS Collection
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
 
-          
-          </a>
-
-          
-            
-            
-          
-
-          
+<div class="version">
+  
+    
+  
+</div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p><span class="caption-text">Getting Started</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="requirements.html">Requirements</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="requirements.html#control-node">Control node</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="requirements.html#managed-node">Managed node</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Requirements of managed nodes</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Requirements of managed nodes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cmci-tasks">CMCI tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#provisioning-tasks">Provisioning tasks</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -101,88 +92,53 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="playbooks.html">Playbooks</a></li>
 </ul>
-<p><span class="caption-text">Ansible Content</span></p>
+<p class="caption" role="heading"><span class="caption-text">Ansible Content</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
 </ul>
-<p><span class="caption-text">Release Notes</span></p>
+<p class="caption" role="heading"><span class="caption-text">Release Notes</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="release_notes.html">Releases</a></li>
 </ul>
-<p><span class="caption-text">Reference</span></p>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="community_guides.html">Contributing</a></li>
 </ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">IBM Z CICS Collection</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
-          <li><a href="requirements.html">Requirements</a> &raquo;</li>
-        
-      <li>Requirements of managed nodes</li>
-    
-    
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="requirements.html">Requirements</a></li>
+      <li class="breadcrumb-item active">Requirements of managed nodes</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/requirements_managed.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
            <div itemprop="articleBody">
-            
+             
   <section id="requirements-of-managed-nodes">
-<h1>Requirements of managed nodes<a class="headerlink" href="#requirements-of-managed-nodes" title="Permalink to this headline">¶</a></h1>
+<h1>Requirements of managed nodes<a class="headerlink" href="#requirements-of-managed-nodes" title="Permalink to this heading"></a></h1>
+<p>The tasks in the <strong>IBM® z/OS® CICS® collection</strong> can be classified into two
+types that have different requirements of the managed node.</p>
+<section id="cmci-tasks">
+<h2>CMCI tasks<a class="headerlink" href="#cmci-tasks" title="Permalink to this heading"></a></h2>
 <p>The CMCI tasks in the <strong>IBM® z/OS® CICS® collection</strong> interact
 with the managed node over an HTTP connection by leveraging the <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=cmci-how-it-works-rest-api">CMCI REST API</a>.
 Therefore, an SSH connection is not required. Instead, you can delegate
@@ -219,57 +175,59 @@ need to be installed on your localhost instead.</p>
 sample playbook</a> shows how you can ensure the pre-requisites are installed before the module is executed.</p>
 </li>
 </ul>
-<p>If you use the CICS collection in conjunction with other IBM z/OS collections,
-your managed node must also follow the requirements of those collections, for example, <a class="reference external" href="https://ibm.github.io/z_ansible_collections_doc/ibm_zos_core/docs/source/requirements_managed.html">IBM z/OS core managed node requirements</a>.</p>
-<p>If you use the CICS collection alone but don’t delegate the CICS tasks to your localhost, your managed node must also follow the <a class="reference external" href="https://ibm.github.io/z_ansible_collections_doc/ibm_zos_core/docs/source/requirements_managed.html">IBM z/OS core managed node requirements</a> except that IBM Z Open Automation Utilities (ZOAU) is not required.</p>
+<p>If you only use the CMCI tasks in the CICS collection but don’t delegate the CMCI tasks to your localhost, your managed node must also follow the <a class="reference external" href="https://ibm.github.io/z_ansible_collections_doc/ibm_zos_core/docs/source/requirements_managed.html">IBM z/OS core managed node requirements</a> except that IBM Z Open Automation Utilities (ZOAU) is not required.</p>
+</section>
+<section id="provisioning-tasks">
+<h2>Provisioning tasks<a class="headerlink" href="#provisioning-tasks" title="Permalink to this heading"></a></h2>
+<p>The provisioning tasks in the <strong>IBM® z/OS® CICS® collection</strong> interact with a
+z/OS managed node over SSH and therefore have different requirements to the
+CMCI tasks. The provisioning modules follow the requirements of the other z/OS
+collections as documented here <a class="reference external" href="https://ibm.github.io/z_ansible_collections_doc/ibm_zos_core/docs/source/requirements_managed.html">IBM z/OS core managed node requirements</a>.</p>
+<p>These requirements include an installation of the following components:
+- z/OS
+- z/OS OpenSSH
+- IBM Open Enterprise SDK for Python (previously IBM Open Enterprise Python for z/OS)
+- IBM Z Open Automation Utilities (ZOAU)
+- The z/OS shell</p>
+<p>For specific versions of these dependencies and additional information review
+the <a class="reference external" href="https://ibm.github.io/z_ansible_collections_doc/ibm_zos_core/docs/source/requirements_managed.html">IBM z/OS core managed node requirements</a> page.</p>
+</section>
 </section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="requirements.html" class="btn btn-neutral float-left" title="Requirements" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright IBM Corp. 2020, 2023.
-
-    </p>
+    <p>&#169; Copyright IBM Corp. 2020, 2023.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  
+   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+  <a href="https://sphinx-ansible-theme.rtfd.io">Sphinx Ansible Theme</a>
+  that is based on the
+  <a href="https://github.com/readthedocs/sphinx_rtd_theme">Read the Docs theme</a>
+  and is maintained by the <a href="https://docs.ansible.com/ansible/4/community/">Ansible Community</a>.
+
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
 
 </body>
 </html>
