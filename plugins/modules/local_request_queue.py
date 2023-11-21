@@ -20,7 +20,7 @@ description:
     request queue data set if it doesn't yet exist, or it will take an existing
     local request queue and empty it of all records.
 author: Drew Hughes (@andrewhughes101)
-version_added: 1.1.0-beta.2
+version_added: 1.1.0-beta.3
 options:
   space_primary:
     description:

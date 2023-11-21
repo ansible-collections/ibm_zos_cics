@@ -5,6 +5,24 @@ ibm.ibm_zos_cics Release Notes
 .. contents:: Topics
 
 
+v1.1.0-beta.3
+=============
+
+Release Summary
+---------------
+
+This release introduces changes to the global and local catalog modules by adding support for the ``region_data_sets`` and ``cics_data_sets`` defaults groups. This changes the way you specifiy the data set location for these modules. A new ``local_request_queue`` module is also included to support provisioning a local request queue data set. 
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- Introduction of ``region_data_sets`` and ``cics_data_sets`` defaults group
+
+New Modules
+-----------
+
+- ibm.ibm_zos_cics.local_request_queue - Create and remove the CICS local request queue
+
 v1.1.0-beta.2
 =============
 
