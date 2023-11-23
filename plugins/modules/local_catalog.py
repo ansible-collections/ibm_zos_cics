@@ -215,7 +215,8 @@ except ImportError:
 ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _dataset_size, _run_idcams, _data_set, _build_idcams_define_cmd, AnsibleDataSetModule)
+        _dataset_size, _data_set, _build_idcams_define_cmd)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import DataSet
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog import (
         _run_dfhccutl, _get_idcams_cmd_lcd)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import (_run_icetool)
@@ -225,7 +226,7 @@ except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
 
-class AnsibleLocalCatalogModule(AnsibleDataSetModule):
+class AnsibleLocalCatalogModule(DataSet):
     def __init__(self):
         super(AnsibleLocalCatalogModule, self).__init__()
 
@@ -362,14 +363,7 @@ class AnsibleLocalCatalogModule(AnsibleDataSetModule):
     def create_data_set(self):
         create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_lcd(self.data_set))
 
-        idcams_executions = _run_idcams(
-            cmd=create_cmd,
-            name="Create local catalog data set",
-            location=self.data_set["name"],
-            delete=False)
-        self.result["executions"] = self.result["executions"] + idcams_executions
-
-        self.result["changed"] = True
+        super().build_vsam_data_set(create_cmd, "Create local catalog data set")
 
     def delete_data_set(self):
         if not self.data_set["exists"]:
@@ -379,17 +373,7 @@ class AnsibleLocalCatalogModule(AnsibleDataSetModule):
             }
             self._exit()
 
-        delete_cmd = '''
-        DELETE {0}
-        '''.format(self.data_set["name"])
-
-        idcams_executions = _run_idcams(
-            cmd=delete_cmd,
-            name="Removing local catalog data set",
-            location=self.data_set["name"],
-            delete=True)
-        self.result["executions"] = self.result["executions"] + idcams_executions
-        self.result["changed"] = True
+        super().delete_data_set("Removing local catalog data set")
 
     def warm_data_set(self):
         if not self.data_set["exists"]:

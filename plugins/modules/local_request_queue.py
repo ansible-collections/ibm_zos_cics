@@ -201,7 +201,8 @@ except ImportError:
 ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _run_idcams, _build_idcams_define_cmd, _dataset_size, _data_set, AnsibleDataSetModule)
+        _build_idcams_define_cmd, _dataset_size, _data_set)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import DataSet
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_request_queue import (
         _get_idcams_cmd_lrq)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
@@ -212,7 +213,7 @@ except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
 
-class AnsibleLocalRequestQueueModule(AnsibleDataSetModule):
+class AnsibleLocalRequestQueueModule(DataSet):
     def __init__(self):
         super(AnsibleLocalRequestQueueModule, self).__init__()
 
@@ -349,31 +350,14 @@ class AnsibleLocalRequestQueueModule(AnsibleDataSetModule):
     def create_data_set(self):  # type: () -> None
         create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_lrq(self.data_set))
 
-        idcams_executions = _run_idcams(
-            cmd=create_cmd,
-            name="Create local request queue data set",
-            location=self.data_set["name"],
-            delete=False)
-        self.result["executions"] = self.result["executions"] + idcams_executions
-
-        self.result["changed"] = True
+        super().build_vsam_data_set(create_cmd, "Create local request queue data set")
 
     def delete_data_set(self):  # type: () -> None
         if not self.data_set["exists"]:
             self.result['end_state'] = _state(exists=self.data_set["exists"], vsam=self.data_set["vsam"])
             self._exit()
 
-        delete_cmd = '''
-        DELETE {0}
-        '''.format(self.data_set["name"])
-
-        idcams_executions = _run_idcams(
-            cmd=delete_cmd,
-            name="Removing local request queue data set",
-            location=self.data_set["name"],
-            delete=True)
-        self.result["executions"] = self.result["executions"] + idcams_executions
-        self.result["changed"] = True
+        super().delete_data_set("Removing local request queue data set")
 
 
 def main():

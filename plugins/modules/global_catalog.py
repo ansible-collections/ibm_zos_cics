@@ -247,7 +247,8 @@ except ImportError:
 ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _dataset_size, _run_listds, _run_idcams, _data_set, _build_idcams_define_cmd, AnsibleDataSetModule)
+        _dataset_size, _run_listds, _data_set, _build_idcams_define_cmd)
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import DataSet
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog import (
         _run_dfhrmutl, _get_idcams_cmd_gcd)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _state
@@ -257,7 +258,7 @@ except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
 
-class AnsibleGlobalCatalogModule(AnsibleDataSetModule):
+class AnsibleGlobalCatalogModule(DataSet):
 
     def __init__(self):
         super(AnsibleGlobalCatalogModule, self).__init__()
@@ -399,14 +400,7 @@ class AnsibleGlobalCatalogModule(AnsibleDataSetModule):
     def create_data_set(self):
         create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_gcd(self.data_set))
 
-        idcams_executions = _run_idcams(
-            cmd=create_cmd,
-            name="Create global catalog data set",
-            location=self.data_set["name"],
-            delete=False)
-        self.result["executions"] = self.result["executions"] + idcams_executions
-
-        self.result["changed"] = True
+        super().build_vsam_data_set(create_cmd, "Create global catalog data set")
 
     def delete_data_set(self):
         if not self.data_set["exists"]:
@@ -417,17 +411,7 @@ class AnsibleGlobalCatalogModule(AnsibleDataSetModule):
             }
             self._exit()
 
-        delete_cmd = '''
-        DELETE {0}
-        '''.format(self.data_set["name"])
-
-        idcams_executions = _run_idcams(
-            cmd=delete_cmd,
-            name="Removing global catalog data set",
-            location=self.data_set["name"],
-            delete=True)
-        self.result["executions"] = self.result["executions"] + idcams_executions
-        self.result["changed"] = True
+        super().delete_data_set("Removing global catalog data set")
 
     def init_data_set(self):
         if self.data_set["exists"] and self.data_set["autostart_override"] == gc_constants["AUTO_START_INIT"]:
