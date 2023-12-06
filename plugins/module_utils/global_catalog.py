@@ -6,7 +6,6 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 import traceback
-from typing import List
 
 ZOS_CORE_IMP_ERR = None
 
@@ -21,7 +20,7 @@ ZOS_CICS_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
         _execution)
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import _dataset_constants as ds_constants
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
@@ -40,7 +39,7 @@ def _get_filtered_list(elements, target):
 def _get_rmutl_dds(
         location,
         sdfhload,
-        cmd):  # type: (str, str, str) -> List[DDStatement]
+        cmd):  # type: (str, str, str) -> list[DDStatement]
     return [
         DDStatement('steplib', DatasetDefinition(sdfhload)),
         DDStatement('dfhgcd', DatasetDefinition(location)),

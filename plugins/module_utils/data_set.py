@@ -28,16 +28,16 @@ class DataSet(object):
 
     def init_argument_spec(self):  # type: () -> dict
         return {
-            dataset_utils._dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]: {
+            _dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]: {
                 "required": False,
                 "type": "int",
             },
-            dataset_utils._dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]: {
+            _dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]: {
                 "required": False,
                 "type": "str",
-                "choices": dataset_utils._dataset_constants["SPACE_UNIT_OPTIONS"],
+                "choices": _dataset_constants["SPACE_UNIT_OPTIONS"],
             },
-            dataset_utils._dataset_constants["TARGET_STATE_ALIAS"]: {
+            _dataset_constants["TARGET_STATE_ALIAS"]: {
                 "required": True,
                 "type": "str",
             }
@@ -45,14 +45,14 @@ class DataSet(object):
 
     def _get_arg_defs(self):  # type: () -> dict
         return {
-            dataset_utils._dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]: {
+            _dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]: {
                 "arg_type": "int",
             },
-            dataset_utils._dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]: {
+            _dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]: {
                 "arg_type": "str",
-                "choices": dataset_utils._dataset_constants["SPACE_UNIT_OPTIONS"],
+                "choices": _dataset_constants["SPACE_UNIT_OPTIONS"],
             },
-            dataset_utils._dataset_constants["TARGET_STATE_ALIAS"]: {
+            _dataset_constants["TARGET_STATE_ALIAS"]: {
                 "arg_type": "str",
                 "required": True,
             },
@@ -61,29 +61,29 @@ class DataSet(object):
     def _get_data_set_object(self, size, result):  # type: (dataset_utils._dataset_size, dict) -> dataset_utils._data_set
         return dataset_utils._data_set(
             size=size,
-            name=result.get(dataset_utils._dataset_constants["DATASET_LOCATION_ALIAS"]).upper(),
-            state=result.get(dataset_utils._dataset_constants["TARGET_STATE_ALIAS"]),
+            name=result.get(_dataset_constants["DATASET_LOCATION_ALIAS"]).upper(),
+            state=result.get(_dataset_constants["TARGET_STATE_ALIAS"]),
             exists=False,
             vsam=False)
 
     def _get_data_set_size(self, result):
         return dataset_utils._dataset_size(
-            unit=result.get(dataset_utils._dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
-            primary=result.get(dataset_utils._dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
-            secondary=dataset_utils._dataset_constants["SECONDARY_SPACE_VALUE_DEFAULT"])
+            unit=result.get(_dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
+            primary=result.get(_dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
+            secondary=_dataset_constants["SECONDARY_SPACE_VALUE_DEFAULT"])
 
     def validate_parameters(self):  # type: () -> None
         arg_defs = self._get_arg_defs()
 
         result = dataset_utils.BetterArgParser(arg_defs).parse_args({
-            dataset_utils._dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]:
-                self._module.params.get(dataset_utils._dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
-            dataset_utils._dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]:
-                self._module.params.get(dataset_utils._dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
-            dataset_utils._dataset_constants["DATASET_LOCATION_ALIAS"]:
-                self._module.params.get(dataset_utils._dataset_constants["DATASET_LOCATION_ALIAS"]),
-            dataset_utils._dataset_constants["TARGET_STATE_ALIAS"]:
-                self._module.params.get(dataset_utils._dataset_constants["TARGET_STATE_ALIAS"])
+            _dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]:
+                self._module.params.get(_dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
+            _dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]:
+                self._module.params.get(_dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
+            _dataset_constants["DATASET_LOCATION_ALIAS"]:
+                self._module.params.get(_dataset_constants["DATASET_LOCATION_ALIAS"]),
+            _dataset_constants["TARGET_STATE_ALIAS"]:
+                self._module.params.get(_dataset_constants["TARGET_STATE_ALIAS"])
         })
 
         size = self._get_data_set_size(result)
@@ -135,9 +135,9 @@ class DataSet(object):
 
     def get_target_method(self, target):  # type: (str) -> [str | invalid_target_state]
         return {
-            dataset_utils._dataset_constants["TARGET_STATE_ABSENT"]: self.delete_data_set,
-            dataset_utils._dataset_constants["TARGET_STATE_INITIAL"]: self.init_data_set,
-            dataset_utils._dataset_constants["TARGET_STATE_WARM"]: self.warm_data_set,
+            _dataset_constants["TARGET_STATE_ABSENT"]: self.delete_data_set,
+            _dataset_constants["TARGET_STATE_INITIAL"]: self.init_data_set,
+            _dataset_constants["TARGET_STATE_WARM"]: self.warm_data_set,
         }.get(target, self.invalid_target_state)
 
     def get_data_set_state(self, data_set):  # type: (dict) -> dict
@@ -168,3 +168,20 @@ class DataSet(object):
         self.result["end_state"] = dataset_utils._state(exists=self.end_state["exists"], vsam=self.end_state["vsam"])
 
         self._exit()
+
+
+_dataset_constants = {
+    "DATASET_LOCATION_ALIAS": "location",
+    "SDFHLOAD_ALIAS": "sdfhload",
+    "TARGET_STATE_ALIAS": "state",
+    "PRIMARY_SPACE_VALUE_ALIAS": "space_primary",
+    "PRIMARY_SPACE_UNIT_ALIAS": "space_type",
+    "SECONDARY_SPACE_VALUE_DEFAULT": 0,
+    "SPACE_UNIT_OPTIONS": ["K", "M", "REC", "CYL", "TRK"],
+    "TARGET_STATE_ABSENT": "absent",
+    "TARGET_STATE_INITIAL": "initial",
+    "TARGET_STATE_WARM": "warm",
+    "TARGET_STATE_COLD": "cold",
+    "CICS_DATA_SETS_ALIAS": "cics_data_sets",
+    "REGION_DATA_SETS_ALIAS": "region_data_sets",
+}

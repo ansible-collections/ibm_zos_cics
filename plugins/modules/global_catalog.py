@@ -253,7 +253,7 @@ try:
         _run_dfhrmutl, _get_idcams_cmd_gcd)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _state
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog import _global_catalog_constants as gc_constants
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import _dataset_constants as ds_constants
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
