@@ -221,7 +221,7 @@ try:
         _run_dfhccutl, _get_idcams_cmd_lcd)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import (_run_icetool)
     from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog import _local_catalog_constants as lc_constants
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import _dataset_constants as ds_constants
+    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
 except ImportError:
     ZOS_CICS_IMP_ERR = traceback.format_exc()
 
