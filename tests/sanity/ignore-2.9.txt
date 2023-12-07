@@ -6,6 +6,7 @@ plugins/modules/cmci_update.py validate-modules:missing-gplv3-license # Licence 
 plugins/modules/global_catalog.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
 plugins/modules/local_catalog.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
 plugins/modules/local_request_queue.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
+plugins/modules/intrapartition.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
 plugins/module_utils/cmci.py import-2.7
 plugins/modules/cmci_action.py import-2.7
 plugins/modules/cmci_create.py import-2.7

@@ -10,7 +10,7 @@ __metaclass__ = type
 
 DOCUMENTATION = r"""
 ---
-module: intraparition
+module: intrapartition
 short_description: Create and remove the CICS transient data intrapartition data set
 description:
   - Create and remove the L(transient data intrapartition,https://www.ibm.com/docs/en/cics-ts/latest?topic=data-defining-intrapartition-set)
@@ -32,7 +32,7 @@ options:
       - The transient data intrapartition data set's secondary space allocation is set to 1.
     type: int
     required: false
-    default: 4
+    default: 100
   space_type:
     description:
       - The unit portion of the transient data intrapartition data set size. Note, this is
@@ -49,7 +49,7 @@ options:
       - REC
       - CYL
       - TRK
-    default: M
+    default: REC
   region_data_sets:
     description:
       - The location of the region's data sets using a template, e.g.
@@ -230,7 +230,8 @@ class AnsibleIntrapartitionModule(DataSet):
         super(AnsibleIntrapartitionModule, self).__init__()
 
     def init_argument_spec(self):  # type: () -> Dict
-        arg_spec = super(AnsibleIntrapartitionModule, self).init_argument_spec()
+        arg_spec = super(AnsibleIntrapartitionModule,
+                         self).init_argument_spec()
 
         arg_spec[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update(
             {
@@ -391,7 +392,8 @@ class AnsibleIntrapartitionModule(DataSet):
         self.data_set = self._get_data_set_object(size, result)
 
     def create_data_set(self):  # type: () -> None
-        create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_intra(self.data_set))
+        create_cmd = _build_idcams_define_cmd(
+            _get_idcams_cmd_intra(self.data_set))
 
         super().build_vsam_data_set(create_cmd, "Create intrapartition data set")
 
