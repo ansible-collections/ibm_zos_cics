@@ -1,0 +1,43 @@
+# (c) Copyright IBM Corp. 2023
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Check Erroneous Parameter
+
+  hosts: "all"
+  gather_facts: false
+  vars:
+    region_data_set_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}"
+    data_set_name: "DFHINTRA"
+
+  module_defaults:
+    ibm.ibm_zos_cics.intrapartition:
+      space_primary: 4
+      space_type: "M"
+      region_data_sets:
+        dfhintra:
+          dsn: "{{ region_data_set_path }}..."
+
+  tasks:
+    # #############################################################################
+    # ############################## Module Testing ###############################
+    # #############################################################################
+
+    - name: Give bad INTRA location
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.intrapartition:
+        state: "initial"
+      register: res
+      failed_when: false
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ res }}"
+
+    - name: Assert Failure
+      ansible.builtin.assert:
+        that:
+          - res.failed is false
+          - res.changed is false
+          - res.rc == 1
+          - "'exception' in res"
+          - "'Invalid argument \"ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}...\" for type \"data_set_base\".' in res.exception"
