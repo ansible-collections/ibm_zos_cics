@@ -7,6 +7,8 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_ut
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, _response, _state
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import set_data_set, set_module_args
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import local_request_queue
+import pytest
+import sys
 
 try:
     from unittest.mock import MagicMock
@@ -39,6 +41,7 @@ def initialise_module(**kwargs):
     return lrq_module
 
 
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_create_an_intial_local_request_queue():
     lrq_module = initialise_module()
 
@@ -59,6 +62,7 @@ def test_create_an_intial_local_request_queue():
     assert lrq_module.result == expected_result
 
 
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_delete_an_existing_local_request_queue():
     lrq_module = initialise_module(state="absent")
 
@@ -79,6 +83,7 @@ def test_delete_an_existing_local_request_queue():
     assert lrq_module.result == expected_result
 
 
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_do_nothing_to_an_existing_lrq():
     lrq_module = initialise_module()
     data_set = set_data_set(exists=True, name="TEST.REGIONS.LRQ", vsam=True)
