@@ -354,7 +354,7 @@ class AnsibleLocalRequestQueueModule(DataSet):
 
     def delete_data_set(self):  # type: () -> None
         if not self.data_set["exists"]:
-            self.result['end_state'] = _state(exists=self.data_set["exists"], vsam=self.data_set["vsam"])
+            self.result["end_state"] = _state(exists=self.data_set["exists"], vsam=self.data_set["vsam"])
             self._exit()
 
         super().delete_data_set("Removing local request queue data set")

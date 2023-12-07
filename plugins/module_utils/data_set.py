@@ -8,7 +8,7 @@ __metaclass__ = type
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _response
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _response, _state
 
 
 class DataSet(object):
@@ -16,7 +16,7 @@ class DataSet(object):
         self._module = AnsibleModule(
             argument_spec=self.init_argument_spec(),
         )
-        self.result = _response(executions=[], start_state=dataset_utils._state(exists=False), end_state=dataset_utils._state(exists=False))
+        self.result = _response(executions=[], start_state=_state(exists=False), end_state=_state(exists=False))
         self.validate_parameters()
 
     def _fail(self, msg):  # type: (str) -> None
@@ -117,7 +117,7 @@ class DataSet(object):
 
     def init_data_set(self):  # type: () -> None
         if self.data_set["exists"]:
-            self.result["end_state"] = dataset_utils._state(exists=self.data_set["exists"], vsam=self.data_set["vsam"])
+            self.result["end_state"] = _state(exists=self.data_set["exists"], vsam=self.data_set["vsam"])
             self._exit()
 
         if not self.data_set["exists"]:
@@ -153,7 +153,7 @@ class DataSet(object):
     def main(self):
         self.data_set = self.get_data_set_state(self.data_set)
 
-        self.result["start_state"] = dataset_utils._state(exists=self.data_set["exists"], vsam=self.data_set["vsam"])
+        self.result["start_state"] = _state(exists=self.data_set["exists"], vsam=self.data_set["vsam"])
 
         # Change below to account for non vsams
         if self.data_set["exists"] and not self.data_set["vsam"]:
@@ -165,7 +165,7 @@ class DataSet(object):
 
         self.end_state = self.get_data_set_state(self.data_set)
 
-        self.result["end_state"] = dataset_utils._state(exists=self.end_state["exists"], vsam=self.end_state["vsam"])
+        self.result["end_state"] = _state(exists=self.end_state["exists"], vsam=self.end_state["vsam"])
 
         self._exit()
 

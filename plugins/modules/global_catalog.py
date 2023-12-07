@@ -237,7 +237,6 @@ executions:
 from typing import Dict
 import traceback
 
-DDStatement = None
 ZOS_CORE_IMP_ERR = None
 try:
     from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
@@ -259,7 +258,6 @@ except ImportError:
 
 
 class AnsibleGlobalCatalogModule(DataSet):
-
     def __init__(self):
         super(AnsibleGlobalCatalogModule, self).__init__()
 
