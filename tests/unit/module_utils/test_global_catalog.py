@@ -8,8 +8,19 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import global_catalog
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
+    _execution,
+)
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import (
+    MVSCmdResponse,
+)
 import pytest
 import sys
+
+try:
+    from unittest.mock import MagicMock
+except ImportError:
+    from mock import MagicMock
 
 
 @pytest.mark.skipif(
@@ -176,3 +187,225 @@ def test_global_catalog_get_records_autocold_emergency():
         "autostart_override": "AUTOCOLD",
         "next_start": "EMERGENCY",
     }
+
+
+def test_global_catalog_run_rmutl_with_cmd():
+    executions = [
+        _execution(
+            name="DFHRMUTL - Updating autostart override - Run 1",
+            rc=0,
+            stdout="",
+            stderr="",
+        )
+    ]
+    global_catalog.MVSCmd.execute = MagicMock(
+        return_value=MVSCmdResponse(rc=0, stdout="", stderr="")
+    )
+    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
+    result = global_catalog._run_dfhrmutl(
+        location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
+    )
+
+    assert result == executions
+
+
+def test_global_catalog_run_rmutl_with_cmd_and_failure():
+    executions = [
+        _execution(
+            name="DFHRMUTL - Updating autostart override - Run 1",
+            rc=16,
+            stdout=" ABC \n REASON: X'A8'",
+            stderr="",
+        ),
+        _execution(
+            name="DFHRMUTL - Updating autostart override - Run 2",
+            rc=0,
+            stdout="",
+            stderr="",
+        ),
+    ]
+    global_catalog.MVSCmd.execute = MagicMock(
+        side_effect=[
+            MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
+            MVSCmdResponse(rc=0, stdout="", stderr=""),
+        ]
+    )
+    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
+    result = global_catalog._run_dfhrmutl(
+        location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
+    )
+
+    assert result == executions
+
+
+def test_global_catalog_run_rmutl_no_cmd():
+    rmutl_response = MVSCmdResponse(
+        rc=0,
+        stdout=""" ===DFHRMUTL CICS RECOVERY MANAGER BATCH UTILITY===
+
+
+ ---DFHRMUTL:   DFHGCD information
+    Recovery manager auto-start override   : AUTOASIS
+    Recovery manager next start type       : EMERGENCY
+
+ Note: a CICS system that was shutdown warm, and which
+ has no indoubt, commit-failed or backout-failed Units
+ Of Work keypointed at that time, can safely be restarted
+ cold without loss of data integrity.
+
+""",
+        stderr="",
+    )
+
+    expected_executions = [
+        _execution(
+            name="DFHRMUTL - Get current catalog - Run 1",
+            rc=rmutl_response.rc,
+            stdout=rmutl_response.stdout,
+            stderr=rmutl_response.stderr,
+        )
+    ]
+    expected_details = {
+        "autostart_override": "AUTOASIS",
+        "next_start": "EMERGENCY",
+    }
+    global_catalog.MVSCmd.execute = MagicMock(return_value=rmutl_response)
+    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
+    actual_executions, actual_details = global_catalog._run_dfhrmutl(
+        location="DATA.SET", sdfhload="SDFH.LOAD"
+    )
+
+    assert actual_executions == expected_executions
+    assert actual_details == expected_details
+
+
+def test_global_catalog_run_rmutl_no_cmd_with_failure():
+    rmutl_response = MVSCmdResponse(
+        rc=0,
+        stdout=""" ===DFHRMUTL CICS RECOVERY MANAGER BATCH UTILITY===
+
+
+ ---DFHRMUTL:   DFHGCD information
+    Recovery manager auto-start override   : AUTOASIS
+    Recovery manager next start type       : EMERGENCY
+
+ Note: a CICS system that was shutdown warm, and which
+ has no indoubt, commit-failed or backout-failed Units
+ Of Work keypointed at that time, can safely be restarted
+ cold without loss of data integrity.
+
+""",
+        stderr="",
+    )
+
+    expected_executions = [
+        _execution(
+            name="DFHRMUTL - Get current catalog - Run 1",
+            rc=16,
+            stdout=" ABC \n REASON: X'A8'",
+            stderr="",
+        ),
+        _execution(
+            name="DFHRMUTL - Get current catalog - Run 2",
+            rc=rmutl_response.rc,
+            stdout=rmutl_response.stdout,
+            stderr=rmutl_response.stderr,
+        ),
+    ]
+    expected_details = {
+        "autostart_override": "AUTOASIS",
+        "next_start": "EMERGENCY",
+    }
+    global_catalog.MVSCmd.execute = MagicMock(
+        side_effect=[
+            MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
+            rmutl_response,
+        ]
+    )
+    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
+    actual_executions, actual_details = global_catalog._run_dfhrmutl(
+        location="DATA.SET", sdfhload="SDFH.LOAD"
+    )
+
+    assert actual_executions == expected_executions
+    assert actual_details == expected_details
+
+
+def test_global_catalog_run_rmutl_no_cmd_many_failures():
+    rmutl_response = MVSCmdResponse(
+        rc=0,
+        stdout=""" ===DFHRMUTL CICS RECOVERY MANAGER BATCH UTILITY===
+
+
+ ---DFHRMUTL:   DFHGCD information
+    Recovery manager auto-start override   : AUTOINIT
+    Recovery manager next start type       : UNKNOWN
+
+ Note: a CICS system that was shutdown warm, and which
+ has no indoubt, commit-failed or backout-failed Units
+ Of Work keypointed at that time, can safely be restarted
+ cold without loss of data integrity.
+
+""",
+        stderr="",
+    )
+
+    expected_executions = [
+        _execution(
+            name="DFHRMUTL - Get current catalog - Run 1",
+            rc=16,
+            stdout=" ABC \n REASON: X'A8'",
+            stderr="",
+        ),
+        _execution(
+            name="DFHRMUTL - Get current catalog - Run 2",
+            rc=16,
+            stdout="\n\n\n REASON: X'A8'",
+            stderr="",
+        ),
+        _execution(
+            name="DFHRMUTL - Get current catalog - Run 3",
+            rc=16,
+            stdout="REASON:X'A8'",
+            stderr="",
+        ),
+        _execution(
+            name="DFHRMUTL - Get current catalog - Run 4",
+            rc=16,
+            stdout="\n REASON:X'A8'",
+            stderr="",
+        ),
+        _execution(
+            name="DFHRMUTL - Get current catalog - Run 5",
+            rc=16,
+            stdout=" ABC \n REASON:   X 'A8'",
+            stderr="",
+        ),
+        _execution(
+            name="DFHRMUTL - Get current catalog - Run 6",
+            rc=rmutl_response.rc,
+            stdout=rmutl_response.stdout,
+            stderr=rmutl_response.stderr,
+        ),
+    ]
+    expected_details = {
+        "autostart_override": "AUTOINIT",
+        "next_start": "UNKNOWN",
+    }
+    global_catalog.MVSCmd.execute = MagicMock(
+        side_effect=[
+            MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
+            MVSCmdResponse(rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
+            MVSCmdResponse(rc=16, stdout="REASON:X'A8'", stderr=""),
+            MVSCmdResponse(rc=16, stdout="\n REASON:X'A8'", stderr=""),
+            MVSCmdResponse(rc=16, stdout=" ABC \n REASON:   X 'A8'", stderr=""),
+            rmutl_response,
+        ]
+    )
+    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
+    actual_executions, actual_details = global_catalog._run_dfhrmutl(
+        location="DATA.SET", sdfhload="SDFH.LOAD"
+    )
+
+    assert actual_executions == expected_executions
+    assert actual_details == expected_details
