@@ -1,0 +1,104 @@
+# (c) Copyright IBM Corp. 2023
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Absent TEMP
+
+  hosts: "all"
+  gather_facts: false
+  vars:
+    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_absent }}"
+    temp_name: "DFHTEMP"
+    temp_path: "{{ region_dataset_path }}.{{ temp_name }}"
+
+  module_defaults:
+    ibm.ibm_zos_cics.auxiliary_temp:
+      space_primary: 4
+      space_type: "M"
+      region_data_sets:
+        template: "{{ region_dataset_path }}.<< data_set_name >>"
+
+  tasks:
+    # #############################################################################
+    # ############################## Initial cleanup ##############################
+    # #############################################################################
+
+    - name: Delete TEMP Data Set if it exists
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ temp_path }}"
+        state: absent
+      register: delete_result
+      retries: 3
+      until: delete_result is not failed
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == false
+
+    # #############################################################################
+    # ############################ Initialize Data set #############################
+    # #############################################################################
+
+    - name: Run Intrapartition module with Initial target state
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.auxiliary_temp:
+        state: "initial"
+      register: initial_result
+
+    - name: Assert Created
+      ansible.builtin.assert:
+        that:
+          - initial_result.failed is false
+          - initial_result.changed is true
+
+          - initial_result.start_state.exists == false
+          - initial_result.start_state.vsam == false
+
+          - initial_result.end_state.exists == true
+          - initial_result.end_state.vsam == true
+
+    # #############################################################################
+    # ############################## Module Testing ###############################
+    # #############################################################################
+
+    - name: Run Intrapartition module with Absent target state
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.auxiliary_temp:
+        state: "absent"
+      register: absent_result
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ absent_result }}"
+
+    - name: Assert Removed
+      ansible.builtin.assert:
+        that:
+          - absent_result.failed is false
+          - absent_result.changed is true
+
+          - absent_result.start_state.exists == true
+          - absent_result.start_state.vsam == true
+
+          - absent_result.end_state.exists == false
+          - absent_result.end_state.vsam == false
+
+
+    # #############################################################################
+    # ################################## Cleanup ##################################
+    # #############################################################################
+
+    - name: Delete temp data set
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ temp_path }}"
+        state: absent
+      register: delete_result
+      retries: 3
+      until: delete_result is not failed
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == false
