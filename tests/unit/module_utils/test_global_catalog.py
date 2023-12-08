@@ -409,3 +409,79 @@ def test_global_catalog_run_rmutl_no_cmd_many_failures():
 
     assert actual_executions == expected_executions
     assert actual_details == expected_details
+
+
+def test_global_catalog_run_rmutl_rc16_error():
+    global_catalog.MVSCmd.execute = MagicMock(
+        return_value=MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'12'", stderr="")
+    )
+    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
+
+    error_raised = False
+    try:
+        global_catalog._run_dfhrmutl(
+            location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
+        )
+    except Exception:
+        error_raised = True
+
+    assert error_raised is True
+
+
+def test_global_catalog_run_rmutl_many_rc16_error():
+    global_catalog.MVSCmd.execute = MagicMock(
+        side_effect=[
+            MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
+            MVSCmdResponse(rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
+            MVSCmdResponse(rc=16, stdout="REASON:X'B2'", stderr=""),
+        ]
+    )
+    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
+
+    error_raised = False
+    try:
+        global_catalog._run_dfhrmutl(
+            location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
+        )
+    except Exception:
+        error_raised = True
+
+    assert error_raised is True
+
+
+def test_global_catalog_run_rmutl_many_rc_error():
+    global_catalog.MVSCmd.execute = MagicMock(
+        side_effect=[
+            MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
+            MVSCmdResponse(rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
+            MVSCmdResponse(rc=15, stdout="REASON:X'A8'", stderr=""),
+        ]
+    )
+    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
+
+    error_raised = False
+    try:
+        global_catalog._run_dfhrmutl(
+            location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
+        )
+    except Exception:
+        error_raised = True
+
+    assert error_raised is True
+
+
+def test_global_catalog_run_rmutl_rc_not_0():
+    global_catalog.MVSCmd.execute = MagicMock(
+        return_value=MVSCmdResponse(rc=123, stdout="", stderr="")
+    )
+    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
+
+    error_raised = False
+    try:
+        global_catalog._run_dfhrmutl(
+            location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
+        )
+    except Exception:
+        error_raised = True
+
+    assert error_raised is True
