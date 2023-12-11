@@ -38,11 +38,7 @@ def _get_ccmutl_dds(catalog):
 
 def _run_dfhccutl(starting_catalog):
     executions = []
-    dfhccutl_response = MVSCmd.execute(
-        pgm="DFHCCUTL",
-        dds=_get_ccmutl_dds(catalog=starting_catalog),
-        verbose=True,
-        debug=False)
+    dfhccutl_response = _execute_dfhccutl(starting_catalog)
 
     if dfhccutl_response.rc != 0:
         raise Exception(
@@ -57,6 +53,14 @@ def _run_dfhccutl(starting_catalog):
         stderr=dfhccutl_response.stderr))
 
     return executions
+
+
+def _execute_dfhccutl(starting_catalog):
+    return MVSCmd.execute(
+        pgm="DFHCCUTL",
+        dds=_get_ccmutl_dds(catalog=starting_catalog),
+        verbose=True,
+        debug=False)
 
 
 def _get_idcams_cmd_lcd(dataset):
