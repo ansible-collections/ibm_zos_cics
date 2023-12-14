@@ -234,27 +234,16 @@ executions:
 """
 
 
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog import _global_catalog_constants as gc_constants
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _state
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog import (
+    _run_dfhrmutl, _get_idcams_cmd_gcd)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import DataSet
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
+    _dataset_size, _run_listds, _data_set, _build_idcams_define_cmd)
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 from typing import Dict
-import traceback
-
-ZOS_CORE_IMP_ERR = None
-try:
-    from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
-except ImportError:
-    ZOS_CORE_IMP_ERR = traceback.format_exc()
-
-ZOS_CICS_IMP_ERR = None
-try:
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _dataset_size, _run_listds, _data_set, _build_idcams_define_cmd)
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import DataSet
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog import (
-        _run_dfhrmutl, _get_idcams_cmd_gcd)
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _state
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog import _global_catalog_constants as gc_constants
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
-except ImportError:
-    ZOS_CICS_IMP_ERR = traceback.format_exc()
 
 
 class AnsibleGlobalCatalogModule(DataSet):

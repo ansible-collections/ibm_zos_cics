@@ -8,33 +8,78 @@
   vars:
     region_data_set_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}"
 
-  module_defaults:
-    ibm.ibm_zos_cics.intrapartition:
-      space_primary: 4
-      space_type: "M"
-      region_data_sets:
-        template: "{{ region_data_set_path }}.<< data_set_name >>"
-      cics_data_sets:
-        sdfhload: "{{ cics_steplib }}"
-
   tasks:
     # #############################################################################
     # ############################## Module Testing ###############################
     # #############################################################################
 
-    - name: Create Intrapartition data set
+    - name: Create global catalog data set
       environment: "{{ environment_vars }}"
-      ibm.ibm_zos_cics.intrapartition:
+      ibm.ibm_zos_cics.global_catalog:
         state: "initial"
+        region_data_sets:
+          template: "{{ region_data_set_path }}.<< data_set_name >>"
+        cics_data_sets:
+          sdfhload: "{{ cics_steplib }}"
       register: result
       failed_when: false
       ignore_errors: true
 
-    - name: Debug
-      ansible.builtin.debug:
-        msg: "{{ result }}"
+    - name: Assert global failed
+      ansible.builtin.assert:
+        that:
+          - result.failed is true
+          - "'unable to locate collection ibm.ibm_zos_core' in result.msg"
 
-    - name: Assert INTRA failed
+    - name: Create local catalog data set
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.local_catalog:
+        state: "initial"
+        region_data_sets:
+          template: "{{ region_data_set_path }}.<< data_set_name >>"
+        cics_data_sets:
+          sdfhload: "{{ cics_steplib }}"
+      register: result
+      failed_when: false
+      ignore_errors: true
+
+    - name: Assert local failed
+      ansible.builtin.assert:
+        that:
+          - result.failed is true
+          - "'unable to locate collection ibm.ibm_zos_core' in result.msg"
+
+    - name: Create lrq data set
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.local_request_queue:
+        state: "initial"
+        region_data_sets:
+          template: "{{ region_data_set_path }}.<< data_set_name >>"
+        cics_data_sets:
+          sdfhload: "{{ cics_steplib }}"
+      register: result
+      failed_when: false
+      ignore_errors: true
+
+    - name: Assert lrq failed
+      ansible.builtin.assert:
+        that:
+          - result.failed is true
+          - "'unable to locate collection ibm.ibm_zos_core' in result.msg"
+
+    - name: Create Intrapartition data set
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.intrapartition:
+        state: "initial"
+        region_data_sets:
+          template: "{{ region_data_set_path }}.<< data_set_name >>"
+        cics_data_sets:
+          sdfhload: "{{ cics_steplib }}"
+      register: result
+      failed_when: false
+      ignore_errors: true
+
+    - name: Assert intra failed
       ansible.builtin.assert:
         that:
           - result.failed is true
