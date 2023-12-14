@@ -16,6 +16,8 @@
       space_type: "M"
       region_data_sets:
         template: "{{ region_dataset_path }}.<< data_set_name >>"
+      cics_data_sets:
+        sdfhload: "{{ cics_steplib }}"
 
   tasks:
     # #############################################################################

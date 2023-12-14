@@ -18,8 +18,7 @@ description:
   - Useful when provisioning or de-provisioning a CICS region.
   - Use the O(state) option to specify the intended state for the transient data
     intrapartition. For example, O(state=initial) will create a transient data
-    intrapartition data set if it doesn't yet exist, or it will take an existing
-    transient data intrapartition and empty it of all records.
+    intrapartition data set if it doesn't yet exist.
 author: Andrew Twydell (@andrewtwydell)
 version_added: 1.1.0-beta.4
 options:
@@ -97,7 +96,7 @@ options:
       - V(absent) will remove the transient data intrapartition data set entirely, if it
         already exists.
       - V(initial) will create the transient data intrapartition data set if it does not
-        already exist, and empty it of all existing records.
+        already exist.
     choices:
       - "initial"
       - "absent"
@@ -189,40 +188,26 @@ executions:
       returned: always
 """
 
-
-import traceback
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.intrapartition import (
+    _intrapartition_constants as intra_constants,
+    _get_idcams_cmd_intra,
+)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
+    _state,
+)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
+    DataSet,
+    _dataset_constants as ds_constants,
+)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
+    _build_idcams_define_cmd,
+    _dataset_size,
+    _data_set,
+)
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import (
+    BetterArgParser,
+)
 from typing import Dict
-
-ZOS_CORE_IMP_ERR = None
-try:
-    from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import (
-        BetterArgParser,
-    )
-except ImportError:
-    ZOS_CORE_IMP_ERR = traceback.format_exc()
-
-ZOS_CICS_IMP_ERR = None
-try:
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _build_idcams_define_cmd,
-        _dataset_size,
-        _data_set,
-    )
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
-        DataSet,
-    )
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
-        _state,
-    )
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.intrapartition import (
-        _intrapartition_constants as intra_constants,
-        _get_idcams_cmd_intra,
-    )
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
-        _dataset_constants as ds_constants,
-    )
-except ImportError:
-    ZOS_CICS_IMP_ERR = traceback.format_exc()
 
 
 class AnsibleIntrapartitionModule(DataSet):
@@ -230,8 +215,7 @@ class AnsibleIntrapartitionModule(DataSet):
         super(AnsibleIntrapartitionModule, self).__init__()
 
     def init_argument_spec(self):  # type: () -> Dict
-        arg_spec = super(AnsibleIntrapartitionModule,
-                         self).init_argument_spec()
+        arg_spec = super(AnsibleIntrapartitionModule, self).init_argument_spec()
 
         arg_spec[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update(
             {
@@ -392,8 +376,7 @@ class AnsibleIntrapartitionModule(DataSet):
         self.data_set = self._get_data_set_object(size, result)
 
     def create_data_set(self):  # type: () -> None
-        create_cmd = _build_idcams_define_cmd(
-            _get_idcams_cmd_intra(self.data_set))
+        create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_intra(self.data_set))
 
         super().build_vsam_data_set(create_cmd, "Create intrapartition data set")
 
