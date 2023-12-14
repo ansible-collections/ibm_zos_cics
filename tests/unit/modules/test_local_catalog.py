@@ -171,6 +171,7 @@ def test_error_warm_start_a_unused_local_catalog():
     assert lcd_module.result == expected_result
 
 
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_error_warm_start_a_non_existent_local_catalog():
     lcd_module = initialise_module(state="warm")
 
