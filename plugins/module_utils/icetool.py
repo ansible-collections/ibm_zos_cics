@@ -68,11 +68,7 @@ def _run_icetool(location):
     executions = []
 
     for x in range(10):
-        icetool_response = MVSCmd.execute(
-            pgm="ICETOOL",
-            dds=_get_icetool_dds(location=location),
-            verbose=True,
-            debug=False)
+        icetool_response = _execute_icetool(location)
 
         executions.append(
             _execution(
@@ -98,3 +94,11 @@ def _run_icetool(location):
                     icetool_response.rc))
 
     return executions, _get_record_count(icetool_response.stdout)
+
+
+def _execute_icetool(location):
+    return MVSCmd.execute(
+        pgm="ICETOOL",
+        dds=_get_icetool_dds(location=location),
+        verbose=True,
+        debug=False)
