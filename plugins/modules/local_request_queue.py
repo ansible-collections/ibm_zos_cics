@@ -189,28 +189,17 @@ executions:
 """
 
 
-import traceback
 from typing import Dict
-
-ZOS_CORE_IMP_ERR = None
-try:
-    from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
-except ImportError:
-    ZOS_CORE_IMP_ERR = traceback.format_exc()
-
-ZOS_CICS_IMP_ERR = None
-try:
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _build_idcams_define_cmd, _dataset_size, _data_set)
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import DataSet
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_request_queue import (
-        _get_idcams_cmd_lrq)
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
-        _state)
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_request_queue import _local_request_queue_constants as lrq_constants
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
-except ImportError:
-    ZOS_CICS_IMP_ERR = traceback.format_exc()
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
+    _build_idcams_define_cmd, _dataset_size, _data_set)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import DataSet
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_request_queue import (
+    _get_idcams_cmd_lrq)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
+    _state)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_request_queue import _local_request_queue_constants as lrq_constants
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
 
 
 class AnsibleLocalRequestQueueModule(DataSet):

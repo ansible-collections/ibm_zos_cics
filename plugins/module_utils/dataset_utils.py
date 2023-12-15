@@ -86,13 +86,18 @@ def _get_dataset_size_unit(unit_symbol):  # type: (str) -> str
 
 
 def _build_idcams_define_cmd(dataset):  # type: (Dict) -> str
-    return '''
+    index_statement = (""" -
+    INDEX({0})""".format(_build_idcams_define_index_parms(dataset))
+                       if dataset.get("INDEX", None)
+                       else ""
+                       )
+
+    return """
     DEFINE CLUSTER ({0}) -
-    DATA ({1}) -
-    INDEX({2})
-    '''.format(_build_idcams_define_cluster_parms(dataset),
+    DATA ({1}){2}
+    """.format(_build_idcams_define_cluster_parms(dataset),
                _build_idcams_define_data_parms(dataset),
-               _build_idcams_define_index_parms(dataset))
+               index_statement)
 
 
 def _build_idcams_define_cluster_parms(dataset):  # type: (Dict) -> str
