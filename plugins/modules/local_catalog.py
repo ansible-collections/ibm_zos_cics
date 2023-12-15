@@ -369,11 +369,11 @@ class AnsibleLocalCatalogModule(DataSet):
             self._fail("Data set {0} does not exist.".format(self.data_set["name"]))
 
         icetool_executions, record_count = _run_icetool(self.data_set["name"])
-        if record_count["record_count"] == 0:
+        if record_count["record_count"] <= 0:
             self._fail("Unused catalog. The catalog must be used by CICS before doing a warm start.")
 
         self.result["executions"] = self.result["executions"] + icetool_executions
-        self.result['changed'] = False
+        self.result["changed"] = False
 
     def init_data_set(self):
         if self.data_set["exists"]:
