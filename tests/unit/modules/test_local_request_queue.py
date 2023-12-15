@@ -38,6 +38,8 @@ def initialise_module(**kwargs):
     initial_args.update(kwargs)
     set_module_args(initial_args)
     lrq_module = local_request_queue.AnsibleLocalRequestQueueModule()
+    lrq_module._module.fail_json = MagicMock(return_value=None)
+    lrq_module._module.exit_json = MagicMock(return_value=None)
     return lrq_module
 
 
@@ -47,7 +49,6 @@ def test_create_an_intial_local_request_queue():
 
     dataset_utils.idcams = MagicMock(return_value=(0, "TEST.REGIONS.LRQ", "stderr"))
     dataset_utils.ikjeft01 = MagicMock(side_effect=[(8, "TEST.REGIONS.LRQ NOT IN CATALOG", "stderr"), (0, "TEST.REGIONS.LRQ VSAM", "stderr")])
-    local_request_queue.AnsibleLocalRequestQueueModule._exit = MagicMock(return_value=None)
 
     lrq_module.main()
     expected_result = _response(executions=[
@@ -68,7 +69,6 @@ def test_delete_an_existing_local_request_queue():
 
     dataset_utils.idcams = MagicMock(return_value=(0, "ENTRY (C) TEST.REGIONS.LRQ DELETED\n", "stderr"))
     dataset_utils.ikjeft01 = MagicMock(side_effect=[(0, "TEST.REGIONS.LRQ VSAM", "stderr"), (8, "TEST.REGIONS.LRQ NOT IN CATALOG", "stderr")])
-    local_request_queue.AnsibleLocalRequestQueueModule._exit = MagicMock(return_value=None)
 
     lrq_module.main()
     expected_result = _response(executions=[
@@ -90,7 +90,6 @@ def test_do_nothing_to_an_existing_lrq():
     lrq_module.data_set = data_set
 
     dataset_utils.ikjeft01 = MagicMock(side_effect=[(0, "TEST.REGIONS.LRQ VSAM", "stderr"), (0, "TEST.REGIONS.LRQ VSAM", "stderr")])
-    local_request_queue.AnsibleLocalRequestQueueModule._exit = MagicMock(return_value=None)
 
     lrq_module.main()
     expected_result = _response(executions=[
@@ -109,7 +108,6 @@ def test_remove_non_existent_lrq():
 
     dataset_utils.idcams = MagicMock(return_value=(8, "ENTRY TEST.REGIONS.LRQ NOTFOUND", "stderr"))
     dataset_utils.ikjeft01 = MagicMock(return_value=(8, "TEST.REGIONS.LRQ NOT IN CATALOG", "stderr"))
-    local_request_queue.AnsibleLocalRequestQueueModule._exit = MagicMock(return_value=None)
 
     lrq_module.main()
     expected_result = _response(executions=[
