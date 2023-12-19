@@ -87,11 +87,7 @@ def _run_dfhrmutl(location, sdfhload, cmd=""):
     executions = []
 
     for x in range(10):
-        dfhrmutl_response = MVSCmd.execute(
-            pgm="DFHRMUTL",
-            dds=_get_rmutl_dds(location=location, sdfhload=sdfhload, cmd=cmd),
-            verbose=True,
-            debug=False)
+        dfhrmutl_response = _execute_dfhrmutl(location, sdfhload, cmd)
         executions.append(
             _execution(
                 name="DFHRMUTL - {0} - Run {1}".format(
@@ -121,6 +117,14 @@ def _run_dfhrmutl(location, sdfhload, cmd=""):
         return executions
 
     return executions, _get_catalog_records(dfhrmutl_response.stdout)
+
+
+def _execute_dfhrmutl(location, sdfhload, cmd=""):
+    return MVSCmd.execute(
+        pgm="DFHRMUTL",
+        dds=_get_rmutl_dds(location=location, sdfhload=sdfhload, cmd=cmd),
+        verbose=True,
+        debug=False)
 
 
 def _get_idcams_cmd_gcd(dataset):
