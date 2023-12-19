@@ -18,8 +18,7 @@ description:
   - Useful when provisioning or de-provisioning a CICS region.
   - Use the O(state) option to specify the intended state for the auxiliary
     temp data set. For example, O(state=initial) will create a auxiliary temp
-    data set if it doesn't yet exist, or it will take an existing
-    auxiliary temporary storage and empty it of all records.
+    data set if it doesn't yet exist.
 author: Andrew Twydell (@andrewtwydell)
 version_added: 1.1.0-beta.4
 options:
@@ -29,7 +28,7 @@ options:
         Note, this is just the value; the unit is specified with O(space_type).
       - This option only takes effect when the auxiliary temporary storage is being created.
         If it already exists, it has no effect.
-      - The auxiliary temporary storage data set's secondary space allocation is set to 1.
+      - The auxiliary temporary storage data set's secondary space allocation is set to 10.
     type: int
     required: false
     default: 200
@@ -97,7 +96,7 @@ options:
       - V(absent) will remove the auxiliary temporary storage data set entirely, if it
         already exists.
       - V(initial) will create the auxiliary temporary storage data set if it does not
-        already exist, and empty it of all existing records.
+        already exist.
     choices:
       - "initial"
       - "absent"
@@ -107,13 +106,13 @@ options:
 
 
 EXAMPLES = r"""
-- name: Initialize a auxiliary temporary storage
+- name: Initialize an auxiliary temporary storage data set
   ibm.ibm_zos_cics.auxiliary_temp:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: "initial"
 
-- name: Initialize a large auxiliary temporary storage
+- name: Initialize a large auxiliary temporary storage data set
   ibm.ibm_zos_cics.auxiliary_temp:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -121,7 +120,7 @@ EXAMPLES = r"""
     space_type: "M"
     state: "initial"
 
-- name: Delete auxiliary temporary storage
+- name: Delete an existing auxiliary temporary storage data set
   ibm.ibm_zos_cics.auxiliary_temp:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -190,39 +189,28 @@ executions:
 """
 
 
-import traceback
 from typing import Dict
-
-ZOS_CORE_IMP_ERR = None
-try:
-    from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import (
-        BetterArgParser,
-    )
-except ImportError:
-    ZOS_CORE_IMP_ERR = traceback.format_exc()
-
-ZOS_CICS_IMP_ERR = None
-try:
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-        _build_idcams_define_cmd,
-        _dataset_size,
-        _data_set,
-    )
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
-        DataSet,
-    )
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
-        _state,
-    )
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.auxiliary_temp import (
-        _auxiliary_temp_constants as temp_constants,
-        _get_idcams_cmd_temp,
-    )
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
-        _dataset_constants as ds_constants,
-    )
-except ImportError:
-    ZOS_CICS_IMP_ERR = traceback.format_exc()
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import (
+    BetterArgParser,
+)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
+    _build_idcams_define_cmd,
+    _dataset_size,
+    _data_set,
+)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
+    DataSet,
+)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
+    _state,
+)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.auxiliary_temp import (
+    _auxiliary_temp_constants as temp_constants,
+    _get_idcams_cmd_temp,
+)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
+    _dataset_constants as ds_constants,
+)
 
 
 class AnsibleAuxiliaryTempModule(DataSet):
