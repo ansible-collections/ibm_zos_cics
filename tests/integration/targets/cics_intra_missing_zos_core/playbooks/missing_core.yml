@@ -84,3 +84,21 @@
         that:
           - result.failed is true
           - "'unable to locate collection ibm.ibm_zos_core' in result.msg"
+
+    - name: Create Auxiliary Temp data set
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.auxiliary_temp:
+        state: "initial"
+        region_data_sets:
+          template: "{{ region_data_set_path }}.<< data_set_name >>"
+        cics_data_sets:
+          sdfhload: "{{ cics_steplib }}"
+      register: result
+      failed_when: false
+      ignore_errors: true
+
+    - name: Assert aux temp failed
+      ansible.builtin.assert:
+        that:
+          - result.failed is true
+          - "'unable to locate collection ibm.ibm_zos_core' in result.msg"
