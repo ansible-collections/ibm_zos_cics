@@ -5,22 +5,12 @@
 
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
-import traceback
 
-ZOS_CORE_IMP_ERR = None
-try:
-    from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement
-    from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
-except ImportError:
-    ZOS_CORE_IMP_ERR = traceback.format_exc()
 
-ZOS_CICS_IMP_ERR = None
-try:
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
-        _execution)
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
-except ImportError:
-    ZOS_CICS_IMP_ERR = traceback.format_exc()
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
 
 
 def _get_ccmutl_dds(catalog):
