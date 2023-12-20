@@ -12,7 +12,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.controller_utils.module_action
 
 class ActionModule(_ModuleActionPlugin):
     def run(self, tmp=None, task_vars=None):
-        return super()._run(
+        return super(ActionModule, self)._run(
             ds_name="dfhtemp",
             module_name="auxiliary_temp",
             cics_data_sets_required=False,
