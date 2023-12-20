@@ -5,24 +5,11 @@
 
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
-import traceback
 from typing import List
 
-ZOS_CORE_IMP_ERR = None
-
-try:
-    from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
-    from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
-
-except ImportError:
-    ZOS_CORE_IMP_ERR = traceback.format_exc()
-
-ZOS_CICS_IMP_ERR = None
-try:
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
-        _execution)
-except ImportError:
-    ZOS_CICS_IMP_ERR = traceback.format_exc()
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 
 
 def _get_icetool_dds(location):  # type: (str) -> List[DDStatement]

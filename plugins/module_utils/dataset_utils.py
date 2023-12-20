@@ -5,22 +5,10 @@
 
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
-import traceback
 from typing import Dict, List
 
-ZOS_CORE_IMP_ERR = None
-
-try:
-    from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.mvs_cmd import idcams, ikjeft01
-except ImportError:
-    ZOS_CORE_IMP_ERR = traceback.format_exc()
-
-ZOS_CICS_IMP_ERR = None
-try:
-    from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
-        _execution, _state)
-except ImportError:
-    ZOS_CICS_IMP_ERR = traceback.format_exc()
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.mvs_cmd import idcams, ikjeft01
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, _state
 
 
 def _dataset_size(unit, primary, secondary):  # type: (str,int,int) -> Dict
