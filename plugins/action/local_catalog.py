@@ -1,84 +1,21 @@
 # (c) Copyright IBM Corp. 2023
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.parameter_templating import template_dsn
-from ansible.plugins.action import ActionBase
+from ansible_collections.ibm.ibm_zos_cics.plugins.controller_utils.module_action_plugin import (
+    _ModuleActionPlugin,
+)
 
 
-class ActionModule(ActionBase):
+class ActionModule(_ModuleActionPlugin):
     def run(self, tmp=None, task_vars=None):
-        super(ActionModule, self).run(tmp, task_vars)
-        module_args = self._task.args.copy()
-
-        if not module_args.get("region_data_sets", None):
-            return {
-                'failed': True,
-                'changed': False,
-                'msg': 'region_data_sets required',
-            }
-        if not module_args.get("cics_data_sets", None):
-            return {
-                'failed': True,
-                'changed': False,
-                'msg': 'cics_data_sets required',
-            }
-
-        region_data_sets = module_args["region_data_sets"]
-        cics_data_sets = module_args["cics_data_sets"]
-
-        if region_data_sets.get(
-                "dfhlcd",
-                None) is None or region_data_sets.get("dfhlcd").get(
-                "dsn",
-                None) is None:
-
-            if region_data_sets.get("template", None) is None:
-                return {
-                    'failed': True,
-                    'changed': False,
-                    'msg': 'Specify either template or dfhlcd in region_data_sets',
-                }
-            dsn = template_dsn(
-                _templar=self._templar,
-                task_vars=task_vars,
-                var_name="data_set_name",
-                replace_val="DFHLCD",
-                template=region_data_sets.get("template", None))
-            module_args.update({
-                'region_data_sets': {
-                    'dfhlcd': {
-                        'dsn': dsn,
-                    },
-                    'template': region_data_sets.get("template"),
-                },
-            })
-
-        if cics_data_sets.get("sdfhload", None) is None:
-            if cics_data_sets.get("template", None) is None:
-                return {
-                    'failed': True,
-                    'changed': False,
-                    'msg': 'Specify either template or sdfhload in cics_data_sets',
-                }
-            dsn = template_dsn(
-                _templar=self._templar,
-                task_vars=task_vars,
-                var_name="lib_name",
-                replace_val="SDFHLOAD",
-                template=cics_data_sets.get("template", None))
-
-            module_args.update({
-                'cics_data_sets': {
-                    'sdfhload': dsn,
-                    'template': cics_data_sets.get("template"),
-                },
-            })
-
-        return self._execute_module(
-            module_name='ibm.ibm_zos_cics.local_catalog',
-            module_args=module_args,
+        return super()._run(
+            ds_name="dfhlcd",
+            module_name="local_catalog",
+            cics_data_sets_required=True,
+            tmp=tmp,
             task_vars=task_vars,
-            tmp=tmp)
+        )
