@@ -6,7 +6,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
-import pytest
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 try:
     from unittest.mock import MagicMock
 except ImportError:
@@ -347,16 +347,19 @@ def test__run_listds_exists_not_vsam():
 
 def test__run_listds_bad_rc():
 
+    name = "IKJEFT01 - Get Data Set Status - Run 1"
     rc = 16
-    stdout = ""
+    stdout = "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD"
     stderr = ""
     dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
-    with pytest.raises(Exception) as e_info:
-        result_exececutions, result_status = dataset_utils._run_listds(
-            "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD")
+    expected_executions = [_execution(name=name, rc=rc, stdout=stdout, stderr=stderr)]
 
-        assert e_info == "LISTDS Command output not recognised"
+    try:
+        dataset_utils._run_listds("ANSIBIT.CICS.TESTS.A365D7A.DFHGCD")
+    except Exception as e:
+        assert e.args[0] == "RC 16 running LISTDS Command"
+        assert e.args[1] == expected_executions
 
 
 def test__run_listds_not_exists():
@@ -391,3 +394,29 @@ def test__run_listds_not_exists():
         "exists": False,
         "vsam": False,
     }
+
+
+def test__run_listds_with_no_zoau_response():
+    rc = 0
+    stdout = ""
+    stderr = ""
+    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+
+    expected_executions = [
+        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name="IKJEFT01 - Get Data Set Status - Run 2", rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name="IKJEFT01 - Get Data Set Status - Run 3", rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name="IKJEFT01 - Get Data Set Status - Run 4", rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name="IKJEFT01 - Get Data Set Status - Run 5", rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name="IKJEFT01 - Get Data Set Status - Run 6", rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name="IKJEFT01 - Get Data Set Status - Run 7", rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name="IKJEFT01 - Get Data Set Status - Run 8", rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name="IKJEFT01 - Get Data Set Status - Run 9", rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name="IKJEFT01 - Get Data Set Status - Run 10", rc=rc, stdout=stdout, stderr=stderr)
+    ]
+
+    try:
+        dataset_utils._run_listds("LOCATION THATS NOT IN STDOUT")
+    except Exception as e:
+        assert e.args[0] == "LISTDS Command output not recognised"
+        assert e.args[1] == expected_executions

@@ -189,3 +189,26 @@ def test_error_warm_start_a_non_existent_local_catalog():
     )
     expected_result.update({"failed": True})
     assert lcd_module.result == expected_result
+
+
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+def test_bad_response_from_ccutl():
+    lcd_module = initialise_module()
+
+    dataset_utils.idcams = MagicMock(return_value=(0, "TEST.REGIONS.LCD", "stderr"))
+    dataset_utils.ikjeft01 = MagicMock(side_effect=[(8, "TEST.REGIONS.LCD NOT IN CATALOG", "stderr"), (0, "TEST.REGIONS.LCD VSAM", "stderr")])
+    local_catalog_utils._execute_dfhccutl = MagicMock(return_value=MVSCmdResponse(rc=99, stdout="stdout", stderr="stderr"))
+
+    lcd_module.main()
+    expected_result = _response(executions=[
+        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=8, stdout="TEST.REGIONS.LCD NOT IN CATALOG", stderr="stderr"),
+        _execution(name="IDCAMS - Create local catalog data set - Run 1", rc=0, stdout="TEST.REGIONS.LCD", stderr="stderr"),
+        _execution(name="DFHCCUTL - Initialise Local Catalog", rc=99, stdout="stdout", stderr="stderr"),
+        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=0, stdout="TEST.REGIONS.LCD VSAM", stderr="stderr")
+    ],
+        start_state=_state(exists=False, vsam=False),
+        end_state=_state(exists=True, vsam=True)
+    )
+    expected_result.update({"changed": True})
+    expected_result.update({"failed": True})
+    assert lcd_module.result == expected_result

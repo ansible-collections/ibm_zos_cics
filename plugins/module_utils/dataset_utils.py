@@ -5,13 +5,12 @@
 
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
-from typing import Dict, List
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.mvs_cmd import idcams, ikjeft01
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, _state
 
 
-def _dataset_size(unit, primary, secondary):  # type: (str,int,int) -> Dict
+def _dataset_size(unit, primary, secondary):  # type: (str,int,int) -> dict
     return {
         "unit": unit,
         "primary": primary,
@@ -19,7 +18,7 @@ def _dataset_size(unit, primary, secondary):  # type: (str,int,int) -> Dict
     }
 
 
-def _run_idcams(cmd, name, location, delete=False):  # type: (str, str, str, bool) -> List
+def _run_idcams(cmd, name, location, delete=False):  # type: (str, str, str, bool) -> list
     executions = []
 
     for x in range(10):
@@ -73,7 +72,7 @@ def _get_dataset_size_unit(unit_symbol):  # type: (str) -> str
     }.get(unit_symbol, "MEGABYTES")
 
 
-def _build_idcams_define_cmd(dataset):  # type: (Dict) -> str
+def _build_idcams_define_cmd(dataset):  # type: (dict) -> str
     index_statement = (""" -
     INDEX({0})""".format(_build_idcams_define_index_parms(dataset))
                        if dataset.get("INDEX", None)
@@ -88,7 +87,7 @@ def _build_idcams_define_cmd(dataset):  # type: (Dict) -> str
                index_statement)
 
 
-def _build_idcams_define_cluster_parms(dataset):  # type: (Dict) -> str
+def _build_idcams_define_cluster_parms(dataset):  # type: (dict) -> str
 
     clusterStr = "NAME({0}) -\n    {1}({2} {3})".format(
         dataset["name"],
@@ -111,7 +110,7 @@ def _build_idcams_define_cluster_parms(dataset):  # type: (Dict) -> str
     return clusterStr
 
 
-def _build_idcams_define_data_parms(dataset):  # type: (Dict) -> str
+def _build_idcams_define_data_parms(dataset):  # type: (dict) -> str
     dataStr = "NAME({0}.DATA)".format(dataset["name"])
     if isinstance(dataset["DATA"], dict):
         dataStr += " -\n    "
@@ -128,7 +127,7 @@ def _build_idcams_define_data_parms(dataset):  # type: (Dict) -> str
     return dataStr
 
 
-def _build_idcams_define_index_parms(dataset):  # type: (Dict) -> str
+def _build_idcams_define_index_parms(dataset):  # type: (dict) -> str
     indexStr = "NAME({0}.INDEX)".format(dataset["name"])
     if isinstance(dataset["INDEX"], dict):
         indexStr += " -\n    "
@@ -145,7 +144,7 @@ def _build_idcams_define_index_parms(dataset):  # type: (Dict) -> str
     return indexStr
 
 
-def _run_listds(location):  # type: (str) -> [List, _state]
+def _run_listds(location):  # type: (str) -> [list, _state]
     cmd = " LISTDS '{0}'".format(location)
     executions = []
 
@@ -162,7 +161,7 @@ def _run_listds(location):  # type: (str) -> [List, _state]
             break
 
     if location.upper() not in stdout.upper():
-        raise Exception("LISTDS Command output not recognised")
+        raise Exception("LISTDS Command output not recognised", executions)
 
     # DS Name in output, good output
 
@@ -172,7 +171,7 @@ def _run_listds(location):  # type: (str) -> [List, _state]
     # Exists
 
     if rc != 0:
-        raise Exception("RC {0} running LISTDS Command".format(rc))
+        raise Exception("RC {0} running LISTDS Command".format(rc), executions)
 
     # Exists, RC 0
 
@@ -186,7 +185,7 @@ def _run_listds(location):  # type: (str) -> [List, _state]
         return executions, _state(exists=True, vsam=True)
 
 
-def _data_set(size, name, state, exists, vsam, **kwargs):  # type: (_dataset_size, str, str, bool, bool, Dict) -> Dict
+def _data_set(size, name, state, exists, vsam, **kwargs):  # type: (_dataset_size, str, str, bool, bool, dict) -> dict
     data_set = {
         "size": size,
         "name": name,

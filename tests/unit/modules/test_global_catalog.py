@@ -214,6 +214,7 @@ def test_error_warm_start_a_unused_global_catalog():
     assert gcd_module.result == expected_result
 
 
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_error_warm_start_a_non_existent_global_catalog():
     gcd_module = initialise_module(state="warm")
 
@@ -251,6 +252,7 @@ def test_error_warm_start_a_non_existent_global_catalog():
     assert gcd_module.result == expected_result
 
 
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def tests_cold_start_non_existent_catalog():
     gcd_module = initialise_module(state="cold")
 
@@ -288,6 +290,7 @@ def tests_cold_start_non_existent_catalog():
     assert gcd_module.result == expected_result
 
 
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_cold_start_unused_catalog():
     gcd_module = initialise_module(state="cold")
 
@@ -337,6 +340,7 @@ def test_cold_start_unused_catalog():
     assert gcd_module.result == expected_result
 
 
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_cold_start_global_catalog():
     gcd_module = initialise_module(state="cold")
 
