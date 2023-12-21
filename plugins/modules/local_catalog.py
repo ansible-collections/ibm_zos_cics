@@ -386,8 +386,12 @@ class AnsibleLocalCatalogModule(DataSet):
         if not self.data_set["exists"]:
             self.create_data_set()
 
-        ccutl_executions = _run_dfhccutl(self.data_set)
-        self.result["executions"] = self.result["executions"] + ccutl_executions
+        try:
+            ccutl_executions = _run_dfhccutl(self.data_set)
+            self.result["executions"] = self.result["executions"] + ccutl_executions
+        except Exception as e:
+            self.result["executions"] = self.result["executions"] + e.args[1]
+            self._fail(e.args[0])
 
 
 def main():

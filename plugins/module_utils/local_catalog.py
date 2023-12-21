@@ -9,6 +9,7 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import _data_set
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
 
@@ -26,22 +27,22 @@ def _get_ccmutl_dds(catalog):
     ]
 
 
-def _run_dfhccutl(starting_catalog):
+def _run_dfhccutl(starting_catalog):  # type: (_data_set) -> [_execution]
     executions = []
     dfhccutl_response = _execute_dfhccutl(starting_catalog)
 
-    if dfhccutl_response.rc != 0:
-        raise Exception(
-            "DFHCCUTL failed with RC {0}".format(
-                dfhccutl_response.rc
-            )
-        )
     executions.append(_execution(
         name="DFHCCUTL - Initialise Local Catalog",
         rc=dfhccutl_response.rc,
         stdout=dfhccutl_response.stdout,
         stderr=dfhccutl_response.stderr))
 
+    if dfhccutl_response.rc != 0:
+        raise Exception(
+            "DFHCCUTL failed with RC {0}".format(
+                dfhccutl_response.rc
+            ), executions
+        )
     return executions
 
 
@@ -53,7 +54,7 @@ def _execute_dfhccutl(starting_catalog):
         debug=False)
 
 
-def _get_idcams_cmd_lcd(dataset):
+def _get_idcams_cmd_lcd(dataset):  # type: (dict) -> dict
     defaults = {
         "CLUSTER": {
             "RECORDSIZE": "{0} {1}".format(_local_catalog_constants["RECORD_COUNT_DEFAULT"], _local_catalog_constants["RECORD_SIZE_DEFAULT"]),
