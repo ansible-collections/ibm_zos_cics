@@ -241,7 +241,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog im
     _run_dfhrmutl, _get_idcams_cmd_gcd)
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import DataSet
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-    _dataset_size, _run_listds, _data_set, _build_idcams_define_cmd)
+    _dataset_size, _data_set, _build_idcams_define_cmd)
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 from typing import Dict
 
@@ -484,24 +484,24 @@ class AnsibleGlobalCatalogModule(DataSet):
         }.get(target, self.invalid_target_state)
 
     def get_data_set_state(self, data_set):
-        listds_executions, ds_status = _run_listds(data_set["name"])
-
-        data_set["exists"] = ds_status['exists']
-        data_set["vsam"] = ds_status['vsam']
-
-        self.result["executions"] = self.result["executions"] + listds_executions
+        super().get_data_set_state(data_set)
 
         if data_set["exists"] and data_set["vsam"]:
-            dfhrmutl_executions, catalog_status = _run_dfhrmutl(
-                data_set["name"], data_set[ds_constants["SDFHLOAD_ALIAS"]])
+            try:
+                dfhrmutl_executions, catalog_status = _run_dfhrmutl(
+                    data_set["name"], data_set[ds_constants["SDFHLOAD_ALIAS"]])
 
-            data_set["autostart_override"] = catalog_status['autostart_override']
-            data_set["nextstart"] = catalog_status['next_start']
+                data_set["autostart_override"] = catalog_status['autostart_override']
+                data_set["nextstart"] = catalog_status['next_start']
 
-            self.result["executions"] = self.result["executions"] + dfhrmutl_executions
+                self.result["executions"] = self.result["executions"] + dfhrmutl_executions
+            except Exception as e:
+                self.result["executions"] = self.result["executions"] + e.args[1]
+                self._fail(e.args[0])
         else:
             data_set["autostart_override"] = ""
             data_set["nextstart"] = ""
+
         return data_set
 
     def main(self):

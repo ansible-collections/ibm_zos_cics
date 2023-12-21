@@ -141,12 +141,16 @@ class DataSet(object):
         }.get(target, self.invalid_target_state)
 
     def get_data_set_state(self, data_set):  # type: (dict) -> dict
-        listds_executions, ds_status = dataset_utils._run_listds(data_set["name"])
+        try:
+            listds_executions, ds_status = dataset_utils._run_listds(data_set["name"])
 
-        data_set["exists"] = ds_status["exists"]
-        data_set["vsam"] = ds_status["vsam"]
+            data_set["exists"] = ds_status["exists"]
+            data_set["vsam"] = ds_status["vsam"]
 
-        self.result["executions"] = self.result["executions"] + listds_executions
+            self.result["executions"] = self.result["executions"] + listds_executions
+        except Exception as e:
+            self.result["executions"] = self.result["executions"] + e.args[1]
+            self._fail(e.args[0])
 
         return data_set
 
