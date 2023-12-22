@@ -417,13 +417,17 @@ def test_global_catalog_run_rmutl_rc16_error():
     )
     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
 
+    expected_executions = [_execution(name="DFHRMUTL - Updating autostart override - Run 1", rc=16, stdout=" ABC \n REASON: X'12'", stderr="")]
+
     error_raised = False
     try:
         global_catalog._run_dfhrmutl(
             location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
         )
-    except Exception:
+    except Exception as e:
         error_raised = True
+        assert e.args[0] == "DFHRMUTL failed with RC 16 - REASON:X'12'"
+        assert e.args[1] == expected_executions
 
     assert error_raised is True
 
@@ -438,13 +442,21 @@ def test_global_catalog_run_rmutl_many_rc16_error():
     )
     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
 
+    expected_executions = [
+        _execution(name="DFHRMUTL - Updating autostart override - Run 1", rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
+        _execution(name="DFHRMUTL - Updating autostart override - Run 2", rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
+        _execution(name="DFHRMUTL - Updating autostart override - Run 3", rc=16, stdout="REASON:X'B2'", stderr=""),
+    ]
+
     error_raised = False
     try:
         global_catalog._run_dfhrmutl(
             location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
         )
-    except Exception:
+    except Exception as e:
         error_raised = True
+        assert e.args[0] == "DFHRMUTL failed with RC 16 - REASON:X'B2'"
+        assert e.args[1] == expected_executions
 
     assert error_raised is True
 
@@ -459,13 +471,21 @@ def test_global_catalog_run_rmutl_many_rc_error():
     )
     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
 
+    expected_executions = [
+        _execution(name="DFHRMUTL - Updating autostart override - Run 1", rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
+        _execution(name="DFHRMUTL - Updating autostart override - Run 2", rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
+        _execution(name="DFHRMUTL - Updating autostart override - Run 3", rc=15, stdout="REASON:X'A8'", stderr="")
+    ]
+
     error_raised = False
     try:
         global_catalog._run_dfhrmutl(
             location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
         )
-    except Exception:
+    except Exception as e:
         error_raised = True
+        assert e.args[0] == "DFHRMUTL failed with RC 15"
+        assert e.args[1] == expected_executions
 
     assert error_raised is True
 
@@ -476,12 +496,16 @@ def test_global_catalog_run_rmutl_rc_not_0():
     )
     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
 
+    expected_executions = [_execution(name="DFHRMUTL - Updating autostart override - Run 1", rc=123, stdout="", stderr="")]
+
     error_raised = False
     try:
         global_catalog._run_dfhrmutl(
             location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
         )
-    except Exception:
+    except Exception as e:
         error_raised = True
+        assert e.args[0] == "DFHRMUTL failed with RC 123"
+        assert e.args[1] == expected_executions
 
     assert error_raised is True
