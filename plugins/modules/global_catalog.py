@@ -243,14 +243,13 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import D
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
     _dataset_size, _data_set, _build_idcams_define_cmd)
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
-from typing import Dict
 
 
 class AnsibleGlobalCatalogModule(DataSet):
     def __init__(self):
         super(AnsibleGlobalCatalogModule, self).__init__()
 
-    def init_argument_spec(self):  # type: () -> Dict
+    def init_argument_spec(self):  # type: () -> dict
         arg_spec = super(AnsibleGlobalCatalogModule, self).init_argument_spec()
 
         arg_spec[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
@@ -301,7 +300,7 @@ class AnsibleGlobalCatalogModule(DataSet):
 
         return arg_spec
 
-    def _get_arg_defs(self):  # type: () -> Dict
+    def _get_arg_defs(self):  # type: () -> dict
         arg_def = super(AnsibleGlobalCatalogModule, self)._get_arg_defs()
 
         arg_def[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
@@ -352,7 +351,7 @@ class AnsibleGlobalCatalogModule(DataSet):
 
         return arg_def
 
-    def _get_data_set_object(self, size, result):  # type: (_dataset_size, Dict) -> _data_set
+    def _get_data_set_object(self, size, result):  # type: (_dataset_size, dict) -> _data_set
         return _data_set(
             size=size,
             name=result.get(ds_constants["REGION_DATA_SETS_ALIAS"]).get('dfhgcd').get('dsn').upper(),
@@ -363,7 +362,7 @@ class AnsibleGlobalCatalogModule(DataSet):
             exists=False,
             vsam=False)
 
-    def _get_data_set_size(self, result):
+    def _get_data_set_size(self, result):  # type: (dict) -> _dataset_size
         return _dataset_size(
             unit=result.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
             primary=result.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
@@ -384,12 +383,12 @@ class AnsibleGlobalCatalogModule(DataSet):
         self.data_set = self._get_data_set_object(size, result)
         self.end_state = self.data_set
 
-    def create_data_set(self):
+    def create_data_set(self):  # type: () -> None
         create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_gcd(self.data_set))
 
         super().build_vsam_data_set(create_cmd, "Create global catalog data set")
 
-    def delete_data_set(self):
+    def delete_data_set(self):  # type: () -> None
         if not self.data_set["exists"]:
             self.result["end_state"] = {
                 "exists": self.data_set["exists"],
@@ -400,7 +399,7 @@ class AnsibleGlobalCatalogModule(DataSet):
 
         super().delete_data_set("Removing global catalog data set")
 
-    def init_data_set(self):
+    def init_data_set(self):  # type: () -> None
         if self.data_set["exists"] and self.data_set["autostart_override"] == gc_constants["AUTO_START_INIT"]:
             self.result["end_state"] = _state(
                 exists=self.data_set["exists"],
@@ -412,18 +411,19 @@ class AnsibleGlobalCatalogModule(DataSet):
         if not self.data_set["exists"]:
             self.create_data_set()
 
-        dfhrmutl_executions = _run_dfhrmutl(
-            self.data_set["name"],
-            self.data_set[ds_constants["SDFHLOAD_ALIAS"]],
-            cmd="SET_AUTO_START=AUTOINIT")
-        self.result["changed"] = True
-        self.result["executions"] = self.result["executions"] + dfhrmutl_executions
+        try:
+            dfhrmutl_executions = _run_dfhrmutl(
+                self.data_set["name"],
+                self.data_set[ds_constants["SDFHLOAD_ALIAS"]],
+                cmd="SET_AUTO_START=AUTOINIT")
+            self.result["changed"] = True
+            self.result["executions"] = self.result["executions"] + dfhrmutl_executions
+        except Exception as e:
+            self.result["executions"] = self.result["executions"] + e.args[1]
+            self._fail(e.args[0])
 
-    def warm_data_set(self):
-        if not self.data_set["exists"]:
-            self._fail(
-                "Data set {0} does not exist.".format(
-                    self.data_set["name"]))
+    def warm_data_set(self):  # type: () -> None
+        super().warm_data_set()
 
         if self.data_set["autostart_override"] == gc_constants["AUTO_START_WARM"]:
             self.result["end_state"] = _state(
@@ -439,15 +439,18 @@ class AnsibleGlobalCatalogModule(DataSet):
         ):
             self._fail(
                 "Unused catalog. The catalog must be used by CICS before doing a warm start.")
+        try:
+            dfhrmutl_executions = _run_dfhrmutl(
+                self.data_set["name"],
+                self.data_set[ds_constants["SDFHLOAD_ALIAS"]],
+                cmd="SET_AUTO_START=AUTOASIS")
+            self.result["changed"] = True
+            self.result["executions"] = self.result["executions"] + dfhrmutl_executions
+        except Exception as e:
+            self.result["executions"] = self.result["executions"] + e.args[1]
+            self._fail(e.args[0])
 
-        dfhrmutl_executions = _run_dfhrmutl(
-            self.data_set["name"],
-            self.data_set[ds_constants["SDFHLOAD_ALIAS"]],
-            cmd="SET_AUTO_START=AUTOASIS")
-        self.result["changed"] = True
-        self.result["executions"] = self.result["executions"] + dfhrmutl_executions
-
-    def cold_data_set(self):
+    def cold_data_set(self):  # type: () -> None
         if not self.data_set["exists"]:
             self._fail(
                 "Data set {0} does not exist.".format(
@@ -467,15 +470,18 @@ class AnsibleGlobalCatalogModule(DataSet):
         ):
             self._fail(
                 "Unused catalog. The catalog must be used by CICS before doing a cold start.")
+        try:
+            dfhrmutl_executions = _run_dfhrmutl(
+                self.data_set["name"],
+                self.data_set[ds_constants["SDFHLOAD_ALIAS"]],
+                cmd="SET_AUTO_START=AUTOCOLD")
+            self.result["changed"] = True
+            self.result["executions"] = self.result["executions"] + dfhrmutl_executions
+        except Exception as e:
+            self.result["executions"] = self.result["executions"] + e.args[1]
+            self._fail(e.args[0])
 
-        dfhrmutl_executions = _run_dfhrmutl(
-            self.data_set["name"],
-            self.data_set[ds_constants["SDFHLOAD_ALIAS"]],
-            cmd="SET_AUTO_START=AUTOCOLD")
-        self.result["changed"] = True
-        self.result["executions"] = self.result["executions"] + dfhrmutl_executions
-
-    def get_target_method(self, target):
+    def get_target_method(self, target):  # type: (str) -> dict
         return {
             ds_constants["TARGET_STATE_ABSENT"]: self.delete_data_set,
             ds_constants["TARGET_STATE_INITIAL"]: self.init_data_set,
@@ -483,7 +489,7 @@ class AnsibleGlobalCatalogModule(DataSet):
             ds_constants["TARGET_STATE_WARM"]: self.warm_data_set,
         }.get(target, self.invalid_target_state)
 
-    def get_data_set_state(self, data_set):
+    def get_data_set_state(self, data_set):  # type: (dict) -> dict
         super().get_data_set_state(data_set)
 
         if data_set["exists"] and data_set["vsam"]:
@@ -491,8 +497,8 @@ class AnsibleGlobalCatalogModule(DataSet):
                 dfhrmutl_executions, catalog_status = _run_dfhrmutl(
                     data_set["name"], data_set[ds_constants["SDFHLOAD_ALIAS"]])
 
-                data_set["autostart_override"] = catalog_status['autostart_override']
-                data_set["nextstart"] = catalog_status['next_start']
+                data_set["autostart_override"] = catalog_status["autostart_override"]
+                data_set["nextstart"] = catalog_status["next_start"]
 
                 self.result["executions"] = self.result["executions"] + dfhrmutl_executions
             except Exception as e:

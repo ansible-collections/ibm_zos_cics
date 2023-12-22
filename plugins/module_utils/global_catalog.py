@@ -7,20 +7,20 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd, MVSCmdResponse
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
 
 
-def _get_value_from_line(line):
+def _get_value_from_line(line):  # type: (str) -> str
     val = None
     if len(line) == 1:
         val = line[0].split(":")[1]
     return val
 
 
-def _get_filtered_list(elements, target):
+def _get_filtered_list(elements, target):  # type: (list(str),str) -> list
     return list(filter(lambda x: target in x, elements))
 
 
@@ -36,7 +36,7 @@ def _get_rmutl_dds(
     ]
 
 
-def _get_reason_code(filtered):
+def _get_reason_code(filtered):  # type: (list(str)) -> str
     if len(filtered) == 0:
         raise Exception(
             "DFHRMUTL failed with RC 16 but no reason code was found")
@@ -52,7 +52,7 @@ def _get_reason_code(filtered):
     return elements3[1]
 
 
-def _get_catalog_records(stdout):
+def _get_catalog_records(stdout):  # type: (str) -> str
     elements = ['{0}'.format(element.replace(" ", "").upper())
                 for element in stdout.split("\n")]
 
@@ -70,7 +70,7 @@ def _get_catalog_records(stdout):
     }
 
 
-def _run_dfhrmutl(location, sdfhload, cmd=""):
+def _run_dfhrmutl(location, sdfhload, cmd=""):  # type: (str, str, str) -> (list(_execution), str)
 
     executions = []
 
@@ -95,11 +95,11 @@ def _run_dfhrmutl(location, sdfhload, cmd=""):
             reason_code = _get_reason_code(filtered)
             if reason_code != "A8":
                 raise Exception(
-                    "DFHRMUTL failed with RC 16 - {0}".format(filtered[0]))
+                    "DFHRMUTL failed with RC 16 - {0}".format(filtered[0]), executions)
         else:
             raise Exception(
                 "DFHRMUTL failed with RC {0}".format(
-                    dfhrmutl_response.rc))
+                    dfhrmutl_response.rc), executions)
 
     if cmd != "":
         return executions
@@ -107,7 +107,7 @@ def _run_dfhrmutl(location, sdfhload, cmd=""):
     return executions, _get_catalog_records(dfhrmutl_response.stdout)
 
 
-def _execute_dfhrmutl(location, sdfhload, cmd=""):
+def _execute_dfhrmutl(location, sdfhload, cmd=""):  # type: (str, str, str) -> MVSCmdResponse
     return MVSCmd.execute(
         pgm="DFHRMUTL",
         dds=_get_rmutl_dds(location=location, sdfhload=sdfhload, cmd=cmd),
