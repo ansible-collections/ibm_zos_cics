@@ -269,6 +269,71 @@ def test__run_idcams_delete_no_exist():
     }
 
 
+def test__run_idcams_bad_return_code_when_creating():
+
+    rc = 99
+    stdout = "ANSIBIT.CICS.IYTWYD02.DFHGCD"
+    stderr = ""
+    dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
+
+    cmd = '''
+    DEFINE CLUSTER -
+        (NAME(ANSIBIT.CICS.IYTWYD01.DFHGCD) -
+        INDEXED                      -
+        MEGABYTES(5 1)             -
+        SHR(2)              -
+        FREESPACE(10 10)              -
+        RECORDSIZE(4089 32760)       -
+        REUSE)              -
+        DATA                           -
+        (NAME(ANSIBIT.CICS.IYTWYD01.DFHGCD.DATA)  -
+        CONTROLINTERVALSIZE(32768)    -
+        KEYS(52 0))  -
+        INDEX                          -
+        (NAME(ANSIBIT.CICS.IYTWYD01.DFHGCD.INDEX))
+    '''
+
+    expected_executions = [
+        _execution(name="IDCAMS - Create Catalog - Run 1", rc=rc, stdout=stdout, stderr=stderr)
+    ]
+
+    try:
+        dataset_utils._run_idcams(
+            cmd=cmd,
+            name="Create Catalog",
+            location="ANSIBIT.CICS.IYTWYD02.DFHGCD",
+            delete=False)
+    except Exception as e:
+        assert e.args[0] == "RC 99 when creating data set"
+        assert e.args[1] == expected_executions
+
+
+def test__run_idcams_bad_return_code_when_deleting():
+
+    rc = 99
+    stdout = "ANSIBIT.CICS.IYTWYD02.DFHGCD"
+    stderr = ""
+    dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
+
+    cmd = '''
+        DELETE ANSIBIT.CICS.IYTWYD02.DFHGCD
+    '''
+
+    expected_executions = [
+        _execution(name="IDCAMS - Remove Catalog - Run 1", rc=rc, stdout=stdout, stderr=stderr)
+    ]
+
+    try:
+        dataset_utils._run_idcams(
+            cmd=cmd,
+            name="Remove Catalog",
+            location="ANSIBIT.CICS.IYTWYD02.DFHGCD",
+            delete=True)
+    except Exception as e:
+        assert e.args[0] == "RC 99 when deleting data set"
+        assert e.args[1] == expected_executions
+
+
 def test__run_listds_exists_vsam():
 
     rc = 0

@@ -35,7 +35,7 @@ def _run_idcams(cmd, name, location, delete=False):  # type: (str, str, str, boo
             break
 
     if location.upper() not in stdout.upper():
-        raise Exception("IDCAMS Command output not recognised")
+        raise Exception("IDCAMS Command output not recognised", executions)
 
     if delete:
         if rc == 8 and "ENTRY{0}NOTFOUND".format(
@@ -51,13 +51,13 @@ def _run_idcams(cmd, name, location, delete=False):  # type: (str, str, str, boo
             "").replace(
             "\n",
                 ""):
-            raise Exception("RC {0} when deleting data set".format(rc))
+            raise Exception("RC {0} when deleting data set".format(rc), executions)
     else:
         if rc == 12 and "NOTDEFINEDBECAUSEDUPLICATENAMEEXISTSINCATALOG" in stdout.upper(
         ).replace(" ", "").replace("\n", ""):
             return executions
         if rc != 0:
-            raise Exception("RC {0} when creating data set".format(rc))
+            raise Exception("RC {0} when creating data set".format(rc), executions)
 
     return executions
 
