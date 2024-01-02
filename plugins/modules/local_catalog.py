@@ -203,7 +203,6 @@ executions:
 """
 
 
-from typing import Dict
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
     _dataset_size, _data_set, _build_idcams_define_cmd)
@@ -219,7 +218,7 @@ class AnsibleLocalCatalogModule(DataSet):
     def __init__(self):
         super(AnsibleLocalCatalogModule, self).__init__()
 
-    def init_argument_spec(self):  # type: () -> Dict
+    def init_argument_spec(self):  # type: () -> dict
         arg_spec = super(AnsibleLocalCatalogModule, self).init_argument_spec()
 
         arg_spec[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
@@ -269,7 +268,7 @@ class AnsibleLocalCatalogModule(DataSet):
         })
         return arg_spec
 
-    def _get_arg_defs(self):  # type: () -> Dict
+    def _get_arg_defs(self):  # type: () -> dict
         arg_def = super(AnsibleLocalCatalogModule, self)._get_arg_defs()
 
         arg_def[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
@@ -320,7 +319,7 @@ class AnsibleLocalCatalogModule(DataSet):
 
         return arg_def
 
-    def _get_data_set_object(self, size, result):  # type: (_dataset_size, Dict) -> _data_set
+    def _get_data_set_object(self, size, result):  # type: (_dataset_size, dict) -> _data_set
         return _data_set(
             size=size,
             name=result.get(ds_constants["REGION_DATA_SETS_ALIAS"]).get("dfhlcd").get("dsn").upper(),
@@ -329,13 +328,13 @@ class AnsibleLocalCatalogModule(DataSet):
             exists=False,
             vsam=False)
 
-    def _get_data_set_size(self, result):
+    def _get_data_set_size(self, result):  # type: (dict) -> _dataset_size
         return _dataset_size(
             unit=result.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
             primary=result.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
             secondary=lc_constants["SECONDARY_SPACE_VALUE_DEFAULT"])
 
-    def validate_parameters(self):
+    def validate_parameters(self):  # type: () -> None
         arg_defs = self._get_arg_defs()
 
         result = BetterArgParser(arg_defs).parse_args({
@@ -349,12 +348,12 @@ class AnsibleLocalCatalogModule(DataSet):
         size = self._get_data_set_size(result)
         self.data_set = self._get_data_set_object(size, result)
 
-    def create_data_set(self):
+    def create_data_set(self):  # type: () -> None
         create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_lcd(self.data_set))
 
         super().build_vsam_data_set(create_cmd, "Create local catalog data set")
 
-    def delete_data_set(self):
+    def delete_data_set(self):  # type: () -> None
         if not self.data_set["exists"]:
             self.result["end_state"] = {
                 "exists": self.data_set["exists"],
@@ -364,18 +363,21 @@ class AnsibleLocalCatalogModule(DataSet):
 
         super().delete_data_set("Removing local catalog data set")
 
-    def warm_data_set(self):
-        if not self.data_set["exists"]:
-            self._fail("Data set {0} does not exist.".format(self.data_set["name"]))
+    def warm_data_set(self):  # type: () -> None
+        super().warm_data_set()
 
-        icetool_executions, record_count = _run_icetool(self.data_set["name"])
-        if record_count["record_count"] <= 0:
-            self._fail("Unused catalog. The catalog must be used by CICS before doing a warm start.")
+        try:
+            icetool_executions, record_count = _run_icetool(self.data_set["name"])
+            if record_count["record_count"] <= 0:
+                self._fail("Unused catalog. The catalog must be used by CICS before doing a warm start.")
 
-        self.result["executions"] = self.result["executions"] + icetool_executions
-        self.result["changed"] = False
+            self.result["executions"] = self.result["executions"] + icetool_executions
+            self.result["changed"] = False
+        except Exception as e:
+            self.result["executions"] = self.result["executions"] + e.args[1]
+            self._fail(e.args[0])
 
-    def init_data_set(self):
+    def init_data_set(self):  # type: () -> None
         if self.data_set["exists"]:
             self.result["end_state"] = {
                 "exists": self.data_set["exists"],
