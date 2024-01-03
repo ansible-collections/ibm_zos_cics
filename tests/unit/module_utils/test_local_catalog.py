@@ -43,7 +43,7 @@ def test_get_idcams_cmd_megabytes():
     REUSE) -
     DATA (NAME(ANSI.CYLS.DFHLCD.DATA) -
     CONTROLINTERVALSIZE(2048)) -
-    INDEX(NAME(ANSI.CYLS.DFHLCD.INDEX))
+    INDEX (NAME(ANSI.CYLS.DFHLCD.INDEX))
     '''
 
 
@@ -70,7 +70,7 @@ def test_get_idcams_cmd_cylinders():
     REUSE) -
     DATA (NAME(ANSI.CYLS.DFHLCD.DATA) -
     CONTROLINTERVALSIZE(2048)) -
-    INDEX(NAME(ANSI.CYLS.DFHLCD.INDEX))
+    INDEX (NAME(ANSI.CYLS.DFHLCD.INDEX))
     '''
 
 
