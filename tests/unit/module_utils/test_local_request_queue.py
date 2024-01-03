@@ -33,7 +33,7 @@ def test_get_idcams_cmd_megabytes():
     LOG(UNDO)) -
     DATA (NAME(ANSI.CYLS.DFHLRQ.DATA) -
     CONTROLINTERVALSIZE(2560)) -
-    INDEX(NAME(ANSI.CYLS.DFHLRQ.INDEX))
+    INDEX (NAME(ANSI.CYLS.DFHLRQ.INDEX))
     '''
 
 
@@ -60,5 +60,5 @@ def test_get_idcams_cmd_cylinders():
     LOG(UNDO)) -
     DATA (NAME(ANSI.CYLS.DFHLRQ.DATA) -
     CONTROLINTERVALSIZE(2560)) -
-    INDEX(NAME(ANSI.CYLS.DFHLRQ.INDEX))
+    INDEX (NAME(ANSI.CYLS.DFHLRQ.INDEX))
     '''

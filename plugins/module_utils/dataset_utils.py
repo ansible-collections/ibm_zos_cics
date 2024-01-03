@@ -73,75 +73,49 @@ def _get_dataset_size_unit(unit_symbol):  # type: (str) -> str
 
 
 def _build_idcams_define_cmd(dataset):  # type: (dict) -> str
-    index_statement = (""" -
-    INDEX({0})""".format(_build_idcams_define_index_parms(dataset))
-                       if dataset.get("INDEX", None)
-                       else ""
-                       )
-
-    return """
-    DEFINE CLUSTER ({0}) -
-    DATA ({1}){2}
-    """.format(_build_idcams_define_cluster_parms(dataset),
-               _build_idcams_define_data_parms(dataset),
-               index_statement)
+    defineStr = "\n    DEFINE{0}{1}{2}\n    ".format(
+        _build_idcams_define_cluster_parms(dataset),
+        _build_idcams_define_data_parms(dataset),
+        _build_idcams_define_index_parms(dataset))
+    return defineStr
 
 
 def _build_idcams_define_cluster_parms(dataset):  # type: (dict) -> str
-
-    clusterStr = "NAME({0}) -\n    {1}({2} {3})".format(
+    clusterStr = " CLUSTER (NAME({0}) -\n    {1}({2} {3}){4})".format(
         dataset["name"],
-        _get_dataset_size_unit(
-            dataset["size"]["unit"]),
+        _get_dataset_size_unit(dataset["size"]["unit"]),
         dataset["size"]["primary"],
-        dataset["size"]["secondary"])
-    if isinstance(dataset["CLUSTER"], dict):
-        clusterStr += " -\n    "
-        for key, value in dataset["CLUSTER"].items():
-            if value is not None:
-                clusterStr += "{0}({1})".format(key, value)
-                if key != list(dataset["CLUSTER"].keys())[-1]:
-                    clusterStr += " -\n    "
-            elif key is not None:
-                clusterStr += "{0}".format(key)
-                if key != list(dataset["CLUSTER"].keys())[-1]:
-                    clusterStr += " -\n    "
-
+        dataset["size"]["secondary"],
+        _build_idcams_define_parms(dataset, "CLUSTER"))
     return clusterStr
 
 
 def _build_idcams_define_data_parms(dataset):  # type: (dict) -> str
-    dataStr = "NAME({0}.DATA)".format(dataset["name"])
-    if isinstance(dataset["DATA"], dict):
-        dataStr += " -\n    "
-        for key, value in dataset["DATA"].items():
-            if value is not None:
-                dataStr += "{0}({1})".format(key, value)
-                if key != list(dataset["DATA"].keys())[-1]:
-                    dataStr += " -\n    "
-            elif key is not None:
-                dataStr += "{0}".format(key)
-                if key != list(dataset["DATA"].keys())[-1]:
-                    dataStr += " -\n    "
-
+    dataStr = " -\n    DATA (NAME({0}.DATA){1})".format(
+        dataset["name"],
+        _build_idcams_define_parms(dataset, "DATA"))
     return dataStr
 
 
 def _build_idcams_define_index_parms(dataset):  # type: (dict) -> str
-    indexStr = "NAME({0}.INDEX)".format(dataset["name"])
-    if isinstance(dataset["INDEX"], dict):
-        indexStr += " -\n    "
-        for key, value in dataset["INDEX"].items():
-            if value is not None:
-                indexStr += "{0}({1})".format(key, value)
-                if key != list(dataset["INDEX"].keys())[-1]:
-                    indexStr += " -\n    "
-            elif key is not None:
-                indexStr += "{0}".format(key)
-                if key != list(dataset["INDEX"].keys())[-1]:
-                    indexStr += " -\n    "
-
+    if dataset.get("INDEX", None):
+        indexStr = " -\n    INDEX (NAME({0}.INDEX){1})".format(
+            dataset["name"],
+            _build_idcams_define_parms(dataset, "INDEX"))
+    else:
+        indexStr = ""
     return indexStr
+
+
+def _build_idcams_define_parms(dataset, parm):  # type: (Dict, str) -> str
+    parmsStr = ""
+    if isinstance(dataset[parm], dict):
+        for key, value in dataset[parm].items():
+            if value is not None:
+                parmsStr += " -\n    {0}({1})".format(key, value)
+            elif key is not None:
+                parmsStr += " -\n    {0}".format(key)
+    return parmsStr
 
 
 def _run_listds(location):  # type: (str) -> [list, _state]
