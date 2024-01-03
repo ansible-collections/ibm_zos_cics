@@ -93,27 +93,35 @@ class DataSet(object):
         create_cmd = dataset_utils._build_idcams_define_cmd({})
 
     def build_vsam_data_set(self, create_cmd, message):  # type: (str, str) -> None
-        idcams_executions = dataset_utils._run_idcams(
-            cmd=create_cmd,
-            name=message,
-            location=self.data_set["name"],
-            delete=False)
-        self.result["executions"] = self.result["executions"] + idcams_executions
+        try:
+            idcams_executions = dataset_utils._run_idcams(
+                cmd=create_cmd,
+                name=message,
+                location=self.data_set["name"],
+                delete=False)
+            self.result["executions"] = self.result["executions"] + idcams_executions
 
-        self.result["changed"] = True
+            self.result["changed"] = True
+        except Exception as e:
+            self.result["executions"] = self.result["executions"] + e.args[1]
+            self._fail(e.args[0])
 
     def delete_data_set(self, message):  # type: (str) -> None
         delete_cmd = '''
         DELETE {0}
         '''.format(self.data_set["name"])
 
-        idcams_executions = dataset_utils._run_idcams(
-            cmd=delete_cmd,
-            name=message,
-            location=self.data_set["name"],
-            delete=True)
-        self.result["executions"] = self.result["executions"] + idcams_executions
-        self.result["changed"] = True
+        try:
+            idcams_executions = dataset_utils._run_idcams(
+                cmd=delete_cmd,
+                name=message,
+                location=self.data_set["name"],
+                delete=True)
+            self.result["executions"] = self.result["executions"] + idcams_executions
+            self.result["changed"] = True
+        except Exception as e:
+            self.result["executions"] = self.result["executions"] + e.args[1]
+            self._fail(e.args[0])
 
     def init_data_set(self):  # type: () -> None
         if self.data_set["exists"]:

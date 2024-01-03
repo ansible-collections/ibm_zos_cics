@@ -7,7 +7,7 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 from typing import List
 
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd, MVSCmdResponse
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 
@@ -23,23 +23,21 @@ def _get_icetool_dds(location):  # type: (str) -> List[DDStatement]
     ]
 
 
-def _get_reason_code(filtered):
+def _get_reason_code(filtered):  # type: ([str]) -> str
     if len(filtered) == 0:
-        raise Exception(
-            "ICETOOL failed with RC 16 but no reason code was found")
+        return ""
 
     elements2 = list(filtered[0].split(','))
     filtered2 = list(filter(lambda x: "REASON:X" in x, elements2))
     if len(filtered2) == 0:
-        raise Exception(
-            "ICETOOL failed with RC 16 but no reason code was found")
+        return ""
 
     elements3 = [element.replace("0", "")
                  for element in filtered2[0].split("'")]
     return elements3[1]
 
 
-def _get_record_count(stdout):
+def _get_record_count(stdout):  # type: (str) -> dict
     record_count = -1
     elements = ['{0}'.format(element.replace(" ", "").upper())
                 for element in stdout.split("\n")]
@@ -51,7 +49,7 @@ def _get_record_count(stdout):
     return {"record_count": record_count}
 
 
-def _run_icetool(location):
+def _run_icetool(location):  # type: (str) -> (list(_execution), dict)
     executions = []
 
     for x in range(10):
@@ -64,26 +62,25 @@ def _run_icetool(location):
                 stdout=icetool_response.stdout,
                 stderr=icetool_response.stderr))
 
-        if icetool_response.rc == 0:
-            break
-        if icetool_response.rc == 16:
+        if icetool_response.rc != 0:
             elements = ["{0}".format(element.replace(" ", "").upper())
                         for element in icetool_response.stdout.split("\n")]
             filtered = list(filter(lambda x: "REASON:X" in x, elements))
 
             reason_code = _get_reason_code(filtered)
-            if reason_code != "A8":
+            if reason_code != "":
                 raise Exception(
-                    "ICETOOL failed with RC 16 - {0}".format(filtered[0]))
+                    "ICETOOL failed with RC {0} - {1}".format(icetool_response.rc, filtered[0]), executions)
+            else:
+                raise Exception(
+                    "ICETOOL failed with RC {0}".format(icetool_response.rc), executions)
         else:
-            raise Exception(
-                "ICETOOL failed with RC {0}".format(
-                    icetool_response.rc))
+            break
 
     return executions, _get_record_count(icetool_response.stdout)
 
 
-def _execute_icetool(location):
+def _execute_icetool(location):  # type: (str) -> MVSCmdResponse
     return MVSCmd.execute(
         pgm="ICETOOL",
         dds=_get_icetool_dds(location=location),

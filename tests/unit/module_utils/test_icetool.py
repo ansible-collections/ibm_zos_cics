@@ -107,7 +107,7 @@ def test__run_icetool_rc_16_no_reason():
     with pytest.raises(Exception) as e_info:
         icetool._run_icetool("TEST.REGIONS.LCD")
 
-    assert str(e_info.value) == "ICETOOL failed with RC 16 but no reason code was found"
+    assert (e_info.value).args[0] == "ICETOOL failed with RC 16"
 
 
 def test__run_icetool_rc_nonzero():
@@ -115,4 +115,4 @@ def test__run_icetool_rc_nonzero():
     with pytest.raises(Exception) as e_info:
         icetool._run_icetool("TEST.REGIONS.LCD")
 
-    assert str(e_info.value) == "ICETOOL failed with RC 99"
+    assert (e_info.value).args[0] == "ICETOOL failed with RC 99"
