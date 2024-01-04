@@ -12,3 +12,5 @@ action_groups:
     - local_catalog
     - local_request_queue
     - trace
+    - intrapartition
+    - auxiliary_temp
