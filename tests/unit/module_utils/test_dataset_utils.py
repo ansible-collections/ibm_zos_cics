@@ -4,9 +4,15 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
+
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
 __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
+import pytest
+import sys
+
 try:
     from unittest.mock import MagicMock
 except ImportError:
@@ -485,3 +491,37 @@ def test__run_listds_with_no_zoau_response():
     except Exception as e:
         assert e.args[0] == "LISTDS Command output not recognised"
         assert e.args[1] == expected_executions
+
+
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+def test__run_iefbr14():
+    rc = 0
+    stdout = ("")
+    stderr = ""
+    dataset_utils.MVSCmd.execute = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
+
+    definition = DatasetDefinition(
+        dataset_name="DFHTEST",
+        block_size=4096,
+        record_length=4096,
+        record_format="FB",
+        disposition="NEW",
+        normal_disposition="catalog",
+        conditional_disposition="delete",
+        primary=15,
+        primary_unit="MB",
+        type="SEQ"
+    )
+
+    result_exececutions = dataset_utils._run_iefbr14(
+        ddname="DFHIEFT",
+        definition=definition
+    )
+
+    assert len(result_exececutions) == 1
+    assert result_exececutions[0] == {
+        "name": "IEFBR14 - DFHIEFT - Run 1",
+        "rc": rc,
+        "stdout": stdout,
+        "stderr": stderr,
+    }

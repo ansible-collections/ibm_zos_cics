@@ -9,6 +9,8 @@ __metaclass__ = type
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _response, _state
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
 
 
 class DataSet(object):
@@ -75,7 +77,7 @@ class DataSet(object):
     def validate_parameters(self):  # type: () -> None
         arg_defs = self._get_arg_defs()
 
-        result = dataset_utils.BetterArgParser(arg_defs).parse_args({
+        result = BetterArgParser(arg_defs).parse_args({
             _dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]:
                 self._module.params.get(_dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
             _dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]:
@@ -102,6 +104,18 @@ class DataSet(object):
             self.result["executions"] = self.result["executions"] + idcams_executions
 
             self.result["changed"] = True
+        except Exception as e:
+            self.result["executions"] = self.result["executions"] + e.args[1]
+            self._fail(e.args[0])
+
+    def build_seq_data_set(self, ddname, definition):  # type: (str, DatasetDefinition) -> None
+
+        try:
+            iefbr14_executions = dataset_utils._run_iefbr14(ddname, definition)
+            self.result["executions"] = self.result["executions"] + iefbr14_executions
+
+            self.result["changed"] = True
+
         except Exception as e:
             self.result["executions"] = self.result["executions"] + e.args[1]
             self._fail(e.args[0])
@@ -196,4 +210,5 @@ _dataset_constants = {
     "TARGET_STATE_COLD": "cold",
     "CICS_DATA_SETS_ALIAS": "cics_data_sets",
     "REGION_DATA_SETS_ALIAS": "region_data_sets",
+    "DESTINATION_ALIAS": "destination"
 }

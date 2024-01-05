@@ -5,9 +5,13 @@
 
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
+from typing import Dict
+import re
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.mvs_cmd import idcams, ikjeft01
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, _state
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DDStatement, DatasetDefinition
 
 
 def _dataset_size(unit, primary, secondary):  # type: (str,int,int) -> dict
@@ -38,6 +42,7 @@ def _run_idcams(cmd, name, location, delete=False):  # type: (str, str, str, boo
         raise Exception("IDCAMS Command output not recognised", executions)
 
     if delete:
+        pattern = r"^.+ENTRY\(A|C|D|I\){0}DELETED+$".format(location.upper())
         if rc == 8 and "ENTRY{0}NOTFOUND".format(
             location.upper()) in stdout.upper().replace(
             " ",
@@ -45,12 +50,11 @@ def _run_idcams(cmd, name, location, delete=False):  # type: (str, str, str, boo
             "\n",
                 ""):
             return executions
-        if rc != 0 or "ENTRY(C){0}DELETED".format(
-            location.upper()) not in stdout.upper().replace(
+        elif rc != 0 or not bool(re.search(pattern, stdout.upper().replace(
             " ",
             "").replace(
             "\n",
-                ""):
+                ""))):
             raise Exception("RC {0} when deleting data set".format(rc), executions)
     else:
         if rc == 12 and "NOTDEFINEDBECAUSEDUPLICATENAMEEXISTSINCATALOG" in stdout.upper(
@@ -169,3 +173,37 @@ def _data_set(size, name, state, exists, vsam, **kwargs):  # type: (_dataset_siz
     }
     data_set.update(kwargs)
     return data_set
+
+
+def _run_iefbr14(ddname, definition):  # type (str, DatasetDefinition) -> List[Dict]
+
+    executions = []
+
+    for x in range(10):
+        iefbr14_response = MVSCmd.execute(
+            pgm="IEFBR14",
+            dds=_get_iefbr14_dds(ddname, definition),
+            verbose=True,
+            debug=False
+        )
+        executions.append(
+            _execution(
+                name="IEFBR14 - {0} - Run {1}".format(
+                    ddname,
+                    x + 1),
+                rc=iefbr14_response.rc,
+                stdout=iefbr14_response.stdout,
+                stderr=iefbr14_response.stderr))
+
+        if iefbr14_response.rc == 0:
+            break
+        else:
+            raise Exception(
+                "RC {0} when creating sequential data set".format(
+                    iefbr14_response.rc), executions)
+
+    return executions
+
+
+def _get_iefbr14_dds(ddname, definition):  # type: (str, DatasetDefinition) -> list[DDStatement]
+    return [DDStatement(ddname, definition)]
