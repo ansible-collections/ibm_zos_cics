@@ -9,6 +9,7 @@ plugins/modules/local_request_queue.py validate-modules:missing-gplv3-license # 
 plugins/modules/intrapartition.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
 plugins/modules/auxiliary_temp.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
 plugins/modules/trace.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
+plugins/modules/csd.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
 plugins/module_utils/cmci.py import-2.7
 plugins/modules/cmci_action.py import-2.7
 plugins/modules/cmci_create.py import-2.7
