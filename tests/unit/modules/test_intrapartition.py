@@ -3,7 +3,7 @@
 # (c) Copyright IBM Corp. 2023
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils, icetool
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
     _execution,
     _response,
@@ -16,6 +16,8 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import intrapartition
 import pytest
 import sys
+
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
 
 try:
     from unittest.mock import MagicMock
@@ -135,16 +137,28 @@ def test_delete_an_existing_intrapartition_ds():
 @pytest.mark.skipif(
     sys.version_info.major < 3, reason="Requires python 3 language features"
 )
-def test_do_nothing_to_an_existing_intra():
+def test_delete_an_existing_intra_and_replace():
     intra_module = initialise_module()
     data_set = set_data_set(exists=True, name="TEST.REGIONS.INTRA", vsam=True)
     intra_module.data_set = data_set
 
+    dataset_utils.idcams = MagicMock(
+        side_effect=[
+            (0, "ENTRY (C) TEST.REGIONS.INTRA DELETED\n", "stderr"),
+            (0, "TEST.REGIONS.INTRA", "stderr"),
+        ]
+    )
     dataset_utils.ikjeft01 = MagicMock(
         side_effect=[
             (0, "TEST.REGIONS.INTRA VSAM", "stderr"),
+            (8, "TEST.REGIONS.INTRA NOT IN CATALOG", "stderr"),
             (0, "TEST.REGIONS.INTRA VSAM", "stderr"),
         ]
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=(
+            MVSCmdResponse(rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr")
+        )
     )
     intrapartition.AnsibleIntrapartitionModule._exit = MagicMock(return_value=None)
 
@@ -158,6 +172,30 @@ def test_do_nothing_to_an_existing_intra():
                 stderr="stderr",
             ),
             _execution(
+                name="ICETOOL - Get record count",
+                rc=0,
+                stdout="RECORD COUNT:  000000000000052",
+                stderr="stderr"
+            ),
+            _execution(
+                name="IDCAMS - Removing intrapartition data set - Run 1",
+                rc=0,
+                stdout="ENTRY (C) TEST.REGIONS.INTRA DELETED\n",
+                stderr="stderr",
+            ),
+            _execution(
+                name="IKJEFT01 - Get Data Set Status - Run 1",
+                rc=8,
+                stdout="TEST.REGIONS.INTRA NOT IN CATALOG",
+                stderr="stderr",
+            ),
+            _execution(
+                name="IDCAMS - Create intrapartition data set - Run 1",
+                rc=0,
+                stdout="TEST.REGIONS.INTRA",
+                stderr="stderr",
+            ),
+            _execution(
                 name="IKJEFT01 - Get Data Set Status - Run 1",
                 rc=0,
                 stdout="TEST.REGIONS.INTRA VSAM",
@@ -167,6 +205,7 @@ def test_do_nothing_to_an_existing_intra():
         start_state=_state(exists=True, vsam=True),
         end_state=_state(exists=True, vsam=True),
     )
+    expected_result.update({"changed": True})
     assert intra_module.result == expected_result
 
 

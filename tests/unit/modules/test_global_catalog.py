@@ -120,6 +120,7 @@ def test_warm_start_a_global_catalog():
     gcd_module.data_set = data_set
 
     dataset_utils.ikjeft01 = MagicMock(return_value=(0, "TEST.REGIONS.GCD VSAM", "stderr"))
+    dataset_utils.idcams = MagicMock(return_value=(0, "ENTRY (C) TEST.REGIONS.GCD DELETED\n", "stderr"))
     global_catalog_utils._execute_dfhrmutl = MagicMock(
         return_value=MVSCmdResponse(rc=0, stdout="auto-start override   : AUTOASIS \n next start type       : UNKNOWN", stderr="stderr")
     )

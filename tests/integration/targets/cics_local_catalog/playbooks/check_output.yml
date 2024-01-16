@@ -73,11 +73,11 @@
       ansible.builtin.debug:
         msg: "{{ res }}"
 
-    - name: Assert Catalog Created, changed is false
+    - name: Assert Catalog Created, changed is true
       ansible.builtin.assert:
         that:
           - res.failed is false
-          - res.changed is false
+          - res.changed is true
           - res.start_state.exists is true
           - res.start_state.vsam is true
           - res.end_state.exists is true

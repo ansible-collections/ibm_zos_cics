@@ -3,8 +3,7 @@
 # (c) Copyright IBM Corp. 2023
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import icetool
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils, icetool
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, _response, _state
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import set_data_set, set_module_args
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import local_request_queue
@@ -134,36 +133,44 @@ def test_delete_an_existing_local_request_queue():
     assert lrq_module.result == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
-def test_do_nothing_to_an_existing_lrq():
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+def test_delete_an_existing_lrq_and_replace():
     lrq_module = initialise_module()
     data_set = set_data_set(exists=True, name="TEST.REGIONS.LRQ", vsam=True)
     lrq_module.data_set = data_set
 
+    dataset_utils.idcams = MagicMock(
+        side_effect=[
+            (0, "ENTRY (C) TEST.REGIONS.LRQ DELETED\n", "stderr"),
+            (0, "TEST.REGIONS.LRQ", "stderr"),
+        ]
+    )
     dataset_utils.ikjeft01 = MagicMock(
         side_effect=[
-            (0, "TEST.REGIONS.LRQ VSAM", "stderr"), (0, "TEST.REGIONS.LRQ VSAM", "stderr")])
+            (0, "TEST.REGIONS.LRQ VSAM", "stderr"),
+            (8, "TEST.REGIONS.LRQ NOT IN CATALOG", "stderr"),
+            (0, "TEST.REGIONS.LRQ VSAM", "stderr"),
+        ]
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=(
+            MVSCmdResponse(rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr")
+        )
+    )
 
     lrq_module.main()
-    expected_result = _response(
-        executions=[
-            _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
-                rc=0,
-                stdout="TEST.REGIONS.LRQ VSAM",
-                stderr="stderr"),
-            _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
-                rc=0,
-                stdout="TEST.REGIONS.LRQ VSAM",
-                stderr="stderr")],
-        start_state=_state(
-            exists=True,
-            vsam=True),
-        end_state=_state(
-            exists=True,
-            vsam=True))
+    expected_result = _response(executions=[
+        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=0, stdout="TEST.REGIONS.LRQ VSAM", stderr="stderr"),
+        _execution(name="ICETOOL - Get record count", rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr"),
+        _execution(name="IDCAMS - Removing local request queue data set - Run 1", rc=0, stdout="ENTRY (C) TEST.REGIONS.LRQ DELETED\n", stderr="stderr"),
+        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=8, stdout="TEST.REGIONS.LRQ NOT IN CATALOG", stderr="stderr"),
+        _execution(name="IDCAMS - Create local request queue data set - Run 1", rc=0, stdout="TEST.REGIONS.LRQ", stderr="stderr"),
+        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=0, stdout="TEST.REGIONS.LRQ VSAM", stderr="stderr")
+    ],
+        start_state=_state(exists=True, vsam=True),
+        end_state=_state(exists=True, vsam=True)
+    )
+    expected_result.update({"changed": True})
     assert lrq_module.result == expected_result
 
 

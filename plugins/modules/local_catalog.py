@@ -211,6 +211,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog imp
     _run_dfhccutl, _get_idcams_cmd_lcd)
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog import _local_catalog_constants as lc_constants
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import _run_icetool
 
 
 class AnsibleLocalCatalogModule(DataSet):
@@ -364,13 +365,15 @@ class AnsibleLocalCatalogModule(DataSet):
 
     def init_data_set(self):  # type: () -> None
         if self.data_set["exists"]:
-            self.result["end_state"] = {
-                "exists": self.data_set["exists"],
-                "vsam": self.data_set["vsam"]
-            }
-            self._exit()
+            icetool_executions, record_count = _run_icetool(self.data_set["name"])
+            self.result["executions"] = self.result["executions"] + icetool_executions
+            if record_count["record_count"] > 0:
+                # If records are present, empty the data set and rerun DFHCCUTL
+                self.delete_data_set()
+                self.data_set = self.get_data_set_state(self.data_set)
+                self.create_data_set()
 
-        if not self.data_set["exists"]:
+        else:
             self.create_data_set()
 
         try:
