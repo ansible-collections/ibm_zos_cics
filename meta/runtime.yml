@@ -11,3 +11,4 @@ action_groups:
     - global_catalog
     - local_catalog
     - local_request_queue
+    - trace

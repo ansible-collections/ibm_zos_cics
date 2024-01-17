@@ -5,13 +5,12 @@
 
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
-from typing import Dict
 import re
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.mvs_cmd import idcams, ikjeft01
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, _state
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DDStatement, DatasetDefinition
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DDStatement
 
 
 def _dataset_size(unit, primary, secondary):  # type: (str,int,int) -> dict

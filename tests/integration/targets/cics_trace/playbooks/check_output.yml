@@ -1,0 +1,207 @@
+# (c) Copyright IBM Corp. 2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Validate return data
+
+  hosts: "all"
+  gather_facts: false
+  vars:
+    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_absent }}"
+    auxt_name: "DFHAUXT"
+    buxt_name: "DFHBUXT"
+    auxt_path: "{{ region_dataset_path }}.{{ auxt_name }}"
+    buxt_path: "{{ region_dataset_path }}.{{ buxt_name }}"
+
+  module_defaults:
+    ibm.ibm_zos_cics.trace:
+      region_data_sets:
+        template: "{{ region_dataset_path }}.<< data_set_name >>"
+
+  tasks:
+    # #############################################################################
+    # ############################## Initial cleanup ##############################
+    # #############################################################################
+
+    - name: Delete DFHAUXT Data Set if it exists
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ auxt_path }}"
+        state: absent
+      register: delete_result
+      retries: 3
+      until: delete_result is not failed
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == false
+
+    - name: Delete DFHBUXT Data Set if it exists
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ buxt_path }}"
+        state: absent
+      register: delete_result
+      retries: 3
+      until: delete_result is not failed
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == false
+
+    # #############################################################################
+    # ############################ Module Testing (A) #############################
+    # #############################################################################
+
+    - name: Create DFHAUXT with initial state
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.trace:
+        state: "initial"
+      register: res
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ res }}"
+
+    - name: Assert DFHAUXT Created, changed is true
+      ansible.builtin.assert:
+        that:
+          - res.failed is false
+          - res.changed is true
+          - res.start_state.exists is false
+          - res.end_state.exists is true
+
+    - name: Try recreating same DFHAUXT
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.trace:
+        state: "initial"
+      register: res
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ res }}"
+
+    - name: Assert DFHAUXT Created, changed is false
+      ansible.builtin.assert:
+        that:
+          - res.failed is false
+          - res.changed is false
+          - res.start_state.exists is true
+          - res.end_state.exists is true
+
+    - name: Remove DFHAUXT
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.trace:
+        state: "absent"
+      register: res
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ res }}"
+
+    - name: Assert DFHAUXT Removed, changed is true
+      ansible.builtin.assert:
+        that:
+          - res.failed is false
+          - res.changed is true
+          - res.start_state.exists is true
+          - res.end_state.exists is false
+
+    - name: Try removing DFHAUXT, changed is false
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.trace:
+        state: "absent"
+      register: res
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ res }}"
+
+    - name: Assert DFHAUXT removed, changed is false
+      ansible.builtin.assert:
+        that:
+          - res.failed is false
+          - res.changed is false
+          - res.start_state.exists is false
+          - res.end_state.exists is false
+
+    # #############################################################################
+    # ########################## Module Testing (B) ###############################
+    # #############################################################################
+
+    - name: Create DFHBUXT with initial state
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.trace:
+        state: "initial"
+        destination: "B"
+      register: res
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ res }}"
+
+    - name: Assert DFHBUXT Created, changed is true
+      ansible.builtin.assert:
+        that:
+          - res.failed is false
+          - res.changed is true
+          - res.start_state.exists is false
+          - res.end_state.exists is true
+
+    - name: Try recreating same DFHBUXT
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.trace:
+        state: "initial"
+        destination: "B"
+      register: res
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ res }}"
+
+    - name: Assert DFHBUXT Created, changed is false
+      ansible.builtin.assert:
+        that:
+          - res.failed is false
+          - res.changed is false
+          - res.start_state.exists is true
+          - res.end_state.exists is true
+
+    - name: Remove DFHBUXT
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.trace:
+        state: "absent"
+        destination: "B"
+      register: res
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ res }}"
+
+    - name: Assert DFHBUXT Removed, changed is true
+      ansible.builtin.assert:
+        that:
+          - res.failed is false
+          - res.changed is true
+          - res.start_state.exists is true
+          - res.end_state.exists is false
+
+    - name: Try removing DFHBUXT, changed is false
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.trace:
+        state: "absent"
+        destination: "B"
+      register: res
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ res }}"
+
+    - name: Assert DFHBUXT removed, changed is false
+      ansible.builtin.assert:
+        that:
+          - res.failed is false
+          - res.changed is false
+          - res.start_state.exists is false
+          - res.end_state.exists is false

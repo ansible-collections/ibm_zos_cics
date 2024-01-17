@@ -109,13 +109,10 @@ class DataSet(object):
             self._fail(e.args[0])
 
     def build_seq_data_set(self, ddname, definition):  # type: (str, DatasetDefinition) -> None
-
         try:
             iefbr14_executions = dataset_utils._run_iefbr14(ddname, definition)
             self.result["executions"] = self.result["executions"] + iefbr14_executions
-
             self.result["changed"] = True
-
         except Exception as e:
             self.result["executions"] = self.result["executions"] + e.args[1]
             self._fail(e.args[0])

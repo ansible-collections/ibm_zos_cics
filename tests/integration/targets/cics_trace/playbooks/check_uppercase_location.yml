@@ -1,0 +1,128 @@
+# (c) Copyright IBM Corp. 2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Check Lowercase Location Parameter
+
+  hosts: "all"
+  gather_facts: false
+  vars:
+    region_data_set_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_absent }}"
+    auxt_name: "DFHAUXT"
+    buxt_name: "DFHBUXT"
+    auxt_path: "{{ region_data_set_path }}.{{ auxt_name }}"
+    buxt_path: "{{ region_data_set_path }}.{{ buxt_name }}"
+
+  module_defaults:
+    ibm.ibm_zos_cics.trace:
+      region_data_sets:
+        template: "{{ region_data_set_path }}.low.<< data_set_name >>"
+
+  tasks:
+    # #############################################################################
+    # ############################## Initial cleanup ##############################
+    # #############################################################################
+
+    - name: Delete DFHAUXT data set if it exists
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ region_data_set_path }}.LOW.{{ auxt_name }}"
+        state: absent
+      register: delete_result
+      retries: 3
+      until: delete_result is not failed
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == false
+
+    - name: Delete DFHBUXT data set if it exists
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ region_data_set_path }}.LOW.{{ buxt_name }}"
+        state: absent
+      register: delete_result
+      retries: 3
+      until: delete_result is not failed
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == false
+
+    # #############################################################################
+    # ############################## Module Testing ###############################
+    # #############################################################################
+
+    - name: Give lowercase DFHAUXT location
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.trace:
+        state: "initial"
+      register: result
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ result }}"
+
+    - name: Assert passed with lowercase
+      ansible.builtin.assert:
+        that:
+          - result.failed is false
+          - result.changed is true
+
+          - result.start_state.exists == false
+
+          - result.end_state.exists == true
+
+    - name: Give lowercase DFHBUXT location
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.trace:
+        state: "initial"
+        destination: "B"
+      register: result
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ result }}"
+
+    - name: Assert passed with lowercase
+      ansible.builtin.assert:
+        that:
+          - result.failed is false
+          - result.changed is true
+
+          - result.start_state.exists == false
+
+          - result.end_state.exists == true
+
+    # #############################################################################
+    # ################################## Cleanup ##################################
+    # #############################################################################
+
+    - name: Delete DFHAUXT data set
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ region_data_set_path }}.LOW.{{ auxt_name }}"
+        state: absent
+      register: delete_result
+      retries: 3
+      until: delete_result is not failed
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == false
+
+    - name: Delete DFHBUXT data set
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ region_data_set_path }}.LOW.{{ buxt_name }}"
+        state: absent
+      register: delete_result
+      retries: 3
+      until: delete_result is not failed
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == false
