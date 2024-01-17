@@ -46,7 +46,6 @@
       ibm.ibm_zos_cics.intrapartition:
         state: "initial"
       register: result
-      failed_when: false
 
     - name: Debug
       ansible.builtin.debug:

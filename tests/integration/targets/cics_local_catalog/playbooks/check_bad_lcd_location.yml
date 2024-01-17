@@ -27,7 +27,7 @@
           dfhlcd:
             dsn: "{{ region_dataset_path }}..."
       register: res
-      failed_when: false
+      ignore_errors: true
 
     - name: Debug
       ansible.builtin.debug:
@@ -36,7 +36,7 @@
     - name: Assert Failure
       ansible.builtin.assert:
         that:
-          - res.failed is false
+          - res.failed is true
           - res.changed is false
           - res.rc == 1
           - "'exception' in res"

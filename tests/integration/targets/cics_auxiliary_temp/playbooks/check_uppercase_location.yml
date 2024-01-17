@@ -44,7 +44,6 @@
       ibm.ibm_zos_cics.auxiliary_temp:
         state: "initial"
       register: result
-      failed_when: false
 
     - name: Debug
       ansible.builtin.debug:

@@ -36,11 +36,12 @@
       cics_version:
         CICS_HLQ: "{{ ds_name }}"
       register: result
-      failed_when: false
+      ignore_errors: true
 
     - name: Assert non-existent
       ansible.builtin.assert:
         that:
+          - result.failed is true
           - result is not changed
           - result.rc == 1
           - "'exception' in result"
@@ -121,11 +122,12 @@
       cics_version:
         CICS_HLQ: "{{ ds_name }}"
       register: result
-      failed_when: false
+      ignore_errors: true
 
     - name: Assert failed on empty Member
       ansible.builtin.assert:
         that:
+          - result.failed is true
           - result is not changed
           - result.rc != 0
           - "'exception' in result"
@@ -166,7 +168,6 @@
       cics_version:
         CICS_HLQ: "{{ ds_name }}"
       register: result
-      failed_when: false
 
     - name: Assert string content fails
       ansible.builtin.assert:
@@ -217,11 +218,12 @@
       cics_version:
         CICS_HLQ: "{{ ds_name }}"
       register: result
-      failed_when: false
+      ignore_errors: true
 
     - name: Assert status EOF fails
       ansible.builtin.assert:
         that:
+          - result.failed is true
           - result is not changed
           - result.rc != 0
           - "'exception' in result"
@@ -312,11 +314,12 @@
       cics_version:
         CICS_HLQ: "{{ ds_name }}"
       register: result
-      failed_when: false
+      ignore_errors: true
 
     - name: Assert Seq data set fails
       ansible.builtin.assert:
         that:
+          - result.failed is true
           - result is not changed
           - "'exception' in result"
 

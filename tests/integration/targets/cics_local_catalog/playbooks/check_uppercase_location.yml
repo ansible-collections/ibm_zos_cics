@@ -44,7 +44,6 @@
         space_type: "M"
         state: "initial"
       register: result
-      failed_when: false
 
     - name: Debug
       ansible.builtin.debug:

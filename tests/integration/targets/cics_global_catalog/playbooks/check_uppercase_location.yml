@@ -46,7 +46,6 @@
       ibm.ibm_zos_cics.global_catalog:
         state: "initial"
       register: result
-      failed_when: false
 
     - name: Debug
       ansible.builtin.debug:

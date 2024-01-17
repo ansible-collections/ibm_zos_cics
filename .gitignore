@@ -5,6 +5,7 @@ docs/build/
 __pycache__
 venv*
 .venv
+core
 tests/output
 ibm-ibm_zos_cics-*.tar.gz
 tests/integration/inventory
