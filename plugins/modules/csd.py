@@ -21,10 +21,7 @@ description:
     data set if it doesn't yet exist, or it will take an existing
     CSD and empty it of all records.
 author: Thomas Latham (@Thomas-Latham3)
-version_added: 1.1.0-beta.2
-seealso:
-  - module: global_catalog
-  - module: local_catalog
+version_added: 1.1.0-beta.4
 options:
   space_primary:
     description:
@@ -57,7 +54,6 @@ options:
     description:
       - The location of the region's data sets using a template, e.g.
         C(REGIONS.ABCD0001.<< data_set_name >>).
-      - If it already exists, this data set must be cataloged.
     type: dict
     required: true
     suboptions:
@@ -80,8 +76,6 @@ options:
   cics_data_sets:
     description:
       - The name of the C(SDFHLOAD) data set, e.g. C(CICSTS61.CICS.SDFHLOAD).
-      - This module uses the C(DFHCCUTL) utility internally, which is found in
-        the C(SDFHLOAD) data set in the CICS installation.
     type: dict
     required: true
     suboptions:
@@ -123,14 +117,14 @@ EXAMPLES = r"""
       template: "CICSTS61.CICS.<< lib_name >>"
     state: "initial"
 
-- name: Initialize a large catalog
+- name: Initialize a large CSD data set
   ibm.ibm_zos_cics.csd:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
-    space_primary: 500
-    space_type: "REC"
+    space_primary: 10
+    space_type: "M"
     state: "initial"
 
 - name: Delete CSD
@@ -209,7 +203,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils imp
     _dataset_size, _data_set, _build_idcams_define_cmd)
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import DataSet
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.csd import (
-    _run_dfhccutl, _get_idcams_cmd_csd)
+    _get_idcams_cmd_csd)
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import (_run_icetool)
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.csd import _csd_constants as csd_constants
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
@@ -370,7 +364,7 @@ class AnsibleCSDModule(DataSet):
         try:
             icetool_executions, record_count = _run_icetool(self.data_set["name"])
             if record_count["record_count"] <= 0:
-                self._fail("Unused catalog. The catalog must be used by CICS before doing a warm start.")
+                self._fail("Unused data set. The data set must be used by CICS before doing a warm start.")
 
             self.result["executions"] = self.result["executions"] + icetool_executions
             self.result["changed"] = False
@@ -388,13 +382,6 @@ class AnsibleCSDModule(DataSet):
 
         if not self.data_set["exists"]:
             self.create_data_set()
-
-        try:
-            ccutl_executions = _run_dfhccutl(self.data_set)
-            self.result["executions"] = self.result["executions"] + ccutl_executions
-        except Exception as e:
-            self.result["executions"] = self.result["executions"] + e.args[1]
-            self._fail(e.args[0])
 
 
 def main():
