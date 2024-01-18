@@ -35,7 +35,7 @@ _auxiliary_temp_constants = {
     "PRIMARY_SPACE_VALUE_DEFAULT": 200,
     "SECONDARY_SPACE_VALUE_DEFAULT": 10,
     "SPACE_UNIT_DEFAULT": "REC",
-    "TARGET_STATE_OPTIONS": ["absent", "initial"],
+    "TARGET_STATE_OPTIONS": ["absent", "initial", "warm"],
     "RECORD_COUNT_DEFAULT": 4089,
     "RECORD_SIZE_DEFAULT": 4089,
     "CONTROL_INTERVAL_SIZE_DEFAULT": 4096,

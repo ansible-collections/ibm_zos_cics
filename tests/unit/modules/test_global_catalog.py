@@ -8,6 +8,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import global_cat
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, _response, _state
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import set_data_set, set_module_args
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import global_catalog
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import icetool
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
 import pytest
 import sys
@@ -171,6 +172,7 @@ def test_error_warm_start_a_unused_global_catalog():
     global_catalog_utils._execute_dfhrmutl = MagicMock(
         return_value=MVSCmdResponse(rc=0, stdout="auto-start override   : AUTOINIT \n next start type       : UNKNOWN", stderr="stderr")
     )
+    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(rc=0, stdout="RECORD COUNT:  000000000000000", stderr="stderr"))
 
     gcd_module.main()
 
@@ -187,6 +189,7 @@ def test_error_warm_start_a_unused_global_catalog():
             stdout="auto-start override   : AUTOINIT \n next start type       : UNKNOWN",
             stderr="stderr"
         ),
+        _execution(name="ICETOOL - Get record count", rc=0, stdout="RECORD COUNT:  000000000000000", stderr="stderr"),
         _execution(
             name="DFHRMUTL - Updating autostart override - Run 1",
             rc=0,

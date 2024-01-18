@@ -209,7 +209,6 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils imp
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import DataSet
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog import (
     _run_dfhccutl, _get_idcams_cmd_lcd)
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import (_run_icetool)
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog import _local_catalog_constants as lc_constants
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
 
@@ -362,20 +361,6 @@ class AnsibleLocalCatalogModule(DataSet):
             self._exit()
 
         super().delete_data_set("Removing local catalog data set")
-
-    def warm_data_set(self):  # type: () -> None
-        super().warm_data_set()
-
-        try:
-            icetool_executions, record_count = _run_icetool(self.data_set["name"])
-            if record_count["record_count"] <= 0:
-                self._fail("Unused catalog. The catalog must be used by CICS before doing a warm start.")
-
-            self.result["executions"] = self.result["executions"] + icetool_executions
-            self.result["changed"] = False
-        except Exception as e:
-            self.result["executions"] = self.result["executions"] + e.args[1]
-            self._fail(e.args[0])
 
     def init_data_set(self):  # type: () -> None
         if self.data_set["exists"]:

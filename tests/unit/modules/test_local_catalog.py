@@ -181,7 +181,6 @@ def test_error_warm_start_a_non_existent_local_catalog():
     lcd_module.main()
     expected_result = _response(executions=[
         _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=8, stdout="TEST.REGIONS.LCD NOT IN CATALOG", stderr="stderr"),
-        _execution(name="ICETOOL - Get record count", rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr"),
         _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=8, stdout="TEST.REGIONS.LCD NOT IN CATALOG", stderr="stderr"),
     ],
         start_state=_state(exists=False, vsam=False),
