@@ -97,9 +97,11 @@ options:
         already exists.
       - V(initial) will create the auxiliary temporary storage data set if it does not
         already exist.
+      - V(warm) will retain an existing auxiliary temporary storage data set in its current state.
     choices:
       - "initial"
       - "absent"
+      - "warm"
     required: true
     type: str
 """

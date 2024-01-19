@@ -34,7 +34,7 @@ _local_request_queue_constants = {
     "PRIMARY_SPACE_VALUE_DEFAULT": 4,
     "SECONDARY_SPACE_VALUE_DEFAULT": 1,
     "SPACE_UNIT_DEFAULT": "M",
-    "TARGET_STATE_OPTIONS": ["absent", "initial"],
+    "TARGET_STATE_OPTIONS": ["absent", "initial", "warm"],
     "RECORD_COUNT_DEFAULT": 2232,
     "RECORD_SIZE_DEFAULT": 2400,
     "CONTROL_INTERVAL_SIZE_DEFAULT": 2560,

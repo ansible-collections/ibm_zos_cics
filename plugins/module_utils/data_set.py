@@ -11,6 +11,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_ut
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _response, _state
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import _run_icetool
 
 
 class DataSet(object):
@@ -143,7 +144,22 @@ class DataSet(object):
             self.create_data_set()
 
     def warm_data_set(self):  # type: () -> None
-        if not self.data_set["exists"]:
+        if self.data_set["exists"]:
+            try:
+                icetool_executions, record_count = _run_icetool(self.data_set["name"])
+                self.result["executions"] = self.result["executions"] + icetool_executions
+                if record_count["record_count"] <= 0:
+                    self.result["end_state"] = _state(
+                        exists=self.data_set["exists"]
+                    )
+                    self._fail("Data set {0} is empty.".format(self.data_set["name"]))
+            except Exception as e:
+                self.result["executions"] = self.result["executions"] + e.args[1]
+                self._fail(e.args[0])
+        else:
+            self.result["end_state"] = _state(
+                exists=self.data_set["exists"]
+            )
             self._fail(
                 "Data set {0} does not exist.".format(
                     self.data_set["name"]))

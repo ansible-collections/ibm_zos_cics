@@ -113,8 +113,7 @@ options:
         already exists.
       - V(initial) will create the auxillary trace data set if it does not
         already exist.
-      - V(warm) will error if the data set is absent, or  if it is present and has no records. It will
-        will no-op if the data set is present and contains at least 1 record.
+      - V(warm) will retain an existing auxiliary trace data set in its current state.
     choices:
       - "initial"
       - "absent"
@@ -183,7 +182,6 @@ executions:
       returned: always
 """
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import _run_icetool
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _state
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.trace import _build_seq_data_set_definition_trace
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.trace import _trace_data_set_constants as trace_constants
@@ -419,24 +417,6 @@ class AnsibleAuxillaryTraceModule(DataSet):
         if not (self.data_set["exists"]):
             self.create_data_set()
 
-    def warm_trace(self):
-        if not self.data_set["exists"]:
-            self.result["end_state"] = _state(
-                exists=self.data_set["exists"]
-            )
-            self._fail("Warm is not compatible with absent data set.")
-        icetool_executions, record_count = _run_icetool(self.data_set["name"])
-        if record_count["record_count"] <= 0:
-            self.result["end_state"] = _state(
-                exists=self.data_set["exists"]
-            )
-            self._fail("Warm is not compatible with empty data set.")
-        if record_count["record_count"] > 0:
-            self.result["end_state"] = _state(
-                exists=self.data_set["exists"]
-            )
-            self._exit()
-
     def invalid_state(self):  # type: () -> None
         self._fail("{0} is not a valid target state.".format(
             self.data_set["state"]))
@@ -445,7 +425,7 @@ class AnsibleAuxillaryTraceModule(DataSet):
         return {
             ds_constants["TARGET_STATE_ABSENT"]: self.delete_aux_trace_datasets,
             ds_constants["TARGET_STATE_INITIAL"]: self.init_trace,
-            ds_constants["TARGET_STATE_WARM"]: self.warm_trace
+            ds_constants["TARGET_STATE_WARM"]: super().warm_data_set
         }.get(target, self.invalid_state)
 
     def main(self):

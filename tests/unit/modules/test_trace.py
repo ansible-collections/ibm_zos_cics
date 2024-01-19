@@ -7,6 +7,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_ut
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, _response, _state
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import set_module_args
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import trace
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import icetool
 import pytest
 import sys
 
@@ -207,3 +208,110 @@ def test_create_an_intial_destination_b_aux_trace():
             exists=True))
     expected_result.update({"changed": True})
     assert trace_module.result == expected_result
+
+
+@pytest.mark.skipif(sys.version_info.major < 3,
+                    reason="Requires python 3 language features")
+def test_warm_on_non_existent_aux():
+    aux_module = initialise_module(state="warm")
+
+    dataset_utils.ikjeft01 = MagicMock(return_value=(
+        8, "TEST.REGIONS.DFHAUXT NOT IN CATALOG", "stderr"))
+
+    aux_module.main()
+    expected_result = _response(
+        executions=[
+            _execution(
+                name="IKJEFT01 - Get Data Set Status - Run 1",
+                rc=8,
+                stdout="TEST.REGIONS.DFHAUXT NOT IN CATALOG",
+                stderr="stderr"),
+            _execution(
+                name="IKJEFT01 - Get Data Set Status - Run 1",
+                rc=8,
+                stdout="TEST.REGIONS.DFHAUXT NOT IN CATALOG",
+                stderr="stderr"),
+        ],
+        start_state=_state(
+            exists=False),
+        end_state=_state(
+            exists=False))
+    expected_result.update({"changed": False})
+    expected_result.update({"failed": True})
+    assert aux_module.result == expected_result
+
+
+@pytest.mark.skipif(sys.version_info.major < 3,
+                    reason="Requires python 3 language features")
+def test_warm_on_empty_aux():
+    aux_module = initialise_module(state="warm")
+
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(0, "TEST.REGIONS.DFHAUXT PS", "stderr"))
+    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(
+        rc=0, stdout="RECORD COUNT:  000000000000000", stderr="stderr"))
+
+    aux_module.main()
+    expected_result = _response(
+        executions=[
+            _execution(
+                name="IKJEFT01 - Get Data Set Status - Run 1",
+                rc=0,
+                stdout="TEST.REGIONS.DFHAUXT PS",
+                stderr="stderr"),
+            _execution(
+                name="ICETOOL - Get record count",
+                rc=0,
+                stdout="RECORD COUNT:  000000000000000",
+                stderr="stderr"),
+            _execution(
+                name="IKJEFT01 - Get Data Set Status - Run 1",
+                rc=0,
+                stdout="TEST.REGIONS.DFHAUXT PS",
+                stderr="stderr"),
+        ],
+        start_state=_state(
+            exists=True),
+        end_state=_state(
+            exists=True))
+    expected_result.update({"changed": False})
+    expected_result.update({"failed": True})
+    assert aux_module.result == expected_result
+
+
+@pytest.mark.skipif(sys.version_info.major < 3,
+                    reason="Requires python 3 language features")
+def test_warm_success_aux():
+    aux_module = initialise_module(state="warm")
+
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(0, "TEST.REGIONS.DFHAUXT PS", "stderr"))
+    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(
+        rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr"))
+
+    aux_module.main()
+    expected_result = _response(
+        executions=[
+            _execution(
+                name="IKJEFT01 - Get Data Set Status - Run 1",
+                rc=0,
+                stdout="TEST.REGIONS.DFHAUXT PS",
+                stderr="stderr"),
+            _execution(
+                name="ICETOOL - Get record count",
+                rc=0,
+                stdout="RECORD COUNT:  000000000000052",
+                stderr="stderr"),
+            _execution(
+                name="IKJEFT01 - Get Data Set Status - Run 1",
+                rc=0,
+                stdout="TEST.REGIONS.DFHAUXT PS",
+                stderr="stderr"),
+        ],
+        start_state=_state(
+            exists=True),
+        end_state=_state(
+            exists=True))
+    expected_result.update({"changed": False})
+    expected_result.update({"failed": False})
+    assert aux_module.result == expected_result
