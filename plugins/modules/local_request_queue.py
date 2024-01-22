@@ -266,7 +266,7 @@ class AnsibleLocalRequestQueueModule(DataSet):
         })
         arg_def[ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]].update({
             "default": lrq_constants["SPACE_UNIT_DEFAULT"]
-        }),
+        })
         arg_def[ds_constants["TARGET_STATE_ALIAS"]].update({
             "choices": lrq_constants["TARGET_STATE_OPTIONS"]
         })

@@ -4,10 +4,14 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import (absolute_import, division, print_function)
+
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import _run_icetool
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 __metaclass__ = type
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
+    _build_idcams_define_cmd, _data_set, _dataset_size, _run_idcams, _run_listds, _run_iefbr14)
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _response, _state
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
@@ -61,8 +65,8 @@ class DataSet(object):
             },
         }
 
-    def _get_data_set_object(self, size, result):  # type: (dataset_utils._dataset_size, dict) -> dataset_utils._data_set
-        return dataset_utils._data_set(
+    def _get_data_set_object(self, size, result):  # type: (_dataset_size, dict) -> _data_set
+        return _data_set(
             size=size,
             name=result.get(_dataset_constants["DATASET_LOCATION_ALIAS"]).upper(),
             state=result.get(_dataset_constants["TARGET_STATE_ALIAS"]),
@@ -70,7 +74,7 @@ class DataSet(object):
             vsam=False)
 
     def _get_data_set_size(self, result):
-        return dataset_utils._dataset_size(
+        return _dataset_size(
             unit=result.get(_dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
             primary=result.get(_dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
             secondary=_dataset_constants["SECONDARY_SPACE_VALUE_DEFAULT"])
@@ -93,11 +97,11 @@ class DataSet(object):
         self.data_set = self._get_data_set_object(size, result)
 
     def create_data_set(self):
-        create_cmd = dataset_utils._build_idcams_define_cmd({})
+        create_cmd = _build_idcams_define_cmd({})
 
     def build_vsam_data_set(self, create_cmd, message):  # type: (str, str) -> None
         try:
-            idcams_executions = dataset_utils._run_idcams(
+            idcams_executions = _run_idcams(
                 cmd=create_cmd,
                 name=message,
                 location=self.data_set["name"],
@@ -111,7 +115,7 @@ class DataSet(object):
 
     def build_seq_data_set(self, ddname, definition):  # type: (str, DatasetDefinition) -> None
         try:
-            iefbr14_executions = dataset_utils._run_iefbr14(ddname, definition)
+            iefbr14_executions = _run_iefbr14(ddname, definition)
             self.result["executions"] = self.result["executions"] + iefbr14_executions
             self.result["changed"] = True
         except Exception as e:
@@ -124,7 +128,7 @@ class DataSet(object):
         '''.format(self.data_set["name"])
 
         try:
-            idcams_executions = dataset_utils._run_idcams(
+            idcams_executions = _run_idcams(
                 cmd=delete_cmd,
                 name=message,
                 location=self.data_set["name"],
@@ -137,10 +141,17 @@ class DataSet(object):
 
     def init_data_set(self):  # type: () -> None
         if self.data_set["exists"]:
-            self.result["end_state"] = _state(exists=self.data_set["exists"], vsam=self.data_set["vsam"])
-            self._exit()
+            icetool_executions, record_count = _run_icetool(self.data_set["name"])
+            self.result["executions"] = self.result["executions"] + icetool_executions
+            if record_count["record_count"] <= 0:
+                self.result["end_state"] = _state(exists=self.data_set["exists"], vsam=self.data_set["vsam"])
+                self._exit()
+            else:
+                self.delete_data_set()
+                self.data_set = self.get_data_set_state(self.data_set)
+                self.create_data_set()
 
-        if not self.data_set["exists"]:
+        else:
             self.create_data_set()
 
     def warm_data_set(self):  # type: () -> None
@@ -177,7 +188,7 @@ class DataSet(object):
 
     def get_data_set_state(self, data_set):  # type: (dict) -> dict
         try:
-            listds_executions, ds_status = dataset_utils._run_listds(data_set["name"])
+            listds_executions, ds_status = _run_listds(data_set["name"])
 
             data_set["exists"] = ds_status["exists"]
             data_set["vsam"] = ds_status["vsam"]

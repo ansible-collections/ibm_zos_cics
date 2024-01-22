@@ -5,14 +5,13 @@
 
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
-from typing import List
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd, MVSCmdResponse
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 
 
-def _get_icetool_dds(location):  # type: (str) -> List[DDStatement]
+def _get_icetool_dds(location):  # type: (str) -> list[DDStatement]
     return [
         DDStatement('sysprint', StdoutDefinition()),
         DDStatement('dd1', DatasetDefinition(dataset_name=location, disposition="SHR")),
