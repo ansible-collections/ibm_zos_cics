@@ -7,8 +7,8 @@
   gather_facts: false
   vars:
     region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}"
-    catalog_name: "DFHCSD"
-    catalog_path: "{{ region_dataset_path }}.{{ catalog_name }}"
+    ds_name: "DFHCSD"
+    ds_path: "{{ region_dataset_path }}.{{ ds_name }}"
 
   tasks:
     # #############################################################################

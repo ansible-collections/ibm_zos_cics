@@ -203,8 +203,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils imp
     _dataset_size, _data_set, _build_idcams_define_cmd)
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import DataSet
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.csd import (
-    _get_idcams_cmd_csd)
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import (_run_icetool)
+    _run_dfhcsdup, _get_idcams_cmd_csd)
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.csd import _csd_constants as csd_constants
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
 
@@ -348,6 +347,13 @@ class AnsibleCSDModule(DataSet):
 
         super().build_vsam_data_set(create_cmd, "Create CSD data set")
 
+        try:
+            csdup_executions = _run_dfhcsdup(self.data_set)
+            self.result["executions"] = self.result["executions"] + csdup_executions
+        except Exception as e:
+            self.result["executions"] = self.result["executions"] + e.args[1]
+            self._fail(e.args[0])
+
     def delete_data_set(self):  # type: () -> None
         if not self.data_set["exists"]:
             self.result["end_state"] = {
@@ -361,17 +367,6 @@ class AnsibleCSDModule(DataSet):
     def warm_data_set(self):  # type: () -> None
         super().warm_data_set()
 
-        try:
-            icetool_executions, record_count = _run_icetool(self.data_set["name"])
-            if record_count["record_count"] <= 0:
-                self._fail("Unused data set. The data set must be used by CICS before doing a warm start.")
-
-            self.result["executions"] = self.result["executions"] + icetool_executions
-            self.result["changed"] = False
-        except Exception as e:
-            self.result["executions"] = self.result["executions"] + e.args[1]
-            self._fail(e.args[0])
-
     def init_data_set(self):  # type: () -> None
         if self.data_set["exists"]:
             self.result["end_state"] = {
@@ -379,8 +374,7 @@ class AnsibleCSDModule(DataSet):
                 "vsam": self.data_set["vsam"]
             }
             self._exit()
-
-        if not self.data_set["exists"]:
+        else:
             self.create_data_set()
 
 

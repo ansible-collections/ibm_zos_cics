@@ -1,14 +1,14 @@
 # (c) Copyright IBM Corp. 2023
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name: Initial Catalog
+- name: Warm CSD when CSD doesn't exist
 
   hosts: "all"
   gather_facts: false
   vars:
-    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}"
-    catalog_name: "DFHCSD"
-    catalog_path: "{{ region_dataset_path }}.{{ catalog_name }}"
+    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_absent }}"
+    ds_name: "DFHCSD"
+    ds_path: "{{ region_dataset_path }}.{{ ds_name }}"
 
   module_defaults:
     ibm.ibm_zos_cics.csd:
@@ -24,10 +24,10 @@
     # ############################## Initial cleanup ##############################
     # #############################################################################
 
-    - name: Delete Catalog Data Set if it exists
+    - name: Delete CSD Data Set if it exists
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
-        name: "{{ catalog_path }}"
+        name: "{{ ds_path }}"
         state: absent
       register: delete_result
       retries: 3
@@ -42,42 +42,24 @@
     # ############################## Module Testing ###############################
     # #############################################################################
 
-    - name: Run Local Catalog module with Initial target state
+    - name: Run CSD module with Warm target state
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_cics.csd:
-        state: "initial"
-      register: result
+        state: "warm"
+      register: warm_result
+      ignore_errors: true
 
     - name: Debug
       ansible.builtin.debug:
-        msg: "{{ result }}"
+        msg: "{{ warm_result }}"
 
-    - name: Assert Created Catalog
+    - name: Assert Removed
       ansible.builtin.assert:
         that:
-          - result.failed is false
-          - result.changed is true
+          - warm_result.failed is true
+          - warm_result.changed is false
 
-          - result.start_state.exists == false
-          - result.start_state.vsam == false
+          - warm_result.start_state.exists == false
+          - warm_result.start_state.vsam == false
 
-          - result.end_state.exists == true
-          - result.end_state.vsam == true
-
-    # #############################################################################
-    # ################################## Cleanup ##################################
-    # #############################################################################
-
-    - name: Delete Catalog Data Set
-      environment: "{{ environment_vars }}"
-      ibm.ibm_zos_core.zos_data_set:
-        name: "{{ catalog_path }}"
-        state: absent
-      register: delete_result
-      retries: 3
-      until: delete_result is not failed
-
-    - name: Assert Delete Passed
-      ansible.builtin.assert:
-        that:
-          - delete_result.failed == false
+          - warm_result.end_state.exists == false
