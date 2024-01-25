@@ -8,4 +8,8 @@ VAR_PATH="$ANSIBLE_COLLECTIONS_PATH/ansible_collections/ibm/ibm_zos_cics/tests/i
 INV_PATH="$ANSIBLE_COLLECTIONS_PATH/ansible_collections/ibm/ibm_zos_cics/tests/integration/inventory_zos.yml"
 ZOS_ENV="$ANSIBLE_COLLECTIONS_PATH/ansible_collections/ibm/ibm_zos_cics/tests/integration/variables/zos.yml"
 
+python_ver=$(python -V 2>&1 | grep -Po '(?<=Python )(.+)')
+
+if [[ "${python_ver:0:3}" != "2.7" ]]; then
 ansible-playbook -i "$INV_PATH" -e "@$VAR_PATH" -e "@$ZOS_ENV" playbooks/aux_trace_warm_state.yml
+fi
