@@ -12,6 +12,8 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DDStatement
 
+MVS_CMD_RETRY_ATTEMPTS = 10
+
 
 def _dataset_size(unit, primary, secondary):  # type: (str,int,int) -> dict
     return {
@@ -24,7 +26,7 @@ def _dataset_size(unit, primary, secondary):  # type: (str,int,int) -> dict
 def _run_idcams(cmd, name, location, delete=False):  # type: (str, str, str, bool) -> list
     executions = []
 
-    for x in range(10):
+    for x in range(MVS_CMD_RETRY_ATTEMPTS):
         rc, stdout, stderr = idcams(cmd=cmd, authorized=True)
         executions.append(
             _execution(
@@ -125,7 +127,7 @@ def _run_listds(location):  # type: (str) -> [list, _state]
     cmd = " LISTDS '{0}'".format(location)
     executions = []
 
-    for x in range(10):
+    for x in range(MVS_CMD_RETRY_ATTEMPTS):
         rc, stdout, stderr = ikjeft01(cmd=cmd, authorized=True)
         executions.append(
             _execution(
@@ -178,7 +180,7 @@ def _run_iefbr14(ddname, definition):  # type (str, DatasetDefinition) -> List[D
 
     executions = []
 
-    for x in range(10):
+    for x in range(MVS_CMD_RETRY_ATTEMPTS):
         iefbr14_response = MVSCmd.execute(
             pgm="IEFBR14",
             dds=_get_iefbr14_dds(ddname, definition),

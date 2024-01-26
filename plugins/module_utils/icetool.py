@@ -9,6 +9,7 @@ __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd, MVSCmdResponse
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import MVS_CMD_RETRY_ATTEMPTS
 
 
 def _get_icetool_dds(location):  # type: (str) -> list[DDStatement]
@@ -51,7 +52,7 @@ def _get_record_count(stdout):  # type: (str) -> dict
 def _run_icetool(location):  # type: (str) -> (list(_execution), dict)
     executions = []
 
-    for x in range(10):
+    for x in range(MVS_CMD_RETRY_ATTEMPTS):
         icetool_response = _execute_icetool(location)
 
         executions.append(
