@@ -11,6 +11,7 @@ from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw impor
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import MVS_CMD_RETRY_ATTEMPTS
 
 
 def _get_value_from_line(line):  # type: (str) -> str
@@ -74,7 +75,7 @@ def _run_dfhrmutl(location, sdfhload, cmd=""):  # type: (str, str, str) -> (list
 
     executions = []
 
-    for x in range(10):
+    for x in range(MVS_CMD_RETRY_ATTEMPTS):
         dfhrmutl_response = _execute_dfhrmutl(location, sdfhload, cmd)
         executions.append(
             _execution(
