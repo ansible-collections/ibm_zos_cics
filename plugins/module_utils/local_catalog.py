@@ -47,7 +47,7 @@ def _run_dfhccutl(starting_catalog):  # type: (_data_set) -> [_execution]
             )
         else:
             break
-        
+
     return executions
 
 
