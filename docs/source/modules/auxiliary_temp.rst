@@ -82,6 +82,8 @@ Parameters
 
     \ :literal:`initial`\  will create the auxiliary temporary storage data set if it does not already exist.
 
+    \ :literal:`warm`\  will retain an existing auxiliary temporary storage data set in its current state.
+
 
 
 
