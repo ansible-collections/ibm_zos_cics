@@ -97,7 +97,7 @@ options:
       - V(absent) will remove the CSD data set entirely, if it
         already exists.
       - V(initial) will create the CSD data set if it does not
-        already exist, and empty it of all existing records.
+        already exist, and initialise it using dfhcsdup
       - V(warm) will retain an existing CSD in its current state.
     choices:
       - "initial"
@@ -134,6 +134,14 @@ EXAMPLES = r"""
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
     state: "absent"
+
+- name: Retain existing state of CSD
+  ibm.ibm_zos_cics.csd:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    cics_data_sets:
+      template: "CICSTS61.CICS.<< lib_name >>"
+    state: "warm"
 """
 
 
