@@ -1,0 +1,151 @@
+# (c) Copyright IBM Corp. 2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Absent Transaction Dump
+
+  hosts: "all"
+  gather_facts: false
+  vars:
+    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_absent }}"
+    dfhdmpa_name: "DFHDMPA"
+    dfhdmpb_name: "DFHDMPB"
+    dfhdmpa_path: "{{ region_dataset_path }}.{{ dfhdmpa_name }}"
+    dfhdmpb_path: "{{ region_dataset_path }}.{{ dfhdmpb_name }}"
+
+  module_defaults:
+    ibm.ibm_zos_cics.transaction_dump:
+      region_data_sets:
+        template: "{{ region_dataset_path }}.<< data_set_name >>"
+
+  tasks:
+    # #############################################################################
+    # ############################## Initial cleanup ##############################
+    # #############################################################################
+
+    - name: Delete DFHDMPA
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ dfhdmpa_path }}"
+        state: absent
+      register: result
+      retries: 3
+      until: result is not failed
+
+    - name: Assert DFHDMPA deleted
+      ansible.builtin.assert:
+        that:
+          - result.failed == false
+
+    - name: Delete DFHDMPB
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ dfhdmpb_path }}"
+        state: absent
+      register: result
+      retries: 3
+      until: result is not failed
+
+    - name: Assert DFHDMPB deleted
+      ansible.builtin.assert:
+        that:
+          - result.failed == false
+
+    # #############################################################################
+    # ############################ Initialize Data Sets ###########################
+    # #############################################################################
+
+    - name: Run Transaction Dump module with DFHDMPA Initial
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.transaction_dump:
+        state: "initial"
+      register: result
+
+    - name: Assert DFHDMPA created
+      ansible.builtin.assert:
+        that:
+          - result.failed is false
+
+    - name: Run Transaction Dump module with DFHDMPB Initial
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.transaction_dump:
+        state: "initial"
+        destination: "B"
+      register: result
+
+    - name: Assert DFHDMPB created
+      ansible.builtin.assert:
+        that:
+          - result.failed is false
+
+    # #############################################################################
+    # ############################## Module Testing ###############################
+    # #############################################################################
+
+    - name: Run Transaction Dump module with DFHDMPBA Absent
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.transaction_dump:
+        state: "absent"
+      register: result
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ result }}"
+
+    - name: Assert DFHDMPA deleted
+      ansible.builtin.assert:
+        that:
+          - result.failed is false
+          - result.changed is true
+          - result.start_state.exists == true
+          - result.end_state.exists == false
+
+    - name: Run Transaction Dump module with DFHDMPB Absent
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.transaction_dump:
+        state: "absent"
+        destination: "B"
+      register: result
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ result }}"
+
+    - name: Assert DFHDMPB deleted
+      ansible.builtin.assert:
+        that:
+          - result.failed is false
+          - result.changed is true
+          - result.start_state.exists == true
+          - result.end_state.exists == false
+
+    # #############################################################################
+    # ################################## Cleanup ##################################
+    # #############################################################################
+
+    - name: Delete DFHDMPBA
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ dfhdmpa_path }}"
+        state: absent
+      register: result
+      retries: 3
+      until: result is not failed
+
+    - name: Assert DFHDMPA deleted
+      ansible.builtin.assert:
+        that:
+          - result.failed == false
+
+    - name: Delete DFHDMPB
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ dfhdmpb_path }}"
+        state: absent
+      register: result
+      retries: 3
+      until: result is not failed
+
+    - name: Assert DFHDMPB deleted
+      ansible.builtin.assert:
+        that:
+          - result.failed == false
