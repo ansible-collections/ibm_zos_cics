@@ -82,6 +82,8 @@ Parameters
 
     \ :literal:`initial`\  will create the transient data intrapartition data set if it does not already exist.
 
+    \ :literal:`warm`\  will retain an existing transient data intrapartition data set in its current state.
+
 
 
 

@@ -97,9 +97,11 @@ options:
         already exists.
       - V(initial) will create the transient data intrapartition data set if it does not
         already exist.
+      - V(warm) will retain an existing transient data intrapartition data set in its current state.
     choices:
       - "initial"
       - "absent"
+      - "warm"
     required: true
     type: str
 """
