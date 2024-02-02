@@ -15,29 +15,29 @@ short_description: Create and remove the CICS auxiliary temporary storage data s
 description:
   - Create and remove the L(auxiliary temporary storage,https://www.ibm.com/docs/en/cics-ts/latest?topic=sets-defining-auxiliary-temporary-storage-data-set)
     data set used by a CICS® region.
-  - Useful when provisioning or de-provisioning a CICS region.
+  - You can use this module when provisioning or de-provisioning a CICS region.
   - Use the O(state) option to specify the intended state for the auxiliary
-    temp data set. For example, O(state=initial) will create a auxiliary temp
-    data set if it doesn't yet exist.
+    temporary storage data set. For example, O(state=initial) will create a auxiliary temporary storage
+    data set if it doesn't exist.
 author: Andrew Twydell (@andrewtwydell)
 version_added: 1.1.0-beta.4
 options:
   space_primary:
     description:
-      - The size of the auxiliary temporary storage data set's primary space allocation.
-        Note, this is just the value; the unit is specified with O(space_type).
-      - This option only takes effect when the auxiliary temporary storage is being created.
-        If it already exists, it has no effect.
-      - The auxiliary temporary storage data set's secondary space allocation is set to 10.
+      - The size of the primary space allocated to the auxiliary temporary storage data set.
+        Note that this is just the value; the unit is specified with O(space_type).
+      - This option takes effect only when the auxiliary temporary storage data set is being created.
+        If the data set already exists, the option has no effect.
+      - The size value of the secondary space allocation for the auxiliary temporary storage data set is 10; the unit is specified with O(space_type).
     type: int
     required: false
     default: 200
   space_type:
     description:
-      - The unit portion of the auxiliary temporary storage data set size. Note, this is
+      - The unit portion of the auxiliary temporary storage data set size. Note that this is
         just the unit; the value is specified with O(space_primary).
-      - This option only takes effect when the auxiliary temporary storage is being created.
-        If it already exists, it has no effect.
+      - This option takes effect only when the auxiliary temporary storage data set is being created.
+        If the data set already exists, the option has no effect.
       - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
         records (V(REC)), cylinders (V(CYL)), or tracks (V(TRK)).
     required: false
@@ -51,14 +51,15 @@ options:
     default: REC
   region_data_sets:
     description:
-      - The location of the region's data sets using a template, e.g.
+      - The location of the region data sets to be created using a template, for example, 
         C(REGIONS.ABCD0001.<< data_set_name >>).
+      - If you want to use a data set that already exists, ensure that the data set is a auxiliary temporary storage data set.  
     type: dict
     required: true
     suboptions:
       template:
         description:
-          - The base location of the region's data sets with a template.
+          - The base location of the region data sets with a template.
         required: false
         type: str
       dfhtemp:
@@ -69,29 +70,28 @@ options:
         suboptions:
           dsn:
             description:
-              - Data set name of the auxiliary temporary storage to override the template.
+              - The data set name of the auxiliary temporary storage to override the template.
             type: str
             required: false
   cics_data_sets:
     description:
-      - The name of the C(SDFHLOAD) data set, e.g. C(CICSTS61.CICS.SDFHLOAD).
+      - The name of the C(SDFHLOAD) library of the CICS installation, for example, C(CICSTS61.CICS.SDFHLOAD).
     type: dict
     required: false
     suboptions:
       template:
         description:
-          - Templated location of the cics install data sets.
+          - The templated location of the C(SDFHLOAD) library.
         required: false
         type: str
       sdfhload:
         description:
-          - Location of the sdfhload data set.
-          - Overrides the templated location for sdfhload.
+          - The location of the C(SDFHLOAD) library to override the template.
         type: str
         required: false
   state:
     description:
-      - The desired state for the auxiliary temporary storage, which the module will aim to
+      - The intended state for the auxiliary temporary storage data set, which the module will aim to
         achieve.
       - V(absent) will remove the auxiliary temporary storage data set entirely, if it
         already exists.
@@ -141,7 +141,7 @@ failed:
   type: bool
 start_state:
   description:
-    - The state of the auxiliary temporary storage before the task runs.
+    - The state of the auxiliary temporary storage before the Ansible task runs.
   returned: always
   type: dict
   contains:
@@ -154,7 +154,7 @@ start_state:
       type: bool
       returned: always
 end_state:
-  description: The state of the auxiliary temporary storage at the end of the task.
+  description: The state of the auxiliary temporary storage at the end of the Ansible task.
   returned: always
   type: dict
   contains:
@@ -167,7 +167,7 @@ end_state:
       type: bool
       returned: always
 executions:
-  description: A list of program executions performed during the task.
+  description: A list of program executions performed during the Ansible task.
   returned: always
   type: list
   elements: dict

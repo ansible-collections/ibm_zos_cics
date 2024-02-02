@@ -13,25 +13,27 @@ module: trace
 short_description: Allocate auxillary trace data sets
 description:
   - Allocates the two L(auxillary trace ,https://www.ibm.com/docs/en/cics-ts/6.1?topic=sets-setting-up-auxiliary-trace-data)
-    data sets used by a CICS® region.
+    data sets used by a CICS® region. When CICS auxiliary trace is activated, trace entries produced by CICS are written to the auxillary trace data sets. 
+    These data sets can hold large amounts of trace data.
 author: Kye Maloy (@KyeMaloy97)
 version_added: 1.1.0-beta.4
 options:
   space_primary:
     description:
-      - The size of the auxillary trace data set's primary space allocation.
-        Note, this is just the value; the unit is specified with O(space_type).
-      - This option only takes effect when the auxillary trace data set is being created.
-        If it already exists, it has no effect.
+      - The size of the primary space allocated to the auxillary trace data set.
+        Note that this is just the value; the unit is specified with O(space_type).
+      - This option takes effect only when the auxillary trace data set is being created.
+        If the data set already exists, the option has no effect.
+      - The size value of the secondary space allocation for the auxiliary trace data set is 10; the unit is specified with O(space_type).
     type: int
     required: false
     default: 20
   space_type:
     description:
-      - The unit portion of the auxillary trace data set size. Note, this is
+      - The unit portion of the auxillary trace data set size. Note that this is
         just the unit; the value is specified with O(space_primary).
-      - This option only takes effect when the auxillary trace data set is being created.
-        If it already exists, it has no effect.
+      - This option takes effect only when the auxillary trace data set is being created.
+        If the data set already exists, the option has no effect.
       - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
         records (V(REC)), cylinders (V(CYL)), or tracks (V(TRK)).
     required: false
@@ -45,14 +47,15 @@ options:
     default: M
   region_data_sets:
     description:
-      - The location of the region's data sets using a template, e.g.
+      - The location of the region data sets to be created using a template, for example, 
         C(REGIONS.ABCD0001.<< data_set_name >>).
+      - If you want to use a data set that already exists, ensure that the data set is an auxillary trace data set. 
     type: dict
     required: true
     suboptions:
       template:
         description:
-          - The base location of the region's data sets with a template.
+          - The base location of the region data sets with a template.
         required: false
         type: str
       dfhauxt:
@@ -63,7 +66,7 @@ options:
         suboptions:
           dsn:
             description:
-              - Data set name of the DFHAUXT to override the template.
+              - The data set name of DFHAUXT to override the template.
             type: str
             required: false
       dfhbuxt:
@@ -74,31 +77,30 @@ options:
         suboptions:
           dsn:
             description:
-              - Data set name of the DFHBUXT to override the template.
+              - The data set name of DFHBUXT to override the template.
             type: str
             required: false
   cics_data_sets:
     description:
-      - The name of the C(SDFHLOAD) data set, e.g. C(CICSTS61.CICS.SDFHLOAD).
+      - The name of the C(SDFHLOAD) library of the CICS installation, for example, C(CICSTS61.CICS.SDFHLOAD).
     type: dict
     required: false
     suboptions:
       template:
         description:
-          - Templated location of the cics install data sets.
+          - The templated location of the C(SDFHLOAD) library.
         required: false
         type: str
       sdfhload:
         description:
-          - Location of the sdfhload data set.
-          - Overrides the templated location for sdfhload.
+          - The location of the C(SDFHLOAD) library to override the template.
         type: str
         required: false
   destination:
     description:
-      - The auxillary trace data set to create, if left blank A is implied, but this can be used to specify A or B.
+      - The auxillary trace data set to create. If the value is left blank, A is implied, but you can specify A or B.
       - V(A) will create or delete the A auxillary trace data set.
-      - V(B) will create or delete the B auxillary trace data set. This MUST be set for B data set creation.
+      - V(B) will create or delete the B auxillary trace data set. This MUST be set for the creation of B data set.
     choices:
       - "A"
       - "B"
@@ -107,7 +109,7 @@ options:
     default: "A"
   state:
     description:
-      - The desired state for the auxillary trace data set, which the module will aim to
+      - The intended state for the auxillary trace data set, which the module will aim to
         achieve.
       - V(absent) will remove the auxillary trace data set data set entirely, if it
         already exists.
@@ -159,7 +161,7 @@ failed:
   returned: always
   type: bool
 executions:
-  description: A list of program executions performed during the task.
+  description: A list of program executions performed during the Ansible task.
   returned: always
   type: list
   elements: dict
