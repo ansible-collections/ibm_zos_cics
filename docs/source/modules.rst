@@ -17,7 +17,7 @@ requirements of the managed node. For more detail see :doc:`requirements_managed
 .. _CMCI REST API:
    https://www.ibm.com/docs/en/cics-ts/latest?topic=cmci-how-it-works-rest-api
 
-The region provisioning modules make use of two defaults groups that allow a 
+The region provisioning modules use two defaults groups that allow a 
 user to specify the location of a CICS installation and a high level qualifier 
 for all region data sets to be created under. The example below shows how to 
 use these default groups within the *cics_global_catalog* module.
@@ -34,17 +34,17 @@ use these default groups within the *cics_global_catalog* module.
         state: "initial"
 
 
-In the above example the global catalog will be created at the data set location 
-*REGIONS.ABCD0001.DFHGCD* and the CICS load libraries can be found at the 
-location *CICSTS61.CICS*, meaning the library SDFHLOAD could be found at 
+In the above example, the global catalog will be created at the data set location 
+*REGIONS.ABCD0001.DFHGCD*, and the CICS load libraries can be found at the 
+location *CICSTS61.CICS*, which means that the SDFHLOAD library could be found at 
 *CICSTS61.CICS.SDFHLOAD*.
 
-These groups can be placed in a `module_defaults`_ section meaning all 
+These groups can be placed in a `module_defaults`_ section, which means that all 
 the CICS provisioning modules will use the same high level qualifier for the 
 regions data sets, and the location of the CICS installation only has to be 
 declared once for all the modules.
 
-To override a specific task's data set location and/or name you can provide an
+To override the data set location, the data set name, or both for a specific task, you can provide an 
 additional parameter to the ``region_data_sets`` group as shown in the example 
 for a global catalog data set below.
 
