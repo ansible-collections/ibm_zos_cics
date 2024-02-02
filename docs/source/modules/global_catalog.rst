@@ -12,9 +12,9 @@ global_catalog -- Create, remove, and manage the CICS global catalog
 Synopsis
 --------
 
-Create, remove, and manage the \ `global catalog <https://www.ibm.com/docs/en/cics-ts/latest?topic=catalogs-global-catalog>`__\  data set used by a CICS® region.
+Create, remove, and manage the \ `global catalog <https://www.ibm.com/docs/en/cics-ts/latest?topic=catalogs-global-catalog>`__\  data set used by a CICS® region. The global catalog is used to store start type information, location of the CICS system log, installed resource definitions, terminal control information and profiles. It contains information that CICS requires on a restart.
 
-Useful when provisioning or de-provisioning a CICS region, or when managing the state of the global catalog during upgrades or restarts.
+You can use this module when provisioning or de-provisioning a CICS region, or when managing the state of the global catalog during upgrades or restarts.
 
 Use the \ :literal:`state`\  option to specify the intended state for the global catalog. For example, \ :literal:`state=initial`\  will create and initialize a global catalog data set if it doesn't yet exist, or it will take an existing global catalog and set its autostart override record to \ :literal:`AUTOINIT`\ . In either case, a CICS region using this global catalog and the \ :literal:`START=AUTO`\  system initialization parameter will perform an initial start.
 
@@ -27,29 +27,29 @@ Parameters
 ----------
 
   space_primary (False, int, 5)
-    The size of the global catalog data set's primary space allocation. Note, this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+    The size of the primary space allocated to the global catalog data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
 
-    This option only takes effect when the global catalog is being created. If it already exists, it has no effect.
+    This option takes effect only when the global catalog is being created. If the global catalog already exists, the option has no effect.
 
-    The global catalog data set's secondary space allocation is set to 1.
+    The size value of the secondary space allocation for the global catalog data set is 1; the unit is specified with \ :literal:`space\_type`\ .
 
 
   space_type (False, str, M)
-    The unit portion of the global catalog data set size. Note, this is just the unit; the value is specified with \ :literal:`space\_primary`\ .
+    The unit portion of the global catalog data set size. Note that this is just the unit; the value is specified with \ :literal:`space\_primary`\ .
 
-    This option only takes effect when the global catalog is being created. If it already exists, it has no effect.
+    This option takes effect only when the global catalog is being created. If the global catalog already exists, the option has no effect.
 
     The size can be specified in megabytes (\ :literal:`M`\ ), kilobytes (\ :literal:`K`\ ), records (\ :literal:`REC`\ ), cylinders (\ :literal:`CYL`\ ), or tracks (\ :literal:`TRK`\ ).
 
 
   region_data_sets (True, dict, None)
-    The location of the region's data sets using a template, e.g. \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
+    The location of the region data sets to be created using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
 
-    If it already exists, this data set must be cataloged.
+    If you want to use a data set that already exists, ensure that the data set is a global catalog data set.
 
 
     template (False, str, None)
-      The base location of the region's data sets with a template.
+      The base location of the region data sets with a template.
 
 
     dfhgcd (False, dict, None)
@@ -57,34 +57,32 @@ Parameters
 
 
       dsn (False, str, None)
-        Data set name of the global catalog to override the template.
+        The data set name of the global catalog to override the template.
 
 
 
 
   cics_data_sets (True, dict, None)
-    The name of the \ :literal:`SDFHLOAD`\  data set, e.g. \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
+    The name of the \ :literal:`SDFHLOAD`\  library of the CICS installation, for example, \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
 
-    This module uses the \ :literal:`DFHRMUTL`\  utility internally, which is found in the \ :literal:`SDFHLOAD`\  data set in the CICS installation.
+    This module uses the \ :literal:`DFHRMUTL`\  utility internally, which is found in the \ :literal:`SDFHLOAD`\  library.
 
 
     template (False, str, None)
-      Templated location of the cics install data sets.
+      The templated location of the \ :literal:`SDFHLOAD`\  library.
 
 
     sdfhload (False, str, None)
-      Location of the sdfhload data set.
-
-      Overrides the templated location for sdfhload.
+      The location of the \ :literal:`SDFHLOAD`\  library to override the template.
 
 
 
   state (True, str, None)
-    The desired state for the global catalog, which the module will aim to achieve.
+    The intended state for the global catalog, which the module will aim to achieve.
 
     \ :literal:`absent`\  will remove the global catalog data set entirely, if it already exists.
 
-    \ :literal:`initial`\  will set the autostart override record to \ :literal:`AUTOINIT`\ , creating the global catalog data set if it does not already exist.
+    \ :literal:`initial`\  will set the autostart override record to \ :literal:`AUTOINIT`\ . The module will create the global catalog data set if it does not already exist.
 
     \ :literal:`cold`\  will set an existing global catalog's autostart override record to \ :literal:`AUTOCOLD`\ .
 
@@ -167,7 +165,7 @@ failed (always, bool, )
 
 
 start_state (always, dict, )
-  The state of the global catalog before the task runs.
+  The state of the global catalog before the Ansible task runs.
 
 
   autostart_override (always, str, )
@@ -184,7 +182,7 @@ start_state (always, dict, )
 
 
 end_state (always, dict, )
-  The state of the global catalog at the end of the task.
+  The state of the global catalog at the end of the Ansible task.
 
 
   autostart_override (always, str, )
@@ -201,7 +199,7 @@ end_state (always, dict, )
 
 
 executions (always, list, )
-  A list of program executions performed during the task.
+  A list of program executions performed during the Ansible task.
 
 
   name (always, str, )
