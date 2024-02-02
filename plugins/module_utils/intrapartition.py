@@ -31,7 +31,7 @@ _intrapartition_constants = {
     "PRIMARY_SPACE_VALUE_DEFAULT": 100,
     "SECONDARY_SPACE_VALUE_DEFAULT": 10,
     "SPACE_UNIT_DEFAULT": "REC",
-    "TARGET_STATE_OPTIONS": ["absent", "initial"],
+    "TARGET_STATE_OPTIONS": ["absent", "initial", "warm"],
     "RECORD_COUNT_DEFAULT": 1529,
     "RECORD_SIZE_DEFAULT": 1529,
     "CONTROL_INTERVAL_SIZE_DEFAULT": 1536,

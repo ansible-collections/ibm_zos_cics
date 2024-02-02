@@ -14,3 +14,4 @@ action_groups:
     - trace
     - intrapartition
     - auxiliary_temp
+    - csd
