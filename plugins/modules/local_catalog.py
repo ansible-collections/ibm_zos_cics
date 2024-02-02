@@ -13,7 +13,7 @@ module: local_catalog
 short_description: Create, remove, and manage the CICS local catalog
 description:
   - Create, remove, and manage the L(local catalog,https://www.ibm.com/docs/en/cics-ts/latest?topic=catalogs-local-catalog)
-    data set used by a CICS® region. CICS domains use the local catalog to save some of their information between CICS runs and 
+    data set used by a CICS® region. CICS domains use the local catalog to save some of their information between CICS runs and
     to preserve this information across a cold start.
   - You can use this module when provisioning or de-provisioning a CICS region, or when managing
     the state of the local catalog during upgrades or restarts.
@@ -55,7 +55,7 @@ options:
     default: REC
   region_data_sets:
     description:
-      - The location of the region data sets to be created using a template, for example, 
+      - The location of the region data sets to be created using a template, for example,
         C(REGIONS.ABCD0001.<< data_set_name >>).
       - If you want to use a data set that already exists, ensure that the data set is a local catalog data set.
     type: dict
