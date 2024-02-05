@@ -41,7 +41,7 @@ location *CICSTS61.CICS*, which means that the SDFHLOAD library could be found a
 
 These groups can be placed in a `module_defaults`_ section, which means that all 
 the CICS provisioning modules will use the same high level qualifier for the 
-regions data sets, and the location of the CICS installation only has to be 
+region data sets, and the location of the CICS installation only has to be 
 declared once for all the modules.
 
 To override the data set location, the data set name, or both for a specific task, you can provide an 
