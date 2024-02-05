@@ -10,19 +10,19 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: trace
-short_description: Allocate auxillary trace data sets
+short_description: Allocate auxiliary trace data sets
 description:
-  - Allocates the two L(auxillary trace ,https://www.ibm.com/docs/en/cics-ts/6.1?topic=sets-setting-up-auxiliary-trace-data)
-    data sets used by a CICS® region. When CICS auxiliary trace is activated, trace entries produced by CICS are written to the auxillary trace data sets.
+  - Allocates the two L(auxiliary trace ,https://www.ibm.com/docs/en/cics-ts/6.1?topic=sets-setting-up-auxiliary-trace-data)
+    data sets used by a CICS® region. When CICS auxiliary trace is activated, trace entries produced by CICS are written to the auxiliary trace data sets.
     These data sets can hold large amounts of trace data.
 author: Kye Maloy (@KyeMaloy97)
 version_added: 1.1.0-beta.4
 options:
   space_primary:
     description:
-      - The size of the primary space allocated to the auxillary trace data set.
+      - The size of the primary space allocated to the auxiliary trace data set.
         Note that this is just the value; the unit is specified with O(space_type).
-      - This option takes effect only when the auxillary trace data set is being created.
+      - This option takes effect only when the auxiliary trace data set is being created.
         If the data set already exists, the option has no effect.
       - The size value of the secondary space allocation for the auxiliary trace data set is 10; the unit is specified with O(space_type).
     type: int
@@ -30,9 +30,9 @@ options:
     default: 20
   space_type:
     description:
-      - The unit portion of the auxillary trace data set size. Note that this is
+      - The unit portion of the auxiliary trace data set size. Note that this is
         just the unit; the value is specified with O(space_primary).
-      - This option takes effect only when the auxillary trace data set is being created.
+      - This option takes effect only when the auxiliary trace data set is being created.
         If the data set already exists, the option has no effect.
       - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
         records (V(REC)), cylinders (V(CYL)), or tracks (V(TRK)).
@@ -49,7 +49,7 @@ options:
     description:
       - The location of the region data sets to be created using a template, for example,
         C(REGIONS.ABCD0001.<< data_set_name >>).
-      - If you want to use a data set that already exists, ensure that the data set is an auxillary trace data set.
+      - If you want to use a data set that already exists, ensure that the data set is an auxiliary trace data set.
     type: dict
     required: true
     suboptions:
@@ -98,9 +98,9 @@ options:
         required: false
   destination:
     description:
-      - The auxillary trace data set to create. If the value is left blank, A is implied, but you can specify A or B.
-      - V(A) will create or delete the A auxillary trace data set.
-      - V(B) will create or delete the B auxillary trace data set. This MUST be set for the creation of B data set.
+      - The auxiliary trace data set to create. If the value is left blank, A is implied, but you can specify A or B.
+      - V(A) will create or delete the A auxiliary trace data set.
+      - V(B) will create or delete the B auxiliary trace data set. This MUST be set for the creation of B data set.
     choices:
       - "A"
       - "B"
@@ -109,11 +109,11 @@ options:
     default: "A"
   state:
     description:
-      - The intended state for the auxillary trace data set, which the module will aim to
+      - The intended state for the auxiliary trace data set, which the module will aim to
         achieve.
-      - V(absent) will remove the auxillary trace data set data set entirely, if it
+      - V(absent) will remove the auxiliary trace data set data set entirely, if it
         already exists.
-      - V(initial) will create the auxillary trace data set if it does not
+      - V(initial) will create the auxiliary trace data set if it does not
         already exist.
       - V(warm) will retain an existing auxiliary trace data set in its current state.
     choices:
@@ -126,25 +126,25 @@ options:
 
 
 EXAMPLES = r"""
-- name: Allocate auxillary trace data set A (implicit)
+- name: Allocate auxiliary trace data set A (implicit)
   ibm.ibm_zos_cics.trace:
     state: initial
 
-- name: Allocate auxillary trace data set A
+- name: Allocate auxiliary trace data set A
   ibm.ibm_zos_cics.trace:
     state: initial
     destination: A
 
-- name: Allocate auxillary trace data set B
+- name: Allocate auxiliary trace data set B
   ibm.ibm_zos_cics.trace:
     state: initial
     destination: B
 
-- name: Delete auxillary trace data set A (implicit)
+- name: Delete auxiliary trace data set A (implicit)
   ibm.ibm_zos_cics.trace:
     state: absent
 
-- name: Delete auxillary trace data set B
+- name: Delete auxiliary trace data set B
   ibm.ibm_zos_cics.trace:
     state: absent
     destination: B
@@ -194,16 +194,16 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils imp
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 
 
-class AnsibleAuxillaryTraceModule(DataSet):
+class AnsibleAuxiliaryTraceModule(DataSet):
 
     ddname_destination = ""
 
     def __init__(self):
-        super(AnsibleAuxillaryTraceModule, self).__init__()
+        super(AnsibleAuxiliaryTraceModule, self).__init__()
 
     def init_argument_spec(self):  # type: () -> dict
         arg_spec = super(
-            AnsibleAuxillaryTraceModule,
+            AnsibleAuxiliaryTraceModule,
             self).init_argument_spec()
 
         arg_spec.update(
@@ -276,7 +276,7 @@ class AnsibleAuxillaryTraceModule(DataSet):
         return arg_spec
 
     def _get_arg_defs(self):  # type () -> dict
-        arg_def = super(AnsibleAuxillaryTraceModule, self)._get_arg_defs()
+        arg_def = super(AnsibleAuxiliaryTraceModule, self)._get_arg_defs()
 
         arg_def.update(
             {
@@ -408,7 +408,7 @@ class AnsibleAuxillaryTraceModule(DataSet):
 
     def delete_aux_trace_datasets(self):
         if (self.data_set["exists"]):
-            super().delete_data_set("Deleting auxillary trace data set")
+            super().delete_data_set("Deleting auxiliary trace data set")
 
     def init_trace(self):
         if (self.data_set["exists"]):
@@ -446,7 +446,7 @@ class AnsibleAuxillaryTraceModule(DataSet):
 
 
 def main():
-    AnsibleAuxillaryTraceModule().main()
+    AnsibleAuxiliaryTraceModule().main()
 
 
 if __name__ == '__main__':
