@@ -85,14 +85,15 @@ Provisioning tasks
 The provisioning tasks in the **IBM® z/OS® CICS® collection** interact with a 
 z/OS managed node over SSH and therefore have different requirements to the 
 CMCI tasks. The provisioning modules follow the requirements of the other z/OS 
-collections as documented here `IBM z/OS core managed node requirements`_.
+collections as documented in `IBM z/OS core managed node requirements`_.
 
 These requirements include an installation of the following components:
-- z/OS
-- z/OS OpenSSH
-- IBM Open Enterprise SDK for Python (previously IBM Open Enterprise Python for z/OS)
-- IBM Z Open Automation Utilities (ZOAU)
-- The z/OS shell
 
-For specific versions of these dependencies and additional information review 
+* z/OS
+* z/OS OpenSSH
+* IBM Open Enterprise SDK for Python (previously IBM Open Enterprise Python for z/OS)
+* IBM Z Open Automation Utilities (ZOAU)
+* The z/OS shell
+
+For specific versions of these dependencies and additional information, review 
 the `IBM z/OS core managed node requirements`_ page.

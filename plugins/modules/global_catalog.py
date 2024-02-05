@@ -13,8 +13,9 @@ module: global_catalog
 short_description: Create, remove, and manage the CICS global catalog
 description:
   - Create, remove, and manage the L(global catalog,https://www.ibm.com/docs/en/cics-ts/latest?topic=catalogs-global-catalog)
-    data set used by a CICS® region.
-  - Useful when provisioning or de-provisioning a CICS region, or when managing
+    data set used by a CICS® region. The global catalog is used to store start type information, location of the CICS system log,
+    installed resource definitions, terminal control information and profiles. It contains information that CICS requires on a restart.
+  - You can use this module when provisioning or de-provisioning a CICS region, or when managing
     the state of the global catalog during upgrades or restarts.
   - Use the O(state) option to specify the intended state for the global
     catalog. For example, O(state=initial) will create and initialize a global
@@ -29,20 +30,20 @@ seealso:
 options:
   space_primary:
     description:
-      - The size of the global catalog data set's primary space allocation.
-        Note, this is just the value; the unit is specified with O(space_type).
-      - This option only takes effect when the global catalog is being created.
-        If it already exists, it has no effect.
-      - The global catalog data set's secondary space allocation is set to 1.
+      - The size of the primary space allocated to the global catalog data set.
+        Note that this is just the value; the unit is specified with O(space_type).
+      - This option takes effect only when the global catalog is being created.
+        If the global catalog already exists, the option has no effect.
+      - The size value of the secondary space allocation for the global catalog data set is 1; the unit is specified with O(space_type).
     type: int
     required: false
     default: 5
   space_type:
     description:
-      - The unit portion of the global catalog data set size. Note, this is
+      - The unit portion of the global catalog data set size. Note that this is
         just the unit; the value is specified with O(space_primary).
-      - This option only takes effect when the global catalog is being created.
-        If it already exists, it has no effect.
+      - This option takes effect only when the global catalog is being created.
+        If the global catalog already exists, the option has no effect.
       - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
         records (V(REC)), cylinders (V(CYL)), or tracks (V(TRK)).
     required: false
@@ -56,15 +57,15 @@ options:
     default: M
   region_data_sets:
     description:
-      - The location of the region's data sets using a template, e.g.
+      - The location of the region data sets to be created using a template, for example,
         C(REGIONS.ABCD0001.<< data_set_name >>).
-      - If it already exists, this data set must be cataloged.
+      - If you want to use a data set that already exists, ensure that the data set is a global catalog data set.
     type: dict
     required: true
     suboptions:
       template:
         description:
-          - The base location of the region's data sets with a template.
+          - The base location of the region data sets with a template.
         required: false
         type: str
       dfhgcd:
@@ -75,36 +76,34 @@ options:
         suboptions:
           dsn:
             description:
-              - Data set name of the global catalog to override the template.
+              - The data set name of the global catalog to override the template.
             type: str
             required: false
   cics_data_sets:
     description:
-      - The name of the C(SDFHLOAD) data set, e.g. C(CICSTS61.CICS.SDFHLOAD).
-      - This module uses the C(DFHRMUTL) utility internally, which is found in
-        the C(SDFHLOAD) data set in the CICS installation.
+      - The name of the C(SDFHLOAD) library of the CICS installation, for example, C(CICSTS61.CICS.SDFHLOAD).
+      - This module uses the C(DFHRMUTL) utility internally, which is found in the C(SDFHLOAD) library.
     type: dict
     required: true
     suboptions:
       template:
         description:
-          - Templated location of the cics install data sets.
+          - The templated location of the C(SDFHLOAD) library.
         required: false
         type: str
       sdfhload:
         description:
-          - Location of the sdfhload data set.
-          - Overrides the templated location for sdfhload.
+          - The location of the C(SDFHLOAD) library to override the template.
         type: str
         required: false
   state:
     description:
-      - The desired state for the global catalog, which the module will aim to
+      - The intended state for the global catalog, which the module will aim to
         achieve.
       - V(absent) will remove the global catalog data set entirely, if it
         already exists.
-      - V(initial) will set the autostart override record to C(AUTOINIT),
-        creating the global catalog data set if it does not already exist.
+      - V(initial) will set the autostart override record to C(AUTOINIT). The module will
+        create the global catalog data set if it does not already exist.
       - V(cold) will set an existing global catalog's autostart override record
         to C(AUTOCOLD).
       - V(warm) will set an existing global catalog's autostart override record
@@ -176,7 +175,7 @@ failed:
   type: bool
 start_state:
   description:
-    - The state of the global catalog before the task runs.
+    - The state of the global catalog before the Ansible task runs.
   returned: always
   type: dict
   contains:
@@ -193,7 +192,7 @@ start_state:
       type: bool
       returned: always
 end_state:
-  description: The state of the global catalog at the end of the task.
+  description: The state of the global catalog at the end of the Ansible task.
   returned: always
   type: dict
   contains:
@@ -210,7 +209,7 @@ end_state:
       type: bool
       returned: always
 executions:
-  description: A list of program executions performed during the task.
+  description: A list of program executions performed during the Ansible task.
   returned: always
   type: list
   elements: dict

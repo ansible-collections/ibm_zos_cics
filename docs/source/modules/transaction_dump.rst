@@ -23,25 +23,27 @@ Parameters
 ----------
 
   space_primary (False, int, 20)
-    The size of the transaction dump data set's primary space allocation. Note, this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+    The size of the primary space allocated to the transaction dump data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
 
-    This option only takes effect when the transaction dump data set is being created. If it already exists, it has no effect.
+    This option takes effect only when the transaction dump data set is being created. If the data set already exists, the option has no effect.
+
+    The size value of the secondary space allocation for the transaction dump data set is 10; the unit is specified with \ :literal:`space\_type`\ .
 
 
   space_type (False, str, M)
-    The unit portion of the transaction dump data set size. Note, this is just the unit; the value is specified with \ :literal:`space\_primary`\ .
+    The unit portion of the transaction dump data set size. Note that this is just the unit; the value is specified with \ :literal:`space\_primary`\ .
 
-    This option only takes effect when the transaction dump data set is being created. If it already exists, it has no effect.
+    This option takes effect only when the transaction dump data set is being created. If the data set already exists, the option has no effect.
 
     The size can be specified in megabytes (\ :literal:`M`\ ), kilobytes (\ :literal:`K`\ ), records (\ :literal:`REC`\ ), cylinders (\ :literal:`CYL`\ ), or tracks (\ :literal:`TRK`\ ).
 
 
   region_data_sets (True, dict, None)
-    The location of the region's data sets using a template, e.g. \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
+    The location of the region data sets to be created using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
 
 
     template (False, str, None)
-      The base location of the region's data sets with a template.
+      The base location of the region data sets with a template.
 
 
     dfhdmpa (False, dict, None)
@@ -49,7 +51,7 @@ Parameters
 
 
       dsn (False, str, None)
-        Data set name of the dfhdmpa to override the template.
+        The data set name of DFHDMPA to override the template.
 
 
 
@@ -58,36 +60,34 @@ Parameters
 
 
       dsn (False, str, None)
-        Data set name of the DFHDMPB to override the template.
+        The data set name of DFHDMPB to override the template.
 
 
 
 
   cics_data_sets (False, dict, None)
-    The name of the \ :literal:`SDFHLOAD`\  data set, e.g. \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
+    The name of the \ :literal:`SDFHLOAD`\  library of the CICS installation, for example, \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
 
 
     template (False, str, None)
-      Templated location of the cics install data sets.
+      The templated location of the \ :literal:`SDFHLOAD`\  library.
 
 
     sdfhload (False, str, None)
-      Location of the sdfhload data set.
-
-      Overrides the templated location for sdfhload.
+      The location of the \ :literal:`SDFHLOAD`\  library to override the template.
 
 
 
   destination (False, str, A)
-    The transaction dump data set to create, if left blank A is implied, but this can be used to specify A or B.
+    The transaction dump data set to create. If the value is left blank, A is implied, but you can specify A or B.
 
     \ :literal:`A`\  will create or delete the A transaction dump data set.
 
-    \ :literal:`B`\  will create or delete the B transaction dump data set. This MUST be set for B data set creation.
+    \ :literal:`B`\  will create or delete the B transaction dump data set. This MUST be set for the creation of the B data set.
 
 
   state (True, str, None)
-    The desired state for the transaction dump data set, which the module will aim to achieve.
+    The intended state for the transaction dump data set, which the module will aim to achieve.
 
     \ :literal:`absent`\  will remove the transaction dump data set data set entirely, if it already exists.
 
@@ -146,7 +146,7 @@ failed (always, bool, )
 
 
 executions (always, list, )
-  A list of program executions performed during the task.
+  A list of program executions performed during the Ansible task.
 
 
   name (always, str, )
