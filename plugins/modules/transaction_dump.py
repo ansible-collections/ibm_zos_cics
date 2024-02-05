@@ -46,7 +46,7 @@ options:
     default: M
   region_data_sets:
     description:
-      - The location of the region data sets to be created using a template, for example, 
+      - The location of the region data sets to be created using a template, for example,
         C(REGIONS.ABCD0001.<< data_set_name >>).
     type: dict
     required: true

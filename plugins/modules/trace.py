@@ -13,7 +13,7 @@ module: trace
 short_description: Allocate auxillary trace data sets
 description:
   - Allocates the two L(auxillary trace ,https://www.ibm.com/docs/en/cics-ts/6.1?topic=sets-setting-up-auxiliary-trace-data)
-    data sets used by a CICS® region. When CICS auxiliary trace is activated, trace entries produced by CICS are written to the auxillary trace data sets. 
+    data sets used by a CICS® region. When CICS auxiliary trace is activated, trace entries produced by CICS are written to the auxillary trace data sets.
     These data sets can hold large amounts of trace data.
 author: Kye Maloy (@KyeMaloy97)
 version_added: 1.1.0-beta.4
@@ -47,9 +47,9 @@ options:
     default: M
   region_data_sets:
     description:
-      - The location of the region data sets to be created using a template, for example, 
+      - The location of the region data sets to be created using a template, for example,
         C(REGIONS.ABCD0001.<< data_set_name >>).
-      - If you want to use a data set that already exists, ensure that the data set is an auxillary trace data set. 
+      - If you want to use a data set that already exists, ensure that the data set is an auxillary trace data set.
     type: dict
     required: true
     suboptions:

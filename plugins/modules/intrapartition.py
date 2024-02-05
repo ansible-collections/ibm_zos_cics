@@ -51,9 +51,9 @@ options:
     default: REC
   region_data_sets:
     description:
-      - The location of the region data sets to be created using a template, for example, 
+      - The location of the region data sets to be created using a template, for example,
         C(REGIONS.ABCD0001.<< data_set_name >>).
-      - If you want to use a data set that already exists, ensure that the data set is a transient data intrapartition data set.  
+      - If you want to use a data set that already exists, ensure that the data set is a transient data intrapartition data set.
     type: dict
     required: true
     suboptions:
