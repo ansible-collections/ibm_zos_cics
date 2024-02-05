@@ -114,3 +114,35 @@ releases:
       name: local_request_queue
       namespace: ''
     release_date: '2023-11-21'
+  1.1.0-beta.4:
+    changes:
+      bugfixes:
+      - Additional ``state`` input parameter option ``warm`` added to ``local_request_queue``
+        module
+      - Behaviour of ``local_catalog`` and ``local_request_queue`` module with ``state``
+        set to ``initial`` updated to match documentation
+      release_summary: This release delivers new modules for provisioning the CICS
+        auxiliary temporary storage data set, the CICS system definition data set,
+        the CICS transient data intrapartition data set, the CICS auxiliary trace
+        data sets and the CICS transaction dump data sets. This release also contains
+        fixes to the CICS local request queue data set module and the CICS local catalog
+        data set module.
+    fragments:
+    - beta.yml
+    modules:
+    - description: Create and remove the CICS auxiliary temporary storage data set
+      name: auxiliary_temp
+      namespace: ''
+    - description: Create, remove, and manage the CICS CSD
+      name: csd
+      namespace: ''
+    - description: Create and remove the CICS transient data intrapartition data set
+      name: intrapartition
+      namespace: ''
+    - description: Allocate auxiliary trace data sets
+      name: trace
+      namespace: ''
+    - description: Allocate transaction dump data sets
+      name: transaction_dump
+      namespace: ''
+    release_date: '2024-02-05'

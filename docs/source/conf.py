@@ -20,11 +20,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'IBM Z CICS Collection'
-copyright = '2020, IBM'
+copyright = '2024, IBM'
 author = 'IBM'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
+release = '1.1.0-beta.4'
 
 
 # -- General configuration ---------------------------------------------------
