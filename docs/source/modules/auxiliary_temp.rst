@@ -45,7 +45,7 @@ Parameters
   region_data_sets (True, dict, None)
     The location of the region data sets to be created using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
 
-    If you want to use a data set that already exists, ensure that the data set is a auxiliary temporary storage data set.
+    If you want to use a data set that already exists, ensure that the data set is an auxiliary temporary storage data set.
 
 
     template (False, str, None)
