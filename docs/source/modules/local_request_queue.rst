@@ -82,7 +82,7 @@ Parameters
 
     \ :literal:`initial`\  will create the local request queue data set if it does not already exist, and empty it of all existing records.
 
-    \ :literal:`warm`\  will retain an existing LRQ data set in its current state.
+    \ :literal:`warm`\  will retain an existing local request queue data set in its current state.
 
 
 
