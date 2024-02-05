@@ -12,33 +12,33 @@ DOCUMENTATION = r'''
 module: csd
 short_description: Create, remove, and manage the CICS CSD
 description:
-  - Create, remove, and manage the L(csd,https://www.ibm.com/docs/en/cics-ts/6.1?topic=configuring-setting-up-shared-data-sets-csd-sysin)
-    data set used by a CICS® region.
-  - Useful when provisioning or de-provisioning a CICS region, or when managing
+  - Create, remove, and manage the L(CICS system definition data set (CSD),https://www.ibm.com/docs/en/cics-ts/6.1?topic=configuring-setting-up-shared-data-sets-csd-sysin)
+    used by a CICS® region.
+  - You can use this module when provisioning or de-provisioning a CICS region, or when managing
     the state of the CSD during upgrades or restarts.
   - Use the O(state) option to specify the intended state for the CSD.
     For example, O(state=initial) will create and initialize a CSD
-    data set if it doesn't yet exist, or it will take an existing
+    if it doesn't exist, or it will take an existing
     CSD and empty it of all records.
 author: Thomas Latham (@Thomas-Latham3)
 version_added: 1.1.0-beta.4
 options:
   space_primary:
     description:
-      - The size of the CSD data set's primary space allocation.
-        Note, this is just the value; the unit is specified with O(space_type).
-      - This option only takes effect when the CSD is being created.
-        If it already exists, it has no effect.
-      - The CSD data set's secondary space allocation is set to 1.
+      - The size of the primary space allocated to the CSD.
+        Note that this is just the value; the unit is specified with O(space_type).
+      - This option takes effect only when the CSD is being created.
+        If the CSD already exists, the option has no effect.
+      - The size value of the secondary space allocation for the CSD is 1; the unit is specified with O(space_type).
     type: int
     required: false
     default: 4
   space_type:
     description:
-      - The unit portion of the CSD data set size. Note, this is
+      - The unit portion of the CSD size. Note that this is
         just the unit; the value is specified with O(space_primary).
-      - This option only takes effect when the CSD is being created.
-        If it already exists, it has no effect.
+      - This option takes effect only when the CSD is being created.
+        If the CSD already exists, the option has no effect.
       - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
         records (V(REC)), cylinders (V(CYL)), or tracks (V(TRK)).
     required: false
@@ -52,52 +52,50 @@ options:
     default: M
   region_data_sets:
     description:
-      - The location of the region's data sets using a template, e.g.
+      - The location of the region data sets to be created using a template, for example,
         C(REGIONS.ABCD0001.<< data_set_name >>).
     type: dict
     required: true
     suboptions:
       template:
         description:
-          - The base location of the region's data sets with a template.
+          - The base location of the region data sets with a template.
         required: false
         type: str
       dfhcsd:
         description:
-          - Overrides the templated location for the CSD data set.
+          - Overrides the templated location for the CSD.
         required: false
         type: dict
         suboptions:
           dsn:
             description:
-              - Data set name of the CSD to override the template.
+              - The data set name of the CSD to override the template.
             type: str
             required: false
   cics_data_sets:
     description:
-      - The name of the C(SDFHLOAD) data set, e.g. C(CICSTS61.CICS.SDFHLOAD).
+      - The name of the C(SDFHLOAD) library of the CICS installation, for example, C(CICSTS61.CICS.SDFHLOAD).
     type: dict
     required: true
     suboptions:
       template:
         description:
-          - Templated location of the cics install data sets.
+          - The templated location of the C(SDFHLOAD) library.
         required: false
         type: str
       sdfhload:
         description:
-          - Location of the sdfhload data set.
-          - Overrides the templated location for sdfhload.
+          - The location of the C(SDFHLOAD) library to override the template.
         type: str
         required: false
   state:
     description:
-      - The desired state for the CSD, which the module will aim to
+      - The intended state for the CSD, which the module will aim to
         achieve.
-      - V(absent) will remove the CSD data set entirely, if it
-        already exists.
-      - V(initial) will create the CSD data set if it does not
-        already exist, and initialise it using dfhcsdup
+      - V(absent) will remove the CSD entirely, if it already exists.
+      - V(initial) will create the CSD if it does not
+        already exist, and initialize it by using DFHCSDUP.
       - V(warm) will retain an existing CSD in its current state.
     choices:
       - "initial"
@@ -156,7 +154,7 @@ failed:
   type: bool
 start_state:
   description:
-    - The state of the CSD before the task runs.
+    - The state of the CSD before the Ansible task runs.
   returned: always
   type: dict
   contains:
@@ -165,11 +163,11 @@ start_state:
       returned: always
       type: bool
     exists:
-      description: True if the CSD data set exists.
+      description: True if the CSD exists.
       type: bool
       returned: always
 end_state:
-  description: The state of the CSD at the end of the task.
+  description: The state of the CSD at the end of the Ansible task.
   returned: always
   type: dict
   contains:
@@ -178,11 +176,11 @@ end_state:
       returned: always
       type: bool
     exists:
-      description: True if the CSD data set exists.
+      description: True if the CSD exists.
       type: bool
       returned: always
 executions:
-  description: A list of program executions performed during the task.
+  description: A list of program executions performed during the Ansible task.
   returned: always
   type: list
   elements: dict
