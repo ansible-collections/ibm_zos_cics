@@ -44,7 +44,7 @@ def initialise_module(**kwargs):
     initial_args = default_arg_parms
     initial_args.update(kwargs)
     set_module_args(initial_args)
-    trace_module = trace.AnsibleAuxillaryTraceModule()
+    trace_module = trace.AnsibleAuxiliaryTraceModule()
     trace_module._module.fail_json = MagicMock(return_value=None)
     trace_module._module.exit_json = MagicMock(return_value=None)
     return trace_module
@@ -121,7 +121,7 @@ def test_delete_an_existing_aux_trace():
                 stdout="TEST.REGIONS.DFHAUXT PS",
                 stderr="stderr"),
             _execution(
-                name="IDCAMS - Deleting auxillary trace data set - Run 1",
+                name="IDCAMS - Deleting auxiliary trace data set - Run 1",
                 rc=0,
                 stdout="ENTRY (A) TEST.REGIONS.DFHAUXT DELETED\n",
                 stderr="stderr"),
