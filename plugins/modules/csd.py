@@ -12,8 +12,9 @@ DOCUMENTATION = r'''
 module: csd
 short_description: Create, remove, and manage the CICS CSD
 description:
-  - Create, remove, and manage the L(CICS system definition data set (CSD),
-    https://www.ibm.com/docs/en/cics-ts/6.1?topic=configuring-setting-up-shared-data-sets-csd-sysin) used by a CICS® region.
+  - Create, remove, and manage the
+    L(CICS system definition data set,https://www.ibm.com/docs/en/cics-ts/6.1?topic=configuring-setting-up-shared-data-sets-csd-sysin) (CSD) used by a CICS®
+    region.
   - You can use this module when provisioning or de-provisioning a CICS region, or when managing
     the state of the CSD during upgrades or restarts.
   - Use the O(state) option to specify the intended state for the CSD.
