@@ -12,11 +12,11 @@ csd -- Create, remove, and manage the CICS CSD
 Synopsis
 --------
 
-Create, remove, and manage the \ `csd <https://www.ibm.com/docs/en/cics-ts/6.1?topic=configuring-setting-up-shared-data-sets-csd-sysin>`__\  data set used by a CICS® region.
+Create, remove, and manage the \ `CICS system definition data set (CSD) <https://www.ibm.com/docs/en/cics-ts/6.1?topic=configuring-setting-up-shared-data-sets-csd-sysin>`__\  used by a CICS® region.
 
-Useful when provisioning or de-provisioning a CICS region, or when managing the state of the CSD during upgrades or restarts.
+You can use this module when provisioning or de-provisioning a CICS region, or when managing the state of the CSD during upgrades or restarts.
 
-Use the \ :literal:`state`\  option to specify the intended state for the CSD. For example, \ :literal:`state=initial`\  will create and initialize a CSD data set if it doesn't yet exist, or it will take an existing CSD and empty it of all records.
+Use the \ :literal:`state`\  option to specify the intended state for the CSD. For example, \ :literal:`state=initial`\  will create and initialize a CSD if it doesn't exist, or it will take an existing CSD and empty it of all records.
 
 
 
@@ -27,60 +27,58 @@ Parameters
 ----------
 
   space_primary (False, int, 4)
-    The size of the CSD data set's primary space allocation. Note, this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+    The size of the primary space allocated to the CSD. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
 
-    This option only takes effect when the CSD is being created. If it already exists, it has no effect.
+    This option takes effect only when the CSD is being created. If the CSD already exists, the option has no effect.
 
-    The CSD data set's secondary space allocation is set to 1.
+    The size value of the secondary space allocation for the CSD is 1; the unit is specified with \ :literal:`space\_type`\ .
 
 
   space_type (False, str, M)
-    The unit portion of the CSD data set size. Note, this is just the unit; the value is specified with \ :literal:`space\_primary`\ .
+    The unit portion of the CSD size. Note that this is just the unit; the value is specified with \ :literal:`space\_primary`\ .
 
-    This option only takes effect when the CSD is being created. If it already exists, it has no effect.
+    This option takes effect only when the CSD is being created. If the CSD already exists, the option has no effect.
 
     The size can be specified in megabytes (\ :literal:`M`\ ), kilobytes (\ :literal:`K`\ ), records (\ :literal:`REC`\ ), cylinders (\ :literal:`CYL`\ ), or tracks (\ :literal:`TRK`\ ).
 
 
   region_data_sets (True, dict, None)
-    The location of the region's data sets using a template, e.g. \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
+    The location of the region data sets to be created using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
 
 
     template (False, str, None)
-      The base location of the region's data sets with a template.
+      The base location of the region data sets with a template.
 
 
     dfhcsd (False, dict, None)
-      Overrides the templated location for the CSD data set.
+      Overrides the templated location for the CSD.
 
 
       dsn (False, str, None)
-        Data set name of the CSD to override the template.
+        The data set name of the CSD to override the template.
 
 
 
 
   cics_data_sets (True, dict, None)
-    The name of the \ :literal:`SDFHLOAD`\  data set, e.g. \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
+    The name of the \ :literal:`SDFHLOAD`\  library of the CICS installation, for example, \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
 
 
     template (False, str, None)
-      Templated location of the cics install data sets.
+      The templated location of the \ :literal:`SDFHLOAD`\  library.
 
 
     sdfhload (False, str, None)
-      Location of the sdfhload data set.
-
-      Overrides the templated location for sdfhload.
+      The location of the \ :literal:`SDFHLOAD`\  library to override the template.
 
 
 
   state (True, str, None)
-    The desired state for the CSD, which the module will aim to achieve.
+    The intended state for the CSD, which the module will aim to achieve.
 
-    \ :literal:`absent`\  will remove the CSD data set entirely, if it already exists.
+    \ :literal:`absent`\  will remove the CSD entirely, if it already exists.
 
-    \ :literal:`initial`\  will create the CSD data set if it does not already exist, and initialise it using dfhcsdup
+    \ :literal:`initial`\  will create the CSD if it does not already exist, and initialize it by using DFHCSDUP.
 
     \ :literal:`warm`\  will retain an existing CSD in its current state.
 
@@ -146,7 +144,7 @@ failed (always, bool, )
 
 
 start_state (always, dict, )
-  The state of the CSD before the task runs.
+  The state of the CSD before the Ansible task runs.
 
 
   vsam (always, bool, )
@@ -154,12 +152,12 @@ start_state (always, dict, )
 
 
   exists (always, bool, )
-    True if the CSD data set exists.
+    True if the CSD exists.
 
 
 
 end_state (always, dict, )
-  The state of the CSD at the end of the task.
+  The state of the CSD at the end of the Ansible task.
 
 
   vsam (always, bool, )
@@ -167,12 +165,12 @@ end_state (always, dict, )
 
 
   exists (always, bool, )
-    True if the CSD data set exists.
+    True if the CSD exists.
 
 
 
 executions (always, list, )
-  A list of program executions performed during the task.
+  A list of program executions performed during the Ansible task.
 
 
   name (always, str, )
