@@ -16,7 +16,7 @@ Create and remove the \ `auxiliary temporary storage <https://www.ibm.com/docs/e
 
 You can use this module when provisioning or de-provisioning a CICS region.
 
-Use the \ :literal:`state`\  option to specify the intended state for the auxiliary temporary storage data set. For example, \ :literal:`state=initial`\  will create a auxiliary temporary storage data set if it doesn't exist.
+Use the \ :literal:`state`\  option to specify the intended state for the auxiliary temporary storage data set. For example, \ :literal:`state=initial`\  will create an auxiliary temporary storage data set if it doesn't exist.
 
 
 
