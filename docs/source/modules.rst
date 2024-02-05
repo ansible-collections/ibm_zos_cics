@@ -44,7 +44,7 @@ the CICS provisioning modules will use the same high level qualifier for the
 region data sets, and the location of the CICS installation only has to be 
 declared once for all the modules.
 
-To override the data set location, the data set name, or both for a specific task, you can provide an 
+To override the data set location or name for a specific task, you can provide an 
 additional parameter to the ``region_data_sets`` group as shown in the example 
 for a global catalog data set below.
 
