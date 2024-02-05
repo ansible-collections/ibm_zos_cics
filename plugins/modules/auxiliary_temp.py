@@ -17,7 +17,7 @@ description:
     data set used by a CICS® region.
   - You can use this module when provisioning or de-provisioning a CICS region.
   - Use the O(state) option to specify the intended state for the auxiliary
-    temporary storage data set. For example, O(state=initial) will create a auxiliary temporary storage
+    temporary storage data set. For example, O(state=initial) will create an auxiliary temporary storage
     data set if it doesn't exist.
 author: Andrew Twydell (@andrewtwydell)
 version_added: 1.1.0-beta.4
