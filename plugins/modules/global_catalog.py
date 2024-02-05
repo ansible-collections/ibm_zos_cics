@@ -13,11 +13,7 @@ module: global_catalog
 short_description: Create, remove, and manage the CICS global catalog
 description:
   - Create, remove, and manage the L(global catalog,https://www.ibm.com/docs/en/cics-ts/latest?topic=catalogs-global-catalog)
-<<<<<<< HEAD
-    data set used by a CICS® region. The global catalog is used to store start type information, location of the CICS system log, 
-=======
     data set used by a CICS® region. The global catalog is used to store start type information, location of the CICS system log,
->>>>>>> 8b7a5808317310bfdd99a9337a08897ca47975c9
     installed resource definitions, terminal control information and profiles. It contains information that CICS requires on a restart.
   - You can use this module when provisioning or de-provisioning a CICS region, or when managing
     the state of the global catalog during upgrades or restarts.
