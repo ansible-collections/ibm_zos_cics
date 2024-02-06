@@ -1,0 +1,17 @@
+---
+- name: Test Stop CICS Module Immediately
+
+  hosts: 'all'
+  gather_facts: 'false'
+
+  tasks:
+    - name: "Stop CICS Immediately"
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.stop_cics:
+        job_name: IYK2ZPY1
+      register: result
+
+    - name: Assert result of stop CICS immediately
+      ansible.builtin.assert:
+        that:
+          - result.failed is false
