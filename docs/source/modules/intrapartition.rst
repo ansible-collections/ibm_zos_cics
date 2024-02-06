@@ -12,11 +12,11 @@ intrapartition -- Create and remove the CICS transient data intrapartition data 
 Synopsis
 --------
 
-Create and remove the \ `transient data intrapartition <https://www.ibm.com/docs/en/cics-ts/latest?topic=data-defining-intrapartition-set>`__\  data set used by a CICS® region.
+Create and remove the \ `transient data intrapartition <https://www.ibm.com/docs/en/cics-ts/latest?topic=data-defining-intrapartition-set>`__\  data set used by a CICS® region. This data set holds all the data for intrapartition queues.
 
-Useful when provisioning or de-provisioning a CICS region.
+You can use this module when provisioning or de-provisioning a CICS region.
 
-Use the \ :literal:`state`\  option to specify the intended state for the transient data intrapartition. For example, \ :literal:`state=initial`\  will create a transient data intrapartition data set if it doesn't yet exist.
+Use the \ :literal:`state`\  option to specify the intended state for the transient data intrapartition data set. For example, \ :literal:`state=initial`\  will create a transient data intrapartition data set if it doesn't exist.
 
 
 
@@ -27,27 +27,29 @@ Parameters
 ----------
 
   space_primary (False, int, 100)
-    The size of the transient data intrapartition data set's primary space allocation. Note, this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+    The size of the primary space allocated to the transient data intrapartition data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
 
-    This option only takes effect when the transient data intrapartition is being created. If it already exists, it has no effect.
+    This option takes effect only when the transient data intrapartition data set is being created. If the data set already exists, the option has no effect.
 
-    The transient data intrapartition data set's secondary space allocation is set to 1.
+    The size value of the secondary space allocation for the transient data intrapartition data set is 1; the unit is specified with \ :literal:`space\_type`\ .
 
 
   space_type (False, str, REC)
-    The unit portion of the transient data intrapartition data set size. Note, this is just the unit; the value is specified with \ :literal:`space\_primary`\ .
+    The unit portion of the transient data intrapartition data set size. Note that this is just the unit; the value is specified with \ :literal:`space\_primary`\ .
 
-    This option only takes effect when the transient data intrapartition is being created. If it already exists, it has no effect.
+    This option takes effect only when the transient data intrapartition data set is being created. If the data set already exists, the option has no effect.
 
     The size can be specified in megabytes (\ :literal:`M`\ ), kilobytes (\ :literal:`K`\ ), records (\ :literal:`REC`\ ), cylinders (\ :literal:`CYL`\ ), or tracks (\ :literal:`TRK`\ ).
 
 
   region_data_sets (True, dict, None)
-    The location of the region's data sets using a template, e.g. \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
+    The location of the region data sets to be created using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
+
+    If you want to use a data set that already exists, ensure that the data set is a transient data intrapartition data set.
 
 
     template (False, str, None)
-      The base location of the region's data sets with a template.
+      The base location of the region data sets with a template.
 
 
     dfhintra (False, dict, None)
@@ -55,32 +57,32 @@ Parameters
 
 
       dsn (False, str, None)
-        Data set name of the transient data intrapartition to override the template.
+        The data set name of the transient data intrapartition to override the template.
 
 
 
 
   cics_data_sets (False, dict, None)
-    The name of the \ :literal:`SDFHLOAD`\  data set, e.g. \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
+    The name of the \ :literal:`SDFHLOAD`\  library of the CICS installation, for example, \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
 
 
     template (False, str, None)
-      Templated location of the cics install data sets.
+      The templated location of the \ :literal:`SDFHLOAD`\  library.
 
 
     sdfhload (False, str, None)
-      Location of the sdfhload data set.
-
-      Overrides the templated location for sdfhload.
+      The location of the \ :literal:`SDFHLOAD`\  library to override the template.
 
 
 
   state (True, str, None)
-    The desired state for the transient data intrapartition, which the module will aim to achieve.
+    The intended state for the transient data intrapartition data set, which the module will aim to achieve.
 
     \ :literal:`absent`\  will remove the transient data intrapartition data set entirely, if it already exists.
 
     \ :literal:`initial`\  will create the transient data intrapartition data set if it does not already exist.
+
+    \ :literal:`warm`\  will retain an existing transient data intrapartition data set in its current state.
 
 
 
@@ -130,7 +132,7 @@ failed (always, bool, )
 
 
 start_state (always, dict, )
-  The state of the transient data intrapartition before the task runs.
+  The state of the transient data intrapartition data set before the Ansible task runs.
 
 
   vsam (always, bool, )
@@ -143,7 +145,7 @@ start_state (always, dict, )
 
 
 end_state (always, dict, )
-  The state of the transient data intrapartition at the end of the task.
+  The state of the transient data intrapartition data set at the end of the Ansible task.
 
 
   vsam (always, bool, )
@@ -156,7 +158,7 @@ end_state (always, dict, )
 
 
 executions (always, list, )
-  A list of program executions performed during the task.
+  A list of program executions performed during the Ansible task.
 
 
   name (always, str, )

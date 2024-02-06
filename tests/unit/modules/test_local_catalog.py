@@ -194,7 +194,6 @@ def test_error_warm_start_a_non_existent_local_catalog():
     lcd_module = initialise_module(state="warm")
 
     dataset_utils.ikjeft01 = MagicMock(return_value=(8, "TEST.REGIONS.LCD NOT IN CATALOG", "stderr"))
-    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr"))
 
     lcd_module.main()
     expected_result = _response(executions=[
