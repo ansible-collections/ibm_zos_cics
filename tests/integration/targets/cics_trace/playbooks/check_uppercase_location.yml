@@ -6,7 +6,6 @@
   hosts: "all"
   gather_facts: false
   vars:
-    region_data_set_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_absent }}"
     auxt_name: "DFHAUXT"
     buxt_name: "DFHBUXT"
     auxt_path: "{{ region_data_set_path }}.{{ auxt_name }}"

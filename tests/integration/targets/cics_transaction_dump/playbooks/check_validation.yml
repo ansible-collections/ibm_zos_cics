@@ -6,11 +6,10 @@
   hosts: "all"
   gather_facts: false
   vars:
-    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_absent }}"
     dfhdmpa_name: "DFHDMPA"
     dfhdmpb_name: "DFHDMPB"
-    dfhdmpa_path: "{{ region_dataset_path }}.{{ dfhdmpa_name }}"
-    dfhdmpb_path: "{{ region_dataset_path }}.{{ dfhdmpb_name }}"
+    dfhdmpa_path: "{{ region_data_set_path }}.{{ dfhdmpa_name }}"
+    dfhdmpb_path: "{{ region_data_set_path }}.{{ dfhdmpb_name }}"
 
   tasks:
     # #############################################################################
@@ -65,7 +64,7 @@
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_cics.transaction_dump:
         region_data_sets:
-          template: "{{ region_dataset_path }}..."
+          template: "{{ region_data_set_path }}..."
         state: absent
       register: result
       ignore_errors: true
@@ -81,7 +80,7 @@
           - result.changed is false
           - result.rc == 1
           - "'exception' in result"
-          - "'Invalid argument \"ANSIBIT.CICS.TESTS.{{ cics_test_area_absent }}...\" for type \"data_set_base\".' in result.exception"
+          - "'Invalid argument \"{{ region_data_set_path }}...\" for type \"data_set_base\".' in result.exception"
 
     # #############################################################################
 

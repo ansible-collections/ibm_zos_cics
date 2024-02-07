@@ -6,7 +6,6 @@
   hosts: "all"
   gather_facts: false
   vars:
-    region_data_set_path: "ANSIBIT.TESTS.{{ cics_test_area_initial }}"
     data_set_name: "DFHTEMP"
 
   module_defaults:

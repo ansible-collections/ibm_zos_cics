@@ -6,16 +6,15 @@
   hosts: "all"
   gather_facts: false
   vars:
-    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}"
     dfhdmpa_name: "DFHDMPA"
     dfhdmpb_name: "DFHDMPB"
-    dfhdmpa_path: "{{ region_dataset_path }}.{{ dfhdmpa_name }}"
-    dfhdmpb_path: "{{ region_dataset_path }}.{{ dfhdmpb_name }}"
+    dfhdmpa_path: "{{ region_data_set_path }}.{{ dfhdmpa_name }}"
+    dfhdmpb_path: "{{ region_data_set_path }}.{{ dfhdmpb_name }}"
 
   module_defaults:
     ibm.ibm_zos_cics.transaction_dump:
       region_data_sets:
-        template: "{{ region_dataset_path }}.<< data_set_name >>"
+        template: "{{ region_data_set_path }}.<< data_set_name >>"
 
   tasks:
     # #############################################################################

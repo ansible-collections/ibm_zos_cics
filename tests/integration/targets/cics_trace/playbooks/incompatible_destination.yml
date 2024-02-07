@@ -6,17 +6,16 @@
   hosts: "all"
   gather_facts: false
   vars:
-    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}"
     auxt_name: "DFHAUXT"
     buxt_name: "DFHBUXT"
-    auxt_path: "{{ region_dataset_path }}.{{ auxt_name }}"
-    buxt_path: "{{ region_dataset_path }}.{{ buxt_name }}"
+    auxt_path: "{{ region_data_set_path }}.{{ auxt_name }}"
+    buxt_path: "{{ region_data_set_path }}.{{ buxt_name }}"
 
   module_defaults:
     ibm.ibm_zos_cics.trace:
       region_data_sets:
         dfhbuxt:
-          dsn: "{{ region_dataset_path }}.<< data_set_name >>"
+          dsn: "{{ region_data_set_path }}.<< data_set_name >>"
 
   tasks:
     # #############################################################################
