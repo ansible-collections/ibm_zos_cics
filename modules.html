@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modules &mdash; IBM Z CICS Collection 1.1.0-beta.3 documentation</title>
+  <title>Modules &mdash; IBM Z CICS Collection 1.1.0-beta.4 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/ansible.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/rtd-ethical-ads.css" type="text/css" />
@@ -22,7 +22,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="cmci_action – Perform actions on CICS and CICSPlex SM resources" href="modules/cmci_action.html" />
+    <link rel="next" title="auxiliary_temp – Create and remove the CICS auxiliary temporary storage data set" href="modules/auxiliary_temp.html" />
     <link rel="prev" title="Playbooks" href="playbooks.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
 
 
@@ -47,7 +47,7 @@
   <img class="DocSiteNav-logo"
     src="_static/images/Ansible-Mark-RGB_White.png"
     alt="Ansible Logo">
-  <div class="DocSiteNav-title">IBM Z CICS Collection 1.1.0-beta.3 documentation</div>
+  <div class="DocSiteNav-title">IBM Z CICS Collection 1.1.0-beta.4 documentation</div>
 </a>
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
@@ -84,14 +84,19 @@
 <p class="caption" role="heading"><span class="caption-text">Ansible Content</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/auxiliary_temp.html">auxiliary_temp – Create and remove the CICS auxiliary temporary storage data set</a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules/cmci_action.html">cmci_action – Perform actions on CICS and CICSPlex SM resources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules/cmci_create.html">cmci_create – Create CICS and CICSPlex SM definitions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules/cmci_delete.html">cmci_delete – Delete CICS and CICSPlex SM resources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules/cmci_get.html">cmci_get – Query CICS and CICSPlex SM resources and definitions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules/cmci_update.html">cmci_update – Update CICS and CICSPlex resources and definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/csd.html">csd – Create, remove, and manage the CICS CSD</a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules/global_catalog.html">global_catalog – Create, remove, and manage the CICS global catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/intrapartition.html">intrapartition – Create and remove the CICS transient data intrapartition data set</a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules/local_catalog.html">local_catalog – Create, remove, and manage the CICS local catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules/local_request_queue.html">local_request_queue – Create and remove the CICS local request queue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/trace.html">trace – Allocate auxiliary trace data sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/transaction_dump.html">transaction_dump – Allocate transaction dump data sets</a></li>
 </ul>
 </li>
 </ul>
@@ -139,7 +144,7 @@ module on the target node and returns the result back to the controller.</p>
 over an HTTP connection by leveraging the <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=cmci-how-it-works-rest-api">CMCI REST API</a>, as well as modules
 to automate provisioning of a CICS TS region. These modules have different
 requirements of the managed node. For more detail see <a class="reference internal" href="requirements_managed.html"><span class="doc">Requirements of managed nodes</span></a>.</p>
-<p>The region provisioning modules make use of two defaults groups that allow a
+<p>The region provisioning modules use two defaults groups that allow a
 user to specify the location of a CICS installation and a high level qualifier
 for all region data sets to be created under. The example below shows how to
 use these default groups within the <em>cics_global_catalog</em> module.</p>
@@ -152,15 +157,15 @@ use these default groups within the <em>cics_global_catalog</em> module.</p>
 <span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;initial&quot;</span>
 </pre></div>
 </div>
-<p>In the above example the global catalog will be created at the data set location
-<em>REGIONS.ABCD0001.DFHGCD</em> and the CICS load libraries can be found at the
-location <em>CICSTS61.CICS</em>, meaning the library SDFHLOAD could be found at
+<p>In the above example, the global catalog will be created at the data set location
+<em>REGIONS.ABCD0001.DFHGCD</em>, and the CICS load libraries can be found at the
+location <em>CICSTS61.CICS</em>, which means that the SDFHLOAD library could be found at
 <em>CICSTS61.CICS.SDFHLOAD</em>.</p>
-<p>These groups can be placed in a <a class="reference external" href="https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_module_defaults.html">module_defaults</a> section meaning all
+<p>These groups can be placed in a <a class="reference external" href="https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_module_defaults.html">module_defaults</a> section, which means that all
 the CICS provisioning modules will use the same high level qualifier for the
-regions data sets, and the location of the CICS installation only has to be
+region data sets, and the location of the CICS installation only has to be
 declared once for all the modules.</p>
-<p>To override a specific task’s data set location and/or name you can provide an
+<p>To override the data set location or name for a specific task, you can provide an
 additional parameter to the <code class="docutils literal notranslate"><span class="pre">region_data_sets</span></code> group as shown in the example
 for a global catalog data set below.</p>
 <div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Initialize a global catalog with a custom name</span>
@@ -178,14 +183,19 @@ the accepted parameters, return values, and examples are provided in the
 documentation.</p>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="modules/auxiliary_temp.html">auxiliary_temp – Create and remove the CICS auxiliary temporary storage data set</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/cmci_action.html">cmci_action – Perform actions on CICS and CICSPlex SM resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/cmci_create.html">cmci_create – Create CICS and CICSPlex SM definitions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/cmci_delete.html">cmci_delete – Delete CICS and CICSPlex SM resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/cmci_get.html">cmci_get – Query CICS and CICSPlex SM resources and definitions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/cmci_update.html">cmci_update – Update CICS and CICSPlex resources and definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/csd.html">csd – Create, remove, and manage the CICS CSD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/global_catalog.html">global_catalog – Create, remove, and manage the CICS global catalog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/intrapartition.html">intrapartition – Create and remove the CICS transient data intrapartition data set</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/local_catalog.html">local_catalog – Create, remove, and manage the CICS local catalog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/local_request_queue.html">local_request_queue – Create and remove the CICS local request queue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/trace.html">trace – Allocate auxiliary trace data sets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/transaction_dump.html">transaction_dump – Allocate transaction dump data sets</a></li>
 </ul>
 </div>
 </section>
@@ -197,13 +207,13 @@ documentation.</p>
 
 <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="playbooks.html" class="btn btn-neutral float-left" title="Playbooks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="modules/cmci_action.html" class="btn btn-neutral float-right" title="cmci_action – Perform actions on CICS and CICSPlex SM resources" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="modules/auxiliary_temp.html" class="btn btn-neutral float-right" title="auxiliary_temp – Create and remove the CICS auxiliary temporary storage data set" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright IBM Corp. 2020, 2023.</p>
+    <p>&#169; Copyright IBM Corp. 2020, 2024.</p>
   </div>
 
   

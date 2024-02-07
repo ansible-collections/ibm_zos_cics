@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>global_catalog – Create, remove, and manage the CICS global catalog &mdash; IBM Z CICS Collection 1.1.0-beta.4 documentation</title>
+  <title>auxiliary_temp – Create and remove the CICS auxiliary temporary storage data set &mdash; IBM Z CICS Collection 1.1.0-beta.4 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/ansible.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/rtd-ethical-ads.css" type="text/css" />
@@ -22,8 +22,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="intrapartition – Create and remove the CICS transient data intrapartition data set" href="intrapartition.html" />
-    <link rel="prev" title="csd – Create, remove, and manage the CICS CSD" href="csd.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+    <link rel="next" title="cmci_action – Perform actions on CICS and CICSPlex SM resources" href="cmci_action.html" />
+    <link rel="prev" title="Modules" href="../modules.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
 
 
 
@@ -84,21 +84,20 @@
 <p class="caption" role="heading"><span class="caption-text">Ansible Content</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Modules</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="auxiliary_temp.html">auxiliary_temp – Create and remove the CICS auxiliary temporary storage data set</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">auxiliary_temp – Create and remove the CICS auxiliary temporary storage data set</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#return-values">Return Values</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="cmci_action.html">cmci_action – Perform actions on CICS and CICSPlex SM resources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cmci_create.html">cmci_create – Create CICS and CICSPlex SM definitions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cmci_delete.html">cmci_delete – Delete CICS and CICSPlex SM resources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cmci_get.html">cmci_get – Query CICS and CICSPlex SM resources and definitions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cmci_update.html">cmci_update – Update CICS and CICSPlex resources and definitions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="csd.html">csd – Create, remove, and manage the CICS CSD</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">global_catalog – Create, remove, and manage the CICS global catalog</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#synopsis">Synopsis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#see-also">See Also</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#return-values">Return Values</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="global_catalog.html">global_catalog – Create, remove, and manage the CICS global catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="intrapartition.html">intrapartition – Create and remove the CICS transient data intrapartition data set</a></li>
 <li class="toctree-l2"><a class="reference internal" href="local_catalog.html">local_catalog – Create, remove, and manage the CICS local catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="local_request_queue.html">local_request_queue – Create and remove the CICS local request queue</a></li>
@@ -132,10 +131,10 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../modules.html">Modules</a></li>
-      <li class="breadcrumb-item active">global_catalog – Create, remove, and manage the CICS global catalog</li>
+      <li class="breadcrumb-item active">auxiliary_temp – Create and remove the CICS auxiliary temporary storage data set</li>
       <li class="wy-breadcrumbs-aside">
               <!-- User defined GitHub URL -->
-              <a href="https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/global_catalog.py" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/auxiliary_temp.py" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -145,32 +144,30 @@
   
            <div itemprop="articleBody">
              
-  <section id="global-catalog-create-remove-and-manage-the-cics-global-catalog">
-<span id="global-catalog-module"></span><h1>global_catalog – Create, remove, and manage the CICS global catalog<a class="headerlink" href="#global-catalog-create-remove-and-manage-the-cics-global-catalog" title="Permalink to this heading"></a></h1>
+  <section id="auxiliary-temp-create-and-remove-the-cics-auxiliary-temporary-storage-data-set">
+<span id="auxiliary-temp-module"></span><h1>auxiliary_temp – Create and remove the CICS auxiliary temporary storage data set<a class="headerlink" href="#auxiliary-temp-create-and-remove-the-cics-auxiliary-temporary-storage-data-set" title="Permalink to this heading"></a></h1>
 <nav class="contents local" id="contents">
 <ul class="simple">
 <li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
 <li><p><a class="reference internal" href="#parameters" id="id2">Parameters</a></p></li>
 <li><p><a class="reference internal" href="#examples" id="id3">Examples</a></p></li>
-<li><p><a class="reference internal" href="#see-also" id="id4">See Also</a></p></li>
-<li><p><a class="reference internal" href="#return-values" id="id5">Return Values</a></p></li>
+<li><p><a class="reference internal" href="#return-values" id="id4">Return Values</a></p></li>
 </ul>
 </nav>
 <section id="synopsis">
 <h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><p>Create, remove, and manage the <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=catalogs-global-catalog">global catalog</a> data set used by a CICS® region. The global catalog is used to store start type information, location of the CICS system log, installed resource definitions, terminal control information and profiles. It contains information that CICS requires on a restart.</p></li>
-<li><p>You can use this module when provisioning or de-provisioning a CICS region, or when managing the state of the global catalog during upgrades or restarts.</p></li>
-<li><p>Use the <code class="docutils literal notranslate"><span class="pre">state</span></code> option to specify the intended state for the global catalog. For example, <code class="docutils literal notranslate"><span class="pre">state=initial</span></code> will create and initialize a global catalog data set if it doesn’t yet exist, or it will take an existing global catalog and set its autostart override record to <code class="docutils literal notranslate"><span class="pre">AUTOINIT</span></code>. In either case, a CICS region using this global catalog and the <code class="docutils literal notranslate"><span class="pre">START=AUTO</span></code> system initialization parameter will perform an initial start.</p></li>
+<li><p>Create and remove the <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=sets-defining-auxiliary-temporary-storage-data-set">auxiliary temporary storage</a> data set used by a CICS® region.</p></li>
+<li><p>You can use this module when provisioning or de-provisioning a CICS region.</p></li>
+<li><p>Use the <code class="docutils literal notranslate"><span class="pre">state</span></code> option to specify the intended state for the auxiliary temporary storage data set. For example, <code class="docutils literal notranslate"><span class="pre">state=initial</span></code> will create an auxiliary temporary storage data set if it doesn’t exist.</p></li>
 </ul>
 </section>
 <section id="parameters">
 <h2><a class="toc-backref" href="#id2" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h2>
 <dl>
 <dt>cics_data_sets</dt><dd><p>The name of the <code class="docutils literal notranslate"><span class="pre">SDFHLOAD</span></code> library of the CICS installation, for example, <code class="docutils literal notranslate"><span class="pre">CICSTS61.CICS.SDFHLOAD</span></code>.</p>
-<p>This module uses the <code class="docutils literal notranslate"><span class="pre">DFHRMUTL</span></code> utility internally, which is found in the <code class="docutils literal notranslate"><span class="pre">SDFHLOAD</span></code> library.</p>
 <div class="line-block">
-<div class="line"><strong>required</strong>: True</div>
+<div class="line"><strong>required</strong>: False</div>
 <div class="line"><strong>type</strong>: dict</div>
 </div>
 <dl>
@@ -189,19 +186,19 @@
 </dl>
 </dd>
 <dt>region_data_sets</dt><dd><p>The location of the region data sets to be created using a template, for example, <code class="docutils literal notranslate"><span class="pre">REGIONS.ABCD0001.&lt;&lt;</span> <span class="pre">data_set_name</span> <span class="pre">&gt;&gt;</span></code>.</p>
-<p>If you want to use a data set that already exists, ensure that the data set is a global catalog data set.</p>
+<p>If you want to use a data set that already exists, ensure that the data set is a auxiliary temporary storage data set.</p>
 <div class="line-block">
 <div class="line"><strong>required</strong>: True</div>
 <div class="line"><strong>type</strong>: dict</div>
 </div>
 <dl>
-<dt>dfhgcd</dt><dd><p>Overrides the templated location for the global catalog data set.</p>
+<dt>dfhtemp</dt><dd><p>Overrides the templated location for the auxiliary temporary storage data set.</p>
 <div class="line-block">
 <div class="line"><strong>required</strong>: False</div>
 <div class="line"><strong>type</strong>: dict</div>
 </div>
 <dl>
-<dt>dsn</dt><dd><p>The data set name of the global catalog to override the template.</p>
+<dt>dsn</dt><dd><p>The data set name of the auxiliary temporary storage to override the template.</p>
 <div class="line-block">
 <div class="line"><strong>required</strong>: False</div>
 <div class="line"><strong>type</strong>: str</div>
@@ -217,95 +214,63 @@
 </dd>
 </dl>
 </dd>
-<dt>space_primary</dt><dd><p>The size of the primary space allocated to the global catalog data set. Note that this is just the value; the unit is specified with <code class="docutils literal notranslate"><span class="pre">space_type</span></code>.</p>
-<p>This option takes effect only when the global catalog is being created. If the global catalog already exists, the option has no effect.</p>
-<p>The size value of the secondary space allocation for the global catalog data set is 1; the unit is specified with <code class="docutils literal notranslate"><span class="pre">space_type</span></code>.</p>
+<dt>space_primary</dt><dd><p>The size of the primary space allocated to the auxiliary temporary storage data set. Note that this is just the value; the unit is specified with <code class="docutils literal notranslate"><span class="pre">space_type</span></code>.</p>
+<p>This option takes effect only when the auxiliary temporary storage data set is being created. If the data set already exists, the option has no effect.</p>
+<p>The size value of the secondary space allocation for the auxiliary temporary storage data set is 10; the unit is specified with <code class="docutils literal notranslate"><span class="pre">space_type</span></code>.</p>
 <div class="line-block">
 <div class="line"><strong>required</strong>: False</div>
 <div class="line"><strong>type</strong>: int</div>
-<div class="line"><strong>default</strong>: 5</div>
+<div class="line"><strong>default</strong>: 200</div>
 </div>
 </dd>
-<dt>space_type</dt><dd><p>The unit portion of the global catalog data set size. Note that this is just the unit; the value is specified with <code class="docutils literal notranslate"><span class="pre">space_primary</span></code>.</p>
-<p>This option takes effect only when the global catalog is being created. If the global catalog already exists, the option has no effect.</p>
+<dt>space_type</dt><dd><p>The unit portion of the auxiliary temporary storage data set size. Note that this is just the unit; the value is specified with <code class="docutils literal notranslate"><span class="pre">space_primary</span></code>.</p>
+<p>This option takes effect only when the auxiliary temporary storage data set is being created. If the data set already exists, the option has no effect.</p>
 <p>The size can be specified in megabytes (<code class="docutils literal notranslate"><span class="pre">M</span></code>), kilobytes (<code class="docutils literal notranslate"><span class="pre">K</span></code>), records (<code class="docutils literal notranslate"><span class="pre">REC</span></code>), cylinders (<code class="docutils literal notranslate"><span class="pre">CYL</span></code>), or tracks (<code class="docutils literal notranslate"><span class="pre">TRK</span></code>).</p>
 <div class="line-block">
 <div class="line"><strong>required</strong>: False</div>
 <div class="line"><strong>type</strong>: str</div>
-<div class="line"><strong>default</strong>: M</div>
+<div class="line"><strong>default</strong>: REC</div>
 <div class="line"><strong>choices</strong>: M, K, REC, CYL, TRK</div>
 </div>
 </dd>
-<dt>state</dt><dd><p>The intended state for the global catalog, which the module will aim to achieve.</p>
-<p><code class="docutils literal notranslate"><span class="pre">absent</span></code> will remove the global catalog data set entirely, if it already exists.</p>
-<p><code class="docutils literal notranslate"><span class="pre">initial</span></code> will set the autostart override record to <code class="docutils literal notranslate"><span class="pre">AUTOINIT</span></code>. The module will create the global catalog data set if it does not already exist.</p>
-<p><code class="docutils literal notranslate"><span class="pre">cold</span></code> will set an existing global catalog’s autostart override record to <code class="docutils literal notranslate"><span class="pre">AUTOCOLD</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">warm</span></code> will set an existing global catalog’s autostart override record to <code class="docutils literal notranslate"><span class="pre">AUTOASIS</span></code>, undoing any previous setting of <code class="docutils literal notranslate"><span class="pre">AUTOINIT</span></code> or <code class="docutils literal notranslate"><span class="pre">AUTOCOLD</span></code>.</p>
+<dt>state</dt><dd><p>The intended state for the auxiliary temporary storage data set, which the module will aim to achieve.</p>
+<p><code class="docutils literal notranslate"><span class="pre">absent</span></code> will remove the auxiliary temporary storage data set entirely, if it already exists.</p>
+<p><code class="docutils literal notranslate"><span class="pre">initial</span></code> will create the auxiliary temporary storage data set if it does not already exist.</p>
+<p><code class="docutils literal notranslate"><span class="pre">warm</span></code> will retain an existing auxiliary temporary storage data set in its current state.</p>
 <div class="line-block">
 <div class="line"><strong>required</strong>: True</div>
 <div class="line"><strong>type</strong>: str</div>
-<div class="line"><strong>choices</strong>: absent, initial, cold, warm</div>
+<div class="line"><strong>choices</strong>: initial, absent, warm</div>
 </div>
 </dd>
 </dl>
 </section>
 <section id="examples">
 <h2><a class="toc-backref" href="#id3" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
-<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Initialize a global catalog</span>
-<span class="w">  </span><span class="nt">ibm.ibm_zos_cics.global_catalog</span><span class="p">:</span>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Initialize an auxiliary temporary storage data set</span>
+<span class="w">  </span><span class="nt">ibm.ibm_zos_cics.auxiliary_temp</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">region_data_sets</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;REGIONS.ABCD0001.&lt;&lt;</span><span class="nv"> </span><span class="s">data_set_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
-<span class="w">    </span><span class="nt">cics_data_sets</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CICSTS61.CICS.&lt;&lt;</span><span class="nv"> </span><span class="s">lib_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
 <span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;initial&quot;</span>
 
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Initialize a large catalog</span>
-<span class="w">  </span><span class="nt">ibm.ibm_zos_cics.global_catalog</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Initialize a large auxiliary temporary storage data set</span>
+<span class="w">  </span><span class="nt">ibm.ibm_zos_cics.auxiliary_temp</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">region_data_sets</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;REGIONS.ABCD0001.&lt;&lt;</span><span class="nv"> </span><span class="s">data_set_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
-<span class="w">    </span><span class="nt">cics_data_sets</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CICSTS61.CICS.&lt;&lt;</span><span class="nv"> </span><span class="s">lib_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
-<span class="w">    </span><span class="nt">space_primary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">    </span><span class="nt">space_primary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span>
 <span class="w">    </span><span class="nt">space_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;M&quot;</span>
 <span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;initial&quot;</span>
 
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Set autostart override record to AUTOASIS</span>
-<span class="w">  </span><span class="nt">ibm.ibm_zos_cics.global_catalog</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Delete an existing auxiliary temporary storage data set</span>
+<span class="w">  </span><span class="nt">ibm.ibm_zos_cics.auxiliary_temp</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">region_data_sets</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;REGIONS.ABCD0001.&lt;&lt;</span><span class="nv"> </span><span class="s">data_set_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
-<span class="w">    </span><span class="nt">cics_data_sets</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CICSTS61.CICS.&lt;&lt;</span><span class="nv"> </span><span class="s">lib_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
-<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;warm&quot;</span>
-
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Set autostart override record to AUTOCOLD</span>
-<span class="w">  </span><span class="nt">ibm.ibm_zos_cics.global_catalog</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">region_data_sets</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;REGIONS.ABCD0001.&lt;&lt;</span><span class="nv"> </span><span class="s">data_set_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
-<span class="w">    </span><span class="nt">cics_data_sets</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CICSTS61.CICS.&lt;&lt;</span><span class="nv"> </span><span class="s">lib_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
-<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cold&quot;</span>
-
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Delete global catalog</span>
-<span class="w">  </span><span class="nt">ibm.ibm_zos_cics.global_catalog</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">region_data_sets</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;REGIONS.ABCD0001.&lt;&lt;</span><span class="nv"> </span><span class="s">data_set_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
-<span class="w">    </span><span class="nt">cics_data_sets</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CICSTS61.CICS.&lt;&lt;</span><span class="nv"> </span><span class="s">lib_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
 <span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;absent&quot;</span>
 </pre></div>
 </div>
 </section>
-<section id="see-also">
-<h2><a class="toc-backref" href="#id4" role="doc-backlink">See Also</a><a class="headerlink" href="#see-also" title="Permalink to this heading"></a></h2>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="local_catalog.html#local-catalog-module"><span class="std std-ref">local_catalog – Create, remove, and manage the CICS local catalog</span></a></p></li>
-</ul>
-</div>
-</section>
 <section id="return-values">
-<h2><a class="toc-backref" href="#id5" role="doc-backlink">Return Values</a><a class="headerlink" href="#return-values" title="Permalink to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Return Values</a><a class="headerlink" href="#return-values" title="Permalink to this heading"></a></h2>
 <blockquote>
 <div><dl>
 <dt>changed</dt><dd><div class="line-block">
@@ -325,31 +290,23 @@
 </div>
 </dd>
 <dt>start_state</dt><dd><div class="line-block">
-<div class="line">The state of the global catalog before the Ansible task runs.</div>
+<div class="line">The state of the auxiliary temporary storage before the Ansible task runs.</div>
 </div>
 <div class="line-block">
 <div class="line"><strong>returned</strong>: always</div>
 <div class="line"><strong>type</strong>: dict</div>
 </div>
 <dl>
-<dt>autostart_override</dt><dd><div class="line-block">
-<div class="line">The current autostart override record.</div>
+<dt>vsam</dt><dd><div class="line-block">
+<div class="line">True if the data set is a VSAM data set.</div>
 </div>
 <div class="line-block">
 <div class="line"><strong>returned</strong>: always</div>
-<div class="line"><strong>type</strong>: str</div>
-</div>
-</dd>
-<dt>next_start</dt><dd><div class="line-block">
-<div class="line">The next start type listed in the global catalog.</div>
-</div>
-<div class="line-block">
-<div class="line"><strong>returned</strong>: always</div>
-<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>type</strong>: bool</div>
 </div>
 </dd>
 <dt>exists</dt><dd><div class="line-block">
-<div class="line">True if the global catalog data set exists.</div>
+<div class="line">True if the auxiliary temporary storage data set exists.</div>
 </div>
 <div class="line-block">
 <div class="line"><strong>returned</strong>: always</div>
@@ -359,31 +316,23 @@
 </dl>
 </dd>
 <dt>end_state</dt><dd><div class="line-block">
-<div class="line">The state of the global catalog at the end of the Ansible task.</div>
+<div class="line">The state of the auxiliary temporary storage at the end of the Ansible task.</div>
 </div>
 <div class="line-block">
 <div class="line"><strong>returned</strong>: always</div>
 <div class="line"><strong>type</strong>: dict</div>
 </div>
 <dl>
-<dt>autostart_override</dt><dd><div class="line-block">
-<div class="line">The current autostart override record.</div>
+<dt>vsam</dt><dd><div class="line-block">
+<div class="line">True if the data set is a VSAM data set.</div>
 </div>
 <div class="line-block">
 <div class="line"><strong>returned</strong>: always</div>
-<div class="line"><strong>type</strong>: str</div>
-</div>
-</dd>
-<dt>next_start</dt><dd><div class="line-block">
-<div class="line">The next start type listed in the global catalog</div>
-</div>
-<div class="line-block">
-<div class="line"><strong>returned</strong>: always</div>
-<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>type</strong>: bool</div>
 </div>
 </dd>
 <dt>exists</dt><dd><div class="line-block">
-<div class="line">True if the global catalog data set exists.</div>
+<div class="line">True if the auxiliary temporary storage data set exists.</div>
 </div>
 <div class="line-block">
 <div class="line"><strong>returned</strong>: always</div>
@@ -445,8 +394,8 @@
           
 
 <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="csd.html" class="btn btn-neutral float-left" title="csd – Create, remove, and manage the CICS CSD" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="intrapartition.html" class="btn btn-neutral float-right" title="intrapartition – Create and remove the CICS transient data intrapartition data set" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../modules.html" class="btn btn-neutral float-left" title="Modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cmci_action.html" class="btn btn-neutral float-right" title="cmci_action – Perform actions on CICS and CICSPlex SM resources" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

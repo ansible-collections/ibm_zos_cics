@@ -3,13 +3,13 @@
 .. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
 .. ...............................................................................
 
-:github_url: https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/local_catalog.py
+:github_url: https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/intrapartition.py
 
-.. _local_catalog_module:
+.. _intrapartition_module:
 
 
-local_catalog -- Create, remove, and manage the CICS local catalog
-==================================================================
+intrapartition -- Create and remove the CICS transient data intrapartition data set
+===================================================================================
 
 
 
@@ -20,9 +20,9 @@ local_catalog -- Create, remove, and manage the CICS local catalog
 
 Synopsis
 --------
-- Create, remove, and manage the \ `local catalog <https://www.ibm.com/docs/en/cics-ts/latest?topic=catalogs-local-catalog>`__\  data set used by a CICS® region. CICS domains use the local catalog to save some of their information between CICS runs and to preserve this information across a cold start.
-- You can use this module when provisioning or de-provisioning a CICS region, or when managing the state of the local catalog during upgrades or restarts.
-- Use the \ :literal:`state`\  option to specify the intended state for the local catalog. For example, \ :literal:`state=initial`\  will create and initialize a local catalog data set if it doesn't yet exist, or it will take an existing local catalog and empty it of all records.
+- Create and remove the \ `transient data intrapartition <https://www.ibm.com/docs/en/cics-ts/latest?topic=data-defining-intrapartition-set>`__\  data set used by a CICS® region. This data set holds all the data for intrapartition queues.
+- You can use this module when provisioning or de-provisioning a CICS region.
+- Use the \ :literal:`state`\  option to specify the intended state for the transient data intrapartition data set. For example, \ :literal:`state=initial`\  will create a transient data intrapartition data set if it doesn't exist.
 
 
 
@@ -36,16 +36,14 @@ Parameters
 cics_data_sets
   The name of the \ :literal:`SDFHLOAD`\  library of the CICS installation, for example, \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
 
-  This module uses the \ :literal:`DFHCCUTL`\  utility internally, which is found in the \ :literal:`SDFHLOAD`\  library.
 
-
-  | **required**: True
+  | **required**: False
   | **type**: dict
 
 
      
   sdfhload
-    The location of the  \ :literal:`SDFHLOAD`\  library to override the template.
+    The location of the \ :literal:`SDFHLOAD`\  library to override the template.
 
 
     | **required**: False
@@ -66,7 +64,7 @@ cics_data_sets
 region_data_sets
   The location of the region data sets to be created using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
 
-  If you want to use a data set that already exists, ensure that the data set is a local catalog data set.
+  If you want to use a data set that already exists, ensure that the data set is a transient data intrapartition data set.
 
 
   | **required**: True
@@ -74,8 +72,8 @@ region_data_sets
 
 
      
-  dfhlcd
-    Overrides the templated location for the local catalog data set.
+  dfhintra
+    Overrides the templated location for the transient data intrapartition data set.
 
 
     | **required**: False
@@ -84,7 +82,7 @@ region_data_sets
 
      
     dsn
-      The data set name of the local catalog to override the template.
+      The data set name of the transient data intrapartition to override the template.
 
 
       | **required**: False
@@ -104,23 +102,23 @@ region_data_sets
 
      
 space_primary
-  The size of the primary space allocated to the local catalog data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+  The size of the primary space allocated to the transient data intrapartition data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
 
-  This option takes effect only when the local catalog is being created. If the local catalog already exists, the option has no effect.
+  This option takes effect only when the transient data intrapartition data set is being created. If the data set already exists, the option has no effect.
 
-  The size value of the secondary space allocation for the local catalog data set is 1; the unit is specified with \ :literal:`space\_type`\ .
+  The size value of the secondary space allocation for the transient data intrapartition data set is 1; the unit is specified with \ :literal:`space\_type`\ .
 
 
   | **required**: False
   | **type**: int
-  | **default**: 200
+  | **default**: 100
 
 
      
 space_type
-  The unit portion of the local catalog data set size. Note that this is just the unit; the value is specified with \ :literal:`space\_primary`\ .
+  The unit portion of the transient data intrapartition data set size. Note that this is just the unit; the value is specified with \ :literal:`space\_primary`\ .
 
-  This option takes effect only when the local catalog is being created. If the local catalog already exists, the option has no effect.
+  This option takes effect only when the transient data intrapartition data set is being created. If the data set already exists, the option has no effect.
 
   The size can be specified in megabytes (\ :literal:`M`\ ), kilobytes (\ :literal:`K`\ ), records (\ :literal:`REC`\ ), cylinders (\ :literal:`CYL`\ ), or tracks (\ :literal:`TRK`\ ).
 
@@ -133,13 +131,13 @@ space_type
 
      
 state
-  The intended state for the local catalog, which the module will aim to achieve.
+  The intended state for the transient data intrapartition data set, which the module will aim to achieve.
 
-  \ :literal:`absent`\  will remove the local catalog data set entirely, if it already exists.
+  \ :literal:`absent`\  will remove the transient data intrapartition data set entirely, if it already exists.
 
-  \ :literal:`initial`\  will create the local catalog data set if it does not already exist, and empty it of all existing records.
+  \ :literal:`initial`\  will create the transient data intrapartition data set if it does not already exist.
 
-  \ :literal:`warm`\  will retain an existing local catalog in its current state.
+  \ :literal:`warm`\  will retain an existing transient data intrapartition data set in its current state.
 
 
   | **required**: True
@@ -155,30 +153,24 @@ Examples
 .. code-block:: yaml+jinja
 
    
-   - name: Initialize a local catalog
-     ibm.ibm_zos_cics.local_catalog:
+   - name: Initialize a transient data intrapartition
+     ibm.ibm_zos_cics.intrapartition:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
-       cics_data_sets:
-         template: "CICSTS61.CICS.<< lib_name >>"
        state: "initial"
 
-   - name: Initialize a large catalog
-     ibm.ibm_zos_cics.local_catalog:
+   - name: Initialize a large transient data intrapartition
+     ibm.ibm_zos_cics.intrapartition:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
-       cics_data_sets:
-         template: "CICSTS61.CICS.<< lib_name >>"
-       space_primary: 500
-       space_type: "REC"
+       space_primary: 50
+       space_type: "M"
        state: "initial"
 
-   - name: Delete local catalog
-     ibm.ibm_zos_cics.local_catalog:
+   - name: Delete transient data intrapartition
+     ibm.ibm_zos_cics.intrapartition:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
-       cics_data_sets:
-         template: "CICSTS61.CICS.<< lib_name >>"
        state: "absent"
 
 
@@ -186,12 +178,6 @@ Examples
 
 
 
-See Also
---------
-
-.. seealso::
-
-   - :ref:`global_catalog_module`
 
 
 
@@ -218,7 +204,7 @@ Return Values
       
                               
        start_state
-        | The state of the local catalog before the Ansible task runs.
+        | The state of the transient data intrapartition data set before the Ansible task runs.
       
         | **returned**: always
         | **type**: dict
@@ -234,7 +220,7 @@ Return Values
       
                               
         exists
-          | True if the local catalog data set exists.
+          | True if the transient data intrapartition data set exists.
       
           | **returned**: always
           | **type**: bool
@@ -244,7 +230,7 @@ Return Values
       
                               
        end_state
-        | The state of the local catalog at the end of the Ansible task.
+        | The state of the transient data intrapartition data set at the end of the Ansible task.
       
         | **returned**: always
         | **type**: dict
@@ -260,7 +246,7 @@ Return Values
       
                               
         exists
-          | True if the local catalog data set exists.
+          | True if the transient data intrapartition data set exists.
       
           | **returned**: always
           | **type**: bool

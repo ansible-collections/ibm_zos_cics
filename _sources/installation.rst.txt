@@ -5,14 +5,14 @@
 
 Installation
 ============
-Always check that your control node has fulfilled the :doc:`requirements` before installing the **IBM® z/OS® CICS® collection**.
+Always check that your control node has met the :doc:`requirements` before you install the **IBM® z/OS® CICS® collection**.
 
-Then, follow the guidance to install the collection from Ansible® Galaxy or a custom Galaxy server. More ways to install an Ansible collection are documented at `installing collections`_.
+Then, follow the guidance to install the collection from Ansible® Galaxy or from a custom Galaxy server. More ways to install an Ansible collection are documented in `Installing collections`_.
 
 
 Installing from Ansible Galaxy
 ------------------------------
-This is the quickest way to install the CICS collection. From your CLI, enter:
+This is the quickest way to install the CICS collection. From your CLI, enter the following command:
 
 .. code-block:: sh
 
@@ -38,7 +38,7 @@ By default, collections are installed in ``~/.ansible/collections``. After insta
 
 
 
-To install with customization, such as specifying another installation path or using a playbook, see `installing collections`_.
+To install with customization, such as specifying another installation path or using a playbook, see `Installing collections`_.
 
 .. _installing collections:
    https://docs.ansible.com/ansible/latest/user_guide/collections_using.html#installing-collections-with-ansible-galaxy
@@ -57,7 +57,7 @@ Ansible searches for ``ansible.cfg`` in the following locations in this order:
    * ~/.ansible.cfg (in the home directory)
    * /etc/ansible/ansible.cfg
 
-Instructions on how to configure the server list in ``ansible.cfg`` can be found at `configuring the ansible-galaxy client`_. Available options in the Ansible configuration file can be found at `Ansible Configuration Settings`_.
+Instructions on how to configure the server list in ``ansible.cfg`` can be found in `Configuring the ansible-galaxy client`_. Available options in the Ansible configuration file can be found in `Ansible Configuration Settings`_.
 
 .. note:: When hosting a private Galaxy server, available content is not always consistent with what is available on the community Galaxy server.
 

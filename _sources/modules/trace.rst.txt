@@ -1,0 +1,281 @@
+.. ...............................................................................
+.. © Copyright IBM Corporation 2020,2023                                         .
+.. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
+.. ...............................................................................
+
+:github_url: https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/trace.py
+
+.. _trace_module:
+
+
+trace -- Allocate auxiliary trace data sets
+===========================================
+
+
+
+.. contents::
+   :local:
+   :depth: 1
+
+
+Synopsis
+--------
+- Allocates the two \ `auxiliary trace <https://www.ibm.com/docs/en/cics-ts/6.1?topic=sets-setting-up-auxiliary-trace-data>`__\  data sets used by a CICS® region. When CICS auxiliary trace is activated, trace entries produced by CICS are written to the auxiliary trace data sets. These data sets can hold large amounts of trace data.
+
+
+
+
+
+Parameters
+----------
+
+
+     
+cics_data_sets
+  The name of the \ :literal:`SDFHLOAD`\  library of the CICS installation, for example, \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
+
+
+  | **required**: False
+  | **type**: dict
+
+
+     
+  sdfhload
+    The location of the \ :literal:`SDFHLOAD`\  library to override the template.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  template
+    The templated location of the \ :literal:`SDFHLOAD`\  library.
+
+
+    | **required**: False
+    | **type**: str
+
+
+
+     
+destination
+  The auxiliary trace data set to create. If the value is left blank, A is implied, but you can specify A or B.
+
+  \ :literal:`A`\  will create or delete the A auxiliary trace data set.
+
+  \ :literal:`B`\  will create or delete the B auxiliary trace data set. This MUST be set for the creation of B data set.
+
+
+  | **required**: False
+  | **type**: str
+  | **default**: A
+  | **choices**: A, B
+
+
+     
+region_data_sets
+  The location of the region data sets to be created using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
+
+  If you want to use a data set that already exists, ensure that the data set is an auxiliary trace data set.
+
+
+  | **required**: True
+  | **type**: dict
+
+
+     
+  dfhauxt
+    Overrides the templated location for the DFHAUXT data set.
+
+
+    | **required**: False
+    | **type**: dict
+
+
+     
+    dsn
+      The data set name of DFHAUXT to override the template.
+
+
+      | **required**: False
+      | **type**: str
+
+
+
+     
+  dfhbuxt
+    Overrides the templated location for the DFHBUXT data set.
+
+
+    | **required**: False
+    | **type**: dict
+
+
+     
+    dsn
+      The data set name of DFHBUXT to override the template.
+
+
+      | **required**: False
+      | **type**: str
+
+
+
+     
+  template
+    The base location of the region data sets with a template.
+
+
+    | **required**: False
+    | **type**: str
+
+
+
+     
+space_primary
+  The size of the primary space allocated to the auxiliary trace data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+
+  This option takes effect only when the auxiliary trace data set is being created. If the data set already exists, the option has no effect.
+
+  The size value of the secondary space allocation for the auxiliary trace data set is 10; the unit is specified with \ :literal:`space\_type`\ .
+
+
+  | **required**: False
+  | **type**: int
+  | **default**: 20
+
+
+     
+space_type
+  The unit portion of the auxiliary trace data set size. Note that this is just the unit; the value is specified with \ :literal:`space\_primary`\ .
+
+  This option takes effect only when the auxiliary trace data set is being created. If the data set already exists, the option has no effect.
+
+  The size can be specified in megabytes (\ :literal:`M`\ ), kilobytes (\ :literal:`K`\ ), records (\ :literal:`REC`\ ), cylinders (\ :literal:`CYL`\ ), or tracks (\ :literal:`TRK`\ ).
+
+
+  | **required**: False
+  | **type**: str
+  | **default**: M
+  | **choices**: M, K, REC, CYL, TRK
+
+
+     
+state
+  The intended state for the auxiliary trace data set, which the module will aim to achieve.
+
+  \ :literal:`absent`\  will remove the auxiliary trace data set data set entirely, if it already exists.
+
+  \ :literal:`initial`\  will create the auxiliary trace data set if it does not already exist.
+
+  \ :literal:`warm`\  will retain an existing auxiliary trace data set in its current state.
+
+
+  | **required**: True
+  | **type**: str
+  | **choices**: initial, absent, warm
+
+
+
+
+Examples
+--------
+
+.. code-block:: yaml+jinja
+
+   
+   - name: Allocate auxiliary trace data set A (implicit)
+     ibm.ibm_zos_cics.trace:
+       state: initial
+
+   - name: Allocate auxiliary trace data set A
+     ibm.ibm_zos_cics.trace:
+       state: initial
+       destination: A
+
+   - name: Allocate auxiliary trace data set B
+     ibm.ibm_zos_cics.trace:
+       state: initial
+       destination: B
+
+   - name: Delete auxiliary trace data set A (implicit)
+     ibm.ibm_zos_cics.trace:
+       state: absent
+
+   - name: Delete auxiliary trace data set B
+     ibm.ibm_zos_cics.trace:
+       state: absent
+       destination: B
+
+
+
+
+
+
+
+
+
+Return Values
+-------------
+
+
+   
+                              
+       changed
+        | True if the state was changed, otherwise False.
+      
+        | **returned**: always
+        | **type**: bool
+      
+      
+                              
+       failed
+        | True if the query job failed, otherwise False.
+      
+        | **returned**: always
+        | **type**: bool
+      
+      
+                              
+       executions
+        | A list of program executions performed during the Ansible task.
+      
+        | **returned**: always
+        | **type**: list
+              
+   
+                              
+        name
+          | A human-readable name for the program execution.
+      
+          | **returned**: always
+          | **type**: str
+      
+      
+                              
+        rc
+          | The return code for the program execution.
+      
+          | **returned**: always
+          | **type**: int
+      
+      
+                              
+        stdout
+          | The standard out stream returned by the program execution.
+      
+          | **returned**: always
+          | **type**: str
+      
+      
+                              
+        stderr
+          | The standard error stream returned from the program execution.
+      
+          | **returned**: always
+          | **type**: str
+      
+        
+      
+        

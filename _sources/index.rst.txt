@@ -41,11 +41,6 @@ The IBM z/OS CICS collection includes `modules`_ and ansible-doc to automate tas
     https://github.com/IBM/z_ansible_collections_samples
 
 
-Copyright
-=========
-
-© Copyright IBM Corporation 2023
-
 License
 =======
 
