@@ -8,22 +8,14 @@ __metaclass__ = type
 import re
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.mvs_cmd import idcams, ikjeft01
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, _state
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DDStatement
 
 MVS_CMD_RETRY_ATTEMPTS = 10
 
 
-def _dataset_size(unit, primary, secondary):  # type: (str,int,int) -> dict
-    return {
-        "unit": unit,
-        "primary": primary,
-        "secondary": secondary
-    }
-
-
-def _run_idcams(cmd, name, location, delete=False):  # type: (str, str, str, bool) -> list
+def _run_idcams(cmd: str, name: str, location: str, delete: bool = False) -> list[_execution]:
     executions = []
 
     for x in range(MVS_CMD_RETRY_ATTEMPTS):
@@ -88,9 +80,9 @@ def _build_idcams_define_cmd(dataset):  # type: (dict) -> str
 def _build_idcams_define_cluster_parms(dataset):  # type: (dict) -> str
     clusterStr = " CLUSTER (NAME({0}) -\n    {1}({2} {3}){4})".format(
         dataset["name"],
-        _get_dataset_size_unit(dataset["size"]["unit"]),
-        dataset["size"]["primary"],
-        dataset["size"]["secondary"],
+        _get_dataset_size_unit(dataset["unit"]),
+        dataset["primary"],
+        dataset["secondary"],
         _build_idcams_define_parms(dataset, "CLUSTER"))
     return clusterStr
 
@@ -123,7 +115,7 @@ def _build_idcams_define_parms(dataset, parm):  # type: (Dict, str) -> str
     return parmsStr
 
 
-def _run_listds(location):  # type: (str) -> [list, _state]
+def _run_listds(location):
     cmd = " LISTDS '{0}'".format(location)
     executions = []
 
@@ -145,7 +137,7 @@ def _run_listds(location):  # type: (str) -> [list, _state]
     # DS Name in output, good output
 
     if rc == 8 and "NOT IN CATALOG" in stdout:
-        return executions, _state(exists=False, vsam=False)
+        return executions, dict(exists=False, data_set_organization="NONE")
 
     # Exists
 
@@ -154,26 +146,24 @@ def _run_listds(location):  # type: (str) -> [list, _state]
 
     # Exists, RC 0
 
-    elements = ["{0}".format(element.replace(" ", "").upper())
-                for element in stdout.split("\n")]
-    filtered = list(filter(lambda x: "VSAM" in x, elements))
-
-    if len(filtered) == 0:
-        return executions, _state(exists=True, vsam=False)
+    matches = re.findall(r"\s+(PS|PO|IS|DA|VSAM|\?\?)\s+", stdout.upper())
+    if (len(matches) != 0):
+        if (matches[0] == "PS"):
+            data_set_organization = "Sequential"
+        elif (matches[0] == "PO"):
+            data_set_organization = "Partitioned"
+        elif (matches[0] == "IS"):
+            data_set_organization = "Indexed Sequential"
+        elif (matches[0] == "DA"):
+            data_set_organization = "Direct Access"
+        elif (matches[0] == "VSAM"):
+            data_set_organization = "VSAM"
+        elif (matches[0] == "??"):
+            data_set_organization = "Other"
     else:
-        return executions, _state(exists=True, vsam=True)
+        data_set_organization = "Unspecified"
 
-
-def _data_set(size, name, state, exists, vsam, **kwargs):  # type: (_dataset_size, str, str, bool, bool, dict) -> dict
-    data_set = {
-        "size": size,
-        "name": name,
-        "state": state,
-        "exists": exists,
-        "vsam": vsam,
-    }
-    data_set.update(kwargs)
-    return data_set
+    return executions, dict(exists=True, data_set_organization=data_set_organization)
 
 
 def _run_iefbr14(ddname, definition):  # type (str, DatasetDefinition) -> List[Dict]
@@ -181,12 +171,7 @@ def _run_iefbr14(ddname, definition):  # type (str, DatasetDefinition) -> List[D
     executions = []
 
     for x in range(MVS_CMD_RETRY_ATTEMPTS):
-        iefbr14_response = MVSCmd.execute(
-            pgm="IEFBR14",
-            dds=_get_iefbr14_dds(ddname, definition),
-            verbose=True,
-            debug=False
-        )
+        iefbr14_response = _execute_iefbr14(ddname, definition)
         executions.append(
             _execution(
                 name="IEFBR14 - {0} - Run {1}".format(
@@ -208,3 +193,12 @@ def _run_iefbr14(ddname, definition):  # type (str, DatasetDefinition) -> List[D
 
 def _get_iefbr14_dds(ddname, definition):  # type: (str, DatasetDefinition) -> list[DDStatement]
     return [DDStatement(ddname, definition)]
+
+
+def _execute_iefbr14(ddname, definition):
+    return MVSCmd.execute(
+        pgm="IEFBR14",
+        dds=_get_iefbr14_dds(ddname, definition),
+        verbose=True,
+        debug=False
+    )

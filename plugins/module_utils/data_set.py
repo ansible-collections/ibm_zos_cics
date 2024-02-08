@@ -5,234 +5,270 @@
 
 from __future__ import (absolute_import, division, print_function)
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import _run_icetool
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 __metaclass__ = type
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-    _build_idcams_define_cmd, _data_set, _dataset_size, _run_idcams, _run_listds, _run_iefbr14)
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _response, _state
+    _build_idcams_define_cmd,
+    _run_idcams,
+    _run_listds,
+    _run_iefbr14
+)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import _run_icetool
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import _run_icetool
+
+LOCATION = "location"
+SDFHLOAD = "sdfhload"
+STATE = "state"
+SPACE_PRIMARY = "space_primary"
+SPACE_TYPE = "space_type"
+SECONDARY_SPACE_DEFAULT = 0
+SPACE_OPTIONS = ["K", "M", "REC", "CYL", "TRK"]
+ABSENT = "absent"
+INITIAL = "initial"
+WARM = "warm"
+COLD = "cold"
+CICS_DATA_SETS = "cics_data_sets"
+REGION_DATA_SETS = "region_data_sets"
+DESTINATION = "destination"
 
 
-class DataSet(object):
+class DataSet():
     def __init__(self):
+        self.name: str = ""
+        self.target_state: str = ""
+        self.exists: bool = False
+        self.data_set_organization: str = ""
+        self.expected_data_set_organization: str = ""
+        self.unit: str = ""
+        self.primary: int = 0
+        self.secondary: int = SECONDARY_SPACE_DEFAULT
+        self.sdfhload: str = ""
+        self.destination: str = ""
+
+        self.changed: bool = False
+        self.failed: bool = False
+        self.start_state: dict = dict(exists=False, data_set_organization=self.data_set_organization)
+        self.end_state: dict = dict(exists=False, data_set_organization=self.data_set_organization)
+        self.executions: list = list()
+        self.region_param: dict = dict()
+
         self._module = AnsibleModule(
-            argument_spec=self.init_argument_spec(),
+            argument_spec=self._get_arg_spec(),
         )
-        self.result = _response(executions=[], start_state=_state(exists=False), end_state=_state(exists=False))
         self.validate_parameters()
 
-    def _fail(self, msg):  # type: (str) -> None
-        self.result["failed"] = True
+    def get_result(self) -> dict:
+        return {
+            "changed": self.changed,
+            "failed": self.failed,
+            "executions": self.executions,
+            "start_state": self.start_state,
+            "end_state": self.end_state,
+        }
+
+    def get_data_set(self) -> dict:
+        return {
+            "name": self.name,
+            "state": self.target_state,
+            "exists": self.exists,
+            "data_set_organization": self.data_set_organization,
+            "unit": self.unit,
+            "primary": self.primary,
+            "secondary": self.secondary,
+            "sdfhload": self.sdfhload,
+        }
+
+    def set_start_state(self) -> None:
+        self.start_state = dict(
+            exists=self.exists,
+            data_set_organization=self.data_set_organization
+        )
+
+    def set_end_state(self) -> None:
+        self.end_state = dict(
+            exists=self.exists,
+            data_set_organization=self.data_set_organization
+        )
+
+    def _fail(self, msg: str) -> None:
+        self.failed = True
+        self.set_end_state()
+        self.result = self.get_result()
         self._module.fail_json(msg=msg, **self.result)
 
-    def _exit(self):  # type: () -> None
+    def _exit(self) -> None:
+        self.set_end_state()
+        self.result = self.get_result()
         self._module.exit_json(**self.result)
 
-    def init_argument_spec(self):  # type: () -> dict
+    def _get_arg_spec(self) -> dict:
         return {
-            _dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]: {
-                "required": False,
+            SPACE_PRIMARY: {
                 "type": "int",
             },
-            _dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]: {
-                "required": False,
+            SPACE_TYPE: {
                 "type": "str",
-                "choices": _dataset_constants["SPACE_UNIT_OPTIONS"],
+                "choices": SPACE_OPTIONS,
             },
-            _dataset_constants["TARGET_STATE_ALIAS"]: {
-                "required": True,
+            STATE: {
                 "type": "str",
+                "required": True,
+            },
+            CICS_DATA_SETS: {
+                "type": "dict",
+                "required": False,
+                "options": {
+                    "template": {
+                        "type": "str",
+                        "required": False,
+                    },
+                    "sdfhload": {
+                        "type": "str",
+                        "required": False,
+                    },
+                },
+            },
+            REGION_DATA_SETS: {
+                "type": "dict",
+                "required": True,
+                "options": {
+                    "template": {
+                        "type": "str",
+                        "required": False,
+                    }
+                },
             }
         }
 
-    def _get_arg_defs(self):  # type: () -> dict
-        return {
-            _dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]: {
-                "arg_type": "int",
-            },
-            _dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]: {
-                "arg_type": "str",
-                "choices": _dataset_constants["SPACE_UNIT_OPTIONS"],
-            },
-            _dataset_constants["TARGET_STATE_ALIAS"]: {
-                "arg_type": "str",
-                "required": True,
-            },
-        }
-
-    def _get_data_set_object(self, size, result):  # type: (_dataset_size, dict) -> _data_set
-        return _data_set(
-            size=size,
-            name=result.get(_dataset_constants["DATASET_LOCATION_ALIAS"]).upper(),
-            state=result.get(_dataset_constants["TARGET_STATE_ALIAS"]),
-            exists=False,
-            vsam=False)
-
-    def _get_data_set_size(self, result):
-        return _dataset_size(
-            unit=result.get(_dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
-            primary=result.get(_dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
-            secondary=_dataset_constants["SECONDARY_SPACE_VALUE_DEFAULT"])
-
-    def validate_parameters(self):  # type: () -> None
-        arg_defs = self._get_arg_defs()
-
-        result = BetterArgParser(arg_defs).parse_args({
-            _dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]:
-                self._module.params.get(_dataset_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
-            _dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]:
-                self._module.params.get(_dataset_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
-            _dataset_constants["DATASET_LOCATION_ALIAS"]:
-                self._module.params.get(_dataset_constants["DATASET_LOCATION_ALIAS"]),
-            _dataset_constants["TARGET_STATE_ALIAS"]:
-                self._module.params.get(_dataset_constants["TARGET_STATE_ALIAS"])
+    def get_arg_defs(self) -> dict:
+        defs = self._get_arg_spec()
+        defs[CICS_DATA_SETS]["options"]["sdfhload"].update({
+            "arg_type": "data_set_base"
         })
+        defs[CICS_DATA_SETS]["options"]["sdfhload"].pop("type")
+        return defs
 
-        size = self._get_data_set_size(result)
-        self.data_set = self._get_data_set_object(size, result)
+    def validate_parameters(self) -> None:
+        params = BetterArgParser(self.get_arg_defs()).parse_args(self._module.params)
+        self.target_state = params.get(STATE)
+        self.primary = params.get(SPACE_PRIMARY)
+        self.region_param = params.get(REGION_DATA_SETS)
 
-    def create_data_set(self):
+        # Optional parameters
+        if params.get(SPACE_TYPE):
+            self.unit = params.get(SPACE_TYPE)
+        if params.get(CICS_DATA_SETS):
+            self.sdfhload = params.get(CICS_DATA_SETS).get("sdfhload").upper()
+        if params.get(DESTINATION):
+            self.destination = params.get(DESTINATION)
+
+    def create_data_set(self) -> None:
         create_cmd = _build_idcams_define_cmd({})
 
-    def build_vsam_data_set(self, create_cmd, message):  # type: (str, str) -> None
+    def build_vsam_data_set(self, create_cmd: str) -> None:
         try:
+            message = "Creating {0} data set".format(self.name)
             idcams_executions = _run_idcams(
                 cmd=create_cmd,
                 name=message,
-                location=self.data_set["name"],
+                location=self.name,
                 delete=False)
-            self.result["executions"] = self.result["executions"] + idcams_executions
+            self.executions.extend(idcams_executions)
 
-            self.result["changed"] = True
+            self.changed = True
         except Exception as e:
-            self.result["executions"] = self.result["executions"] + e.args[1]
+            self.executions.extend(e.args[1])
             self._fail(e.args[0])
 
-    def build_seq_data_set(self, ddname, definition):  # type: (str, DatasetDefinition) -> None
+    def build_seq_data_set(self, ddname: str, definition: DatasetDefinition) -> None:
         try:
             iefbr14_executions = _run_iefbr14(ddname, definition)
-            self.result["executions"] = self.result["executions"] + iefbr14_executions
-            self.result["changed"] = True
+            self.executions.extend(iefbr14_executions)
+
+            self.changed = True
         except Exception as e:
-            self.result["executions"] = self.result["executions"] + e.args[1]
+            self.executions.extend(e.args[1])
             self._fail(e.args[0])
 
-    def delete_data_set(self, message):  # type: (str) -> None
-        delete_cmd = '''
-        DELETE {0}
-        '''.format(self.data_set["name"])
+    def delete_data_set(self) -> None:
+        if self.exists:
+            delete_cmd = '''
+            DELETE {0}
+            '''.format(self.name)
 
-        try:
-            idcams_executions = _run_idcams(
-                cmd=delete_cmd,
-                name=message,
-                location=self.data_set["name"],
-                delete=True)
-            self.result["executions"] = self.result["executions"] + idcams_executions
-            self.result["changed"] = True
-        except Exception as e:
-            self.result["executions"] = self.result["executions"] + e.args[1]
-            self._fail(e.args[0])
+            try:
+                idcams_executions = _run_idcams(
+                    cmd=delete_cmd,
+                    name=self.name,
+                    location=self.name,
+                    delete=True)
+                self.executions.extend(idcams_executions)
+                self.changed = True
+            except Exception as e:
+                self.executions.extend(e.args[1])
+                self._fail(e.args[0])
 
-    def init_data_set(self):  # type: () -> None
-        if self.data_set["exists"]:
-            icetool_executions, record_count = _run_icetool(self.data_set["name"])
-            self.result["executions"] = self.result["executions"] + icetool_executions
-            if record_count["record_count"] <= 0:
-                self.result["end_state"] = _state(exists=self.data_set["exists"], vsam=self.data_set["vsam"])
-                self._exit()
-            else:
+    def init_data_set(self) -> None:
+        if self.exists:
+            icetool_executions, record_count = _run_icetool(self.name)
+            self.executions.extend(icetool_executions)
+            if record_count > 0:
                 self.delete_data_set()
-                self.data_set = self.get_data_set_state(self.data_set)
+                self.get_data_set_state()
                 self.create_data_set()
 
         else:
             self.create_data_set()
 
-    def warm_data_set(self):  # type: () -> None
-        if self.data_set["exists"]:
+    def warm_data_set(self) -> None:
+        if self.exists:
             try:
-                icetool_executions, record_count = _run_icetool(self.data_set["name"])
-                self.result["executions"] = self.result["executions"] + icetool_executions
-                if record_count["record_count"] <= 0:
-                    self.result["end_state"] = _state(
-                        exists=self.data_set["exists"]
-                    )
-                    self._fail("Data set {0} is empty.".format(self.data_set["name"]))
+                icetool_executions, record_count = _run_icetool(self.name)
+                self.executions.extend(icetool_executions)
+                if record_count <= 0:
+                    self._fail("Data set {0} is empty.".format(self.name))
             except Exception as e:
-                self.result["executions"] = self.result["executions"] + e.args[1]
+                self.executions.extend(e.args[1])
                 self._fail(e.args[0])
         else:
-            self.result["end_state"] = _state(
-                exists=self.data_set["exists"]
-            )
-            self._fail(
-                "Data set {0} does not exist.".format(
-                    self.data_set["name"]))
+            self._fail("Data set {0} does not exist.".format(self.name))
 
-    def invalid_target_state(self):  # type: () -> None
+    def invalid_target_state(self) -> None:
         self._fail("{0} is not a valid target state.".format(
-            self.data_set["state"]))
+            self.target_state))
 
-    def get_target_method(self, target):  # type: (str) -> [str | invalid_target_state]
+    def get_target_method(self) -> None:
         return {
-            _dataset_constants["TARGET_STATE_ABSENT"]: self.delete_data_set,
-            _dataset_constants["TARGET_STATE_INITIAL"]: self.init_data_set,
-            _dataset_constants["TARGET_STATE_WARM"]: self.warm_data_set,
-        }.get(target, self.invalid_target_state)
+            ABSENT: self.delete_data_set,
+            INITIAL: self.init_data_set,
+            WARM: self.warm_data_set,
+        }.get(self.target_state, self.invalid_target_state)
 
-    def get_data_set_state(self, data_set):  # type: (dict) -> dict
+    def get_data_set_state(self) -> None:
         try:
-            listds_executions, ds_status = _run_listds(data_set["name"])
+            listds_executions, ds_status = _run_listds(self.name)
 
-            data_set["exists"] = ds_status["exists"]
-            data_set["vsam"] = ds_status["vsam"]
+            self.exists = ds_status["exists"]
+            self.data_set_organization = ds_status["data_set_organization"]
 
-            self.result["executions"] = self.result["executions"] + listds_executions
+            self.executions.extend(listds_executions)
         except Exception as e:
-            self.result["executions"] = self.result["executions"] + e.args[1]
+            self.executions.extend(e.args[1])
             self._fail(e.args[0])
 
-        return data_set
+    def main(self) -> None:
+        self.get_data_set_state()
+        self.set_start_state()
 
-    def main(self):
-        self.data_set = self.get_data_set_state(self.data_set)
-
-        self.result["start_state"] = _state(exists=self.data_set["exists"], vsam=self.data_set["vsam"])
-
-        # Change below to account for non vsams
-        if self.data_set["exists"] and not self.data_set["vsam"]:
+        if self.exists and (self.data_set_organization != self.expected_data_set_organization):
             self._fail(
-                "Data set {0} does not appear to be a KSDS.".format(
-                    self.data_set["name"]))
+                "Data set {0} is not in expected format {1}.".format(
+                    self.name, self.expected_data_set_organization))
 
-        self.get_target_method(self.data_set["state"])()
+        self.get_target_method()()
 
-        self.end_state = self.get_data_set_state(self.data_set)
-
-        self.result["end_state"] = _state(exists=self.end_state["exists"], vsam=self.end_state["vsam"])
+        self.get_data_set_state()
 
         self._exit()
-
-
-_dataset_constants = {
-    "DATASET_LOCATION_ALIAS": "location",
-    "SDFHLOAD_ALIAS": "sdfhload",
-    "TARGET_STATE_ALIAS": "state",
-    "PRIMARY_SPACE_VALUE_ALIAS": "space_primary",
-    "PRIMARY_SPACE_UNIT_ALIAS": "space_type",
-    "SECONDARY_SPACE_VALUE_DEFAULT": 0,
-    "SPACE_UNIT_OPTIONS": ["K", "M", "REC", "CYL", "TRK"],
-    "TARGET_STATE_ABSENT": "absent",
-    "TARGET_STATE_INITIAL": "initial",
-    "TARGET_STATE_WARM": "warm",
-    "TARGET_STATE_COLD": "cold",
-    "CICS_DATA_SETS_ALIAS": "cics_data_sets",
-    "REGION_DATA_SETS_ALIAS": "region_data_sets",
-    "DESTINATION_ALIAS": "destination"
-}

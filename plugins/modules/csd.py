@@ -205,184 +205,85 @@ executions:
 """
 
 
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-    _dataset_size, _data_set, _build_idcams_define_cmd)
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import DataSet
+    _build_idcams_define_cmd
+)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
+    CICS_DATA_SETS,
+    REGION_DATA_SETS,
+    SPACE_PRIMARY,
+    SPACE_TYPE,
+    STATE,
+    DataSet
+)
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.csd import (
-    _run_dfhcsdup, _get_idcams_cmd_csd)
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.csd import _csd_constants as csd_constants
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
+    SPACE_PRIMARY_DEFAULT,
+    SPACE_TYPE_DEFAULT,
+    STATE_OPTIONS,
+    _get_idcams_cmd_csd,
+    _run_dfhcsdup
+)
 
 
 class AnsibleCSDModule(DataSet):
     def __init__(self):
         super(AnsibleCSDModule, self).__init__()
 
-    def init_argument_spec(self):  # type: () -> dict
-        arg_spec = super(AnsibleCSDModule, self).init_argument_spec()
+    def _get_arg_spec(self):  # type: () -> dict
+        arg_spec = super(AnsibleCSDModule, self)._get_arg_spec()
 
-        arg_spec[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
-            "default": csd_constants["PRIMARY_SPACE_VALUE_DEFAULT"]
+        arg_spec[SPACE_PRIMARY].update({
+            "default": SPACE_PRIMARY_DEFAULT
         })
-        arg_spec[ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]].update({
-            "default": csd_constants["SPACE_UNIT_DEFAULT"]
+        arg_spec[SPACE_TYPE].update({
+            "default": SPACE_TYPE_DEFAULT
         })
-        arg_spec[ds_constants["TARGET_STATE_ALIAS"]].update({
-            "choices": csd_constants["TARGET_STATE_OPTIONS"]
+        arg_spec[STATE].update({
+            "choices": STATE_OPTIONS
         })
-        arg_spec.update({
-            ds_constants["REGION_DATA_SETS_ALIAS"]: {
+        arg_spec[REGION_DATA_SETS]["options"].update({
+            "dfhcsd": {
                 "type": "dict",
-                "required": True,
+                "required": False,
                 "options": {
-                    "template": {
-                        "type": "str",
-                        "required": False,
-                    },
-                    "dfhcsd": {
-                        "type": "dict",
-                        "required": False,
-                        "options": {
-                            "dsn": {
-                                "type": "str",
-                                "required": False,
-                            },
-                        },
-                    },
-                },
-            },
-            ds_constants["CICS_DATA_SETS_ALIAS"]: {
-                "type": "dict",
-                "required": True,
-                "options": {
-                    "template": {
-                        "type": "str",
-                        "required": False,
-                    },
-                    "sdfhload": {
+                    "dsn": {
                         "type": "str",
                         "required": False,
                     },
                 },
             },
         })
+        arg_spec[CICS_DATA_SETS].update({
+            "required": True
+        })
+
         return arg_spec
 
-    def _get_arg_defs(self):  # type: () -> dict
-        arg_def = super(AnsibleCSDModule, self)._get_arg_defs()
-
-        arg_def[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
-            "default": csd_constants["PRIMARY_SPACE_VALUE_DEFAULT"]
+    def get_arg_defs(self) -> dict:
+        defs = super().get_arg_defs()
+        defs[REGION_DATA_SETS]["options"]["dfhcsd"]["options"]["dsn"].update({
+            "arg_type": "data_set_base"
         })
-        arg_def[ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]].update({
-            "default": csd_constants["SPACE_UNIT_DEFAULT"]
-        })
-        arg_def[ds_constants["TARGET_STATE_ALIAS"]].update({
-            "choices": csd_constants["TARGET_STATE_OPTIONS"],
-        })
-        arg_def.update({
-            ds_constants["REGION_DATA_SETS_ALIAS"]: {
-                "arg_type": "dict",
-                "required": True,
-                "options": {
-                    "template": {
-                        "arg_type": "str",
-                        "required": False,
-                    },
-                    "dfhcsd": {
-                        "arg_type": "dict",
-                        "required": False,
-                        "options": {
-                            "dsn": {
-                                "arg_type": "data_set_base",
-                                "required": False,
-                            },
-                        },
-                    },
-                },
-            },
-            ds_constants["CICS_DATA_SETS_ALIAS"]: {
-                "arg_type": "dict",
-                "required": True,
-                "options": {
-                    "template": {
-                        "arg_type": "str",
-                        "required": False,
-                    },
-                    "sdfhload": {
-                        "arg_type": "data_set_base",
-                        "required": False,
-                    },
-                },
-            },
-        })
+        defs[REGION_DATA_SETS]["options"]["dfhcsd"]["options"]["dsn"].pop("type")
+        return defs
 
-        return arg_def
+    def validate_parameters(self) -> None:
+        super().validate_parameters()
+        self.name = self.region_param.get("dfhcsd").get("dsn").upper()
+        self.expected_data_set_organization = "VSAM"
 
-    def _get_data_set_object(self, size, result):  # type: (_dataset_size, dict) -> _data_set
-        return _data_set(
-            size=size,
-            name=result.get(ds_constants["REGION_DATA_SETS_ALIAS"]).get("dfhcsd").get("dsn").upper(),
-            sdfhload=result.get(ds_constants["CICS_DATA_SETS_ALIAS"]).get("sdfhload").upper(),
-            state=result.get(ds_constants["TARGET_STATE_ALIAS"]),
-            exists=False,
-            vsam=False)
+    def create_data_set(self) -> None:
+        create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_csd(self.get_data_set()))
+        super().build_vsam_data_set(create_cmd)
 
-    def _get_data_set_size(self, result):  # type: (dict) -> _dataset_size
-        return _dataset_size(
-            unit=result.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
-            primary=result.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
-            secondary=csd_constants["SECONDARY_SPACE_VALUE_DEFAULT"])
-
-    def validate_parameters(self):  # type: () -> None
-        arg_defs = self._get_arg_defs()
-
-        result = BetterArgParser(arg_defs).parse_args({
-            ds_constants["REGION_DATA_SETS_ALIAS"]: self._module.params.get(ds_constants["REGION_DATA_SETS_ALIAS"]),
-            ds_constants["CICS_DATA_SETS_ALIAS"]: self._module.params.get(ds_constants["CICS_DATA_SETS_ALIAS"]),
-            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
-            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
-            ds_constants["TARGET_STATE_ALIAS"]: self._module.params.get(ds_constants["TARGET_STATE_ALIAS"])
-        })
-
-        size = self._get_data_set_size(result)
-        self.data_set = self._get_data_set_object(size, result)
-
-    def create_data_set(self):  # type: () -> None
-        create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_csd(self.data_set))
-
-        super().build_vsam_data_set(create_cmd, "Create CSD data set")
-
+    def init_data_set(self) -> None:
+        super().init_data_set()
         try:
-            csdup_executions = _run_dfhcsdup(self.data_set)
-            self.result["executions"] = self.result["executions"] + csdup_executions
+            csdup_executions = _run_dfhcsdup(self.get_data_set())
+            self.executions.extend(csdup_executions)
         except Exception as e:
-            self.result["executions"] = self.result["executions"] + e.args[1]
+            self.executions.extend(e.args[1])
             self._fail(e.args[0])
-
-    def delete_data_set(self):  # type: () -> None
-        if not self.data_set["exists"]:
-            self.result["end_state"] = {
-                "exists": self.data_set["exists"],
-                "vsam": self.data_set["vsam"]
-            }
-            self._exit()
-
-        super().delete_data_set("Removing CSD data set")
-
-    def warm_data_set(self):  # type: () -> None
-        super().warm_data_set()
-
-    def init_data_set(self):  # type: () -> None
-        if self.data_set["exists"]:
-            self.result["end_state"] = {
-                "exists": self.data_set["exists"],
-                "vsam": self.data_set["vsam"]
-            }
-            self._exit()
-        else:
-            self.create_data_set()
 
 
 def main():

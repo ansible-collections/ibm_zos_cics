@@ -10,7 +10,6 @@ __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd, MVSCmdResponse
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import MVS_CMD_RETRY_ATTEMPTS
 
 
@@ -71,7 +70,7 @@ def _get_catalog_records(stdout):  # type: (str) -> str
     }
 
 
-def _run_dfhrmutl(location, sdfhload, cmd=""):  # type: (str, str, str) -> (list(_execution), str)
+def _run_dfhrmutl(location: str, sdfhload: str, cmd: str = "") -> list():
 
     executions = []
 
@@ -108,7 +107,7 @@ def _run_dfhrmutl(location, sdfhload, cmd=""):  # type: (str, str, str) -> (list
     return executions, _get_catalog_records(dfhrmutl_response.stdout)
 
 
-def _execute_dfhrmutl(location, sdfhload, cmd=""):  # type: (str, str, str) -> MVSCmdResponse
+def _execute_dfhrmutl(location: str, sdfhload: str, cmd: str = "") -> MVSCmdResponse:
     return MVSCmd.execute(
         pgm="DFHRMUTL",
         dds=_get_rmutl_dds(location=location, sdfhload=sdfhload, cmd=cmd),
@@ -116,18 +115,18 @@ def _execute_dfhrmutl(location, sdfhload, cmd=""):  # type: (str, str, str) -> M
         debug=False)
 
 
-def _get_idcams_cmd_gcd(dataset):
+def _get_idcams_cmd_gcd(dataset: dict) -> dict:
     defaults = {
         "CLUSTER": {
-            "RECORDSIZE": "{0} {1}".format(_global_catalog_constants["RECORD_COUNT_DEFAULT"], _global_catalog_constants["RECORD_SIZE_DEFAULT"]),
+            "RECORDSIZE": "{0} {1}".format(RECORD_COUNT_DEFAULT, RECORD_SIZE_DEFAULT),
             "INDEXED": None,
-            "KEYS": "{0} {1}".format(_global_catalog_constants["KEY_LENGTH"], _global_catalog_constants["KEY_OFFSET"]),
-            "FREESPACE": "{0} {1}".format(_global_catalog_constants["CI_PERCENT"], _global_catalog_constants["CA_PERCENT"]),
-            "SHAREOPTIONS": "{0}".format(_global_catalog_constants["SHARE_CROSSREGION"]),
+            "KEYS": "{0} {1}".format(KEY_LENGTH, KEY_OFFSET),
+            "FREESPACE": "{0} {1}".format(CI_PERCENT, CA_PERCENT),
+            "SHAREOPTIONS": "{0}".format(SHARE_CROSSREGION),
             "REUSE": None
         },
         "DATA": {
-            "CONTROLINTERVALSIZE": "{0}".format(_global_catalog_constants["CONTROL_INTERVAL_SIZE_DEFAULT"])
+            "CONTROLINTERVALSIZE": "{0}".format(CONTROL_INTERVAL_SIZE_DEFAULT)
         },
         "INDEX": {
             None
@@ -137,29 +136,22 @@ def _get_idcams_cmd_gcd(dataset):
     return defaults
 
 
-_global_catalog_constants = {
-    "AUTO_START_WARM": "AUTOASIS",
-    "AUTO_START_COLD": "AUTOCOLD",
-    "AUTO_START_INIT": "AUTOINIT",
-    "NEXT_START_EMERGENCY": "EMERGENCY",
-    "NEXT_START_WARM": "WARM",
-    "NEXT_START_COLD": "COLD",
-    "NEXT_START_UNKNOWN": "UNKNOWN",
-    "PRIMARY_SPACE_VALUE_DEFAULT": 5,
-    "SECONDARY_SPACE_VALUE_DEFAULT": 1,
-    "SPACE_UNIT_DEFAULT": "M",
-    "TARGET_STATE_OPTIONS": [
-        ds_constants["TARGET_STATE_ABSENT"],
-        ds_constants["TARGET_STATE_INITIAL"],
-        ds_constants["TARGET_STATE_COLD"],
-        ds_constants["TARGET_STATE_WARM"]
-    ],
-    "RECORD_COUNT_DEFAULT": 4089,
-    "RECORD_SIZE_DEFAULT": 32760,
-    "CONTROL_INTERVAL_SIZE_DEFAULT": 32768,
-    "KEY_LENGTH": 52,
-    "KEY_OFFSET": 0,
-    "CI_PERCENT": 10,
-    "CA_PERCENT": 10,
-    "SHARE_CROSSREGION": 2
-}
+AUTO_START_WARM = "AUTOASIS"
+AUTO_START_COLD = "AUTOCOLD"
+AUTO_START_INIT = "AUTOINIT"
+NEXT_START_EMERGENCY = "EMERGENCY"
+NEXT_START_WARM = "WARM"
+NEXT_START_COLD = "COLD"
+NEXT_START_UNKNOWN = "UNKNOWN"
+SPACE_PRIMARY_DEFAULT = 5
+SPACE_SECONDARY_DEFAULT = 1
+SPACE_TYPE_DEFAULT = "M"
+STATE_OPTIONS = ["absent", "initial", "cold", "warm"]
+RECORD_COUNT_DEFAULT = 4089
+RECORD_SIZE_DEFAULT = 32760
+CONTROL_INTERVAL_SIZE_DEFAULT = 32768
+KEY_LENGTH = 52
+KEY_OFFSET = 0
+CI_PERCENT = 10
+CA_PERCENT = 10
+SHARE_CROSSREGION = 2
