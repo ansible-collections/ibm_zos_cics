@@ -4,6 +4,7 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import CYLINDERS, MEGABYTES
 
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
     PYTHON_LANGUAGE_FEATURES_MESSAGE,
@@ -41,9 +42,9 @@ def test_get_idcams_cmd_megabytes():
         nextstart="",
         exists=False,
         data_set_organization="NONE",
-        unit="M",
-        primary=10,
-        secondary=1
+        unit=MEGABYTES,
+        primary=global_catalog.SPACE_PRIMARY_DEFAULT,
+        secondary=global_catalog.SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_gcd = dataset_utils._build_idcams_define_cmd(
         global_catalog._get_idcams_cmd_gcd(catalog)
@@ -52,7 +53,7 @@ def test_get_idcams_cmd_megabytes():
         idcams_cmd_gcd
         == """
     DEFINE CLUSTER (NAME(ANSI.TEST.DFHGCD) -
-    MEGABYTES(10 1) -
+    MEGABYTES(5 1) -
     RECORDSIZE(4089 32760) -
     INDEXED -
     KEYS(52 0) -
@@ -78,9 +79,9 @@ def test_get_idcams_cmd_cylinders():
         nextstart="",
         exists=False,
         data_set_organization="NONE",
-        unit="CYL",
-        primary=3,
-        secondary=1
+        unit=CYLINDERS,
+        primary=global_catalog.SPACE_PRIMARY_DEFAULT,
+        secondary=global_catalog.SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_gcd = dataset_utils._build_idcams_define_cmd(
         global_catalog._get_idcams_cmd_gcd(catalog)
@@ -89,7 +90,7 @@ def test_get_idcams_cmd_cylinders():
         idcams_cmd_gcd
         == """
     DEFINE CLUSTER (NAME(ANSI.CYLS.DFHGCD) -
-    CYLINDERS(3 1) -
+    CYLINDERS(5 1) -
     RECORDSIZE(4089 32760) -
     INDEXED -
     KEYS(52 0) -

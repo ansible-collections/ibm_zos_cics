@@ -4,6 +4,7 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import CYLINDERS, MEGABYTES
 
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE
 
@@ -23,9 +24,9 @@ def test_get_idcams_cmd_megabytes():
         state="initial",
         exists=False,
         data_set_organization="NONE",
-        unit="M",
-        primary=10,
-        secondary=1
+        unit=MEGABYTES,
+        primary=intrapartition.SPACE_PRIMARY_DEFAULT,
+        secondary=intrapartition.SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_intra = dataset_utils._build_idcams_define_cmd(
         intrapartition._get_idcams_cmd_intra(dataset)
@@ -34,7 +35,7 @@ def test_get_idcams_cmd_megabytes():
         idcams_cmd_intra
         == """
     DEFINE CLUSTER (NAME(ANSI.CYLS.DFHINTRA) -
-    MEGABYTES(10 1) -
+    MEGABYTES(100 10) -
     RECORDSIZE(1529 1529) -
     NONINDEXED -
     CONTROLINTERVALSIZE(1536)) -
@@ -52,9 +53,9 @@ def test_get_idcams_cmd_cylinders():
         state="initial",
         exists=False,
         data_set_organization="NONE",
-        unit="CYL",
-        primary=3,
-        secondary=1
+        unit=CYLINDERS,
+        primary=intrapartition.SPACE_PRIMARY_DEFAULT,
+        secondary=intrapartition.SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_intra = dataset_utils._build_idcams_define_cmd(
         intrapartition._get_idcams_cmd_intra(dataset)
@@ -63,7 +64,7 @@ def test_get_idcams_cmd_cylinders():
         idcams_cmd_intra
         == """
     DEFINE CLUSTER (NAME(ANSI.CYLS.DFHINTRA) -
-    CYLINDERS(3 1) -
+    CYLINDERS(100 10) -
     RECORDSIZE(1529 1529) -
     NONINDEXED -
     CONTROLINTERVALSIZE(1536)) -

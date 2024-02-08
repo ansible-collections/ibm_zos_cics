@@ -4,6 +4,7 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import CYLINDERS, MEGABYTES
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE, CSDUP_name, CSDUP_stderr, CSDUP_stdout
 
@@ -32,14 +33,14 @@ def test_get_idcams_cmd_megabytes():
         state="initial",
         exists=False,
         data_set_organization="NONE",
-        unit="M",
-        primary=3,
-        secondary=1
+        unit=MEGABYTES,
+        primary=csd.SPACE_PRIMARY_DEFAULT,
+        secondary=csd.SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_csd = dataset_utils._build_idcams_define_cmd(csd._get_idcams_cmd_csd(csd_data_set))
     assert idcams_cmd_csd == '''
     DEFINE CLUSTER (NAME(ANSI.TEST.DFHCSD) -
-    MEGABYTES(3 1) -
+    MEGABYTES(4 1) -
     RECORDSIZE(200 2000) -
     INDEXED -
     KEYS(22 0) -
@@ -60,14 +61,14 @@ def test_get_idcams_cmd_cylinders():
         state="initial",
         exists=False,
         data_set_organization="NONE",
-        unit="CYL",
-        primary=3,
-        secondary=1
+        unit=CYLINDERS,
+        primary=csd.SPACE_PRIMARY_DEFAULT,
+        secondary=csd.SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_csd = dataset_utils._build_idcams_define_cmd(csd._get_idcams_cmd_csd(csd_data_set))
     assert idcams_cmd_csd == '''
     DEFINE CLUSTER (NAME(ANSI.TEST.DFHCSD) -
-    CYLINDERS(3 1) -
+    CYLINDERS(4 1) -
     RECORDSIZE(200 2000) -
     INDEXED -
     KEYS(22 0) -

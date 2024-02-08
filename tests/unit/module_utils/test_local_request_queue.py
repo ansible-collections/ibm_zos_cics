@@ -4,6 +4,7 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import CYLINDERS, MEGABYTES
 
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE
 __metaclass__ = type
@@ -20,14 +21,14 @@ def test_get_idcams_cmd_megabytes():
         state="initial",
         exists=False,
         data_set_organization="NONE",
-        unit="M",
-        primary=10,
-        secondary=1
+        unit=MEGABYTES,
+        primary=local_request_queue.SPACE_PRIMARY_DEFAULT,
+        secondary=local_request_queue.SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_lrq = dataset_utils._build_idcams_define_cmd(local_request_queue._get_idcams_cmd_lrq(dataset))
     assert idcams_cmd_lrq == '''
     DEFINE CLUSTER (NAME(ANSI.CYLS.DFHLRQ) -
-    MEGABYTES(10 1) -
+    MEGABYTES(4 1) -
     RECORDSIZE(2232 2400) -
     INDEXED -
     KEYS(40 0) -
@@ -48,14 +49,14 @@ def test_get_idcams_cmd_cylinders():
         state="initial",
         exists=False,
         data_set_organization="NONE",
-        unit="CYL",
-        primary=3,
-        secondary=1
+        unit=CYLINDERS,
+        primary=local_request_queue.SPACE_PRIMARY_DEFAULT,
+        secondary=local_request_queue.SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_lrq = dataset_utils._build_idcams_define_cmd(local_request_queue._get_idcams_cmd_lrq(dataset))
     assert idcams_cmd_lrq == '''
     DEFINE CLUSTER (NAME(ANSI.CYLS.DFHLRQ) -
-    CYLINDERS(3 1) -
+    CYLINDERS(4 1) -
     RECORDSIZE(2232 2400) -
     INDEXED -
     KEYS(40 0) -

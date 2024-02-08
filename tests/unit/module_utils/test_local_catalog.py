@@ -4,6 +4,7 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import CYLINDERS, MEGABYTES
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE, CCUTL_name, CCUTL_stderr
 
@@ -31,14 +32,14 @@ def test_get_idcams_cmd_megabytes():
         state="initial",
         exists=False,
         data_set_organization="NONE",
-        unit="M",
-        primary=3,
-        secondary=1
+        unit=MEGABYTES,
+        primary=local_catalog_utils.SPACE_PRIMARY_DEFAULT,
+        secondary=local_catalog_utils.SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_lcd = dataset_utils._build_idcams_define_cmd(local_catalog_utils._get_idcams_cmd_lcd(catalog))
     assert idcams_cmd_lcd == '''
     DEFINE CLUSTER (NAME(ANSI.TEST.DFHLCD) -
-    MEGABYTES(3 1) -
+    MEGABYTES(200 5) -
     RECORDSIZE(70 2041) -
     INDEXED -
     KEYS(52 0) -
@@ -59,14 +60,14 @@ def test_get_idcams_cmd_cylinders():
         state="initial",
         exists=False,
         data_set_organization="NONE",
-        unit="CYL",
-        primary=3,
-        secondary=1
+        unit=CYLINDERS,
+        primary=local_catalog_utils.SPACE_PRIMARY_DEFAULT,
+        secondary=local_catalog_utils.SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_lcd = dataset_utils._build_idcams_define_cmd(local_catalog_utils._get_idcams_cmd_lcd(catalog))
     assert idcams_cmd_lcd == '''
     DEFINE CLUSTER (NAME(ANSI.TEST.DFHLCD) -
-    CYLINDERS(3 1) -
+    CYLINDERS(200 5) -
     RECORDSIZE(70 2041) -
     INDEXED -
     KEYS(52 0) -
@@ -84,9 +85,9 @@ def test_ccutl_response():
         "exists": False,
         "name": NAME,
         "size": {
-            "primary": 5,
-            "secondary": 1,
-            "unit": "M"
+            "primary": local_catalog_utils.SPACE_PRIMARY_DEFAULT,
+            "secondary": local_catalog_utils.SPACE_SECONDARY_DEFAULT,
+            "unit": MEGABYTES
         },
         "state": "initial",
         "vsam": False,
@@ -110,9 +111,9 @@ def test_bad_ccutl_response():
         "exists": False,
         "name": NAME,
         "size": {
-            "primary": 5,
-            "secondary": 1,
-            "unit": "M"
+            "primary": local_catalog_utils.SPACE_PRIMARY_DEFAULT,
+            "secondary": local_catalog_utils.SPACE_SECONDARY_DEFAULT,
+            "unit": MEGABYTES
         },
         "state": "initial",
         "vsam": False,

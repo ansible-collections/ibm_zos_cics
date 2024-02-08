@@ -5,11 +5,11 @@
 
 from __future__ import absolute_import, division, print_function
 
-from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE
-
 __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import auxiliary_temp
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import CYLINDERS, MEGABYTES
+from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE
 import pytest
 import sys
 
@@ -23,9 +23,9 @@ def test_get_idcams_cmd_megabytes():
         state="initial",
         exists=False,
         data_set_organization="NONE",
-        unit="M",
-        primary=10,
-        secondary=1
+        unit=MEGABYTES,
+        primary=auxiliary_temp.SPACE_PRIMARY_DEFAULT,
+        secondary=auxiliary_temp.SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_intra = dataset_utils._build_idcams_define_cmd(
         auxiliary_temp._get_idcams_cmd_temp(dataset)
@@ -34,7 +34,7 @@ def test_get_idcams_cmd_megabytes():
         idcams_cmd_intra
         == """
     DEFINE CLUSTER (NAME(ANSI.CYLS.DFHTEMP) -
-    MEGABYTES(10 1) -
+    MEGABYTES(200 10) -
     RECORDSIZE(4089 4089) -
     NONINDEXED -
     CONTROLINTERVALSIZE(4096) -
@@ -54,9 +54,9 @@ def test_get_idcams_cmd_cylinders():
         state="initial",
         exists=False,
         data_set_organization="NONE",
-        unit="CYL",
-        primary=3,
-        secondary=1
+        unit=CYLINDERS,
+        primary=auxiliary_temp.SPACE_PRIMARY_DEFAULT,
+        secondary=auxiliary_temp.SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_intra = dataset_utils._build_idcams_define_cmd(
         auxiliary_temp._get_idcams_cmd_temp(dataset)
@@ -65,7 +65,7 @@ def test_get_idcams_cmd_cylinders():
         idcams_cmd_intra
         == """
     DEFINE CLUSTER (NAME(ANSI.CYLS.DFHTEMP) -
-    CYLINDERS(3 1) -
+    CYLINDERS(200 10) -
     RECORDSIZE(4089 4089) -
     NONINDEXED -
     CONTROLINTERVALSIZE(4096) -
