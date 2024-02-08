@@ -56,10 +56,10 @@
           - result.changed is true
 
           - result.start_state.exists == false
-          - result.start_state.vsam == false
+          - result.start_state.data_set_organization == "NONE"
 
           - result.end_state.exists == true
-          - result.end_state.vsam == true
+          - result.end_state.data_set_organization == "VSAM"
 
     # #############################################################################
     # ################################## Cleanup ##################################

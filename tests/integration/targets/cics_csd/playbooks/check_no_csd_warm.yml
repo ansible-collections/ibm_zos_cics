@@ -59,6 +59,7 @@
           - warm_result.changed is false
 
           - warm_result.start_state.exists == false
-          - warm_result.start_state.vsam == false
+          - warm_result.start_state.data_set_organization == "NONE"
 
           - warm_result.end_state.exists == false
+          - warm_result.end_state.data_set_organization == "NONE"
