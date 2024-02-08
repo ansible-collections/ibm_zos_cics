@@ -13,7 +13,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils imp
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 
 
-def _get_ccmutl_dds(catalog):
+def _get_ccmutl_dds(catalog):   # type: (dict) -> list(DDStatement)
     return [
         DDStatement('steplib', DatasetDefinition(catalog["sdfhload"])),
         DDStatement('sysprint', StdoutDefinition()),
@@ -26,7 +26,7 @@ def _get_ccmutl_dds(catalog):
     ]
 
 
-def _run_dfhccutl(starting_catalog: dict) -> list:
+def _run_dfhccutl(starting_catalog):  # type: (dict) -> list
     executions = []
 
     for x in range(MVS_CMD_RETRY_ATTEMPTS):
@@ -58,7 +58,7 @@ def _execute_dfhccutl(starting_catalog):
         debug=False)
 
 
-def _get_idcams_cmd_lcd(data_set: dict) -> dict:
+def _get_idcams_cmd_lcd(data_set):  # type: (dict) -> dict
     defaults = {
         "CLUSTER": {
             "RECORDSIZE": "{0} {1}".format(RECORD_COUNT_DEFAULT, RECORD_SIZE_DEFAULT),

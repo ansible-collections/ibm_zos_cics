@@ -70,7 +70,7 @@ def _get_catalog_records(stdout):  # type: (str) -> str
     }
 
 
-def _run_dfhrmutl(location: str, sdfhload: str, cmd: str = "") -> list():
+def _run_dfhrmutl(location, sdfhload, cmd=""):  # type: (str, str, str) -> list()
 
     executions = []
 
@@ -107,7 +107,7 @@ def _run_dfhrmutl(location: str, sdfhload: str, cmd: str = "") -> list():
     return executions, _get_catalog_records(dfhrmutl_response.stdout)
 
 
-def _execute_dfhrmutl(location: str, sdfhload: str, cmd: str = "") -> MVSCmdResponse:
+def _execute_dfhrmutl(location, sdfhload, cmd=""):   # type: (str, str, str) -> MVSCmdResponse
     return MVSCmd.execute(
         pgm="DFHRMUTL",
         dds=_get_rmutl_dds(location=location, sdfhload=sdfhload, cmd=cmd),
@@ -115,7 +115,7 @@ def _execute_dfhrmutl(location: str, sdfhload: str, cmd: str = "") -> MVSCmdResp
         debug=False)
 
 
-def _get_idcams_cmd_gcd(dataset: dict) -> dict:
+def _get_idcams_cmd_gcd(dataset):   # type: (dict) -> dict
     defaults = {
         "CLUSTER": {
             "RECORDSIZE": "{0} {1}".format(RECORD_COUNT_DEFAULT, RECORD_SIZE_DEFAULT),

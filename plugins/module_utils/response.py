@@ -7,7 +7,7 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 
-def _execution(name, rc, stdout, stderr) -> dict:
+def _execution(name, rc, stdout, stderr):  # type: (str, int, str, str) -> dict
     return {
         "name": name,
         "rc": rc,

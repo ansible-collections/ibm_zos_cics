@@ -12,7 +12,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import MVS_CMD_RETRY_ATTEMPTS
 
 
-def _get_icetool_dds(location):  # type: (str) -> list[DDStatement]
+def _get_icetool_dds(location):  # type: (str) -> list(DDStatement)
     return [
         DDStatement('sysprint', StdoutDefinition()),
         DDStatement('dd1', DatasetDefinition(dataset_name=location, disposition="SHR")),

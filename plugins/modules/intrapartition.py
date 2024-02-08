@@ -212,7 +212,7 @@ class AnsibleIntrapartitionModule(DataSet):
     def __init__(self):
         super(AnsibleIntrapartitionModule, self).__init__()
 
-    def _get_arg_spec(self) -> dict:
+    def _get_arg_spec(self):  # type: () -> dict
         arg_spec = super(AnsibleIntrapartitionModule, self)._get_arg_spec()
 
         arg_spec[SPACE_PRIMARY].update({
@@ -239,7 +239,7 @@ class AnsibleIntrapartitionModule(DataSet):
 
         return arg_spec
 
-    def get_arg_defs(self) -> dict:
+    def get_arg_defs(self):  # type: () -> dict
         defs = super().get_arg_defs()
         defs[REGION_DATA_SETS]["options"]["dfhintra"]["options"]["dsn"].update({
             "arg_type": "data_set_base"
@@ -247,12 +247,12 @@ class AnsibleIntrapartitionModule(DataSet):
         defs[REGION_DATA_SETS]["options"]["dfhintra"]["options"]["dsn"].pop("type")
         return defs
 
-    def validate_parameters(self) -> None:
+    def validate_parameters(self):  # type: () -> None
         super().validate_parameters()
         self.name = self.region_param.get("dfhintra").get("dsn").upper()
         self.expected_data_set_organization = "VSAM"
 
-    def create_data_set(self) -> None:
+    def create_data_set(self):  # type: () -> None
         create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_intra(self.get_data_set()))
         super().build_vsam_data_set(create_cmd)
 

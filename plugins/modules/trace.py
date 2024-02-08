@@ -233,12 +233,12 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.trace import (
 
 class AnsibleAuxiliaryTraceModule(DataSet):
 
-    ds_destination: str = ""
+    ds_destination = ""
 
-    def __init__(self) -> None:
+    def __init__(self):  # type: () -> None
         super(AnsibleAuxiliaryTraceModule, self).__init__()
 
-    def _get_arg_spec(self) -> dict:
+    def _get_arg_spec(self):  # type: () -> dict
         arg_spec = super(AnsibleAuxiliaryTraceModule, self)._get_arg_spec()
 
         arg_spec.update({
@@ -283,7 +283,7 @@ class AnsibleAuxiliaryTraceModule(DataSet):
 
         return arg_spec
 
-    def get_arg_defs(self) -> dict:
+    def get_arg_defs(self):  # type: () -> dict
         defs = super().get_arg_defs()
         defs[REGION_DATA_SETS]["options"]["dfhauxt"]["options"]["dsn"].update({
             "arg_type": "data_set_base"
@@ -295,7 +295,7 @@ class AnsibleAuxiliaryTraceModule(DataSet):
         defs[REGION_DATA_SETS]["options"]["dfhbuxt"]["options"]["dsn"].pop("type")
         return defs
 
-    def validate_parameters(self) -> None:
+    def validate_parameters(self):  # type: () -> None
         super().validate_parameters()
         if self.destination == "A":
             self.ds_destination = "dfhauxt"
@@ -304,7 +304,7 @@ class AnsibleAuxiliaryTraceModule(DataSet):
         self.name = self.region_param.get(self.ds_destination).get("dsn").upper()
         self.expected_data_set_organization = "Sequential"
 
-    def create_data_set(self) -> None:
+    def create_data_set(self):  # type: () -> None
         definition = _build_seq_data_set_definition_trace(self.get_data_set())
         super().build_seq_data_set(self.ds_destination, definition)
 

@@ -15,7 +15,7 @@ from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement impo
 MVS_CMD_RETRY_ATTEMPTS = 10
 
 
-def _run_idcams(cmd: str, name: str, location: str, delete: bool = False) -> list[_execution]:
+def _run_idcams(cmd, name, location, delete=False):  # type: (str, str, str, bool) -> list(_execution)
     executions = []
 
     for x in range(MVS_CMD_RETRY_ATTEMPTS):
@@ -104,7 +104,7 @@ def _build_idcams_define_index_parms(dataset):  # type: (dict) -> str
     return indexStr
 
 
-def _build_idcams_define_parms(dataset, parm):  # type: (Dict, str) -> str
+def _build_idcams_define_parms(dataset, parm):  # type: (dict, str) -> str
     parmsStr = ""
     if isinstance(dataset[parm], dict):
         for key, value in dataset[parm].items():
@@ -166,7 +166,7 @@ def _run_listds(location):
     return executions, dict(exists=True, data_set_organization=data_set_organization)
 
 
-def _run_iefbr14(ddname, definition):  # type (str, DatasetDefinition) -> List[Dict]
+def _run_iefbr14(ddname, definition):  # type: (str, DatasetDefinition) -> list(dict)
 
     executions = []
 
@@ -191,7 +191,7 @@ def _run_iefbr14(ddname, definition):  # type (str, DatasetDefinition) -> List[D
     return executions
 
 
-def _get_iefbr14_dds(ddname, definition):  # type: (str, DatasetDefinition) -> list[DDStatement]
+def _get_iefbr14_dds(ddname, definition):  # type: (str, DatasetDefinition) -> list(DDStatement)
     return [DDStatement(ddname, definition)]
 
 

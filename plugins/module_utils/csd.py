@@ -11,7 +11,7 @@ from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw impor
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 
 
-def _get_csdup_dds(catalog: dict) -> list[DDStatement]:
+def _get_csdup_dds(catalog):  # type: (dict) -> list(DDStatement)
     return [
         DDStatement('steplib', DatasetDefinition(catalog["sdfhload"], disposition="SHR")),
         DDStatement(
@@ -25,7 +25,7 @@ def _get_csdup_dds(catalog: dict) -> list[DDStatement]:
     ]
 
 
-def _run_dfhcsdup(starting_catalog: dict) -> list[_execution]:
+def _run_dfhcsdup(starting_catalog):  # type: (dict) -> list(_execution)
     executions = []
     dfhcsdup_response = _execute_dfhcsdup(starting_catalog)
 
@@ -44,7 +44,7 @@ def _run_dfhcsdup(starting_catalog: dict) -> list[_execution]:
     return executions
 
 
-def _execute_dfhcsdup(starting_catalog: dict) -> MVSCmdResponse:
+def _execute_dfhcsdup(starting_catalog):  # type: (dict) -> MVSCmdResponse
     return MVSCmd.execute(
         pgm="DFHCSDUP",
         dds=_get_csdup_dds(catalog=starting_catalog),
@@ -52,14 +52,14 @@ def _execute_dfhcsdup(starting_catalog: dict) -> MVSCmdResponse:
         debug=False)
 
 
-def _get_csdupcmd() -> list[str]:
+def _get_csdupcmd():  # type: () -> list(str)
     cmd = [
         "INITIALIZE"
     ]
     return cmd
 
 
-def _get_idcams_cmd_csd(dataset: dict) -> dict:
+def _get_idcams_cmd_csd(dataset):  # type: (dict) -> dict
     defaults = {
         "CLUSTER": {
             "RECORDSIZE": "{0} {1}".format(RECORD_COUNT_DEFAULT, RECORD_SIZE_DEFAULT),

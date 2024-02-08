@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-def _get_idcams_cmd_temp(data_set: dict) -> dict:
+def _get_idcams_cmd_temp(data_set):  # type: (dict) -> dict
     defaults = {
         "CLUSTER": {
             "RECORDSIZE": "{0} {1}".format(

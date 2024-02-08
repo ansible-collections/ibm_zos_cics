@@ -257,7 +257,7 @@ class AnsibleLocalCatalogModule(DataSet):
 
         return arg_spec
 
-    def get_arg_defs(self) -> dict:
+    def get_arg_defs(self):  # type: () -> dict
         defs = super().get_arg_defs()
         defs[REGION_DATA_SETS]["options"]["dfhlcd"]["options"]["dsn"].update({
             "arg_type": "data_set_base"
@@ -265,16 +265,16 @@ class AnsibleLocalCatalogModule(DataSet):
         defs[REGION_DATA_SETS]["options"]["dfhlcd"]["options"]["dsn"].pop("type")
         return defs
 
-    def validate_parameters(self) -> None:
+    def validate_parameters(self):  # type: () -> None
         super().validate_parameters()
         self.name = self.region_param.get("dfhlcd").get("dsn").upper()
         self.expected_data_set_organization = "VSAM"
 
-    def create_data_set(self) -> None:
+    def create_data_set(self):  # type: () -> None
         create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_lcd(self.get_data_set()))
         super().build_vsam_data_set(create_cmd)
 
-    def init_data_set(self) -> None:
+    def init_data_set(self):  # type: () -> None
         super().init_data_set()
         try:
             ccutl_executions = _run_dfhccutl(self.get_data_set())

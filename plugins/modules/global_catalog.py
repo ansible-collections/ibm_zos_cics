@@ -274,22 +274,22 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog im
 class AnsibleGlobalCatalogModule(DataSet):
     def __init__(self):
         super(AnsibleGlobalCatalogModule, self).__init__()
-        self.autostart_override: str = ""
-        self.next_start: str = ""
-        self.start_state: dict = dict(
+        self.autostart_override = ""
+        self.next_start = ""
+        self.start_state = dict(
             exists=False,
             data_set_organization=self.data_set_organization,
             autostart_override=self.autostart_override,
             next_start=self.next_start
         )
-        self.end_state: dict = dict(
+        self.end_state = dict(
             exists=False,
             data_set_organization=self.data_set_organization,
             autostart_override=self.autostart_override,
             next_start=self.next_start
         )
 
-    def get_data_set(self) -> dict:
+    def get_data_set(self):  # type: () -> dict
         data_set = super().get_data_set()
         data_set.update({
             "autostart_override": self.autostart_override,
@@ -297,23 +297,23 @@ class AnsibleGlobalCatalogModule(DataSet):
         })
         return data_set
 
-    def set_start_state(self) -> None:
-        self.start_state: dict = dict(
+    def set_start_state(self):  # type: () -> None
+        self.start_state = dict(
             exists=self.exists,
             data_set_organization=self.data_set_organization,
             autostart_override=self.autostart_override,
             next_start=self.next_start
         )
 
-    def set_end_state(self) -> None:
-        self.end_state: dict = dict(
+    def set_end_state(self):  # type: () -> None
+        self.end_state = dict(
             exists=self.exists,
             data_set_organization=self.data_set_organization,
             autostart_override=self.autostart_override,
             next_start=self.next_start
         )
 
-    def _get_arg_spec(self) -> dict:
+    def _get_arg_spec(self):  # type: () -> dict
         arg_spec = super(AnsibleGlobalCatalogModule, self)._get_arg_spec()
 
         arg_spec[SPACE_PRIMARY].update({
@@ -343,7 +343,7 @@ class AnsibleGlobalCatalogModule(DataSet):
 
         return arg_spec
 
-    def get_arg_defs(self) -> dict:
+    def get_arg_defs(self):  # type: () -> dict
         defs = super().get_arg_defs()
         defs[REGION_DATA_SETS]["options"]["dfhgcd"]["options"]["dsn"].update({
             "arg_type": "data_set_base"
@@ -351,16 +351,16 @@ class AnsibleGlobalCatalogModule(DataSet):
         defs[REGION_DATA_SETS]["options"]["dfhgcd"]["options"]["dsn"].pop("type")
         return defs
 
-    def validate_parameters(self) -> None:
+    def validate_parameters(self):  # type: () -> None
         super().validate_parameters()
         self.name = self.region_param.get("dfhgcd").get("dsn").upper()
         self.expected_data_set_organization = "VSAM"
 
-    def create_data_set(self) -> None:
+    def create_data_set(self):  # type: () -> None
         create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_gcd(self.get_data_set()))
         super().build_vsam_data_set(create_cmd)
 
-    def init_data_set(self) -> None:
+    def init_data_set(self):  # type: () -> None
         if self.exists and self.autostart_override == AUTO_START_INIT:
             self._exit()
 
@@ -379,7 +379,7 @@ class AnsibleGlobalCatalogModule(DataSet):
             self.executions.extend(e.args[1])
             self._fail(e.args[0])
 
-    def warm_data_set(self) -> None:
+    def warm_data_set(self):  # type: () -> None
         super().warm_data_set()
 
         if self.autostart_override == AUTO_START_WARM:
@@ -402,7 +402,7 @@ class AnsibleGlobalCatalogModule(DataSet):
             self.executions.extend(e.args[1])
             self._fail(e.args[0])
 
-    def cold_data_set(self) -> None:
+    def cold_data_set(self):  # type: () -> None
         if not self.exists:
             self._fail("Data set {0} does not exist.".format(self.name))
 
@@ -427,7 +427,7 @@ class AnsibleGlobalCatalogModule(DataSet):
             self.executions.extend(e.args[1])
             self._fail(e.args[0])
 
-    def get_target_method(self) -> None:
+    def get_target_method(self):  # type: () -> None
         return {
             ABSENT: super().delete_data_set,
             INITIAL: self.init_data_set,
@@ -435,7 +435,7 @@ class AnsibleGlobalCatalogModule(DataSet):
             WARM: self.warm_data_set,
         }.get(self.target_state, super().invalid_target_state)
 
-    def get_data_set_state(self) -> None:
+    def get_data_set_state(self):  # type: () -> None
         super().get_data_set_state()
 
         if self.exists and (self.data_set_organization == self.expected_data_set_organization):
@@ -454,7 +454,7 @@ class AnsibleGlobalCatalogModule(DataSet):
             self.autostart_override = ""
             self.next_start = ""
 
-    def check_emergency(self):
+    def check_emergency(self):  # type: () -> None
         if self.next_start and self.next_start.upper() == NEXT_START_EMERGENCY:
             self._fail(
                 "Next start type is {0}. Potential data loss prevented."

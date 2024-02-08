@@ -9,7 +9,7 @@ from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement impo
 __metaclass__ = type
 
 
-def _build_seq_data_set_definition_trace(data_set: dict) -> DatasetDefinition:
+def _build_seq_data_set_definition_trace(data_set):  # type: (dict) -> DatasetDefinition
     return DatasetDefinition(
         dataset_name=data_set["name"],
         primary=data_set["primary"],

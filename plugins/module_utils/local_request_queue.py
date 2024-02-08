@@ -7,7 +7,7 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 
-def _get_idcams_cmd_lrq(data_set: dict) -> dict:
+def _get_idcams_cmd_lrq(data_set):  # type: (dict) -> dict
     defaults = {
         "CLUSTER": {
             "RECORDSIZE": "{0} {1}".format(RECORD_COUNT_DEFAULT, RECORD_SIZE_DEFAULT),

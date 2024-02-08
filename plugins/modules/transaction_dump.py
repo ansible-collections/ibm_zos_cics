@@ -231,10 +231,10 @@ class AnsibleTransactionDumpModule(DataSet):
 
     ds_destination = ""
 
-    def __init__(self) -> None:
+    def __init__(self):  # type: () -> None
         super(AnsibleTransactionDumpModule, self).__init__()
 
-    def _get_arg_spec(self) -> dict:
+    def _get_arg_spec(self):  # type: () -> dict
         arg_spec = super(AnsibleTransactionDumpModule, self)._get_arg_spec()
 
         arg_spec.update({
@@ -279,7 +279,7 @@ class AnsibleTransactionDumpModule(DataSet):
 
         return arg_spec
 
-    def get_arg_defs(self) -> dict:
+    def get_arg_defs(self):  # type: () -> dict
         defs = super().get_arg_defs()
         defs[REGION_DATA_SETS]["options"]["dfhdmpa"]["options"]["dsn"].update({
             "arg_type": "data_set_base"
@@ -291,7 +291,7 @@ class AnsibleTransactionDumpModule(DataSet):
         defs[REGION_DATA_SETS]["options"]["dfhdmpb"]["options"]["dsn"].pop("type")
         return defs
 
-    def validate_parameters(self) -> None:
+    def validate_parameters(self):  # type: () -> None
         super().validate_parameters()
         if self.destination == "A":
             self.ds_destination = "dfhdmpa"
@@ -300,7 +300,7 @@ class AnsibleTransactionDumpModule(DataSet):
         self.name = self.region_param.get(self.ds_destination).get("dsn").upper()
         self.expected_data_set_organization = "Sequential"
 
-    def create_data_set(self) -> None:
+    def create_data_set(self):  # type: () -> None
         definition = _build_seq_data_set_definition_transaction_dump(self.get_data_set())
         super().build_seq_data_set(self.ds_destination, definition)
 

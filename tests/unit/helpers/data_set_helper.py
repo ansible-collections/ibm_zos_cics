@@ -25,11 +25,11 @@ def set_module_args(args):
     basic._ANSIBLE_ARGS = to_bytes(json.dumps({'ANSIBLE_MODULE_ARGS': args}))
 
 
-def LISTDS_run_name(run: int) -> str:
+def LISTDS_run_name(run):
     return "IKJEFT01 - Get Data Set Status - Run {0}".format(run)
 
 
-def LISTDS_data_set_doesnt_exist(data_set_name: str) -> str:
+def LISTDS_data_set_doesnt_exist(data_set_name):
     return """
         1READY
             LISTDS '{0}'
@@ -40,7 +40,7 @@ def LISTDS_data_set_doesnt_exist(data_set_name: str) -> str:
     """.format(data_set_name)
 
 
-def LISTDS_data_set(data_set_name: str, dsorg: str) -> str:
+def LISTDS_data_set(data_set_name, dsorg):
     return """
         1READY
           LISTDS '{0}'
@@ -54,15 +54,15 @@ def LISTDS_data_set(data_set_name: str, dsorg: str) -> str:
     """.format(data_set_name, dsorg)
 
 
-def IDCAMS_create_run_name(run: int, data_set_name: str) -> str:
+def IDCAMS_create_run_name(run, data_set_name):
     return "IDCAMS - Creating {0} data set - Run {1}".format(data_set_name, run)
 
 
-def IDCAMS_delete_run_name(run: int, data_set_name: str) -> str:
+def IDCAMS_delete_run_name(run, data_set_name):
     return "IDCAMS - {0} - Run {1}".format(data_set_name, run)
 
 
-def IDCAMS_create_stdout(data_set_name: str) -> str:
+def IDCAMS_create_stdout(data_set_name):
     return """
         1IDCAMS  SYSTEM SERVICES                                           TIME: 10:04:57
               06/29/23     PAGE      1
@@ -80,7 +80,7 @@ def IDCAMS_create_stdout(data_set_name: str) -> str:
     """.format(data_set_name)
 
 
-def IDCAMS_create_already_exists_stdout(data_set_name: str) -> str:
+def IDCAMS_create_already_exists_stdout(data_set_name):
     return """
         1IDCAMS  SYSTEM SERVICES                                           TIME: 10:04:51
               06/29/23     PAGE      1
@@ -101,7 +101,7 @@ def IDCAMS_create_already_exists_stdout(data_set_name: str) -> str:
     """.format(data_set_name)
 
 
-def IDCAMS_delete_vsam(data_set_name: str) -> str:
+def IDCAMS_delete_vsam(data_set_name):
     return """
         1IDCAMS  SYSTEM SERVICES                                           TIME: 18:54:07        01/29/24     PAGE      1
         0
@@ -116,7 +116,7 @@ def IDCAMS_delete_vsam(data_set_name: str) -> str:
     """.format(data_set_name)
 
 
-def IDCAMS_delete_not_found(data_set_name: str) -> str:
+def IDCAMS_delete_not_found(data_set_name):
     return """
         1IDCAMS  SYSTEM SERVICES                                           TIME: 10:15:24
                 06/29/23     PAGE      1
@@ -132,7 +132,7 @@ def IDCAMS_delete_not_found(data_set_name: str) -> str:
     """.format(data_set_name)
 
 
-def IEFBR14_create_stderr(data_set_name: str, dd_name: str) -> str:
+def IEFBR14_create_stderr(data_set_name, dd_name):
     return """
         BGYSC0307I Program: <IEFBR14> Arguments: <>
         BGYSC0308I DDNames:
@@ -145,11 +145,11 @@ def IEFBR14_create_stderr(data_set_name: str, dd_name: str) -> str:
     """.format(data_set_name, dd_name)
 
 
-def ICETOOL_name(count: int) -> str:
+def ICETOOL_name(count):
     return "ICETOOL - Get record count - Run {0}".format(count)
 
 
-def ICETOOL_stdout(count: int) -> str:
+def ICETOOL_stdout(count):
     return """
         1ICE200I 0 IDENTIFIER FROM CALLING PROGRAM IS 0001
          ICE201I C RECORD TYPE IS F - DATA STARTS IN POSITION 1
@@ -199,7 +199,7 @@ def ICETOOL_stdout(count: int) -> str:
     """.format(count)
 
 
-def ICETOOL_stderr() -> str:
+def ICETOOL_stderr():
     return """
         BGYSC0307I Program: <ICETOOL> Arguments: <>
         BGYSC0308I DDNames:
@@ -227,15 +227,15 @@ def ICETOOL_stderr() -> str:
     """
 
 
-def RMUTL_get_run_name(run: int) -> str:
+def RMUTL_get_run_name(run):
     return "DFHRMUTL - Get current catalog - Run {0}".format(run)
 
 
-def RMUTL_update_run_name(run: int) -> str:
+def RMUTL_update_run_name(run):
     return "DFHRMUTL - Updating autostart override - Run {0}".format(run)
 
 
-def RMUTL_stdout(auto_start: str, next_start: str) -> str:
+def RMUTL_stdout(auto_start, next_start):
     return """
     ===DFHRMUTL CICS RECOVERY MANAGER BATCH UTILITY===
 
@@ -253,7 +253,7 @@ def RMUTL_stdout(auto_start: str, next_start: str) -> str:
     """.format(auto_start, next_start)
 
 
-def RMUTL_stderr(data_set_name: str) -> str:
+def RMUTL_stderr(data_set_name):
     return """
         BGYSC0345I STEPLIB set to TEST.CICS.INSTALL.SDFHLOAD
         BGYSC0346I Nested invocation <'mvscmdhelper' '-v' '--pgm=DFHRMUTL' '--dfhgcd={0}' '--sysin=TMP.P3621188.T0403704.C0000000' '--sysprint=*'>
@@ -274,11 +274,11 @@ def RMUTL_stderr(data_set_name: str) -> str:
     """.format(data_set_name)
 
 
-def CCUTL_name() -> str:
+def CCUTL_name():
     return "DFHCCUTL - Initialise Local Catalog"
 
 
-def CCUTL_stderr(data_set_name: str) -> str:
+def CCUTL_stderr(data_set_name):
     return """
         BGYSC0345I STEPLIB set to TEST.CICS.INSTALL.SDFHLOAD
         BGYSC0346I Nested invocation <'mvscmdhelper' '-v' '--pgm=DFHCCUTL' '--sysprint=*' '--sysudump=*' '--dfhlcd={0},SHR'>
@@ -299,11 +299,11 @@ def CCUTL_stderr(data_set_name: str) -> str:
     """.format(data_set_name)
 
 
-def CSDUP_name() -> str:
+def CSDUP_name():
     return "DFHCSDUP - Initialise CSD"
 
 
-def CSDUP_stdout(data_set_name: str) -> str:
+def CSDUP_stdout(data_set_name):
     return """
         ***************************************************************************
         **  CICS RDO OFF-LINE UTILITY PROGRAM DFHCSDUP RELEASE:0750 PTF:I0602193.**
@@ -319,7 +319,7 @@ def CSDUP_stdout(data_set_name: str) -> str:
     """.format(data_set_name)
 
 
-def CSDUP_stderr(data_set_name: str) -> str:
+def CSDUP_stderr(data_set_name):
     return """
         BGYSC0345I STEPLIB set to TEST.CICS.INSTALL.SDFHLOAD
         BGYSC0346I Nested invocation <'mvscmdhelper' '-v' '--pgm=DFHCSDUP' '--dfhcsd={0},SHR' '--sysprint=*' '--sysudump=*' '--sysin={0}'>
