@@ -215,27 +215,27 @@ executions:
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
     DESTINATION,
+    DESTINATION_OPTIONS,
+    DESTINATION_DEFAULT_VALUE,
+    MEGABYTES,
     REGION_DATA_SETS,
     SPACE_PRIMARY,
     SPACE_TYPE,
-    STATE,
     DataSet
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.trace import (
-    DESTINATION_OPTIONS,
-    DESTINATION_DEFAULT_VALUE,
     SPACE_PRIMARY_DEFAULT,
-    SPACE_TYPE_DEFAULT,
-    STATE_OPTIONS,
     _build_seq_data_set_definition_trace
 )
 
 
+DSN_A = "dfhauxt"
+DSN_B = "dfhbuxt"
+
+
 class AnsibleAuxiliaryTraceModule(DataSet):
-
-    ds_destination = ""
-
     def __init__(self):  # type: () -> None
+        self.ds_destination = ""
         super(AnsibleAuxiliaryTraceModule, self).__init__()
 
     def _get_arg_spec(self):  # type: () -> dict
@@ -253,13 +253,10 @@ class AnsibleAuxiliaryTraceModule(DataSet):
             "default": SPACE_PRIMARY_DEFAULT
         })
         arg_spec[SPACE_TYPE].update({
-            "default": SPACE_TYPE_DEFAULT
-        })
-        arg_spec[STATE].update({
-            "choices": STATE_OPTIONS
+            "default": MEGABYTES
         })
         arg_spec[REGION_DATA_SETS]["options"].update({
-            "dfhauxt": {
+            DSN_A: {
                 "type": "dict",
                 "required": False,
                 "options": {
@@ -269,7 +266,7 @@ class AnsibleAuxiliaryTraceModule(DataSet):
                     },
                 },
             },
-            "dfhbuxt": {
+            DSN_B: {
                 "type": "dict",
                 "required": False,
                 "options": {
@@ -285,22 +282,22 @@ class AnsibleAuxiliaryTraceModule(DataSet):
 
     def get_arg_defs(self):  # type: () -> dict
         defs = super().get_arg_defs()
-        defs[REGION_DATA_SETS]["options"]["dfhauxt"]["options"]["dsn"].update({
+        defs[REGION_DATA_SETS]["options"][DSN_A]["options"]["dsn"].update({
             "arg_type": "data_set_base"
         })
-        defs[REGION_DATA_SETS]["options"]["dfhbuxt"]["options"]["dsn"].update({
+        defs[REGION_DATA_SETS]["options"][DSN_B]["options"]["dsn"].update({
             "arg_type": "data_set_base"
         })
-        defs[REGION_DATA_SETS]["options"]["dfhauxt"]["options"]["dsn"].pop("type")
-        defs[REGION_DATA_SETS]["options"]["dfhbuxt"]["options"]["dsn"].pop("type")
+        defs[REGION_DATA_SETS]["options"][DSN_A]["options"]["dsn"].pop("type")
+        defs[REGION_DATA_SETS]["options"][DSN_B]["options"]["dsn"].pop("type")
         return defs
 
     def validate_parameters(self):  # type: () -> None
         super().validate_parameters()
         if self.destination == "A":
-            self.ds_destination = "dfhauxt"
+            self.ds_destination = DSN_A
         elif self.destination == "B":
-            self.ds_destination = "dfhbuxt"
+            self.ds_destination = DSN_B
         self.name = self.region_param.get(self.ds_destination).get("dsn").upper()
         self.expected_data_set_organization = "Sequential"
 

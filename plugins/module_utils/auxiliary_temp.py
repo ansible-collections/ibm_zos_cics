@@ -16,9 +16,7 @@ def _get_idcams_cmd_temp(data_set):  # type: (dict) -> dict
                 RECORD_SIZE_DEFAULT,
             ),
             "NONINDEXED": None,
-            "CONTROLINTERVALSIZE": "{0}".format(
-                CONTROL_INTERVAL_SIZE_DEFAULT
-            ),
+            "CONTROLINTERVALSIZE": str(CONTROL_INTERVAL_SIZE_DEFAULT),
             "SHAREOPTIONS": "{0} {1}".format(
                 SHARE_CROSSREGION,
                 SHARE_CROSSSYSTEM,
@@ -32,8 +30,6 @@ def _get_idcams_cmd_temp(data_set):  # type: (dict) -> dict
 
 SPACE_PRIMARY_DEFAULT = 200
 SPACE_SECONDARY_DEFAULT = 10
-SPACE_TYPE_DEFAULT = "REC"
-STATE_OPTIONS = ["absent", "initial", "warm"]
 RECORD_COUNT_DEFAULT = 4089
 RECORD_SIZE_DEFAULT = 4089
 CONTROL_INTERVAL_SIZE_DEFAULT = 4096

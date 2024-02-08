@@ -25,9 +25,7 @@ def _build_seq_data_set_definition_transaction_dump(data_set):   # type: (dict) 
     return definition
 
 
-STATE_OPTIONS = ["absent", "initial", "warm"]
 SPACE_PRIMARY_DEFAULT = 20
-SPACE_TYPE_DEFAULT = "M"
 SPACE_SECONDARY_DEFAULT = 4
 BLOCK_SIZE_DEFAULT = 4096
 RECORD_LENGTH_DEFAULT = 4092
@@ -36,5 +34,3 @@ TYPE = "SEQ"
 DISPOSITION = "NEW"
 NORMAL_DISP = "CATALOG"
 CONDITION_DISP = "DELETE"
-DESTINATION_OPTIONS = ["A", "B"]
-DESTINATION_DEFAULT_VALUE = "A"

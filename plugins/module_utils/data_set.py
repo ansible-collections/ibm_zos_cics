@@ -24,14 +24,21 @@ STATE = "state"
 SPACE_PRIMARY = "space_primary"
 SPACE_TYPE = "space_type"
 SECONDARY_SPACE_DEFAULT = 0
-SPACE_OPTIONS = ["K", "M", "REC", "CYL", "TRK"]
+KILOBYTES = "K"
+MEGABYTES = "M"
+RECORDS = "REC"
+CYLINDERS = "CYL"
+TRACKS = "TRK"
+SPACE_OPTIONS = [KILOBYTES, MEGABYTES, RECORDS, CYLINDERS, TRACKS]
 ABSENT = "absent"
 INITIAL = "initial"
 WARM = "warm"
-COLD = "cold"
+STATE_OPTIONS = [ABSENT, INITIAL, WARM]
 CICS_DATA_SETS = "cics_data_sets"
 REGION_DATA_SETS = "region_data_sets"
 DESTINATION = "destination"
+DESTINATION_OPTIONS = ["A", "B"]
+DESTINATION_DEFAULT_VALUE = "A"
 
 
 class DataSet():
@@ -115,6 +122,7 @@ class DataSet():
             STATE: {
                 "type": "str",
                 "required": True,
+                "choices": STATE_OPTIONS
             },
             CICS_DATA_SETS: {
                 "type": "dict",
@@ -216,7 +224,7 @@ class DataSet():
             self.executions.extend(icetool_executions)
             if record_count > 0:
                 self.delete_data_set()
-                self.get_data_set_state()
+                self.update_data_set_state()
                 self.create_data_set()
 
         else:
@@ -246,7 +254,7 @@ class DataSet():
             WARM: self.warm_data_set,
         }.get(self.target_state, self.invalid_target_state)
 
-    def get_data_set_state(self):   # type: () -> None
+    def update_data_set_state(self):   # type: () -> None
         try:
             listds_executions, ds_status = _run_listds(self.name)
 
@@ -259,7 +267,7 @@ class DataSet():
             self._fail(e.args[0])
 
     def main(self):  # type: () -> None
-        self.get_data_set_state()
+        self.update_data_set_state()
         self.set_start_state()
 
         if self.exists and (self.data_set_organization != self.expected_data_set_organization):
@@ -269,6 +277,6 @@ class DataSet():
 
         self.get_target_method()()
 
-        self.get_data_set_state()
+        self.update_data_set_state()
 
         self._exit()

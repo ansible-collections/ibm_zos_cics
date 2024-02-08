@@ -247,6 +247,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils imp
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
     CICS_DATA_SETS,
+    MEGABYTES,
     REGION_DATA_SETS,
     SPACE_PRIMARY,
     SPACE_TYPE,
@@ -254,7 +255,6 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
     ABSENT,
     INITIAL,
     WARM,
-    COLD,
     DataSet
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog import (
@@ -264,18 +264,20 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog im
     NEXT_START_EMERGENCY,
     NEXT_START_UNKNOWN,
     SPACE_PRIMARY_DEFAULT,
-    SPACE_TYPE_DEFAULT,
-    STATE_OPTIONS,
     _get_idcams_cmd_gcd,
     _run_dfhrmutl
 )
 
+COLD = "cold"
+STATE_OPTIONS = [ABSENT, INITIAL, WARM, COLD]
+DSN = "dfhgcd"
+
 
 class AnsibleGlobalCatalogModule(DataSet):
     def __init__(self):
-        super(AnsibleGlobalCatalogModule, self).__init__()
         self.autostart_override = ""
         self.next_start = ""
+        super(AnsibleGlobalCatalogModule, self).__init__()
         self.start_state = dict(
             exists=False,
             data_set_organization=self.data_set_organization,
@@ -320,13 +322,13 @@ class AnsibleGlobalCatalogModule(DataSet):
             "default": SPACE_PRIMARY_DEFAULT
         })
         arg_spec[SPACE_TYPE].update({
-            "default": SPACE_TYPE_DEFAULT
+            "default": MEGABYTES
         })
         arg_spec[STATE].update({
             "choices": STATE_OPTIONS
         })
         arg_spec[REGION_DATA_SETS]["options"].update({
-            "dfhgcd": {
+            DSN: {
                 "type": "dict",
                 "required": False,
                 "options": {
@@ -345,15 +347,15 @@ class AnsibleGlobalCatalogModule(DataSet):
 
     def get_arg_defs(self):  # type: () -> dict
         defs = super().get_arg_defs()
-        defs[REGION_DATA_SETS]["options"]["dfhgcd"]["options"]["dsn"].update({
+        defs[REGION_DATA_SETS]["options"][DSN]["options"]["dsn"].update({
             "arg_type": "data_set_base"
         })
-        defs[REGION_DATA_SETS]["options"]["dfhgcd"]["options"]["dsn"].pop("type")
+        defs[REGION_DATA_SETS]["options"][DSN]["options"]["dsn"].pop("type")
         return defs
 
     def validate_parameters(self):  # type: () -> None
         super().validate_parameters()
-        self.name = self.region_param.get("dfhgcd").get("dsn").upper()
+        self.name = self.region_param.get(DSN).get("dsn").upper()
         self.expected_data_set_organization = "VSAM"
 
     def create_data_set(self):  # type: () -> None
@@ -435,8 +437,8 @@ class AnsibleGlobalCatalogModule(DataSet):
             WARM: self.warm_data_set,
         }.get(self.target_state, super().invalid_target_state)
 
-    def get_data_set_state(self):  # type: () -> None
-        super().get_data_set_state()
+    def update_data_set_state(self):  # type: () -> None
+        super().update_data_set_state()
 
         if self.exists and (self.data_set_organization == self.expected_data_set_organization):
             try:

@@ -65,11 +65,11 @@ def _get_idcams_cmd_lcd(data_set):  # type: (dict) -> dict
             "INDEXED": None,
             "KEYS": "{0} {1}".format(KEY_LENGTH, KEY_OFFSET),
             "FREESPACE": "{0} {1}".format(CI_PERCENT, CA_PERCENT),
-            "SHAREOPTIONS": "{0}".format(SHARE_CROSSREGION),
+            "SHAREOPTIONS": str(SHARE_CROSSREGION),
             "REUSE": None
         },
         "DATA": {
-            "CONTROLINTERVALSIZE": "{0}".format(CONTROL_INTERVAL_SIZE_DEFAULT)
+            "CONTROLINTERVALSIZE": str(CONTROL_INTERVAL_SIZE_DEFAULT)
         },
         "INDEX": {
             None
@@ -81,8 +81,6 @@ def _get_idcams_cmd_lcd(data_set):  # type: (dict) -> dict
 
 SPACE_PRIMARY_DEFAULT = 200
 SPACE_SECONDARY_DEFAULT = 5
-SPACE_TYPE_DEFAULT = "REC"
-STATE_OPTIONS = ["absent", "initial", "warm"]
 RECORD_COUNT_DEFAULT = 70
 RECORD_SIZE_DEFAULT = 2041
 CONTROL_INTERVAL_SIZE_DEFAULT = 2048

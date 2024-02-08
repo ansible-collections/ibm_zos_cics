@@ -26,10 +26,6 @@ def _build_seq_data_set_definition_trace(data_set):  # type: (dict) -> DatasetDe
 
 SPACE_PRIMARY_DEFAULT = 20
 SPACE_SECONDARY_DEFAULT = 4
-SPACE_TYPE_DEFAULT = "M"
-STATE_OPTIONS = ["absent", "initial", "warm"]
-DESTINATION_OPTIONS = ["A", "B"]
-DESTINATION_DEFAULT_VALUE = "A"
 BLOCK_SIZE_DEFAULT = 4096
 RECORD_LENGTH_DEFAULT = 4096
 RECORD_FORMAT = "FB"

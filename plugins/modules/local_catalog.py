@@ -208,19 +208,20 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils imp
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
     CICS_DATA_SETS,
+    RECORDS,
     REGION_DATA_SETS,
     SPACE_PRIMARY,
     SPACE_TYPE,
-    STATE,
     DataSet
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog import (
     SPACE_PRIMARY_DEFAULT,
-    SPACE_TYPE_DEFAULT,
-    STATE_OPTIONS,
     _get_idcams_cmd_lcd,
     _run_dfhccutl
 )
+
+
+DSN = "dfhlcd"
 
 
 class AnsibleLocalCatalogModule(DataSet):
@@ -234,13 +235,10 @@ class AnsibleLocalCatalogModule(DataSet):
             "default": SPACE_PRIMARY_DEFAULT
         })
         arg_spec[SPACE_TYPE].update({
-            "default": SPACE_TYPE_DEFAULT
-        })
-        arg_spec[STATE].update({
-            "choices": STATE_OPTIONS
+            "default": RECORDS
         })
         arg_spec[REGION_DATA_SETS]["options"].update({
-            "dfhlcd": {
+            DSN: {
                 "type": "dict",
                 "required": False,
                 "options": {
@@ -259,15 +257,15 @@ class AnsibleLocalCatalogModule(DataSet):
 
     def get_arg_defs(self):  # type: () -> dict
         defs = super().get_arg_defs()
-        defs[REGION_DATA_SETS]["options"]["dfhlcd"]["options"]["dsn"].update({
+        defs[REGION_DATA_SETS]["options"][DSN]["options"]["dsn"].update({
             "arg_type": "data_set_base"
         })
-        defs[REGION_DATA_SETS]["options"]["dfhlcd"]["options"]["dsn"].pop("type")
+        defs[REGION_DATA_SETS]["options"][DSN]["options"]["dsn"].pop("type")
         return defs
 
     def validate_parameters(self):  # type: () -> None
         super().validate_parameters()
-        self.name = self.region_param.get("dfhlcd").get("dsn").upper()
+        self.name = self.region_param.get(DSN).get("dsn").upper()
         self.expected_data_set_organization = "VSAM"
 
     def create_data_set(self):  # type: () -> None

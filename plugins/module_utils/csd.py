@@ -66,11 +66,11 @@ def _get_idcams_cmd_csd(dataset):  # type: (dict) -> dict
             "INDEXED": None,
             "KEYS": "{0} {1}".format(KEY_LENGTH, KEY_OFFSET),
             "FREESPACE": "{0} {1}".format(CI_PERCENT, CA_PERCENT),
-            "SHAREOPTIONS": "{0}".format(SHARE_CROSSREGION),
+            "SHAREOPTIONS": str(SHARE_CROSSREGION),
             "REUSE": None
         },
         "DATA": {
-            "CONTROLINTERVALSIZE": "{0}".format(CONTROL_INTERVAL_SIZE_DEFAULT)
+            "CONTROLINTERVALSIZE": str(CONTROL_INTERVAL_SIZE_DEFAULT)
         },
         "INDEX": {
             None
@@ -82,8 +82,6 @@ def _get_idcams_cmd_csd(dataset):  # type: (dict) -> dict
 
 SPACE_PRIMARY_DEFAULT = 4
 SPACE_SECONDARY_DEFAULT = 1
-SPACE_TYPE_DEFAULT = "M"
-STATE_OPTIONS = ["absent", "initial", "warm"]
 RECORD_COUNT_DEFAULT = 200
 RECORD_SIZE_DEFAULT = 2000
 CONTROL_INTERVAL_SIZE_DEFAULT = 8192

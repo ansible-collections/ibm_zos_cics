@@ -16,9 +16,7 @@ def _get_idcams_cmd_intra(data_set):   # type: (dict) -> dict
                 RECORD_SIZE_DEFAULT,
             ),
             "NONINDEXED": None,
-            "CONTROLINTERVALSIZE": "{0}".format(
-                CONTROL_INTERVAL_SIZE_DEFAULT
-            ),
+            "CONTROLINTERVALSIZE": str(CONTROL_INTERVAL_SIZE_DEFAULT),
         },
         "DATA": {None},
     }
@@ -28,8 +26,6 @@ def _get_idcams_cmd_intra(data_set):   # type: (dict) -> dict
 
 SPACE_PRIMARY_DEFAULT = 100
 SPACE_SECONDARY_DEFAULT = 10
-SPACE_TYPE_DEFAULT = "REC"
-STATE_OPTIONS = ["absent", "initial", "warm"]
 RECORD_COUNT_DEFAULT = 1529
 RECORD_SIZE_DEFAULT = 1529
 CONTROL_INTERVAL_SIZE_DEFAULT = 1536
