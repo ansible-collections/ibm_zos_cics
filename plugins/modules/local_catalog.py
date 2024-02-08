@@ -156,10 +156,11 @@ start_state:
   returned: always
   type: dict
   contains:
-    vsam:
-      description: True if the data set is a VSAM data set.
+    data_set_organization:
+      description: The organization of the data set at the start of the Ansible task.
       returned: always
-      type: bool
+      type: str
+      sample: "VSAM"
     exists:
       description: True if the local catalog data set exists.
       type: bool
@@ -169,10 +170,11 @@ end_state:
   returned: always
   type: dict
   contains:
-    vsam:
-      description: True if the data set is a VSAM data set.
+    data_set_organization:
+      description: The organization of the data set at the end of the Ansible task.
       returned: always
-      type: bool
+      type: str
+      sample: "VSAM"
     exists:
       description: True if the local catalog data set exists.
       type: bool

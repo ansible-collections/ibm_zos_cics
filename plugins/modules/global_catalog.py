@@ -191,6 +191,11 @@ start_state:
       description: True if the global catalog data set exists.
       type: bool
       returned: always
+    data_set_organization:
+      description: The organization of the data set at the start of the Ansible task.
+      returned: always
+      type: str
+      sample: "VSAM"
 end_state:
   description: The state of the global catalog at the end of the Ansible task.
   returned: always
@@ -208,6 +213,11 @@ end_state:
       description: True if the global catalog data set exists.
       type: bool
       returned: always
+    data_set_organization:
+      description: The organization of the data set at the end of the Ansible task.
+      returned: always
+      type: str
+      sample: "VSAM"
 executions:
   description: A list of program executions performed during the Ansible task.
   returned: always

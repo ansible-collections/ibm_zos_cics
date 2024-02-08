@@ -160,6 +160,35 @@ failed:
   description: True if the query job failed, otherwise False.
   returned: always
   type: bool
+start_state:
+  description:
+    - The state of the local request queue before the Ansible task runs.
+  returned: always
+  type: dict
+  contains:
+    data_set_organization:
+      description: The organization of the data set at the start of the Ansible task.
+      returned: always
+      type: str
+      sample: "Sequential"
+    exists:
+      description: True if the local request queue data set exists.
+      type: bool
+      returned: always
+end_state:
+  description: The state of the local request queue at the end of the Ansible task.
+  returned: always
+  type: dict
+  contains:
+    data_set_organization:
+      description: The organization of the data set at the end of the Ansible task.
+      returned: always
+      type: str
+      sample: "Sequential"
+    exists:
+      description: True if the local request queue data set exists.
+      type: bool
+      returned: always
 executions:
   description: A list of program executions performed during the Ansible task.
   returned: always

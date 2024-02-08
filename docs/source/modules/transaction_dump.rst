@@ -145,6 +145,32 @@ failed (always, bool, )
   True if the query job failed, otherwise False.
 
 
+start_state (always, dict, )
+  The state of the local request queue before the Ansible task runs.
+
+
+  data_set_organization (always, str, Sequential)
+    The organization of the data set at the start of the Ansible task.
+
+
+  exists (always, bool, )
+    True if the local request queue data set exists.
+
+
+
+end_state (always, dict, )
+  The state of the local request queue at the end of the Ansible task.
+
+
+  data_set_organization (always, str, Sequential)
+    The organization of the data set at the end of the Ansible task.
+
+
+  exists (always, bool, )
+    True if the local request queue data set exists.
+
+
+
 executions (always, list, )
   A list of program executions performed during the Ansible task.
 

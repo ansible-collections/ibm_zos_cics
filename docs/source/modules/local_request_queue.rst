@@ -135,8 +135,8 @@ start_state (always, dict, )
   The state of the local request queue before the Ansible task runs.
 
 
-  vsam (always, bool, )
-    True if the data set is a VSAM data set.
+  data_set_organization (always, str, VSAM)
+    The organization of the data set at the start of the Ansible task.
 
 
   exists (always, bool, )
@@ -148,8 +148,8 @@ end_state (always, dict, )
   The state of the local request queue at the end of the Ansible task.
 
 
-  vsam (always, bool, )
-    True if the data set is a VSAM data set.
+  data_set_organization (always, str, VSAM)
+    The organization of the data set at the end of the Ansible task.
 
 
   exists (always, bool, )
