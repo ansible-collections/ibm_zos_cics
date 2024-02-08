@@ -22,7 +22,7 @@ def test_get_idcams_cmd_megabytes():
         name="ANSI.CYLS.DFHINTRA",
         state="initial",
         exists=False,
-        vsam=False,
+        data_set_organization="NONE",
         unit="M",
         primary=10,
         secondary=1
@@ -51,7 +51,7 @@ def test_get_idcams_cmd_cylinders():
         name="ANSI.CYLS.DFHINTRA",
         state="initial",
         exists=False,
-        vsam=False,
+        data_set_organization="NONE",
         unit="CYL",
         primary=3,
         secondary=1

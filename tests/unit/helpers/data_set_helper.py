@@ -54,6 +54,25 @@ def LISTDS_data_set(data_set_name, dsorg):
     """.format(data_set_name, dsorg)
 
 
+def IDCAMS_run_cmd(data_set_name):
+    return """
+        DEFINE CLUSTER -
+            (NAME({0}) -
+            INDEXED                      -
+            MEGABYTES(5 1)             -
+            SHR(2)              -
+            FREESPACE(10 10)              -
+            RECORDSIZE(4089 32760)       -
+            REUSE)              -
+            DATA                           -
+            (NAME({0}.DATA)  -
+            CONTROLINTERVALSIZE(32768)    -
+            KEYS(52 0))  -
+            INDEX                          -
+            (NAME({0}.INDEX))
+    """.format(data_set_name)
+
+
 def IDCAMS_create_run_name(run, data_set_name):
     return "IDCAMS - Creating {0} data set - Run {1}".format(data_set_name, run)
 

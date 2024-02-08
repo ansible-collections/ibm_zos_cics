@@ -40,7 +40,7 @@ def test_get_idcams_cmd_megabytes():
         autostart_override="",
         nextstart="",
         exists=False,
-        vsam=False,
+        data_set_organization="NONE",
         unit="M",
         primary=10,
         secondary=1
@@ -77,7 +77,7 @@ def test_get_idcams_cmd_cylinders():
         autostart_override="",
         nextstart="",
         exists=False,
-        vsam=False,
+        data_set_organization="NONE",
         unit="CYL",
         primary=3,
         secondary=1

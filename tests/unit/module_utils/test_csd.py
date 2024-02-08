@@ -31,7 +31,7 @@ def test_get_idcams_cmd_megabytes():
         sdfhload="CICSTS.IN56.SDFHLOAD",
         state="initial",
         exists=False,
-        vsam=False,
+        data_set_organization="NONE",
         unit="M",
         primary=3,
         secondary=1
@@ -59,7 +59,7 @@ def test_get_idcams_cmd_cylinders():
         sdfhload="CICSTS.IN56.SDFHLOAD",
         state="initial",
         exists=False,
-        vsam=False,
+        data_set_organization="NONE",
         unit="CYL",
         primary=3,
         secondary=1

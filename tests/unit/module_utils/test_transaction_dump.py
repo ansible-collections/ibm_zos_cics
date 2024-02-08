@@ -19,7 +19,7 @@ def test_transaction_dump_definition_megabytes():
         name="ANSI.M.DFHDMPA",
         state="initial",
         exists=False,
-        vsam=False,
+        data_set_organization="NONE",
         unit="M",
         primary=20,
         secondary=1

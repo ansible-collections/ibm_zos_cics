@@ -10,6 +10,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     IDCAMS_create_stdout,
     IDCAMS_delete_not_found,
     IDCAMS_delete_vsam,
+    IDCAMS_run_cmd,
     LISTDS_data_set,
     LISTDS_data_set_doesnt_exist,
     LISTDS_run_name
@@ -77,22 +78,7 @@ def test__run_idcams_create():
     stderr = ""
     dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
-    cmd = '''
-    DEFINE CLUSTER -
-        (NAME({0}) -
-        INDEXED                      -
-        MEGABYTES(5 1)             -
-        SHR(2)              -
-        FREESPACE(10 10)              -
-        RECORDSIZE(4089 32760)       -
-        REUSE)              -
-        DATA                           -
-        (NAME({0}.DATA)  -
-        CONTROLINTERVALSIZE(32768)    -
-        KEYS(52 0))  -
-        INDEX                          -
-        (NAME({0}.INDEX))
-    '''.format(location)
+    cmd = IDCAMS_run_cmd(location)
 
     result_exececutions = dataset_utils._run_idcams(
         cmd=cmd,
@@ -116,22 +102,7 @@ def test__run_idcams_create_exists():
     stderr = ""
     dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
-    cmd = '''
-    DEFINE CLUSTER -
-        (NAME({0}) -
-        INDEXED                      -
-        MEGABYTES(5 1)             -
-        SHR(2)              -
-        FREESPACE(10 10)              -
-        RECORDSIZE(4089 32760)       -
-        REUSE)              -
-        DATA                           -
-        (NAME({0}.DATA)  -
-        CONTROLINTERVALSIZE(32768)    -
-        KEYS(52 0))  -
-        INDEX                          -
-        (NAME({0}.INDEX))
-    '''.format(location)
+    cmd = IDCAMS_run_cmd(location)
 
     result_exececutions = dataset_utils._run_idcams(
         cmd=cmd,
