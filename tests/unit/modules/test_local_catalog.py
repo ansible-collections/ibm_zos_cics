@@ -6,8 +6,22 @@ from __future__ import absolute_import, division, print_function
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import local_catalog as local_catalog_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import icetool
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, _response, _state
-from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import set_data_set, set_module_args
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
+from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
+    PYTHON_LANGUAGE_FEATURES_MESSAGE,
+    CCUTL_name,
+    CCUTL_stderr,
+    ICETOOL_name,
+    ICETOOL_stderr,
+    ICETOOL_stdout,
+    IDCAMS_delete_run_name,
+    IDCAMS_delete_vsam,
+    IDCAMS_create_run_name,
+    LISTDS_data_set_doesnt_exist,
+    LISTDS_data_set,
+    LISTDS_run_name,
+    set_module_args
+)
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import local_catalog
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
 import pytest
@@ -22,12 +36,14 @@ except ImportError:
 
 __metaclass__ = type
 
+NAME = "TEST.REGIONS.LCD"
+
 default_arg_parms = {
     "space_primary": 5,
     "space_type": "M",
     "region_data_sets": {
         "dfhlcd": {
-            "dsn": "TEST.REGIONS.LCD"
+            "dsn": NAME
         }
     },
     "cics_data_sets": {
@@ -48,183 +64,465 @@ def initialise_module(**kwargs):
     return lcd_module
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_create_an_intial_local_catalog():
     lcd_module = initialise_module()
 
-    dataset_utils.idcams = MagicMock(return_value=(0, "TEST.REGIONS.LCD", "stderr"))
-    dataset_utils.ikjeft01 = MagicMock(side_effect=[(8, "TEST.REGIONS.LCD NOT IN CATALOG", "stderr"), (0, "TEST.REGIONS.LCD VSAM", "stderr")])
-    local_catalog_utils._execute_dfhccutl = MagicMock(return_value=MVSCmdResponse(rc=0, stdout="stdout", stderr="stderr"))
+    dataset_utils.idcams = MagicMock(
+        return_value=(0, NAME, "")
+    )
+    dataset_utils.ikjeft01 = MagicMock(
+        side_effect=[
+            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+        ]
+    )
+    local_catalog_utils._execute_dfhccutl = MagicMock(
+        return_value=MVSCmdResponse(rc=0, stdout="", stderr=CCUTL_stderr(NAME))
+    )
 
     lcd_module.main()
-    expected_result = _response(executions=[
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=8, stdout="TEST.REGIONS.LCD NOT IN CATALOG", stderr="stderr"),
-        _execution(name="IDCAMS - Create local catalog data set - Run 1", rc=0, stdout="TEST.REGIONS.LCD", stderr="stderr"),
-        _execution(name="DFHCCUTL - Initialise Local Catalog", rc=0, stdout="stdout", stderr="stderr"),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=0, stdout="TEST.REGIONS.LCD VSAM", stderr="stderr")
-    ],
-        start_state=_state(exists=False, vsam=False),
-        end_state=_state(exists=True, vsam=True)
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
+            ),
+            _execution(
+                name=IDCAMS_create_run_name(1, NAME),
+                rc=0,
+                stdout=NAME,
+                stderr="",
+            ),
+            _execution(
+                name=CCUTL_name(),
+                rc=0,
+                stdout="",
+                stderr=CCUTL_stderr(NAME)
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
+            )
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        changed=True,
+        failed=False
     )
-    expected_result.update({"changed": True})
-    assert lcd_module.result == expected_result
+    assert lcd_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_delete_an_existing_local_catalog():
     lcd_module = initialise_module(state="absent")
 
-    dataset_utils.idcams = MagicMock(return_value=(0, "ENTRY (C) TEST.REGIONS.LCD DELETED\n", "stderr"))
-    dataset_utils.ikjeft01 = MagicMock(side_effect=[(0, "TEST.REGIONS.LCD VSAM", "stderr"), (8, "TEST.REGIONS.LCD NOT IN CATALOG", "stderr")])
+    dataset_utils.ikjeft01 = MagicMock(
+        side_effect=[
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+        ]
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=MVSCmdResponse(
+            rc=0,
+            stdout=ICETOOL_stdout(0),
+            stderr=ICETOOL_stderr()
+        )
+    )
+    dataset_utils.idcams = MagicMock(
+        return_value=(0, IDCAMS_delete_vsam(NAME), ""),
+    )
 
     lcd_module.main()
-    expected_result = _response(executions=[
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=0, stdout="TEST.REGIONS.LCD VSAM", stderr="stderr"),
-        _execution(name="IDCAMS - Removing local catalog data set - Run 1", rc=0, stdout="ENTRY (C) TEST.REGIONS.LCD DELETED\n", stderr="stderr"),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=8, stdout="TEST.REGIONS.LCD NOT IN CATALOG", stderr="stderr")
-    ],
-        start_state=_state(exists=True, vsam=True),
-        end_state=_state(exists=False, vsam=False)
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
+            ),
+            _execution(
+                name=IDCAMS_delete_run_name(1, NAME),
+                rc=0,
+                stdout=IDCAMS_delete_vsam(NAME),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=True,
+        failed=False
     )
-    expected_result.update({"changed": True})
-    assert lcd_module.result == expected_result
+    assert lcd_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_delete_an_existing_local_catalog_and_replace():
     lcd_module = initialise_module()
-    data_set = set_data_set(exists=True, name="TEST.REGIONS.LCD", vsam=True)
-    lcd_module.data_set = data_set
 
     dataset_utils.idcams = MagicMock(
         side_effect=[
-            (0, "ENTRY (C) TEST.REGIONS.LCD DELETED\n", "stderr"),
-            (0, "TEST.REGIONS.LCD", "stderr"),
+            (0, IDCAMS_delete_vsam(NAME), ""),
+            (0, NAME, ""),
         ]
     )
     dataset_utils.ikjeft01 = MagicMock(
         side_effect=[
-            (0, "TEST.REGIONS.LCD VSAM", "stderr"),
-            (8, "TEST.REGIONS.LCD NOT IN CATALOG", "stderr"),
-            (0, "TEST.REGIONS.LCD VSAM", "stderr"),
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
         ]
     )
-    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr"))
-    local_catalog_utils._execute_dfhccutl = MagicMock(return_value=MVSCmdResponse(rc=0, stdout="stdout", stderr="stderr"))
+    icetool._execute_icetool = MagicMock(
+        return_value=(
+            MVSCmdResponse(
+                rc=0,
+                stdout=ICETOOL_stdout(52),
+                stderr=ICETOOL_stderr()
+            )
+        )
+    )
+    local_catalog_utils._execute_dfhccutl = MagicMock(
+        return_value=MVSCmdResponse(rc=0, stdout="", stderr=CCUTL_stderr(NAME))
+    )
 
     lcd_module.main()
-    expected_result = _response(executions=[
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=0, stdout="TEST.REGIONS.LCD VSAM", stderr="stderr"),
-        _execution(name="ICETOOL - Get record count", rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr"),
-        _execution(name="IDCAMS - Removing local catalog data set - Run 1", rc=0, stdout="ENTRY (C) TEST.REGIONS.LCD DELETED\n", stderr="stderr"),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=8, stdout="TEST.REGIONS.LCD NOT IN CATALOG", stderr="stderr"),
-        _execution(name="IDCAMS - Create local catalog data set - Run 1", rc=0, stdout="TEST.REGIONS.LCD", stderr="stderr"),
-        _execution(name="DFHCCUTL - Initialise Local Catalog", rc=0, stdout="stdout", stderr="stderr"),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=0, stdout="TEST.REGIONS.LCD VSAM", stderr="stderr")
-    ],
-        start_state=_state(exists=True, vsam=True),
-        end_state=_state(exists=True, vsam=True)
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
+            ),
+            _execution(
+                name=ICETOOL_name(1),
+                rc=0,
+                stdout=ICETOOL_stdout(52),
+                stderr=ICETOOL_stderr()
+            ),
+            _execution(
+                name=IDCAMS_delete_run_name(1, NAME),
+                rc=0,
+                stdout=IDCAMS_delete_vsam(NAME),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
+            ),
+            _execution(
+                name=IDCAMS_create_run_name(1, NAME),
+                rc=0,
+                stdout=NAME,
+                stderr="",
+            ),
+            _execution(
+                name=CCUTL_name(),
+                rc=0,
+                stdout="",
+                stderr=CCUTL_stderr(NAME)
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        changed=True,
+        failed=False
     )
-    expected_result.update({"changed": True})
-    assert lcd_module.result == expected_result
+    assert lcd_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_remove_non_existent_local_catalog():
     lcd_module = initialise_module(state="absent")
 
-    dataset_utils.idcams = MagicMock(return_value=(8, "ENTRY TEST.REGIONS.LCD NOTFOUND", "stderr"))
-    dataset_utils.ikjeft01 = MagicMock(return_value=(8, "TEST.REGIONS.LCD NOT IN CATALOG", "stderr"))
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(8, LISTDS_data_set_doesnt_exist(NAME), "")
+    )
 
     lcd_module.main()
-    expected_result = _response(executions=[
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=8, stdout="TEST.REGIONS.LCD NOT IN CATALOG", stderr="stderr"),
-        _execution(name="IDCAMS - Removing local catalog data set - Run 1", rc=8, stdout="ENTRY TEST.REGIONS.LCD NOTFOUND", stderr="stderr"),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=8, stdout="TEST.REGIONS.LCD NOT IN CATALOG", stderr="stderr")
-    ],
-        start_state=_state(exists=False, vsam=False),
-        end_state=_state(exists=False, vsam=False)
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=False,
+        failed=False
     )
-    expected_result.update({"changed": True})
-    assert lcd_module.result == expected_result
+    assert lcd_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_warm_start_a_local_catalog():
     lcd_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(0, "TEST.REGIONS.LCD VSAM", "stderr"))
-    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr"))
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(
+            0,
+            LISTDS_data_set(NAME, "VSAM"),
+            ""
+        )
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=MVSCmdResponse(
+            rc=0,
+            stdout=ICETOOL_stdout(52),
+            stderr=ICETOOL_stderr()
+        )
+    )
 
     lcd_module.main()
-    expected_result = _response(executions=[
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=0, stdout="TEST.REGIONS.LCD VSAM", stderr="stderr"),
-        _execution(name="ICETOOL - Get record count", rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr"),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=0, stdout="TEST.REGIONS.LCD VSAM", stderr="stderr"),
-    ],
-        start_state=_state(exists=True, vsam=True),
-        end_state=_state(exists=True, vsam=True)
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""),
+            _execution(
+                name=ICETOOL_name(1),
+                rc=0,
+                stdout=ICETOOL_stdout(52),
+                stderr=ICETOOL_stderr(),
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        changed=False,
+        failed=False
     )
-    assert lcd_module.result == expected_result
+    assert lcd_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_error_warm_start_a_unused_local_catalog():
     lcd_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(0, "TEST.REGIONS.LCD VSAM", "stderr"))
-    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(rc=0, stdout="RECORD COUNT:  000000000000000", stderr="stderr"))
-
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(
+            0,
+            LISTDS_data_set(NAME, "VSAM"),
+            ""
+        )
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=MVSCmdResponse(
+            rc=0,
+            stdout=ICETOOL_stdout(0),
+            stderr=ICETOOL_stderr()
+        )
+    )
     lcd_module.main()
 
-    expected_result = _response(executions=[
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=0, stdout="TEST.REGIONS.LCD VSAM", stderr="stderr"),
-        _execution(name="ICETOOL - Get record count", rc=0, stdout="RECORD COUNT:  000000000000000", stderr="stderr"),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=0, stdout="TEST.REGIONS.LCD VSAM", stderr="stderr"),
-    ],
-        start_state=_state(exists=True, vsam=True),
-        end_state=_state(exists=True, vsam=True)
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""
+            ),
+            _execution(
+                name=ICETOOL_name(1),
+                rc=0,
+                stdout=ICETOOL_stdout(0),
+                stderr=ICETOOL_stderr()
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""
+            ),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        changed=False,
+        failed=True
     )
-    expected_result.update({"failed": True})
-    assert lcd_module.result == expected_result
+    assert lcd_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_error_warm_start_a_non_existent_local_catalog():
     lcd_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(8, "TEST.REGIONS.LCD NOT IN CATALOG", "stderr"))
+    dataset_utils.ikjeft01 = MagicMock(return_value=(
+        8, LISTDS_data_set_doesnt_exist(NAME), ""))
 
     lcd_module.main()
-    expected_result = _response(executions=[
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=8, stdout="TEST.REGIONS.LCD NOT IN CATALOG", stderr="stderr"),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=8, stdout="TEST.REGIONS.LCD NOT IN CATALOG", stderr="stderr"),
-    ],
-        start_state=_state(exists=False, vsam=False),
-        end_state=_state(exists=False, vsam=False)
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr=""
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr=""
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        failed=True,
+        changed=False
     )
-    expected_result.update({"failed": True})
-    assert lcd_module.result == expected_result
+    assert lcd_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_bad_response_from_ccutl():
     lcd_module = initialise_module()
 
-    dataset_utils.idcams = MagicMock(return_value=(0, "TEST.REGIONS.LCD", "stderr"))
-    dataset_utils.ikjeft01 = MagicMock(side_effect=[(8, "TEST.REGIONS.LCD NOT IN CATALOG", "stderr"), (0, "TEST.REGIONS.LCD VSAM", "stderr")])
-    local_catalog_utils._execute_dfhccutl = MagicMock(return_value=MVSCmdResponse(rc=99, stdout="stdout", stderr="stderr"))
+    dataset_utils.idcams = MagicMock(
+        return_value=(0, NAME, "")
+    )
+    dataset_utils.ikjeft01 = MagicMock(
+        side_effect=[
+            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+        ]
+    )
+    local_catalog_utils._execute_dfhccutl = MagicMock(
+        return_value=MVSCmdResponse(rc=99, stdout="", stderr=CCUTL_stderr(NAME))
+    )
 
     lcd_module.main()
-    expected_result = _response(executions=[
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=8, stdout="TEST.REGIONS.LCD NOT IN CATALOG", stderr="stderr"),
-        _execution(name="IDCAMS - Create local catalog data set - Run 1", rc=0, stdout="TEST.REGIONS.LCD", stderr="stderr"),
-        _execution(name="DFHCCUTL - Initialise Local Catalog", rc=99, stdout="stdout", stderr="stderr"),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=0, stdout="TEST.REGIONS.LCD VSAM", stderr="stderr")
-    ],
-        start_state=_state(exists=False, vsam=False),
-        end_state=_state(exists=True, vsam=True)
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr=""
+            ),
+            _execution(
+                name=IDCAMS_create_run_name(1, NAME),
+                rc=0,
+                stdout=NAME,
+                stderr="",
+            ),
+            _execution(
+                name=CCUTL_name(),
+                rc=99,
+                stdout="",
+                stderr=CCUTL_stderr(NAME)
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        changed=True,
+        failed=True
     )
-    expected_result.update({"changed": True})
-    expected_result.update({"failed": True})
-    assert lcd_module.result == expected_result
+    assert lcd_module.get_result() == expected_result

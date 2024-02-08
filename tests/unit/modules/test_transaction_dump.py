@@ -4,8 +4,20 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, _response, _state
-from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import set_module_args
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
+from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
+    PYTHON_LANGUAGE_FEATURES_MESSAGE,
+    ICETOOL_name,
+    ICETOOL_stderr,
+    ICETOOL_stdout,
+    IDCAMS_delete_run_name,
+    IDCAMS_delete_vsam,
+    IEFBR14_create_stderr,
+    LISTDS_data_set_doesnt_exist,
+    LISTDS_data_set,
+    LISTDS_run_name,
+    set_module_args
+)
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import transaction_dump
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import icetool
 import pytest
@@ -21,15 +33,18 @@ except ImportError:
 
 __metaclass__ = type
 
+NAMEA = "TEST.REGIONS.DFHDMPA"
+NAMEB = "TEST.REGIONS.DFHDMPB"
+
 default_arg_parms = {
     "space_primary": 20,
     "space_type": "M",
     "region_data_sets": {
         "dfhdmpa": {
-            "dsn": "TEST.REGIONS.DFHDMPA"
+            "dsn": NAMEA
         },
         "dfhdmpb": {
-            "dsn": "TEST.REGIONS.DFHDMPB"
+            "dsn": NAMEB
         }
     },
     "cics_data_sets": {
@@ -50,268 +65,350 @@ def initialise_module(**kwargs):
     return transaction_dump_module
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_create_an_intial_transaction_dump():
     transaction_dump_module = initialise_module()
 
     dataset_utils.ikjeft01 = MagicMock(
         side_effect=[
-            (8,
-             "TEST.REGIONS.DFHDMPA NOT IN CATALOG",
-             "stderr"),
-            (0,
-             "TEST.REGIONS.DFHDMPA PS",
-             "stderr")])
-    dataset_utils.MVSCmd.execute = MagicMock(
+            (8, LISTDS_data_set_doesnt_exist(NAMEA), ""),
+            (0, LISTDS_data_set(NAMEA, "PS"), ""),
+        ]
+    )
+    dataset_utils._execute_iefbr14 = MagicMock(
         return_value=MVSCmdResponse(
-            rc=0, stdout="TEST.REGIONS.DFHDMPA", stderr=""))
+            rc=0, stdout="", stderr=IEFBR14_create_stderr(NAMEA, "DFHDMPA")
+        )
+    )
 
     transaction_dump_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHDMPA NOT IN CATALOG",
-                stderr="stderr"),
+                stdout=LISTDS_data_set_doesnt_exist(NAMEA),
+                stderr="",
+            ),
             _execution(
                 name="IEFBR14 - dfhdmpa - Run 1",
                 rc=0,
-                stdout="TEST.REGIONS.DFHDMPA",
-                stderr=""),
+                stdout="",
+                stderr=IEFBR14_create_stderr(NAMEA, "DFHDMPA")
+            ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHDMPA PS",
-                stderr="stderr")],
-        start_state=_state(
-            exists=False),
-        end_state=_state(
-            exists=True))
-    expected_result.update({"changed": True})
-    assert transaction_dump_module.result == expected_result
+                stdout=LISTDS_data_set(NAMEA, "PS"),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="Sequential"
+        ),
+        changed=True,
+        failed=False
+    )
+    assert transaction_dump_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_delete_an_existing_transaction_dump():
     transaction_dump_module = initialise_module(state="absent")
 
     dataset_utils.idcams = MagicMock(
-        return_value=(
-            0,
-            "ENTRY (A) TEST.REGIONS.DFHDMPA DELETED\n",
-            "stderr"))
+        return_value=(0, IDCAMS_delete_vsam(NAMEA), "")
+    )
     dataset_utils.ikjeft01 = MagicMock(
         side_effect=[
-            (0,
-             "TEST.REGIONS.DFHDMPA PS",
-             "stderr"),
-            (8,
-             "TEST.REGIONS.DFHDMPA NOT IN CATALOG",
-             "stderr")])
+            (0, LISTDS_data_set(NAMEA, "PS"), ""),
+            (8, LISTDS_data_set_doesnt_exist(NAMEA), ""),
+        ]
+    )
 
     transaction_dump_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHDMPA PS",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAMEA, "PS"),
+                stderr="",
+            ),
             _execution(
-                name="IDCAMS - Deleting transaction dump data set - Run 1",
+                name=IDCAMS_delete_run_name(1, NAMEA),
                 rc=0,
-                stdout="ENTRY (A) TEST.REGIONS.DFHDMPA DELETED\n",
-                stderr="stderr"),
+                stdout=IDCAMS_delete_vsam(NAMEA),
+                stderr=""
+            ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHDMPA NOT IN CATALOG",
-                stderr="stderr")],
-        start_state=_state(
-            exists=True),
-        end_state=_state(
-            exists=False))
-    expected_result.update({"changed": True})
-    assert transaction_dump_module.result == expected_result
+                stdout=LISTDS_data_set_doesnt_exist(NAMEA),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="Sequential"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=True,
+        failed=False
+    )
+    assert transaction_dump_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_remove_non_existent_transaction_dump():
     transaction_dump_module = initialise_module(state="absent")
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(
-        8, "TEST.REGIONS.DFHDMPA NOT IN CATALOG", "stderr"))
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(8, LISTDS_data_set_doesnt_exist(NAMEA), "")
+    )
 
     transaction_dump_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHDMPA NOT IN CATALOG",
-                stderr="stderr"),
+                stdout=LISTDS_data_set_doesnt_exist(NAMEA),
+                stderr="",
+            ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHDMPA NOT IN CATALOG",
-                stderr="stderr")],
-        start_state=_state(
-            exists=False),
-        end_state=_state(
-            exists=False))
-    expected_result.update({"changed": False})
-    assert transaction_dump_module.result == expected_result
+                stdout=LISTDS_data_set_doesnt_exist(NAMEA),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=False,
+        failed=False
+    )
+    assert transaction_dump_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_create_an_intial_destination_b_transaction_dump():
     transaction_dump_module = initialise_module(destination="B")
 
     dataset_utils.ikjeft01 = MagicMock(
         side_effect=[
-            (8,
-             "TEST.REGIONS.DFHDMPB NOT IN CATALOG",
-             "stderr"),
-            (0,
-             "TEST.REGIONS.DFHDMPB PS",
-             "stderr")])
-    dataset_utils.MVSCmd.execute = MagicMock(
+            (8, LISTDS_data_set_doesnt_exist(NAMEB), ""),
+            (0, LISTDS_data_set(NAMEB, "PS"), ""),
+        ]
+    )
+    dataset_utils._execute_iefbr14 = MagicMock(
         return_value=MVSCmdResponse(
-            rc=0, stdout="TEST.REGIONS.DFHDMPB", stderr=""))
+            rc=0, stdout="", stderr=IEFBR14_create_stderr(NAMEB, "DFHDMPB")
+        )
+    )
 
     transaction_dump_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHDMPB NOT IN CATALOG",
-                stderr="stderr"),
+                stdout=LISTDS_data_set_doesnt_exist(NAMEB),
+                stderr="",
+            ),
             _execution(
                 name="IEFBR14 - dfhdmpb - Run 1",
                 rc=0,
-                stdout="TEST.REGIONS.DFHDMPB",
-                stderr=""),
+                stdout="",
+                stderr=IEFBR14_create_stderr(NAMEB, "DFHDMPB")),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHDMPB PS",
-                stderr="stderr")],
-        start_state=_state(
-            exists=False),
-        end_state=_state(
-            exists=True))
-    expected_result.update({"changed": True})
-    assert transaction_dump_module.result == expected_result
+                stdout=LISTDS_data_set(NAMEB, "PS"),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="Sequential"
+        ),
+        changed=True,
+        failed=False
+    )
+    assert transaction_dump_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_warm_on_non_existent():
     transaction_dump_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(
-        8, "TEST.REGIONS.DFHDMPA NOT IN CATALOG", "stderr"))
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(8, LISTDS_data_set_doesnt_exist(NAMEA), "")
+    )
 
     transaction_dump_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHDMPA NOT IN CATALOG",
-                stderr="stderr"),
+                stdout=LISTDS_data_set_doesnt_exist(NAMEA),
+                stderr="",
+            ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHDMPA NOT IN CATALOG",
-                stderr="stderr"),
+                stdout=LISTDS_data_set_doesnt_exist(NAMEA),
+                stderr="",
+            ),
         ],
-        start_state=_state(
-            exists=False),
-        end_state=_state(
-            exists=False))
-    expected_result.update({"changed": False})
-    expected_result.update({"failed": True})
-    assert transaction_dump_module.result == expected_result
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        failed=True,
+        changed=False
+    )
+    assert transaction_dump_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_warm_on_empty():
     transaction_dump_module = initialise_module(state="warm")
 
     dataset_utils.ikjeft01 = MagicMock(
-        return_value=(0, "TEST.REGIONS.DFHDMPA PS", "stderr"))
-    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(
-        rc=0, stdout="RECORD COUNT:  000000000000000", stderr="stderr"))
+        return_value=(0, LISTDS_data_set(NAMEA, "PS"), "")
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=(
+            MVSCmdResponse(
+                rc=0,
+                stdout=ICETOOL_stdout(0),
+                stderr=ICETOOL_stderr()
+            )
+        )
+    )
 
     transaction_dump_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHDMPA PS",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAMEA, "PS"),
+                stderr="",
+            ),
             _execution(
-                name="ICETOOL - Get record count",
+                name=ICETOOL_name(1),
                 rc=0,
-                stdout="RECORD COUNT:  000000000000000",
-                stderr="stderr"),
+                stdout=ICETOOL_stdout(0),
+                stderr=ICETOOL_stderr()
+            ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHDMPA PS",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAMEA, "PS"),
+                stderr="",
+            ),
         ],
-        start_state=_state(
-            exists=True),
-        end_state=_state(
-            exists=True))
-    expected_result.update({"changed": False})
-    expected_result.update({"failed": True})
-    assert transaction_dump_module.result == expected_result
+        start_state=dict(
+            exists=True,
+            data_set_organization="Sequential"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="Sequential"
+        ),
+        failed=True,
+        changed=False
+    )
+    assert transaction_dump_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_warm_success():
     transaction_dump_module = initialise_module(state="warm")
 
     dataset_utils.ikjeft01 = MagicMock(
-        return_value=(0, "TEST.REGIONS.DFHDMPA PS", "stderr"))
-    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(
-        rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr"))
+        return_value=(0, LISTDS_data_set(NAMEA, "PS"), "")
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=(
+            MVSCmdResponse(
+                rc=0,
+                stdout=ICETOOL_stdout(52),
+                stderr=ICETOOL_stderr()
+            )
+        )
+    )
 
     transaction_dump_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHDMPA PS",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAMEA, "PS"),
+                stderr="",
+            ),
             _execution(
-                name="ICETOOL - Get record count",
+                name=ICETOOL_name(1),
                 rc=0,
-                stdout="RECORD COUNT:  000000000000052",
-                stderr="stderr"),
+                stdout=ICETOOL_stdout(52),
+                stderr=ICETOOL_stderr()
+            ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHDMPA PS",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAMEA, "PS"),
+                stderr="",
+            ),
         ],
-        start_state=_state(
-            exists=True),
-        end_state=_state(
-            exists=True))
-    expected_result.update({"changed": False})
-    expected_result.update({"failed": False})
-    assert transaction_dump_module.result == expected_result
+        start_state=dict(
+            exists=True,
+            data_set_organization="Sequential"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="Sequential"
+        ),
+        failed=False,
+        changed=False
+    )
+    assert transaction_dump_module.get_result() == expected_result

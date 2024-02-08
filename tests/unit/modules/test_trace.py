@@ -4,8 +4,20 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, _response, _state
-from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import set_module_args
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
+from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
+    PYTHON_LANGUAGE_FEATURES_MESSAGE,
+    ICETOOL_name,
+    ICETOOL_stderr,
+    ICETOOL_stdout,
+    IDCAMS_delete_run_name,
+    IDCAMS_delete_vsam,
+    IEFBR14_create_stderr,
+    LISTDS_data_set_doesnt_exist,
+    LISTDS_data_set,
+    LISTDS_run_name,
+    set_module_args
+)
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import trace
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import icetool
 import pytest
@@ -21,15 +33,18 @@ except ImportError:
 
 __metaclass__ = type
 
+NAMEA = "TEST.REGIONS.DFHAUXT"
+NAMEB = "TEST.REGIONS.DFHBUXT"
+
 default_arg_parms = {
     "space_primary": 20,
     "space_type": "M",
     "region_data_sets": {
         "dfhauxt": {
-            "dsn": "TEST.REGIONS.DFHAUXT"
+            "dsn": NAMEA
         },
         "dfhbuxt": {
-            "dsn": "TEST.REGIONS.DFHBUXT"
+            "dsn": NAMEB
         }
     },
     "cics_data_sets": {
@@ -50,268 +65,350 @@ def initialise_module(**kwargs):
     return trace_module
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_create_an_intial_aux_trace():
     trace_module = initialise_module()
 
     dataset_utils.ikjeft01 = MagicMock(
         side_effect=[
-            (8,
-             "TEST.REGIONS.DFHAUXT NOT IN CATALOG",
-             "stderr"),
-            (0,
-             "TEST.REGIONS.DFHAUXT PS",
-             "stderr")])
-    dataset_utils.MVSCmd.execute = MagicMock(
+            (8, LISTDS_data_set_doesnt_exist(NAMEA), ""),
+            (0, LISTDS_data_set(NAMEA, "PS"), ""),
+        ]
+    )
+    dataset_utils._execute_iefbr14 = MagicMock(
         return_value=MVSCmdResponse(
-            rc=0, stdout="TEST.REGIONS.DFHAUXT", stderr=""))
+            rc=0, stdout="", stderr=IEFBR14_create_stderr(NAMEA, "DFHAUXT")
+        )
+    )
 
     trace_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHAUXT NOT IN CATALOG",
-                stderr="stderr"),
+                stdout=LISTDS_data_set_doesnt_exist(NAMEA),
+                stderr="",
+            ),
             _execution(
                 name="IEFBR14 - dfhauxt - Run 1",
                 rc=0,
-                stdout="TEST.REGIONS.DFHAUXT",
-                stderr=""),
+                stdout="",
+                stderr=IEFBR14_create_stderr(NAMEA, "DFHAUXT")
+            ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHAUXT PS",
-                stderr="stderr")],
-        start_state=_state(
-            exists=False),
-        end_state=_state(
-            exists=True))
-    expected_result.update({"changed": True})
-    assert trace_module.result == expected_result
+                stdout=LISTDS_data_set(NAMEA, "PS"),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="Sequential"
+        ),
+        changed=True,
+        failed=False
+    )
+    assert trace_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_delete_an_existing_aux_trace():
     trace_module = initialise_module(state="absent")
 
     dataset_utils.idcams = MagicMock(
-        return_value=(
-            0,
-            "ENTRY (A) TEST.REGIONS.DFHAUXT DELETED\n",
-            "stderr"))
+        return_value=(0, IDCAMS_delete_vsam(NAMEA), "")
+    )
     dataset_utils.ikjeft01 = MagicMock(
         side_effect=[
-            (0,
-             "TEST.REGIONS.DFHAUXT PS",
-             "stderr"),
-            (8,
-             "TEST.REGIONS.DFHAUXT NOT IN CATALOG",
-             "stderr")])
+            (0, LISTDS_data_set(NAMEA, "PS"), ""),
+            (8, LISTDS_data_set_doesnt_exist(NAMEA), ""),
+        ]
+    )
 
     trace_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHAUXT PS",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAMEA, "PS"),
+                stderr="",
+            ),
             _execution(
-                name="IDCAMS - Deleting auxiliary trace data set - Run 1",
+                name=IDCAMS_delete_run_name(1, NAMEA),
                 rc=0,
-                stdout="ENTRY (A) TEST.REGIONS.DFHAUXT DELETED\n",
-                stderr="stderr"),
+                stdout=IDCAMS_delete_vsam(NAMEA),
+                stderr=""
+            ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHAUXT NOT IN CATALOG",
-                stderr="stderr")],
-        start_state=_state(
-            exists=True),
-        end_state=_state(
-            exists=False))
-    expected_result.update({"changed": True})
-    assert trace_module.result == expected_result
+                stdout=LISTDS_data_set_doesnt_exist(NAMEA),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="Sequential"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=True,
+        failed=False
+    )
+    assert trace_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_remove_non_existent_aux_trace():
     trace_module = initialise_module(state="absent")
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(
-        8, "TEST.REGIONS.DFHAUXT NOT IN CATALOG", "stderr"))
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(8, LISTDS_data_set_doesnt_exist(NAMEA), "")
+    )
 
     trace_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHAUXT NOT IN CATALOG",
-                stderr="stderr"),
+                stdout=LISTDS_data_set_doesnt_exist(NAMEA),
+                stderr="",
+            ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHAUXT NOT IN CATALOG",
-                stderr="stderr")],
-        start_state=_state(
-            exists=False),
-        end_state=_state(
-            exists=False))
-    expected_result.update({"changed": False})
-    assert trace_module.result == expected_result
+                stdout=LISTDS_data_set_doesnt_exist(NAMEA),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=False,
+        failed=False
+    )
+    assert trace_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_create_an_intial_destination_b_aux_trace():
     trace_module = initialise_module(destination="B")
 
     dataset_utils.ikjeft01 = MagicMock(
         side_effect=[
-            (8,
-             "TEST.REGIONS.DFHBUXT NOT IN CATALOG",
-             "stderr"),
-            (0,
-             "TEST.REGIONS.DFHBUXT PS",
-             "stderr")])
-    dataset_utils.MVSCmd.execute = MagicMock(
+            (8, LISTDS_data_set_doesnt_exist(NAMEB), ""),
+            (0, LISTDS_data_set(NAMEB, "PS"), ""),
+        ]
+    )
+    dataset_utils._execute_iefbr14 = MagicMock(
         return_value=MVSCmdResponse(
-            rc=0, stdout="TEST.REGIONS.DFHBUXT", stderr=""))
+            rc=0, stdout="", stderr=IEFBR14_create_stderr(NAMEB, "DFHBUXT")
+        )
+    )
 
     trace_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHBUXT NOT IN CATALOG",
-                stderr="stderr"),
+                stdout=LISTDS_data_set_doesnt_exist(NAMEB),
+                stderr="",
+            ),
             _execution(
                 name="IEFBR14 - dfhbuxt - Run 1",
                 rc=0,
-                stdout="TEST.REGIONS.DFHBUXT",
-                stderr=""),
+                stdout="",
+                stderr=IEFBR14_create_stderr(NAMEB, "DFHBUXT")),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHBUXT PS",
-                stderr="stderr")],
-        start_state=_state(
-            exists=False),
-        end_state=_state(
-            exists=True))
-    expected_result.update({"changed": True})
-    assert trace_module.result == expected_result
+                stdout=LISTDS_data_set(NAMEB, "PS"),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="Sequential"
+        ),
+        changed=True,
+        failed=False
+    )
+    assert trace_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_warm_on_non_existent_aux():
     aux_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(
-        8, "TEST.REGIONS.DFHAUXT NOT IN CATALOG", "stderr"))
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(8, LISTDS_data_set_doesnt_exist(NAMEA), "")
+    )
 
     aux_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHAUXT NOT IN CATALOG",
-                stderr="stderr"),
+                stdout=LISTDS_data_set_doesnt_exist(NAMEA),
+                stderr="",
+            ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHAUXT NOT IN CATALOG",
-                stderr="stderr"),
+                stdout=LISTDS_data_set_doesnt_exist(NAMEA),
+                stderr="",
+            ),
         ],
-        start_state=_state(
-            exists=False),
-        end_state=_state(
-            exists=False))
-    expected_result.update({"changed": False})
-    expected_result.update({"failed": True})
-    assert aux_module.result == expected_result
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        failed=True,
+        changed=False
+    )
+    assert aux_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_warm_on_empty_aux():
     aux_module = initialise_module(state="warm")
 
     dataset_utils.ikjeft01 = MagicMock(
-        return_value=(0, "TEST.REGIONS.DFHAUXT PS", "stderr"))
-    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(
-        rc=0, stdout="RECORD COUNT:  000000000000000", stderr="stderr"))
+        return_value=(0, LISTDS_data_set(NAMEA, "PS"), "")
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=(
+            MVSCmdResponse(
+                rc=0,
+                stdout=ICETOOL_stdout(0),
+                stderr=ICETOOL_stderr()
+            )
+        )
+    )
 
     aux_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHAUXT PS",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAMEA, "PS"),
+                stderr="",
+            ),
             _execution(
-                name="ICETOOL - Get record count",
+                name=ICETOOL_name(1),
                 rc=0,
-                stdout="RECORD COUNT:  000000000000000",
-                stderr="stderr"),
+                stdout=ICETOOL_stdout(0),
+                stderr=ICETOOL_stderr()
+            ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHAUXT PS",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAMEA, "PS"),
+                stderr="",
+            ),
         ],
-        start_state=_state(
-            exists=True),
-        end_state=_state(
-            exists=True))
-    expected_result.update({"changed": False})
-    expected_result.update({"failed": True})
-    assert aux_module.result == expected_result
+        start_state=dict(
+            exists=True,
+            data_set_organization="Sequential"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="Sequential"
+        ),
+        failed=True,
+        changed=False
+    )
+    assert aux_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_warm_success_aux():
     aux_module = initialise_module(state="warm")
 
     dataset_utils.ikjeft01 = MagicMock(
-        return_value=(0, "TEST.REGIONS.DFHAUXT PS", "stderr"))
-    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(
-        rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr"))
+        return_value=(0, LISTDS_data_set(NAMEA, "PS"), "")
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=(
+            MVSCmdResponse(
+                rc=0,
+                stdout=ICETOOL_stdout(52),
+                stderr=ICETOOL_stderr()
+            )
+        )
+    )
 
     aux_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHAUXT PS",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAMEA, "PS"),
+                stderr="",
+            ),
             _execution(
-                name="ICETOOL - Get record count",
+                name=ICETOOL_name(1),
                 rc=0,
-                stdout="RECORD COUNT:  000000000000052",
-                stderr="stderr"),
+                stdout=ICETOOL_stdout(52),
+                stderr=ICETOOL_stderr()
+            ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHAUXT PS",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAMEA, "PS"),
+                stderr="",
+            ),
         ],
-        start_state=_state(
-            exists=True),
-        end_state=_state(
-            exists=True))
-    expected_result.update({"changed": False})
-    expected_result.update({"failed": False})
-    assert aux_module.result == expected_result
+        start_state=dict(
+            exists=True,
+            data_set_organization="Sequential"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="Sequential"
+        ),
+        failed=False,
+        changed=False
+    )
+    assert aux_module.get_result() == expected_result

@@ -5,24 +5,27 @@
 
 from __future__ import absolute_import, division, print_function
 
+from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE
+
 __metaclass__ = type
-from ansible_collections.ibm.ibm_zos_cics.plugins.modules import auxiliary_temp
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import auxiliary_temp
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
 import pytest
 import sys
 
 
 @pytest.mark.skipif(
-    sys.version_info.major < 3, reason="Requires python 3 language features"
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_get_idcams_cmd_megabytes():
-    dataset_size = dataset_utils._dataset_size(unit="M", primary=10, secondary=1)
-    dataset = dataset_utils._data_set(
-        size=dataset_size,
+    dataset = dict(
         name="ANSI.CYLS.DFHTEMP",
         state="initial",
         exists=False,
         vsam=False,
+        unit="M",
+        primary=10,
+        secondary=1
     )
     idcams_cmd_intra = dataset_utils._build_idcams_define_cmd(
         auxiliary_temp._get_idcams_cmd_temp(dataset)
@@ -43,16 +46,17 @@ def test_get_idcams_cmd_megabytes():
 
 
 @pytest.mark.skipif(
-    sys.version_info.major < 3, reason="Requires python 3 language features"
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_get_idcams_cmd_cylinders():
-    dataset_size = dataset_utils._dataset_size(unit="CYL", primary=3, secondary=1)
-    dataset = dataset_utils._data_set(
-        size=dataset_size,
+    dataset = dict(
         name="ANSI.CYLS.DFHTEMP",
         state="initial",
         exists=False,
         vsam=False,
+        unit="CYL",
+        primary=3,
+        secondary=1
     )
     idcams_cmd_intra = dataset_utils._build_idcams_define_cmd(
         auxiliary_temp._get_idcams_cmd_temp(dataset)

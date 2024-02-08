@@ -5,8 +5,25 @@
 from __future__ import absolute_import, division, print_function
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import global_catalog as global_catalog_utils
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, _response, _state
-from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import set_data_set, set_module_args
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
+from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
+    PYTHON_LANGUAGE_FEATURES_MESSAGE,
+    ICETOOL_name,
+    ICETOOL_stderr,
+    ICETOOL_stdout,
+    IDCAMS_create_stdout,
+    IDCAMS_delete_run_name,
+    IDCAMS_delete_vsam,
+    IDCAMS_create_run_name,
+    LISTDS_data_set_doesnt_exist,
+    LISTDS_data_set,
+    LISTDS_run_name,
+    RMUTL_get_run_name,
+    RMUTL_stderr,
+    RMUTL_stdout,
+    RMUTL_update_run_name,
+    set_module_args
+)
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import global_catalog
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import icetool
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
@@ -22,12 +39,14 @@ except ImportError:
 
 __metaclass__ = type
 
+NAME = "TEST.REGIONS.GCD"
+
 default_arg_parms = {
     "space_primary": 5,
     "space_type": "M",
     "region_data_sets": {
         "dfhgcd": {
-            "dsn": "TEST.REGIONS.GCD"
+            "dsn": NAME
         }
     },
     "cics_data_sets": {
@@ -48,346 +67,585 @@ def initialise_module(**kwargs):
     return gcd_module
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_create_an_intial_global_catalog():
     gcd_module = initialise_module()
 
-    dataset_utils.idcams = MagicMock(return_value=(0, "TEST.REGIONS.GCD", "stderr"))
-    dataset_utils.ikjeft01 = MagicMock(side_effect=[(8, "TEST.REGIONS.GCD NOT IN CATALOG", "stderr"), (0, "TEST.REGIONS.GCD VSAM", "stderr")])
-    global_catalog_utils._execute_dfhrmutl = MagicMock(return_value=MVSCmdResponse(rc=0, stdout="stdout", stderr="stderr"))
+    dataset_utils.idcams = MagicMock(
+        return_value=(0, IDCAMS_create_stdout(NAME), "")
+    )
+    dataset_utils.ikjeft01 = MagicMock(
+        side_effect=[
+            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+        ]
+    )
+    global_catalog_utils._execute_dfhrmutl = MagicMock(
+        return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
+    )
 
     gcd_module.main()
-    expected_result = _response(executions=[
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=8, stdout="TEST.REGIONS.GCD NOT IN CATALOG", stderr="stderr"),
-        _execution(name="IDCAMS - Create global catalog data set - Run 1", rc=0, stdout="TEST.REGIONS.GCD", stderr="stderr"),
-        _execution(name="DFHRMUTL - Updating autostart override - Run 1", rc=0, stdout="stdout", stderr="stderr"),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=0, stdout="TEST.REGIONS.GCD VSAM", stderr="stderr"),
-        _execution(name="DFHRMUTL - Get current catalog - Run 1", rc=0, stdout="stdout", stderr="stderr")
-    ],
-        start_state=_state(exists=False, vsam=False, autostart_override="", next_start=""),
-        end_state=_state(exists=True, vsam=True, autostart_override=None, next_start=None)
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
+            ),
+            _execution(
+                name=IDCAMS_create_run_name(1, NAME),
+                rc=0,
+                stdout=IDCAMS_create_stdout(NAME),
+                stderr="",
+            ),
+            _execution(
+                name=RMUTL_update_run_name(1),
+                rc=0,
+                stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"),
+                stderr=RMUTL_stderr(NAME)
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
+            ),
+            _execution(
+                name=RMUTL_get_run_name(1),
+                rc=0,
+                stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"),
+                stderr=RMUTL_stderr(NAME)
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE",
+            next_start="",
+            autostart_override=""
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="VSAM",
+            next_start="UNKNOWN",
+            autostart_override="AUTOINIT"
+        ),
+        changed=True,
+        failed=False
     )
-    expected_result.update({"changed": True})
-    assert gcd_module.result == expected_result
+    assert gcd_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_delete_an_existing_global_catalog():
     gcd_module = initialise_module(state="absent")
 
-    dataset_utils.idcams = MagicMock(return_value=(0, "ENTRY (C) TEST.REGIONS.GCD DELETED\n", "stderr"))
-    dataset_utils.ikjeft01 = MagicMock(side_effect=[(0, "TEST.REGIONS.GCD VSAM", "stderr"), (8, "TEST.REGIONS.GCD NOT IN CATALOG", "stderr")])
-    global_catalog_utils._execute_dfhrmutl = MagicMock(return_value=MVSCmdResponse(rc=0, stdout="stdout", stderr="stderr"))
+    dataset_utils.idcams = MagicMock(
+        return_value=(0, IDCAMS_delete_vsam(NAME), ""),
+    )
+
+    dataset_utils.ikjeft01 = MagicMock(
+        side_effect=[
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+        ]
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=MVSCmdResponse(
+            rc=0,
+            stdout=ICETOOL_stdout(0),
+            stderr=ICETOOL_stderr()
+        )
+    )
+    global_catalog_utils._execute_dfhrmutl = MagicMock(
+        return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
+    )
 
     gcd_module.main()
-    expected_result = _response(executions=[
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=0, stdout="TEST.REGIONS.GCD VSAM", stderr="stderr"),
-        _execution(name="DFHRMUTL - Get current catalog - Run 1", rc=0, stdout="stdout", stderr="stderr"),
-        _execution(name="IDCAMS - Removing global catalog data set - Run 1", rc=0, stdout="ENTRY (C) TEST.REGIONS.GCD DELETED\n", stderr="stderr"),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=8, stdout="TEST.REGIONS.GCD NOT IN CATALOG", stderr="stderr")
-    ],
-        start_state=_state(exists=True, vsam=True, autostart_override=None, next_start=None),
-        end_state=_state(exists=False, vsam=False, autostart_override="", next_start="")
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
+            ),
+            _execution(
+                name=RMUTL_get_run_name(1),
+                rc=0,
+                stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"),
+                stderr=RMUTL_stderr(NAME)
+            ),
+            _execution(
+                name=IDCAMS_delete_run_name(1, NAME),
+                rc=0,
+                stdout=IDCAMS_delete_vsam(NAME),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="VSAM",
+            next_start="UNKNOWN",
+            autostart_override="AUTOINIT"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE",
+            next_start="",
+            autostart_override=""
+        ),
+        changed=True,
+        failed=False
     )
-    expected_result.update({"changed": True})
-    assert gcd_module.result == expected_result
+    assert gcd_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_remove_non_existent_global_catalog():
     gcd_module = initialise_module(state="absent")
 
-    dataset_utils.idcams = MagicMock(return_value=(8, "ENTRY TEST.REGIONS.GCD NOTFOUND", "stderr"))
-    dataset_utils.ikjeft01 = MagicMock(return_value=(8, "TEST.REGIONS.GCD NOT IN CATALOG", "stderr"))
-
-    gcd_module.main()
-    expected_result = _response(executions=[
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=8, stdout="TEST.REGIONS.GCD NOT IN CATALOG", stderr="stderr"),
-        _execution(name="IDCAMS - Removing global catalog data set - Run 1", rc=8, stdout="ENTRY TEST.REGIONS.GCD NOTFOUND", stderr="stderr"),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=8, stdout="TEST.REGIONS.GCD NOT IN CATALOG", stderr="stderr")
-    ],
-        start_state=_state(exists=False, vsam=False, autostart_override="", next_start=""),
-        end_state=_state(exists=False, vsam=False, autostart_override="", next_start="")
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(8, LISTDS_data_set_doesnt_exist(NAME), "")
     )
-    expected_result.update({"changed": True})
-    assert gcd_module.result == expected_result
+    gcd_module.main()
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE",
+            next_start="",
+            autostart_override=""
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE",
+            next_start="",
+            autostart_override=""
+        ),
+        changed=False,
+        failed=False
+    )
+    assert gcd_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_warm_start_a_global_catalog():
     gcd_module = initialise_module(state="warm")
-    data_set = set_data_set(exists=True, name="TEST.REGIONS.GCD", vsam=True, sdfhload="TEST.CICS.INSTALL.SDFHLOAD")
-    gcd_module.data_set = data_set
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(0, "TEST.REGIONS.GCD VSAM", "stderr"))
-    dataset_utils.idcams = MagicMock(return_value=(0, "ENTRY (C) TEST.REGIONS.GCD DELETED\n", "stderr"))
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(
+            0,
+            LISTDS_data_set(NAME, "VSAM"),
+            ""
+        )
+    )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
-        return_value=MVSCmdResponse(rc=0, stdout="auto-start override   : AUTOASIS \n next start type       : UNKNOWN", stderr="stderr")
+        return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOASIS", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=MVSCmdResponse(
+            rc=0,
+            stdout=ICETOOL_stdout(52),
+            stderr=ICETOOL_stderr()
+        )
     )
 
     gcd_module.main()
-    expected_result = _response(executions=[
-        _execution(
-            name="IKJEFT01 - Get Data Set Status - Run 1",
-            rc=0,
-            stdout="TEST.REGIONS.GCD VSAM",
-            stderr="stderr"
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""),
+            _execution(
+                name=RMUTL_get_run_name(1),
+                rc=0,
+                stdout=RMUTL_stdout("AUTOASIS", "UNKNOWN"),
+                stderr=RMUTL_stderr(NAME)
+            ),
+            _execution(
+                name=ICETOOL_name(1),
+                rc=0,
+                stdout=ICETOOL_stdout(52),
+                stderr=ICETOOL_stderr()
+            ),
+            _execution(
+                name=RMUTL_update_run_name(1),
+                rc=0,
+                stdout=RMUTL_stdout("AUTOASIS", "UNKNOWN"),
+                stderr=RMUTL_stderr(NAME)
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""),
+            _execution(
+                name=RMUTL_get_run_name(1),
+                rc=0,
+                stdout=RMUTL_stdout("AUTOASIS", "UNKNOWN"),
+                stderr=RMUTL_stderr(NAME)
+            ),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="VSAM",
+            next_start="UNKNOWN",
+            autostart_override="AUTOASIS"
         ),
-        _execution(
-            name="DFHRMUTL - Get current catalog - Run 1",
-            rc=0,
-            stdout="auto-start override   : AUTOASIS \n next start type       : UNKNOWN",
-            stderr="stderr"
+        end_state=dict(
+            exists=True,
+            data_set_organization="VSAM",
+            next_start="UNKNOWN",
+            autostart_override="AUTOASIS"
         ),
-        _execution(
-            name="DFHRMUTL - Updating autostart override - Run 1",
-            rc=0,
-            stdout="auto-start override   : AUTOASIS \n next start type       : UNKNOWN",
-            stderr="stderr"
-        ),
-        _execution(
-            name="IKJEFT01 - Get Data Set Status - Run 1",
-            rc=0,
-            stdout="TEST.REGIONS.GCD VSAM",
-            stderr="stderr"
-        ),
-        _execution(
-            name="DFHRMUTL - Get current catalog - Run 1",
-            rc=0,
-            stdout="auto-start override   : AUTOASIS \n next start type       : UNKNOWN",
-            stderr="stderr"
-        ),
-    ],
-        start_state=_state(exists=True, vsam=True, autostart_override="AUTOASIS", next_start="UNKNOWN"),
-        end_state=_state(exists=True, vsam=True, autostart_override="AUTOASIS", next_start="UNKNOWN")
+        changed=True,
+        failed=False
     )
-    expected_result.update({"changed": True})
-    assert gcd_module.result == expected_result
+    assert gcd_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_error_warm_start_a_unused_global_catalog():
     gcd_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(0, "TEST.REGIONS.GCD VSAM", "stderr"))
-    global_catalog_utils._execute_dfhrmutl = MagicMock(
-        return_value=MVSCmdResponse(rc=0, stdout="auto-start override   : AUTOINIT \n next start type       : UNKNOWN", stderr="stderr")
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(
+            0,
+            LISTDS_data_set(NAME, "VSAM"),
+            ""
+        )
     )
-    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(rc=0, stdout="RECORD COUNT:  000000000000000", stderr="stderr"))
-
+    global_catalog_utils._execute_dfhrmutl = MagicMock(
+        return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=MVSCmdResponse(
+            rc=0,
+            stdout=ICETOOL_stdout(0),
+            stderr=ICETOOL_stderr()
+        )
+    )
     gcd_module.main()
 
-    expected_result = _response(executions=[
-        _execution(
-            name="IKJEFT01 - Get Data Set Status - Run 1",
-            rc=0,
-            stdout="TEST.REGIONS.GCD VSAM",
-            stderr="stderr"
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""
+            ),
+            _execution(
+                name=RMUTL_get_run_name(1),
+                rc=0,
+                stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"),
+                stderr=RMUTL_stderr(NAME)
+            ),
+            _execution(
+                name=ICETOOL_name(1),
+                rc=0,
+                stdout=ICETOOL_stdout(0),
+                stderr=ICETOOL_stderr()),
+            _execution(
+                name=RMUTL_update_run_name(1),
+                rc=0,
+                stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"),
+                stderr=RMUTL_stderr(NAME)
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""
+            ),
+            _execution(
+                name=RMUTL_get_run_name(1),
+                rc=0,
+                stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"),
+                stderr=RMUTL_stderr(NAME)
+            ),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="VSAM",
+            next_start="UNKNOWN",
+            autostart_override="AUTOINIT"
         ),
-        _execution(
-            name="DFHRMUTL - Get current catalog - Run 1",
-            rc=0,
-            stdout="auto-start override   : AUTOINIT \n next start type       : UNKNOWN",
-            stderr="stderr"
+        end_state=dict(
+            exists=True,
+            data_set_organization="VSAM",
+            next_start="UNKNOWN",
+            autostart_override="AUTOINIT"
         ),
-        _execution(name="ICETOOL - Get record count", rc=0, stdout="RECORD COUNT:  000000000000000", stderr="stderr"),
-        _execution(
-            name="DFHRMUTL - Updating autostart override - Run 1",
-            rc=0,
-            stdout="auto-start override   : AUTOINIT \n next start type       : UNKNOWN",
-            stderr="stderr"
-        ),
-        _execution(
-            name="IKJEFT01 - Get Data Set Status - Run 1",
-            rc=0,
-            stdout="TEST.REGIONS.GCD VSAM",
-            stderr="stderr"
-        ),
-        _execution(
-            name="DFHRMUTL - Get current catalog - Run 1",
-            rc=0,
-            stdout="auto-start override   : AUTOINIT \n next start type       : UNKNOWN",
-            stderr="stderr"
-        ),
-    ],
-        start_state=_state(exists=True, vsam=True, autostart_override="AUTOINIT", next_start="UNKNOWN"),
-        end_state=_state(exists=True, vsam=True, autostart_override="AUTOINIT", next_start="UNKNOWN")
+        changed=True,
+        failed=True
     )
-    expected_result.update({"changed": True})
-    expected_result.update({"failed": True})
-    assert gcd_module.result == expected_result
+    assert gcd_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_error_warm_start_a_non_existent_global_catalog():
     gcd_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(8, "TEST.REGIONS.GCD NOT IN CATALOG", "stderr"))
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(8, LISTDS_data_set_doesnt_exist(NAME), "")
+    )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
-        return_value=MVSCmdResponse(rc=0, stdout="auto-start override   : AUTOINIT \n next start type       : UNKNOWN", stderr="stderr")
+        return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
     )
 
     gcd_module.main()
-    expected_result = _response(executions=[
-        _execution(
-            name="IKJEFT01 - Get Data Set Status - Run 1",
-            rc=8,
-            stdout="TEST.REGIONS.GCD NOT IN CATALOG",
-            stderr="stderr"
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr=""
+            ),
+            _execution(
+                name=RMUTL_update_run_name(1),
+                rc=0,
+                stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"),
+                stderr=RMUTL_stderr(NAME)
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr=""
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE",
+            next_start="",
+            autostart_override=""
         ),
-        _execution(
-            name="DFHRMUTL - Updating autostart override - Run 1",
-            rc=0,
-            stdout="auto-start override   : AUTOINIT \n next start type       : UNKNOWN",
-            stderr="stderr"
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE",
+            next_start="",
+            autostart_override=""
         ),
-        _execution(
-            name="IKJEFT01 - Get Data Set Status - Run 1",
-            rc=8,
-            stdout="TEST.REGIONS.GCD NOT IN CATALOG",
-            stderr="stderr"
-        ),
-    ],
-        start_state=_state(exists=False, vsam=False, autostart_override="", next_start=""),
-        end_state=_state(exists=False, vsam=False, autostart_override="", next_start="")
+        failed=True,
+        changed=True
     )
-    expected_result.update({"changed": True})
-    expected_result.update({"failed": True})
-    assert gcd_module.result == expected_result
+    assert gcd_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def tests_cold_start_non_existent_catalog():
     gcd_module = initialise_module(state="cold")
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(8, "TEST.REGIONS.GCD NOT IN CATALOG", "stderr"))
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(8, LISTDS_data_set_doesnt_exist(NAME), "")
+    )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
-        return_value=MVSCmdResponse(rc=0, stdout="auto-start override   : AUTOCOLD \n next start type       : UNKNOWN", stderr="stderr")
+        return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOCOLD", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
     )
 
     gcd_module.main()
-    expected_result = _response(executions=[
-        _execution(
-            name="IKJEFT01 - Get Data Set Status - Run 1",
-            rc=8,
-            stdout="TEST.REGIONS.GCD NOT IN CATALOG",
-            stderr="stderr"
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr=""
+            ),
+            _execution(
+                name=RMUTL_update_run_name(1),
+                rc=0,
+                stdout=RMUTL_stdout("AUTOCOLD", "UNKNOWN"),
+                stderr=RMUTL_stderr(NAME)
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr=""
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE",
+            next_start="",
+            autostart_override=""
         ),
-        _execution(
-            name="DFHRMUTL - Updating autostart override - Run 1",
-            rc=0,
-            stdout="auto-start override   : AUTOCOLD \n next start type       : UNKNOWN",
-            stderr="stderr"
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE",
+            next_start="",
+            autostart_override=""
         ),
-        _execution(
-            name="IKJEFT01 - Get Data Set Status - Run 1",
-            rc=8,
-            stdout="TEST.REGIONS.GCD NOT IN CATALOG",
-            stderr="stderr"
-        ),
-    ],
-        start_state=_state(exists=False, vsam=False, autostart_override="", next_start=""),
-        end_state=_state(exists=False, vsam=False, autostart_override="", next_start="")
+        failed=True,
+        changed=True
     )
-    expected_result.update({"changed": True})
-    expected_result.update({"failed": True})
-    assert gcd_module.result == expected_result
+    assert gcd_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_cold_start_unused_catalog():
     gcd_module = initialise_module(state="cold")
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(0, "TEST.REGIONS.GCD VSAM", "stderr"))
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(0, LISTDS_data_set(NAME, "VSAM"), "")
+    )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
-        return_value=MVSCmdResponse(rc=0, stdout="auto-start override   : AUTOINIT \n next start type       : UNKNOWN", stderr="stderr")
+        return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
     )
 
     gcd_module.main()
-    expected_result = _response(executions=[
-        _execution(
-            name="IKJEFT01 - Get Data Set Status - Run 1",
-            rc=0,
-            stdout="TEST.REGIONS.GCD VSAM",
-            stderr="stderr"
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
+            ),
+            _execution(
+                name=RMUTL_get_run_name(1),
+                rc=0,
+                stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"),
+                stderr=RMUTL_stderr(NAME)
+            ),
+            _execution(
+                name=RMUTL_update_run_name(1),
+                rc=0,
+                stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"),
+                stderr=RMUTL_stderr(NAME)
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
+            ),
+            _execution(
+                name=RMUTL_get_run_name(1),
+                rc=0,
+                stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"),
+                stderr=RMUTL_stderr(NAME)
+            ),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="VSAM",
+            next_start="UNKNOWN",
+            autostart_override="AUTOINIT"
         ),
-        _execution(
-            name="DFHRMUTL - Get current catalog - Run 1",
-            rc=0,
-            stdout="auto-start override   : AUTOINIT \n next start type       : UNKNOWN",
-            stderr="stderr"
+        end_state=dict(
+            exists=True,
+            data_set_organization="VSAM",
+            next_start="UNKNOWN",
+            autostart_override="AUTOINIT"
         ),
-        _execution(
-            name="DFHRMUTL - Updating autostart override - Run 1",
-            rc=0,
-            stdout="auto-start override   : AUTOINIT \n next start type       : UNKNOWN",
-            stderr="stderr"
-        ),
-        _execution(
-            name="IKJEFT01 - Get Data Set Status - Run 1",
-            rc=0,
-            stdout="TEST.REGIONS.GCD VSAM",
-            stderr="stderr"
-        ),
-        _execution(
-            name="DFHRMUTL - Get current catalog - Run 1",
-            rc=0,
-            stdout="auto-start override   : AUTOINIT \n next start type       : UNKNOWN",
-            stderr="stderr"
-        ),
-    ],
-        start_state=_state(exists=True, vsam=True, autostart_override="AUTOINIT", next_start="UNKNOWN"),
-        end_state=_state(exists=True, vsam=True, autostart_override="AUTOINIT", next_start="UNKNOWN")
+        changed=True,
+        failed=True
     )
-    expected_result.update({"changed": True})
-    expected_result.update({"failed": True})
-    assert gcd_module.result == expected_result
+    assert gcd_module.get_result() == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_cold_start_global_catalog():
     gcd_module = initialise_module(state="cold")
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(0, "TEST.REGIONS.GCD VSAM", "stderr"))
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(0, LISTDS_data_set(NAME, "VSAM"), "")
+    )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
-        return_value=MVSCmdResponse(rc=0, stdout="auto-start override   : AUTOCOLD \n next start type       : UNKNOWN", stderr="stderr")
+        return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOCOLD", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
     )
 
     gcd_module.main()
-    expected_result = _response(executions=[
-        _execution(
-            name="IKJEFT01 - Get Data Set Status - Run 1",
-            rc=0,
-            stdout="TEST.REGIONS.GCD VSAM",
-            stderr="stderr"
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""
+            ),
+            _execution(
+                name=RMUTL_get_run_name(1),
+                rc=0,
+                stdout=RMUTL_stdout("AUTOCOLD", "UNKNOWN"),
+                stderr=RMUTL_stderr(NAME)
+            ),
+            _execution(
+                name=RMUTL_update_run_name(1),
+                rc=0,
+                stdout=RMUTL_stdout("AUTOCOLD", "UNKNOWN"),
+                stderr=RMUTL_stderr(NAME)
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""
+            ),
+            _execution(
+                name=RMUTL_get_run_name(1),
+                rc=0,
+                stdout=RMUTL_stdout("AUTOCOLD", "UNKNOWN"),
+                stderr=RMUTL_stderr(NAME)
+            ),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="VSAM",
+            next_start="UNKNOWN",
+            autostart_override="AUTOCOLD"
         ),
-        _execution(
-            name="DFHRMUTL - Get current catalog - Run 1",
-            rc=0,
-            stdout="auto-start override   : AUTOCOLD \n next start type       : UNKNOWN",
-            stderr="stderr"
+        end_state=dict(
+            exists=True,
+            data_set_organization="VSAM",
+            next_start="UNKNOWN",
+            autostart_override="AUTOCOLD"
         ),
-        _execution(
-            name="DFHRMUTL - Updating autostart override - Run 1",
-            rc=0,
-            stdout="auto-start override   : AUTOCOLD \n next start type       : UNKNOWN",
-            stderr="stderr"
-        ),
-        _execution(
-            name="IKJEFT01 - Get Data Set Status - Run 1",
-            rc=0,
-            stdout="TEST.REGIONS.GCD VSAM",
-            stderr="stderr"
-        ),
-        _execution(
-            name="DFHRMUTL - Get current catalog - Run 1",
-            rc=0,
-            stdout="auto-start override   : AUTOCOLD \n next start type       : UNKNOWN",
-            stderr="stderr"
-        ),
-    ],
-        start_state=_state(exists=True, vsam=True, autostart_override="AUTOCOLD", next_start="UNKNOWN"),
-        end_state=_state(exists=True, vsam=True, autostart_override="AUTOCOLD", next_start="UNKNOWN")
+        changed=True,
+        failed=False
     )
-    expected_result.update({"changed": True})
-    assert gcd_module.result == expected_result
+    assert gcd_module.get_result() == expected_result

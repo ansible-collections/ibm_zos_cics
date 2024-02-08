@@ -5,6 +5,12 @@
 
 from __future__ import absolute_import, division, print_function
 
+from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
+    PYTHON_LANGUAGE_FEATURES_MESSAGE,
+    RMUTL_get_run_name,
+    RMUTL_stdout,
+    RMUTL_update_run_name
+)
 __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import global_catalog
@@ -24,12 +30,10 @@ except ImportError:
 
 
 @pytest.mark.skipif(
-    sys.version_info.major < 3, reason="Requires python 3 language features"
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_get_idcams_cmd_megabytes():
-    catalog_size = dataset_utils._dataset_size(unit="M", primary=10, secondary=1)
-    catalog = dataset_utils._data_set(
-        size=catalog_size,
+    catalog = dict(
         name="ANSI.TEST.DFHGCD",
         sdfhload="CICSTS.IN56.SDFHLOAD",
         state="initial",
@@ -37,6 +41,9 @@ def test_get_idcams_cmd_megabytes():
         nextstart="",
         exists=False,
         vsam=False,
+        unit="M",
+        primary=10,
+        secondary=1
     )
     idcams_cmd_gcd = dataset_utils._build_idcams_define_cmd(
         global_catalog._get_idcams_cmd_gcd(catalog)
@@ -60,12 +67,10 @@ def test_get_idcams_cmd_megabytes():
 
 
 @pytest.mark.skipif(
-    sys.version_info.major < 3, reason="Requires python 3 language features"
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_get_idcams_cmd_cylinders():
-    catalog_size = dataset_utils._dataset_size(unit="CYL", primary=3, secondary=1)
-    catalog = dataset_utils._data_set(
-        size=catalog_size,
+    catalog = dict(
         name="ANSI.CYLS.DFHGCD",
         sdfhload="CICSTS.IN56.SDFHLOAD",
         state="initial",
@@ -73,6 +78,9 @@ def test_get_idcams_cmd_cylinders():
         nextstart="",
         exists=False,
         vsam=False,
+        unit="CYL",
+        primary=3,
+        secondary=1
     )
     idcams_cmd_gcd = dataset_utils._build_idcams_define_cmd(
         global_catalog._get_idcams_cmd_gcd(catalog)
@@ -95,49 +103,8 @@ def test_get_idcams_cmd_cylinders():
     )
 
 
-def test_global_catalog_class():
-    catalog_size = dataset_utils._dataset_size(unit="M", primary=10, secondary=1)
-    catalog = dataset_utils._data_set(
-        size=catalog_size,
-        name="ANSI.TEST.DFHGCD",
-        sdfhload="CICSTS.IN56.SDFHLOAD",
-        state="initial",
-        autostart_override="",
-        nextstart="",
-        exists=False,
-        vsam=False,
-    )
-    assert catalog == {
-        "size": {"unit": "M", "primary": 10, "secondary": 1},
-        "name": "ANSI.TEST.DFHGCD",
-        "sdfhload": "CICSTS.IN56.SDFHLOAD",
-        "state": "initial",
-        "autostart_override": "",
-        "nextstart": "",
-        "exists": False,
-        "vsam": False,
-    }
-
-
 def test_global_catalog_get_records_autoinit_unknown():
-    stdout = """ ===DFHRMUTL CICS RECOVERY MANAGER BATCH UTILITY===
-
- SET_AUTO_START=AUTOINIT
-
- ---DFHRMUTL:   DFHGCD information
-    No recovery manager record found. GCD assumed empty.
-
- ---DFHRMUTL:   DFHGCD updated information
-    Recovery manager auto-start override   : AUTOINIT
-    Recovery manager next start type       : UNKNOWN
-
- Note: a CICS system that was shutdown warm, and which
- has no indoubt, commit-failed or backout-failed Units
- Of Work keypointed at that time, can safely be restarted
- cold without loss of data integrity.
-
-
-"""
+    stdout = RMUTL_stdout("AUTOINIT", "UNKNOWN")
     resp = global_catalog._get_catalog_records(stdout=stdout)
     assert resp == {
         "autostart_override": "AUTOINIT",
@@ -146,20 +113,7 @@ def test_global_catalog_get_records_autoinit_unknown():
 
 
 def test_global_catalog_get_records_autoasis_emergency():
-    stdout = """ ===DFHRMUTL CICS RECOVERY MANAGER BATCH UTILITY===
-
-
- ---DFHRMUTL:   DFHGCD information
-    Recovery manager auto-start override   : AUTOASIS
-    Recovery manager next start type       : EMERGENCY
-
- Note: a CICS system that was shutdown warm, and which
- has no indoubt, commit-failed or backout-failed Units
- Of Work keypointed at that time, can safely be restarted
- cold without loss of data integrity.
-
-
-"""
+    stdout = RMUTL_stdout("AUTOASIS", "EMERGENCY")
     resp = global_catalog._get_catalog_records(stdout=stdout)
     assert resp == {
         "autostart_override": "AUTOASIS",
@@ -168,20 +122,7 @@ def test_global_catalog_get_records_autoasis_emergency():
 
 
 def test_global_catalog_get_records_autocold_emergency():
-    stdout = """ ===DFHRMUTL CICS RECOVERY MANAGER BATCH UTILITY===
-
-
- ---DFHRMUTL:   DFHGCD information
-    Recovery manager auto-start override   : AUTOCOLD
-    Recovery manager next start type       : EMERGENCY
-
- Note: a CICS system that was shutdown warm, and which
- has no indoubt, commit-failed or backout-failed Units
- Of Work keypointed at that time, can safely be restarted
- cold without loss of data integrity.
-
-
-"""
+    stdout = RMUTL_stdout("AUTOCOLD", "EMERGENCY")
     resp = global_catalog._get_catalog_records(stdout=stdout)
     assert resp == {
         "autostart_override": "AUTOCOLD",
@@ -192,7 +133,7 @@ def test_global_catalog_get_records_autocold_emergency():
 def test_global_catalog_run_rmutl_with_cmd():
     executions = [
         _execution(
-            name="DFHRMUTL - Updating autostart override - Run 1",
+            name=RMUTL_update_run_name(1),
             rc=0,
             stdout="",
             stderr="",
@@ -212,13 +153,13 @@ def test_global_catalog_run_rmutl_with_cmd():
 def test_global_catalog_run_rmutl_with_cmd_and_failure():
     executions = [
         _execution(
-            name="DFHRMUTL - Updating autostart override - Run 1",
+            name=RMUTL_update_run_name(1),
             rc=16,
             stdout=" ABC \n REASON: X'A8'",
             stderr="",
         ),
         _execution(
-            name="DFHRMUTL - Updating autostart override - Run 2",
+            name=RMUTL_update_run_name(2),
             rc=0,
             stdout="",
             stderr="",
@@ -241,25 +182,13 @@ def test_global_catalog_run_rmutl_with_cmd_and_failure():
 def test_global_catalog_run_rmutl_no_cmd():
     rmutl_response = MVSCmdResponse(
         rc=0,
-        stdout=""" ===DFHRMUTL CICS RECOVERY MANAGER BATCH UTILITY===
-
-
- ---DFHRMUTL:   DFHGCD information
-    Recovery manager auto-start override   : AUTOASIS
-    Recovery manager next start type       : EMERGENCY
-
- Note: a CICS system that was shutdown warm, and which
- has no indoubt, commit-failed or backout-failed Units
- Of Work keypointed at that time, can safely be restarted
- cold without loss of data integrity.
-
-""",
+        stdout=RMUTL_stdout("AUTOASIS", "EMERGENCY"),
         stderr="",
     )
 
     expected_executions = [
         _execution(
-            name="DFHRMUTL - Get current catalog - Run 1",
+            name=RMUTL_get_run_name(1),
             rc=rmutl_response.rc,
             stdout=rmutl_response.stdout,
             stderr=rmutl_response.stderr,
@@ -282,31 +211,19 @@ def test_global_catalog_run_rmutl_no_cmd():
 def test_global_catalog_run_rmutl_no_cmd_with_failure():
     rmutl_response = MVSCmdResponse(
         rc=0,
-        stdout=""" ===DFHRMUTL CICS RECOVERY MANAGER BATCH UTILITY===
-
-
- ---DFHRMUTL:   DFHGCD information
-    Recovery manager auto-start override   : AUTOASIS
-    Recovery manager next start type       : EMERGENCY
-
- Note: a CICS system that was shutdown warm, and which
- has no indoubt, commit-failed or backout-failed Units
- Of Work keypointed at that time, can safely be restarted
- cold without loss of data integrity.
-
-""",
+        stdout=RMUTL_stdout("AUTOASIS", "EMERGENCY"),
         stderr="",
     )
 
     expected_executions = [
         _execution(
-            name="DFHRMUTL - Get current catalog - Run 1",
+            name=RMUTL_get_run_name(1),
             rc=16,
             stdout=" ABC \n REASON: X'A8'",
             stderr="",
         ),
         _execution(
-            name="DFHRMUTL - Get current catalog - Run 2",
+            name=RMUTL_get_run_name(2),
             rc=rmutl_response.rc,
             stdout=rmutl_response.stdout,
             stderr=rmutl_response.stderr,
@@ -334,55 +251,43 @@ def test_global_catalog_run_rmutl_no_cmd_with_failure():
 def test_global_catalog_run_rmutl_no_cmd_many_failures():
     rmutl_response = MVSCmdResponse(
         rc=0,
-        stdout=""" ===DFHRMUTL CICS RECOVERY MANAGER BATCH UTILITY===
-
-
- ---DFHRMUTL:   DFHGCD information
-    Recovery manager auto-start override   : AUTOINIT
-    Recovery manager next start type       : UNKNOWN
-
- Note: a CICS system that was shutdown warm, and which
- has no indoubt, commit-failed or backout-failed Units
- Of Work keypointed at that time, can safely be restarted
- cold without loss of data integrity.
-
-""",
+        stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"),
         stderr="",
     )
 
     expected_executions = [
         _execution(
-            name="DFHRMUTL - Get current catalog - Run 1",
+            name=RMUTL_get_run_name(1),
             rc=16,
             stdout=" ABC \n REASON: X'A8'",
             stderr="",
         ),
         _execution(
-            name="DFHRMUTL - Get current catalog - Run 2",
+            name=RMUTL_get_run_name(2),
             rc=16,
             stdout="\n\n\n REASON: X'A8'",
             stderr="",
         ),
         _execution(
-            name="DFHRMUTL - Get current catalog - Run 3",
+            name=RMUTL_get_run_name(3),
             rc=16,
             stdout="REASON:X'A8'",
             stderr="",
         ),
         _execution(
-            name="DFHRMUTL - Get current catalog - Run 4",
+            name=RMUTL_get_run_name(4),
             rc=16,
             stdout="\n REASON:X'A8'",
             stderr="",
         ),
         _execution(
-            name="DFHRMUTL - Get current catalog - Run 5",
+            name=RMUTL_get_run_name(5),
             rc=16,
             stdout=" ABC \n REASON:   X 'A8'",
             stderr="",
         ),
         _execution(
-            name="DFHRMUTL - Get current catalog - Run 6",
+            name=RMUTL_get_run_name(6),
             rc=rmutl_response.rc,
             stdout=rmutl_response.stdout,
             stderr=rmutl_response.stderr,
@@ -417,7 +322,14 @@ def test_global_catalog_run_rmutl_rc16_error():
     )
     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
 
-    expected_executions = [_execution(name="DFHRMUTL - Updating autostart override - Run 1", rc=16, stdout=" ABC \n REASON: X'12'", stderr="")]
+    expected_executions = [
+        _execution(
+            name=RMUTL_update_run_name(1),
+            rc=16,
+            stdout=" ABC \n REASON: X'12'",
+            stderr=""
+        )
+    ]
 
     error_raised = False
     try:
@@ -443,9 +355,9 @@ def test_global_catalog_run_rmutl_many_rc16_error():
     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
 
     expected_executions = [
-        _execution(name="DFHRMUTL - Updating autostart override - Run 1", rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
-        _execution(name="DFHRMUTL - Updating autostart override - Run 2", rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
-        _execution(name="DFHRMUTL - Updating autostart override - Run 3", rc=16, stdout="REASON:X'B2'", stderr=""),
+        _execution(name=RMUTL_update_run_name(1), rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
+        _execution(name=RMUTL_update_run_name(2), rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
+        _execution(name=RMUTL_update_run_name(3), rc=16, stdout="REASON:X'B2'", stderr=""),
     ]
 
     error_raised = False
@@ -472,9 +384,9 @@ def test_global_catalog_run_rmutl_many_rc_error():
     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
 
     expected_executions = [
-        _execution(name="DFHRMUTL - Updating autostart override - Run 1", rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
-        _execution(name="DFHRMUTL - Updating autostart override - Run 2", rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
-        _execution(name="DFHRMUTL - Updating autostart override - Run 3", rc=15, stdout="REASON:X'A8'", stderr="")
+        _execution(name=RMUTL_update_run_name(1), rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
+        _execution(name=RMUTL_update_run_name(2), rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
+        _execution(name=RMUTL_update_run_name(3), rc=15, stdout="REASON:X'A8'", stderr="")
     ]
 
     error_raised = False
@@ -496,7 +408,7 @@ def test_global_catalog_run_rmutl_rc_not_0():
     )
     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
 
-    expected_executions = [_execution(name="DFHRMUTL - Updating autostart override - Run 1", rc=123, stdout="", stderr="")]
+    expected_executions = [_execution(name=RMUTL_update_run_name(1), rc=123, stdout="", stderr="")]
 
     error_raised = False
     try:
