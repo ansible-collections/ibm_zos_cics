@@ -6,7 +6,6 @@
   hosts: "all"
   gather_facts: false
   vars:
-    region_dataset_path: "ANSIBIT.TESTS.{{ cics_test_area_initial }}"
     catalog_name: "DFHGCD"
 
   module_defaults:
@@ -16,7 +15,7 @@
       space_primary: 5
       space_type: "M"
       region_data_sets:
-        template: "{{ region_dataset_path }}.low.<< data_set_name >>"
+        template: "{{ region_data_set_path }}.low.<< data_set_name >>"
 
   tasks:
     # #############################################################################
@@ -26,7 +25,7 @@
     - name: Delete catalog data set if it exists
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
-        name: "{{ region_dataset_path }}.LOW.{{ catalog_name }}"
+        name: "{{ region_data_set_path }}.LOW.{{ catalog_name }}"
         state: absent
       register: delete_result
       retries: 3
@@ -72,7 +71,7 @@
     - name: Delete catalog data set
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
-        name: "{{ region_dataset_path }}.LOW.{{ catalog_name }}"
+        name: "{{ region_data_set_path }}.LOW.{{ catalog_name }}"
         state: absent
       register: delete_result
       retries: 3

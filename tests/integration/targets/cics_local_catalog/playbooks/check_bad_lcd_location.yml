@@ -6,9 +6,8 @@
   hosts: "all"
   gather_facts: false
   vars:
-    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}"
     catalog_name: "DFHLCD"
-    catalog_path: "{{ region_dataset_path }}.{{ catalog_name }}"
+    catalog_path: "{{ region_data_set_path }}.{{ catalog_name }}"
 
   tasks:
     # #############################################################################
@@ -25,7 +24,7 @@
         space_type: "M"
         region_data_sets:
           dfhlcd:
-            dsn: "{{ region_dataset_path }}..."
+            dsn: "{{ region_data_set_path }}..."
       register: res
       ignore_errors: true
 
@@ -40,4 +39,4 @@
           - res.changed is false
           - res.rc == 1
           - "'exception' in res"
-          - "'Invalid argument \"ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}...\" for type \"data_set_base\".' in res.exception"
+          - "'Invalid argument \"{{ region_data_set_path }}...\" for type \"data_set_base\".' in res.exception"

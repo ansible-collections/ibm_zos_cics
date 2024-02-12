@@ -107,7 +107,7 @@
         state: "initial"
         region_data_sets:
           dfhtemp:
-            dsn: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}.DFHTEMP"
+            dsn: "{{ region_data_set_path }}.DFHTEMP"
       register: result
     - name: Assert TEMP passed
       ansible.builtin.assert:
@@ -121,7 +121,7 @@
         state: "initial"
         region_data_sets:
           dfhtemp:
-            dsn: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}.DFHTEMP"
+            dsn: "{{ region_data_set_path }}.DFHTEMP"
       register: result
     - name: Assert TEMP passed
       ansible.builtin.assert:
@@ -135,7 +135,7 @@
         state: absent
         region_data_sets:
           dfhtemp:
-            dsn: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}.DFHTEMP"
+            dsn: "{{ region_data_set_path }}.DFHTEMP"
       register: result
     - name: Assert TEMP passed
       ansible.builtin.assert:
@@ -149,7 +149,7 @@
         state: absent
         region_data_sets:
           dfhtemp:
-            dsn: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}.DFHTEMP"
+            dsn: "{{ region_data_set_path }}.DFHTEMP"
       register: result
     - name: Assert TEMP passed
       ansible.builtin.assert:

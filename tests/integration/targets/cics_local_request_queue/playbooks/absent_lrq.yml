@@ -6,16 +6,15 @@
   hosts: "all"
   gather_facts: false
   vars:
-    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_absent }}"
     lrq_name: "DFHLRQ"
-    lrq_path: "{{ region_dataset_path }}.{{ lrq_name }}"
+    lrq_path: "{{ region_data_set_path }}.{{ lrq_name }}"
 
   module_defaults:
     ibm.ibm_zos_cics.local_request_queue:
       space_primary: 4
       space_type: "M"
       region_data_sets:
-        template: "{{ region_dataset_path }}.<< data_set_name >>"
+        template: "{{ region_data_set_path }}.<< data_set_name >>"
 
   tasks:
     # #############################################################################

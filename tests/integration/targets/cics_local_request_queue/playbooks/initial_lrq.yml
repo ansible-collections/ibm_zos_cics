@@ -6,7 +6,6 @@
   hosts: "all"
   gather_facts: false
   vars:
-    region_data_set_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}"
     lrq_name: "DFHLRQ"
     lrq_path: "{{ region_data_set_path }}.{{ lrq_name }}"
 
