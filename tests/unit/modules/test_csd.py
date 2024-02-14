@@ -9,9 +9,10 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import icetool
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
     PYTHON_LANGUAGE_FEATURES_MESSAGE,
+    CSDUP_add_group_stdout,
     CSDUP_name,
     CSDUP_stderr,
-    CSDUP_stdout,
+    CSDUP_initialize_stdout,
     ICETOOL_name,
     ICETOOL_stderr,
     ICETOOL_stdout,
@@ -82,7 +83,10 @@ def test_create_an_intial_csd():
         ]
     )
     csd_utils._execute_dfhcsdup = MagicMock(
-        return_value=MVSCmdResponse(rc=0, stdout=CSDUP_stdout(NAME), stderr=CSDUP_stderr(NAME))
+        side_effect=[
+            MVSCmdResponse(rc=0, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)),
+            MVSCmdResponse(rc=0, stdout=CSDUP_add_group_stdout(NAME), stderr=CSDUP_stderr(NAME))
+        ]
     )
 
     csd_module.main()
@@ -103,7 +107,13 @@ def test_create_an_intial_csd():
             _execution(
                 name=CSDUP_name(),
                 rc=0,
-                stdout=CSDUP_stdout(NAME),
+                stdout=CSDUP_initialize_stdout(NAME),
+                stderr=CSDUP_stderr(NAME)
+            ),
+            _execution(
+                name=CSDUP_name(),
+                rc=0,
+                stdout=CSDUP_add_group_stdout(NAME),
                 stderr=CSDUP_stderr(NAME)
             ),
             _execution(
@@ -194,7 +204,10 @@ def test_do_nothing_to_an_existing_csd():
         )
     )
     csd_utils._execute_dfhcsdup = MagicMock(
-        return_value=MVSCmdResponse(rc=0, stdout=CSDUP_stdout(NAME), stderr=CSDUP_stderr(NAME))
+        side_effect=[
+            MVSCmdResponse(rc=0, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)),
+            MVSCmdResponse(rc=0, stdout=CSDUP_add_group_stdout(NAME), stderr=CSDUP_stderr(NAME))
+        ]
     )
 
     csd_module.main()
@@ -215,7 +228,13 @@ def test_do_nothing_to_an_existing_csd():
             _execution(
                 name=CSDUP_name(),
                 rc=0,
-                stdout=CSDUP_stdout(NAME),
+                stdout=CSDUP_initialize_stdout(NAME),
+                stderr=CSDUP_stderr(NAME)
+            ),
+            _execution(
+                name=CSDUP_name(),
+                rc=0,
+                stdout=CSDUP_add_group_stdout(NAME),
                 stderr=CSDUP_stderr(NAME)
             ),
             _execution(
@@ -437,7 +456,7 @@ def test_bad_response_from_csdup():
         ]
     )
     csd_utils._execute_dfhcsdup = MagicMock(
-        return_value=MVSCmdResponse(rc=99, stdout=CSDUP_stdout(NAME), stderr=CSDUP_stderr(NAME))
+        return_value=MVSCmdResponse(rc=99, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME))
     )
 
     csd_module.main()
@@ -458,7 +477,7 @@ def test_bad_response_from_csdup():
             _execution(
                 name=CSDUP_name(),
                 rc=99,
-                stdout=CSDUP_stdout(NAME),
+                stdout=CSDUP_initialize_stdout(NAME),
                 stderr=CSDUP_stderr(NAME)
             ),
             _execution(
