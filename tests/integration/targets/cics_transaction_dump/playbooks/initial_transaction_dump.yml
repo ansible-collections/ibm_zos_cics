@@ -101,7 +101,7 @@
         state: absent
       register: result
       retries: 3
-      until: result is not failed
+      until: result is changed
 
     - name: Assert DFHDMPA deleted
       ansible.builtin.assert:
@@ -115,7 +115,7 @@
         state: absent
       register: result
       retries: 3
-      until: result is not failed
+      until: result is changed
 
     - name: Assert DFHDMPB deleted
       ansible.builtin.assert:

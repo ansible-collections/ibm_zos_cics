@@ -160,43 +160,49 @@
     # #############################################################################
 
     - name: Delete global catalog data set if it exists
+      when: ansible_version.minor > 11
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
         name: "{{ region_data_set_path }}.DFHGCD"
         state: absent
       register: delete_result_glo
       retries: 3
-      until: delete_result_glo is not failed
+      until: delete_result_glo is changed
 
     - name: Assert Delete Passed
+      when: ansible_version.minor > 11
       ansible.builtin.assert:
         that:
           - delete_result_glo.failed == false
 
     - name: Delete local catalog data set if it exists
+      when: ansible_version.minor > 11
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
         name: "{{ region_data_set_path }}.DFHLCD"
         state: absent
       register: delete_result_loc
       retries: 3
-      until: delete_result_loc is not failed
+      until: delete_result_loc is changed
 
     - name: Assert Delete Passed
+      when: ansible_version.minor > 11
       ansible.builtin.assert:
         that:
           - delete_result_loc.failed == false
 
     - name: Delete Local Request Queue data set if it exists
+      when: ansible_version.minor > 11
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
         name: "{{ region_data_set_path }}.DFHLRQ"
         state: absent
       register: delete_result_lrq
       retries: 3
-      until: delete_result_lrq is not failed
+      until: delete_result_lrq is changed
 
     - name: Assert Delete Passed
+      when: ansible_version.minor > 11
       ansible.builtin.assert:
         that:
           - delete_result_lrq.failed == false

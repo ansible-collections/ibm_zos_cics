@@ -5,8 +5,29 @@
 
   hosts: "all"
   gather_facts: false
+  vars:
+    catalog_name: "DFHGCD"
+    catalog_path: "{{ region_data_set_path }}.{{ catalog_name }}"
 
   tasks:
+    # #############################################################################
+    # ############################## Initial cleanup ##############################
+    # #############################################################################
+
+    - name: Delete catalog data set if it exists
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ catalog_path }}"
+        state: absent
+      register: delete_result
+      retries: 3
+      until: delete_result is not failed
+
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == false
+
     # #############################################################################
     # ############################## Module Testing ###############################
     # #############################################################################
