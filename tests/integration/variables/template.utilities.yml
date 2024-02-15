@@ -1,2 +1,2 @@
-zos_user:
+zos_user: "{{ ansible_user }}"
 uniquename:
