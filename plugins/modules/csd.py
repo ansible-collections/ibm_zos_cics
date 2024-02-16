@@ -219,17 +219,20 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
     DataSet
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.csd import (
-    SPACE_PRIMARY_DEFAULT,
     _get_idcams_cmd_csd,
     _run_dfhcsdup
 )
 
 DSN = "dfhcsd"
+SPACE_PRIMARY_DEFAULT = 4
+SPACE_SECONDARY_DEFAULT = 1
 
 
 class AnsibleCSDModule(DataSet):
     def __init__(self):
-        super(AnsibleCSDModule, self).__init__()
+        super(AnsibleCSDModule, self).__init__(SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT)
+        self.name = self.region_param[DSN]["dsn"].upper()
+        self.expected_data_set_organization = "VSAM"
 
     def _get_arg_spec(self):  # type: () -> dict
         arg_spec = super(AnsibleCSDModule, self)._get_arg_spec()
@@ -265,11 +268,6 @@ class AnsibleCSDModule(DataSet):
         })
         defs[REGION_DATA_SETS]["options"][DSN]["options"]["dsn"].pop("type")
         return defs
-
-    def validate_parameters(self):  # type: () -> None
-        super().validate_parameters()
-        self.name = self.region_param.get(DSN).get("dsn").upper()
-        self.expected_data_set_organization = "VSAM"
 
     def create_data_set(self):  # type: () -> None
         create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_csd(self.get_data_set()))

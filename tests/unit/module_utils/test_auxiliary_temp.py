@@ -10,6 +10,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import auxiliary_
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import CYLINDERS, MEGABYTES
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE
+from ansible_collections.ibm.ibm_zos_cics.plugins.modules.auxiliary_temp import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT
 import pytest
 import sys
 
@@ -24,8 +25,8 @@ def test_get_idcams_cmd_megabytes():
         exists=False,
         data_set_organization="NONE",
         unit=MEGABYTES,
-        primary=auxiliary_temp.SPACE_PRIMARY_DEFAULT,
-        secondary=auxiliary_temp.SPACE_SECONDARY_DEFAULT
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_intra = dataset_utils._build_idcams_define_cmd(
         auxiliary_temp._get_idcams_cmd_temp(dataset)
@@ -55,8 +56,8 @@ def test_get_idcams_cmd_cylinders():
         exists=False,
         data_set_organization="NONE",
         unit=CYLINDERS,
-        primary=auxiliary_temp.SPACE_PRIMARY_DEFAULT,
-        secondary=auxiliary_temp.SPACE_SECONDARY_DEFAULT
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_intra = dataset_utils._build_idcams_define_cmd(
         auxiliary_temp._get_idcams_cmd_temp(dataset)

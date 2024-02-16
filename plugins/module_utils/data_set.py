@@ -23,7 +23,6 @@ SDFHLOAD = "sdfhload"
 STATE = "state"
 SPACE_PRIMARY = "space_primary"
 SPACE_TYPE = "space_type"
-SECONDARY_SPACE_DEFAULT = 0
 KILOBYTES = "K"
 MEGABYTES = "M"
 RECORDS = "REC"
@@ -42,15 +41,15 @@ DESTINATION_DEFAULT_VALUE = "A"
 
 
 class DataSet():
-    def __init__(self):
+    def __init__(self, primary, secondary):
         self.name = ""
         self.target_state = ""
         self.exists = False
         self.data_set_organization = ""
         self.expected_data_set_organization = ""
         self.unit = ""
-        self.primary = 0
-        self.secondary = SECONDARY_SPACE_DEFAULT
+        self.primary = primary
+        self.secondary = secondary
         self.sdfhload = ""
         self.destination = ""
 
@@ -160,17 +159,17 @@ class DataSet():
 
     def validate_parameters(self):  # type: () -> None
         params = BetterArgParser(self.get_arg_defs()).parse_args(self._module.params)
-        self.target_state = params.get(STATE)
-        self.primary = params.get(SPACE_PRIMARY)
-        self.region_param = params.get(REGION_DATA_SETS)
+        self.target_state = params[STATE]
+        self.primary = params[SPACE_PRIMARY]
+        self.region_param = params[REGION_DATA_SETS]
 
         # Optional parameters
         if params.get(SPACE_TYPE):
-            self.unit = params.get(SPACE_TYPE)
+            self.unit = params[SPACE_TYPE]
         if params.get(CICS_DATA_SETS):
-            self.sdfhload = params.get(CICS_DATA_SETS).get("sdfhload").upper()
+            self.sdfhload = params[CICS_DATA_SETS]["sdfhload"].upper()
         if params.get(DESTINATION):
-            self.destination = params.get(DESTINATION)
+            self.destination = params[DESTINATION]
 
     def create_data_set(self):  # type: () -> None
         create_cmd = _build_idcams_define_cmd({})
@@ -247,12 +246,15 @@ class DataSet():
         self._fail("{0} is not a valid target state.".format(
             self.target_state))
 
-    def get_target_method(self):   # type: () -> None
-        return {
-            ABSENT: self.delete_data_set,
-            INITIAL: self.init_data_set,
-            WARM: self.warm_data_set,
-        }.get(self.target_state, self.invalid_target_state)
+    def execute_target_state(self):   # type: () -> None
+        if self.target_state == ABSENT:
+            self.delete_data_set()
+        elif self.target_state == INITIAL:
+            self.init_data_set()
+        elif self.target_state == WARM:
+            self.warm_data_set()
+        else:
+            self.invalid_target_state()
 
     def update_data_set_state(self):   # type: () -> None
         try:
@@ -275,7 +277,7 @@ class DataSet():
                 "Data set {0} is not in expected format {1}.".format(
                     self.name, self.expected_data_set_organization))
 
-        self.get_target_method()()
+        self.execute_target_state()
 
         self.update_data_set_state()
 

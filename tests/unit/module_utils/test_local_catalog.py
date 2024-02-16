@@ -12,6 +12,7 @@ from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw impor
 __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import local_catalog as local_catalog_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.modules.local_catalog import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT
 import pytest
 import sys
 
@@ -33,8 +34,8 @@ def test_get_idcams_cmd_megabytes():
         exists=False,
         data_set_organization="NONE",
         unit=MEGABYTES,
-        primary=local_catalog_utils.SPACE_PRIMARY_DEFAULT,
-        secondary=local_catalog_utils.SPACE_SECONDARY_DEFAULT
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_lcd = dataset_utils._build_idcams_define_cmd(local_catalog_utils._get_idcams_cmd_lcd(catalog))
     assert idcams_cmd_lcd == '''
@@ -61,8 +62,8 @@ def test_get_idcams_cmd_cylinders():
         exists=False,
         data_set_organization="NONE",
         unit=CYLINDERS,
-        primary=local_catalog_utils.SPACE_PRIMARY_DEFAULT,
-        secondary=local_catalog_utils.SPACE_SECONDARY_DEFAULT
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_lcd = dataset_utils._build_idcams_define_cmd(local_catalog_utils._get_idcams_cmd_lcd(catalog))
     assert idcams_cmd_lcd == '''
@@ -85,8 +86,8 @@ def test_ccutl_response():
         "exists": False,
         "name": NAME,
         "size": {
-            "primary": local_catalog_utils.SPACE_PRIMARY_DEFAULT,
-            "secondary": local_catalog_utils.SPACE_SECONDARY_DEFAULT,
+            "primary": SPACE_PRIMARY_DEFAULT,
+            "secondary": SPACE_SECONDARY_DEFAULT,
             "unit": MEGABYTES
         },
         "state": "initial",
@@ -111,8 +112,8 @@ def test_bad_ccutl_response():
         "exists": False,
         "name": NAME,
         "size": {
-            "primary": local_catalog_utils.SPACE_PRIMARY_DEFAULT,
-            "secondary": local_catalog_utils.SPACE_SECONDARY_DEFAULT,
+            "primary": SPACE_PRIMARY_DEFAULT,
+            "secondary": SPACE_SECONDARY_DEFAULT,
             "unit": MEGABYTES
         },
         "state": "initial",

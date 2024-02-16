@@ -258,12 +258,6 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
     DataSet
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog import (
-    AUTO_START_COLD,
-    AUTO_START_INIT,
-    AUTO_START_WARM,
-    NEXT_START_EMERGENCY,
-    NEXT_START_UNKNOWN,
-    SPACE_PRIMARY_DEFAULT,
     _get_idcams_cmd_gcd,
     _run_dfhrmutl
 )
@@ -271,13 +265,22 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.global_catalog im
 COLD = "cold"
 STATE_OPTIONS = [ABSENT, INITIAL, WARM, COLD]
 DSN = "dfhgcd"
+AUTO_START_WARM = "AUTOASIS"
+AUTO_START_COLD = "AUTOCOLD"
+AUTO_START_INIT = "AUTOINIT"
+NEXT_START_EMERGENCY = "EMERGENCY"
+NEXT_START_WARM = "WARM"
+NEXT_START_COLD = "COLD"
+NEXT_START_UNKNOWN = "UNKNOWN"
+SPACE_PRIMARY_DEFAULT = 5
+SPACE_SECONDARY_DEFAULT = 1
 
 
 class AnsibleGlobalCatalogModule(DataSet):
     def __init__(self):
         self.autostart_override = ""
         self.next_start = ""
-        super(AnsibleGlobalCatalogModule, self).__init__()
+        super(AnsibleGlobalCatalogModule, self).__init__(SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT)
         self.start_state = dict(
             exists=False,
             data_set_organization=self.data_set_organization,
@@ -290,6 +293,8 @@ class AnsibleGlobalCatalogModule(DataSet):
             autostart_override=self.autostart_override,
             next_start=self.next_start
         )
+        self.name = self.region_param[DSN]["dsn"].upper()
+        self.expected_data_set_organization = "VSAM"
 
     def get_data_set(self):  # type: () -> dict
         data_set = super().get_data_set()
@@ -352,11 +357,6 @@ class AnsibleGlobalCatalogModule(DataSet):
         })
         defs[REGION_DATA_SETS]["options"][DSN]["options"]["dsn"].pop("type")
         return defs
-
-    def validate_parameters(self):  # type: () -> None
-        super().validate_parameters()
-        self.name = self.region_param.get(DSN).get("dsn").upper()
-        self.expected_data_set_organization = "VSAM"
 
     def create_data_set(self):  # type: () -> None
         create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_gcd(self.get_data_set()))
@@ -429,13 +429,17 @@ class AnsibleGlobalCatalogModule(DataSet):
             self.executions.extend(e.args[1])
             self._fail(e.args[0])
 
-    def get_target_method(self):  # type: () -> None
-        return {
-            ABSENT: super().delete_data_set,
-            INITIAL: self.init_data_set,
-            COLD: self.cold_data_set,
-            WARM: self.warm_data_set,
-        }.get(self.target_state, super().invalid_target_state)
+    def execute_target_state(self):   # type: () -> None
+        if self.target_state == ABSENT:
+            self.delete_data_set()
+        elif self.target_state == INITIAL:
+            self.init_data_set()
+        elif self.target_state == WARM:
+            self.warm_data_set()
+        elif self.target_state == COLD:
+            self.cold_data_set()
+        else:
+            self.invalid_target_state()
 
     def update_data_set_state(self):  # type: () -> None
         super().update_data_set_state()

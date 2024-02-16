@@ -79,8 +79,6 @@ def _get_idcams_cmd_lcd(data_set):  # type: (dict) -> dict
     return defaults
 
 
-SPACE_PRIMARY_DEFAULT = 200
-SPACE_SECONDARY_DEFAULT = 5
 RECORD_COUNT_DEFAULT = 70
 RECORD_SIZE_DEFAULT = 2041
 CONTROL_INTERVAL_SIZE_DEFAULT = 2048

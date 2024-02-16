@@ -29,8 +29,6 @@ def _get_idcams_cmd_lrq(data_set):  # type: (dict) -> dict
     return defaults
 
 
-SPACE_PRIMARY_DEFAULT = 4
-SPACE_SECONDARY_DEFAULT = 1
 RECORD_COUNT_DEFAULT = 2232
 RECORD_SIZE_DEFAULT = 2400
 CONTROL_INTERVAL_SIZE_DEFAULT = 2560

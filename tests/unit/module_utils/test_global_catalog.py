@@ -18,6 +18,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import global_cat
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
     _execution,
 )
+from ansible_collections.ibm.ibm_zos_cics.plugins.modules.global_catalog import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import (
     MVSCmdResponse,
 )
@@ -43,8 +44,8 @@ def test_get_idcams_cmd_megabytes():
         exists=False,
         data_set_organization="NONE",
         unit=MEGABYTES,
-        primary=global_catalog.SPACE_PRIMARY_DEFAULT,
-        secondary=global_catalog.SPACE_SECONDARY_DEFAULT
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_gcd = dataset_utils._build_idcams_define_cmd(
         global_catalog._get_idcams_cmd_gcd(catalog)
@@ -80,8 +81,8 @@ def test_get_idcams_cmd_cylinders():
         exists=False,
         data_set_organization="NONE",
         unit=CYLINDERS,
-        primary=global_catalog.SPACE_PRIMARY_DEFAULT,
-        secondary=global_catalog.SPACE_SECONDARY_DEFAULT
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_gcd = dataset_utils._build_idcams_define_cmd(
         global_catalog._get_idcams_cmd_gcd(catalog)

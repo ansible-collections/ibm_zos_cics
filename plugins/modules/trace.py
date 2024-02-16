@@ -224,19 +224,26 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
     DataSet
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.trace import (
-    SPACE_PRIMARY_DEFAULT,
     _build_seq_data_set_definition_trace
 )
 
 
 DSN_A = "dfhauxt"
 DSN_B = "dfhbuxt"
+SPACE_PRIMARY_DEFAULT = 20
+SPACE_SECONDARY_DEFAULT = 4
 
 
 class AnsibleAuxiliaryTraceModule(DataSet):
     def __init__(self):  # type: () -> None
         self.ds_destination = ""
-        super(AnsibleAuxiliaryTraceModule, self).__init__()
+        super(AnsibleAuxiliaryTraceModule, self).__init__(SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT)
+        if self.destination == "A":
+            self.ds_destination = DSN_A
+        elif self.destination == "B":
+            self.ds_destination = DSN_B
+        self.name = self.region_param[self.ds_destination]["dsn"].upper()
+        self.expected_data_set_organization = "Sequential"
 
     def _get_arg_spec(self):  # type: () -> dict
         arg_spec = super(AnsibleAuxiliaryTraceModule, self)._get_arg_spec()
@@ -291,15 +298,6 @@ class AnsibleAuxiliaryTraceModule(DataSet):
         defs[REGION_DATA_SETS]["options"][DSN_A]["options"]["dsn"].pop("type")
         defs[REGION_DATA_SETS]["options"][DSN_B]["options"]["dsn"].pop("type")
         return defs
-
-    def validate_parameters(self):  # type: () -> None
-        super().validate_parameters()
-        if self.destination == "A":
-            self.ds_destination = DSN_A
-        elif self.destination == "B":
-            self.ds_destination = DSN_B
-        self.name = self.region_param.get(self.ds_destination).get("dsn").upper()
-        self.expected_data_set_organization = "Sequential"
 
     def create_data_set(self):  # type: () -> None
         definition = _build_seq_data_set_definition_trace(self.get_data_set())

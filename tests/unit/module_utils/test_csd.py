@@ -7,6 +7,7 @@ from __future__ import absolute_import, division, print_function
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import CYLINDERS, MEGABYTES
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE, CSDUP_name, CSDUP_stderr, CSDUP_stdout
+from ansible_collections.ibm.ibm_zos_cics.plugins.modules.csd import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
 
@@ -34,8 +35,8 @@ def test_get_idcams_cmd_megabytes():
         exists=False,
         data_set_organization="NONE",
         unit=MEGABYTES,
-        primary=csd.SPACE_PRIMARY_DEFAULT,
-        secondary=csd.SPACE_SECONDARY_DEFAULT
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_csd = dataset_utils._build_idcams_define_cmd(csd._get_idcams_cmd_csd(csd_data_set))
     assert idcams_cmd_csd == '''
@@ -62,8 +63,8 @@ def test_get_idcams_cmd_cylinders():
         exists=False,
         data_set_organization="NONE",
         unit=CYLINDERS,
-        primary=csd.SPACE_PRIMARY_DEFAULT,
-        secondary=csd.SPACE_SECONDARY_DEFAULT
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_csd = dataset_utils._build_idcams_define_cmd(csd._get_idcams_cmd_csd(csd_data_set))
     assert idcams_cmd_csd == '''
