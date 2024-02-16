@@ -1,0 +1,65 @@
+# (c) Copyright IBM Corp. 2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Test DFHSIP Module
+
+  hosts: 'all'
+  gather_facts: false
+  vars:
+    cics_data_sets:
+      template: "{{ cics_install_path }}.<< lib_name >>"
+    le_data_sets:
+      template: "{{ le_path }}.<< lib_name >>"
+    region_data_set_path: "{{ ansible_user }}.CICS.TESTS.{{ cics_test_area_initial }}"
+  tasks:
+    - name: "Run DFHSIP"
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_cics.start_cics:
+        submit_jcl: true
+        applid: '{{ cics_applid }}'
+        job_parameters:
+          msgclass: A
+          class: A
+          region: 0M
+          memlimit: 10G
+        cics_data_sets: "{{ cics_data_sets }}"
+        le_data_sets: "{{ le_data_sets }}"
+        region_data_sets:
+          template: "{{ region_data_set_path }}.<< data_set_name >>"
+        output_data_sets:
+          default_sysout_class: A
+        sit_parameters:
+          start: COLD
+          sit: 6$
+          aicons: AUTO
+          auxtr: "ON"
+          auxtrsw: ALL
+          cicssvc: 217
+          csdrecov: BACKOUTONLY
+          edsalim: 500M
+          grplist: (DFHLIST,DFHTERML)
+          gmtext: '''Welcome {{ ansible_user }}, CICS Region {{ cics_applid }}'''
+          icvr: 20000
+          isc: "YES"
+          ircstrt: "YES"
+          mxt: 500
+          pgaipgm: ACTIVE
+          sec: "YES"
+          spool: "YES"
+          srbsvc: 218
+          tcpip: "NO"
+          wlmhealth: "OFF"
+          wrkarea: 2048
+          sysidnt: ZPY1
+      register: result
+
+    - name: Print the JCL
+      ansible.builtin.debug:
+        var: result
+
+    - name: Assert result of start CICS
+      ansible.builtin.assert:
+        that:
+          - result.failed is false
+          - result.changed is true
+          - result.jcl != None
