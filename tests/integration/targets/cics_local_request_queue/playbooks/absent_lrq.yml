@@ -78,10 +78,10 @@
           - absent_result.changed is true
 
           - absent_result.start_state.exists == true
-          - initial_result.end_state.data_set_organization == "VSAM"
+          - absent_result.start_state.data_set_organization == "VSAM"
 
           - absent_result.end_state.exists == false
-          - initial_result.start_state.data_set_organization == "NONE"
+          - absent_result.end_state.data_set_organization == "NONE"
 
 
     # #############################################################################
