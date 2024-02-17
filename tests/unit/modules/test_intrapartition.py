@@ -4,14 +4,19 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils, icetool
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
-    _execution,
-    _response,
-    _state,
-)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
-    set_data_set,
-    set_module_args,
+    PYTHON_LANGUAGE_FEATURES_MESSAGE,
+    ICETOOL_name,
+    ICETOOL_stderr,
+    ICETOOL_stdout,
+    IDCAMS_delete_run_name,
+    IDCAMS_delete_vsam,
+    IDCAMS_create_run_name,
+    LISTDS_data_set_doesnt_exist,
+    LISTDS_data_set,
+    LISTDS_run_name,
+    set_module_args
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import intrapartition
 import pytest
@@ -27,10 +32,12 @@ except ImportError:
 
 __metaclass__ = type
 
+NAME = "TEST.REGIONS.INTRA"
+
 default_arg_parms = {
     "space_primary": 5,
     "space_type": "M",
-    "region_data_sets": {"dfhintra": {"dsn": "TEST.REGIONS.INTRA"}},
+    "region_data_sets": {"dfhintra": {"dsn": NAME}},
     "cics_data_sets": {"sdfhload": "TEST.CICS.INSTALL.SDFHLOAD"},
     "state": "initial",
 }
@@ -41,212 +48,377 @@ def initialise_module(**kwargs):
     initial_args.update(kwargs)
     set_module_args(initial_args)
     intra_module = intrapartition.AnsibleIntrapartitionModule()
+    intra_module._module.fail_json = MagicMock(return_value=None)
+    intra_module._module.exit_json = MagicMock(return_value=None)
     return intra_module
 
 
 @pytest.mark.skipif(
-    sys.version_info.major < 3, reason="Requires python 3 language features"
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_create_an_intial_intrapartition_ds():
     intra_module = initialise_module()
 
-    dataset_utils.idcams = MagicMock(return_value=(0, "TEST.REGIONS.INTRA", "stderr"))
+    dataset_utils.idcams = MagicMock(
+        return_value=(0, NAME, ""))
     dataset_utils.ikjeft01 = MagicMock(
         side_effect=[
-            (8, "TEST.REGIONS.INTRA NOT IN CATALOG", "stderr"),
-            (0, "TEST.REGIONS.INTRA VSAM", "stderr"),
+            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
         ]
     )
-    intrapartition.AnsibleIntrapartitionModule._exit = MagicMock(return_value=None)
 
     intra_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.INTRA NOT IN CATALOG",
-                stderr="stderr",
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
             ),
             _execution(
-                name="IDCAMS - Create intrapartition data set - Run 1",
+                name=IDCAMS_create_run_name(1, NAME),
                 rc=0,
-                stdout="TEST.REGIONS.INTRA",
-                stderr="stderr",
+                stdout=NAME,
+                stderr="",
             ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.INTRA VSAM",
-                stderr="stderr",
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
             ),
         ],
-        start_state=_state(exists=False, vsam=False),
-        end_state=_state(exists=True, vsam=True),
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        changed=True,
+        failed=False
     )
-    expected_result.update({"changed": True})
-    assert intra_module.result == expected_result
+    assert intra_module.get_result() == expected_result
 
 
 @pytest.mark.skipif(
-    sys.version_info.major < 3, reason="Requires python 3 language features"
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_delete_an_existing_intrapartition_ds():
     intra_module = initialise_module(state="absent")
 
     dataset_utils.idcams = MagicMock(
-        return_value=(0, "ENTRY (C) TEST.REGIONS.INTRA DELETED\n", "stderr")
+        return_value=(0, IDCAMS_delete_vsam(NAME), "")
     )
     dataset_utils.ikjeft01 = MagicMock(
         side_effect=[
-            (0, "TEST.REGIONS.INTRA VSAM", "stderr"),
-            (8, "TEST.REGIONS.INTRA NOT IN CATALOG", "stderr"),
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
         ]
     )
-    intrapartition.AnsibleIntrapartitionModule._exit = MagicMock(return_value=None)
 
     intra_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.INTRA VSAM",
-                stderr="stderr",
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
             ),
             _execution(
-                name="IDCAMS - Removing intrapartition data set - Run 1",
+                name=IDCAMS_delete_run_name(1, NAME),
                 rc=0,
-                stdout="ENTRY (C) TEST.REGIONS.INTRA DELETED\n",
-                stderr="stderr",
+                stdout=IDCAMS_delete_vsam(NAME),
+                stderr="",
             ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.INTRA NOT IN CATALOG",
-                stderr="stderr",
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
             ),
         ],
-        start_state=_state(exists=True, vsam=True),
-        end_state=_state(exists=False, vsam=False),
+        start_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=True,
+        failed=False
     )
-    expected_result.update({"changed": True})
-    assert intra_module.result == expected_result
+    assert intra_module.get_result() == expected_result
 
 
 @pytest.mark.skipif(
-    sys.version_info.major < 3, reason="Requires python 3 language features"
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_delete_an_existing_intra_and_replace():
     intra_module = initialise_module()
-    data_set = set_data_set(exists=True, name="TEST.REGIONS.INTRA", vsam=True)
-    intra_module.data_set = data_set
 
-    dataset_utils.idcams = MagicMock(
-        side_effect=[
-            (0, "ENTRY (C) TEST.REGIONS.INTRA DELETED\n", "stderr"),
-            (0, "TEST.REGIONS.INTRA", "stderr"),
-        ]
-    )
     dataset_utils.ikjeft01 = MagicMock(
         side_effect=[
-            (0, "TEST.REGIONS.INTRA VSAM", "stderr"),
-            (8, "TEST.REGIONS.INTRA NOT IN CATALOG", "stderr"),
-            (0, "TEST.REGIONS.INTRA VSAM", "stderr"),
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+        ]
+    )
+    dataset_utils.idcams = MagicMock(
+        side_effect=[
+            (0, IDCAMS_delete_vsam(NAME), ""),
+            (0, NAME, ""),
         ]
     )
     icetool._execute_icetool = MagicMock(
         return_value=(
-            MVSCmdResponse(rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr")
+            MVSCmdResponse(
+                rc=0,
+                stdout=ICETOOL_stdout(52),
+                stderr=ICETOOL_stderr()
+            )
         )
     )
-    intrapartition.AnsibleIntrapartitionModule._exit = MagicMock(return_value=None)
 
     intra_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.INTRA VSAM",
-                stderr="stderr",
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
             ),
             _execution(
-                name="ICETOOL - Get record count",
+                name=ICETOOL_name(1),
                 rc=0,
-                stdout="RECORD COUNT:  000000000000052",
-                stderr="stderr"
+                stdout=ICETOOL_stdout(52),
+                stderr=ICETOOL_stderr()
             ),
             _execution(
-                name="IDCAMS - Removing intrapartition data set - Run 1",
+                name=IDCAMS_delete_run_name(1, NAME),
                 rc=0,
-                stdout="ENTRY (C) TEST.REGIONS.INTRA DELETED\n",
-                stderr="stderr",
+                stdout=IDCAMS_delete_vsam(NAME),
+                stderr="",
             ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.INTRA NOT IN CATALOG",
-                stderr="stderr",
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
             ),
             _execution(
-                name="IDCAMS - Create intrapartition data set - Run 1",
+                name=IDCAMS_create_run_name(1, NAME),
                 rc=0,
-                stdout="TEST.REGIONS.INTRA",
-                stderr="stderr",
+                stdout=NAME,
+                stderr="",
             ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.INTRA VSAM",
-                stderr="stderr",
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
             ),
         ],
-        start_state=_state(exists=True, vsam=True),
-        end_state=_state(exists=True, vsam=True),
+        start_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        changed=True,
+        failed=False
     )
-    expected_result.update({"changed": True})
-    assert intra_module.result == expected_result
+    assert intra_module.get_result() == expected_result
 
 
 @pytest.mark.skipif(
-    sys.version_info.major < 3, reason="Requires python 3 language features"
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_remove_non_existent_intra():
     intra_module = initialise_module(state="absent")
 
-    dataset_utils.idcams = MagicMock(
-        return_value=(8, "ENTRY TEST.REGIONS.INTRA NOTFOUND", "stderr")
-    )
     dataset_utils.ikjeft01 = MagicMock(
-        return_value=(8, "TEST.REGIONS.INTRA NOT IN CATALOG", "stderr")
+        return_value=(8, LISTDS_data_set_doesnt_exist(NAME), "")
     )
-    intrapartition.AnsibleIntrapartitionModule._exit = MagicMock(return_value=None)
 
     intra_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.INTRA NOT IN CATALOG",
-                stderr="stderr",
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
             ),
             _execution(
-                name="IDCAMS - Removing intrapartition data set - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="ENTRY TEST.REGIONS.INTRA NOTFOUND",
-                stderr="stderr",
-            ),
-            _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
-                rc=8,
-                stdout="TEST.REGIONS.INTRA NOT IN CATALOG",
-                stderr="stderr",
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
             ),
         ],
-        start_state=_state(exists=False, vsam=False),
-        end_state=_state(exists=False, vsam=False),
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=False,
+        failed=False
     )
-    expected_result.update({"changed": True})
-    assert intra_module.result == expected_result
+    assert intra_module.get_result() == expected_result
+
+
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
+def test_warm_on_non_existent_intra():
+    intra_module = initialise_module(state="warm")
+
+    dataset_utils.ikjeft01 = MagicMock(return_value=(
+        8, LISTDS_data_set_doesnt_exist(NAME), ""))
+
+    intra_module.main()
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr=""),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr=""),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=False,
+        failed=True
+    )
+    assert intra_module.get_result() == expected_result
+
+
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
+def test_warm_on_empty_intra():
+    intra_module = initialise_module(state="warm")
+
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(
+            0,
+            LISTDS_data_set(NAME, "VSAM"),
+            ""
+        )
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=MVSCmdResponse(
+            rc=0,
+            stdout=ICETOOL_stdout(0),
+            stderr=ICETOOL_stderr()
+        )
+    )
+
+    intra_module.main()
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""),
+            _execution(
+                name=ICETOOL_name(1),
+                rc=0,
+                stdout=ICETOOL_stdout(0),
+                stderr=ICETOOL_stderr()),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        changed=False,
+        failed=True
+    )
+    assert intra_module.get_result() == expected_result
+
+
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
+def test_warm_success_intra():
+    intra_module = initialise_module(state="warm")
+
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(
+            0,
+            LISTDS_data_set(NAME, "VSAM"),
+            ""
+        )
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=MVSCmdResponse(
+            rc=0,
+            stdout=ICETOOL_stdout(52),
+            stderr=ICETOOL_stderr()
+        )
+    )
+
+    intra_module.main()
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""),
+            _execution(
+                name=ICETOOL_name(1),
+                rc=0,
+                stdout=ICETOOL_stdout(52),
+                stderr=ICETOOL_stderr()),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        changed=False,
+        failed=False
+    )
+    assert intra_module.get_result() == expected_result

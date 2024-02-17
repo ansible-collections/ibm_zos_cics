@@ -180,6 +180,10 @@ start_state (always, dict, )
     True if the global catalog data set exists.
 
 
+  data_set_organization (always, str, VSAM)
+    The organization of the data set at the start of the Ansible task.
+
+
 
 end_state (always, dict, )
   The state of the global catalog at the end of the Ansible task.
@@ -195,6 +199,10 @@ end_state (always, dict, )
 
   exists (always, bool, )
     True if the global catalog data set exists.
+
+
+  data_set_organization (always, str, VSAM)
+    The organization of the data set at the end of the Ansible task.
 
 
 

@@ -156,10 +156,11 @@ start_state:
   returned: always
   type: dict
   contains:
-    vsam:
-      description: True if the data set is a VSAM data set.
+    data_set_organization:
+      description: The organization of the data set at the start of the Ansible task.
       returned: always
-      type: bool
+      type: str
+      sample: "VSAM"
     exists:
       description: True if the local catalog data set exists.
       type: bool
@@ -169,10 +170,11 @@ end_state:
   returned: always
   type: dict
   contains:
-    vsam:
-      description: True if the data set is a VSAM data set.
+    data_set_organization:
+      description: The organization of the data set at the end of the Ansible task.
       returned: always
-      type: bool
+      type: str
+      sample: "VSAM"
     exists:
       description: True if the local catalog data set exists.
       type: bool
@@ -201,185 +203,80 @@ executions:
       returned: always
 """
 
-
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-    _dataset_size, _data_set, _build_idcams_define_cmd)
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import DataSet
+    _build_idcams_define_cmd
+)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
+    CICS_DATA_SETS,
+    RECORDS,
+    REGION_DATA_SETS,
+    SPACE_PRIMARY,
+    SPACE_TYPE,
+    DataSet
+)
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog import (
-    _run_dfhccutl, _get_idcams_cmd_lcd)
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog import _local_catalog_constants as lc_constants
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import _run_icetool
+    _get_idcams_cmd_lcd,
+    _run_dfhccutl
+)
+
+
+DSN = "dfhlcd"
+SPACE_PRIMARY_DEFAULT = 200
+SPACE_SECONDARY_DEFAULT = 5
 
 
 class AnsibleLocalCatalogModule(DataSet):
     def __init__(self):
-        super(AnsibleLocalCatalogModule, self).__init__()
+        super(AnsibleLocalCatalogModule, self).__init__(SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT)
+        self.name = self.region_param[DSN]["dsn"].upper()
+        self.expected_data_set_organization = "VSAM"
 
-    def init_argument_spec(self):  # type: () -> dict
-        arg_spec = super(AnsibleLocalCatalogModule, self).init_argument_spec()
+    def _get_arg_spec(self):  # type: () -> dict
+        arg_spec = super(AnsibleLocalCatalogModule, self)._get_arg_spec()
 
-        arg_spec[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
-            "default": lc_constants["PRIMARY_SPACE_VALUE_DEFAULT"]
+        arg_spec[SPACE_PRIMARY].update({
+            "default": SPACE_PRIMARY_DEFAULT
         })
-        arg_spec[ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]].update({
-            "default": lc_constants["SPACE_UNIT_DEFAULT"]
+        arg_spec[SPACE_TYPE].update({
+            "default": RECORDS
         })
-        arg_spec[ds_constants["TARGET_STATE_ALIAS"]].update({
-            "choices": lc_constants["TARGET_STATE_OPTIONS"]
-        })
-        arg_spec.update({
-            ds_constants["REGION_DATA_SETS_ALIAS"]: {
+        arg_spec[REGION_DATA_SETS]["options"].update({
+            DSN: {
                 "type": "dict",
-                "required": True,
+                "required": False,
                 "options": {
-                    "template": {
-                        "type": "str",
-                        "required": False,
-                    },
-                    "dfhlcd": {
-                        "type": "dict",
-                        "required": False,
-                        "options": {
-                            "dsn": {
-                                "type": "str",
-                                "required": False,
-                            },
-                        },
-                    },
-                },
-            },
-            ds_constants["CICS_DATA_SETS_ALIAS"]: {
-                "type": "dict",
-                "required": True,
-                "options": {
-                    "template": {
-                        "type": "str",
-                        "required": False,
-                    },
-                    "sdfhload": {
+                    "dsn": {
                         "type": "str",
                         "required": False,
                     },
                 },
             },
         })
+        arg_spec[CICS_DATA_SETS].update({
+            "required": True
+        })
+
         return arg_spec
 
-    def _get_arg_defs(self):  # type: () -> dict
-        arg_def = super(AnsibleLocalCatalogModule, self)._get_arg_defs()
-
-        arg_def[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
-            "default": lc_constants["PRIMARY_SPACE_VALUE_DEFAULT"]
+    def get_arg_defs(self):  # type: () -> dict
+        defs = super().get_arg_defs()
+        defs[REGION_DATA_SETS]["options"][DSN]["options"]["dsn"].update({
+            "arg_type": "data_set_base"
         })
-        arg_def[ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]].update({
-            "default": lc_constants["SPACE_UNIT_DEFAULT"]
-        })
-        arg_def[ds_constants["TARGET_STATE_ALIAS"]].update({
-            "choices": lc_constants["TARGET_STATE_OPTIONS"],
-        })
-        arg_def.update({
-            ds_constants["REGION_DATA_SETS_ALIAS"]: {
-                "arg_type": "dict",
-                "required": True,
-                "options": {
-                    "template": {
-                        "arg_type": "str",
-                        "required": False,
-                    },
-                    "dfhlcd": {
-                        "arg_type": "dict",
-                        "required": False,
-                        "options": {
-                            "dsn": {
-                                "arg_type": "data_set_base",
-                                "required": False,
-                            },
-                        },
-                    },
-                },
-            },
-            ds_constants["CICS_DATA_SETS_ALIAS"]: {
-                "arg_type": "dict",
-                "required": True,
-                "options": {
-                    "template": {
-                        "arg_type": "str",
-                        "required": False,
-                    },
-                    "sdfhload": {
-                        "arg_type": "data_set_base",
-                        "required": False,
-                    },
-                },
-            },
-        })
-
-        return arg_def
-
-    def _get_data_set_object(self, size, result):  # type: (_dataset_size, dict) -> _data_set
-        return _data_set(
-            size=size,
-            name=result.get(ds_constants["REGION_DATA_SETS_ALIAS"]).get("dfhlcd").get("dsn").upper(),
-            sdfhload=result.get(ds_constants["CICS_DATA_SETS_ALIAS"]).get("sdfhload").upper(),
-            state=result.get(ds_constants["TARGET_STATE_ALIAS"]),
-            exists=False,
-            vsam=False)
-
-    def _get_data_set_size(self, result):  # type: (dict) -> _dataset_size
-        return _dataset_size(
-            unit=result.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
-            primary=result.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
-            secondary=lc_constants["SECONDARY_SPACE_VALUE_DEFAULT"])
-
-    def validate_parameters(self):  # type: () -> None
-        arg_defs = self._get_arg_defs()
-
-        result = BetterArgParser(arg_defs).parse_args({
-            ds_constants["REGION_DATA_SETS_ALIAS"]: self._module.params.get(ds_constants["REGION_DATA_SETS_ALIAS"]),
-            ds_constants["CICS_DATA_SETS_ALIAS"]: self._module.params.get(ds_constants["CICS_DATA_SETS_ALIAS"]),
-            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
-            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: self._module.params.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
-            ds_constants["TARGET_STATE_ALIAS"]: self._module.params.get(ds_constants["TARGET_STATE_ALIAS"])
-        })
-
-        size = self._get_data_set_size(result)
-        self.data_set = self._get_data_set_object(size, result)
+        defs[REGION_DATA_SETS]["options"][DSN]["options"]["dsn"].pop("type")
+        return defs
 
     def create_data_set(self):  # type: () -> None
-        create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_lcd(self.data_set))
-
-        super().build_vsam_data_set(create_cmd, "Create local catalog data set")
-
-    def delete_data_set(self):  # type: () -> None
-        if not self.data_set["exists"]:
-            self.result["end_state"] = {
-                "exists": self.data_set["exists"],
-                "vsam": self.data_set["vsam"]
-            }
-            self._exit()
-
-        super().delete_data_set("Removing local catalog data set")
+        create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_lcd(self.get_data_set()))
+        super().build_vsam_data_set(create_cmd)
 
     def init_data_set(self):  # type: () -> None
-        if self.data_set["exists"]:
-            icetool_executions, record_count = _run_icetool(self.data_set["name"])
-            self.result["executions"] = self.result["executions"] + icetool_executions
-            if record_count["record_count"] > 0:
-                # If records are present, empty the data set and rerun DFHCCUTL
-                self.delete_data_set()
-                self.data_set = self.get_data_set_state(self.data_set)
-                self.create_data_set()
-
-        else:
-            self.create_data_set()
-
+        super().init_data_set()
         try:
-            ccutl_executions = _run_dfhccutl(self.data_set)
-            self.result["executions"] = self.result["executions"] + ccutl_executions
+            ccutl_executions = _run_dfhccutl(self.get_data_set())
+            self.executions.extend(ccutl_executions)
         except Exception as e:
-            self.result["executions"] = self.result["executions"] + e.args[1]
+            self.executions.extend(e.args[1])
             self._fail(e.args[0])
 
 

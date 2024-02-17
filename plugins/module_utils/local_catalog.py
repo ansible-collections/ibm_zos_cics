@@ -9,12 +9,11 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import _data_set, MVS_CMD_RETRY_ATTEMPTS
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import MVS_CMD_RETRY_ATTEMPTS
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
 
 
-def _get_ccmutl_dds(catalog):
+def _get_ccmutl_dds(catalog):   # type: (dict) -> list(DDStatement)
     return [
         DDStatement('steplib', DatasetDefinition(catalog["sdfhload"])),
         DDStatement('sysprint', StdoutDefinition()),
@@ -27,7 +26,7 @@ def _get_ccmutl_dds(catalog):
     ]
 
 
-def _run_dfhccutl(starting_catalog):  # type: (_data_set) -> [_execution]
+def _run_dfhccutl(starting_catalog):  # type: (dict) -> list
     executions = []
 
     for x in range(MVS_CMD_RETRY_ATTEMPTS):
@@ -59,42 +58,32 @@ def _execute_dfhccutl(starting_catalog):
         debug=False)
 
 
-def _get_idcams_cmd_lcd(dataset):  # type: (dict) -> dict
+def _get_idcams_cmd_lcd(data_set):  # type: (dict) -> dict
     defaults = {
         "CLUSTER": {
-            "RECORDSIZE": "{0} {1}".format(_local_catalog_constants["RECORD_COUNT_DEFAULT"], _local_catalog_constants["RECORD_SIZE_DEFAULT"]),
+            "RECORDSIZE": "{0} {1}".format(RECORD_COUNT_DEFAULT, RECORD_SIZE_DEFAULT),
             "INDEXED": None,
-            "KEYS": "{0} {1}".format(_local_catalog_constants["KEY_LENGTH"], _local_catalog_constants["KEY_OFFSET"]),
-            "FREESPACE": "{0} {1}".format(_local_catalog_constants["CI_PERCENT"], _local_catalog_constants["CA_PERCENT"]),
-            "SHAREOPTIONS": "{0}".format(_local_catalog_constants["SHARE_CROSSREGION"]),
+            "KEYS": "{0} {1}".format(KEY_LENGTH, KEY_OFFSET),
+            "FREESPACE": "{0} {1}".format(CI_PERCENT, CA_PERCENT),
+            "SHAREOPTIONS": str(SHARE_CROSSREGION),
             "REUSE": None
         },
         "DATA": {
-            "CONTROLINTERVALSIZE": "{0}".format(_local_catalog_constants["CONTROL_INTERVAL_SIZE_DEFAULT"])
+            "CONTROLINTERVALSIZE": str(CONTROL_INTERVAL_SIZE_DEFAULT)
         },
         "INDEX": {
             None
         }
     }
-    defaults.update(dataset)
+    defaults.update(data_set)
     return defaults
 
 
-_local_catalog_constants = {
-    "PRIMARY_SPACE_VALUE_DEFAULT": 200,
-    "SECONDARY_SPACE_VALUE_DEFAULT": 5,
-    "SPACE_UNIT_DEFAULT": "REC",
-    "TARGET_STATE_OPTIONS": [
-        ds_constants["TARGET_STATE_ABSENT"],
-        ds_constants["TARGET_STATE_INITIAL"],
-        ds_constants["TARGET_STATE_WARM"]
-    ],
-    "RECORD_COUNT_DEFAULT": 70,
-    "RECORD_SIZE_DEFAULT": 2041,
-    "CONTROL_INTERVAL_SIZE_DEFAULT": 2048,
-    "KEY_LENGTH": 52,
-    "KEY_OFFSET": 0,
-    "CI_PERCENT": 10,
-    "CA_PERCENT": 10,
-    "SHARE_CROSSREGION": 2
-}
+RECORD_COUNT_DEFAULT = 70
+RECORD_SIZE_DEFAULT = 2041
+CONTROL_INTERVAL_SIZE_DEFAULT = 2048
+KEY_LENGTH = 52
+KEY_OFFSET = 0
+CI_PERCENT = 10
+CA_PERCENT = 10
+SHARE_CROSSREGION = 2

@@ -145,10 +145,11 @@ start_state:
   returned: always
   type: dict
   contains:
-    vsam:
-      description: True if the data set is a VSAM data set.
+    data_set_organization:
+      description: The organization of the data set at the start of the Ansible task.
       returned: always
-      type: bool
+      type: str
+      sample: "VSAM"
     exists:
       description: True if the transient data intrapartition data set exists.
       type: bool
@@ -158,10 +159,11 @@ end_state:
   returned: always
   type: dict
   contains:
-    vsam:
-      description: True if the data set is a VSAM data set.
+    data_set_organization:
+      description: The organization of the data set at the end of the Ansible task.
       returned: always
-      type: bool
+      type: str
+      sample: "VSAM"
     exists:
       description: True if the transient data intrapartition data set exists.
       type: bool
@@ -190,197 +192,65 @@ executions:
       returned: always
 """
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.intrapartition import (
-    _intrapartition_constants as intra_constants,
-    _get_idcams_cmd_intra,
-)
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
-    _state,
-)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import _build_idcams_define_cmd
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
-    DataSet,
-    _dataset_constants as ds_constants,
+    RECORDS,
+    REGION_DATA_SETS,
+    SPACE_PRIMARY,
+    SPACE_TYPE,
+    DataSet
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
-    _build_idcams_define_cmd,
-    _dataset_size,
-    _data_set,
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.intrapartition import (
+    _get_idcams_cmd_intra
 )
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import (
-    BetterArgParser,
-)
+
+
+DSN = "dfhintra"
+SPACE_PRIMARY_DEFAULT = 100
+SPACE_SECONDARY_DEFAULT = 10
 
 
 class AnsibleIntrapartitionModule(DataSet):
     def __init__(self):
-        super(AnsibleIntrapartitionModule, self).__init__()
+        super(AnsibleIntrapartitionModule, self).__init__(SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT)
+        self.name = self.region_param[DSN]["dsn"].upper()
+        self.expected_data_set_organization = "VSAM"
 
-    def init_argument_spec(self):  # type: () -> dict
-        arg_spec = super(AnsibleIntrapartitionModule, self).init_argument_spec()
+    def _get_arg_spec(self):  # type: () -> dict
+        arg_spec = super(AnsibleIntrapartitionModule, self)._get_arg_spec()
 
-        arg_spec[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
-            "default": intra_constants["PRIMARY_SPACE_VALUE_DEFAULT"],
+        arg_spec[SPACE_PRIMARY].update({
+            "default": SPACE_PRIMARY_DEFAULT
         })
-        arg_spec[ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]].update(
-            {
-                "default": intra_constants["SPACE_UNIT_DEFAULT"],
-            }
-        )
-        arg_spec[ds_constants["TARGET_STATE_ALIAS"]].update(
-            {
-                "choices": intra_constants["TARGET_STATE_OPTIONS"],
-            }
-        )
-        arg_spec.update(
-            {
-                ds_constants["REGION_DATA_SETS_ALIAS"]: {
-                    "type": "dict",
-                    "required": True,
-                    "options": {
-                        "template": {
-                            "type": "str",
-                            "required": False,
-                        },
-                        "dfhintra": {
-                            "type": "dict",
-                            "required": False,
-                            "options": {
-                                "dsn": {
-                                    "type": "str",
-                                    "required": False,
-                                },
-                            },
-                        },
-                    },
-                },
-                ds_constants["CICS_DATA_SETS_ALIAS"]: {
-                    "type": "dict",
-                    "required": False,
-                    "options": {
-                        "template": {
-                            "type": "str",
-                            "required": False,
-                        },
-                        "sdfhload": {
-                            "type": "str",
-                            "required": False,
-                        },
-                    },
-                },
-            }
-        )
-        return arg_spec
-
-    def _get_arg_defs(self):  # type: () -> dict
-        arg_def = super(AnsibleIntrapartitionModule, self)._get_arg_defs()
-
-        arg_def[ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]].update({
-            "default": intra_constants["PRIMARY_SPACE_VALUE_DEFAULT"]
+        arg_spec[SPACE_TYPE].update({
+            "default": RECORDS
         })
-        arg_def[ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]].update({
-            "default": intra_constants["SPACE_UNIT_DEFAULT"]
-        })
-        arg_def[ds_constants["TARGET_STATE_ALIAS"]].update({
-            "choices": intra_constants["TARGET_STATE_OPTIONS"]
-        })
-        arg_def.update({
-            ds_constants["REGION_DATA_SETS_ALIAS"]: {
-                "arg_type": "dict",
-                "required": True,
-                "options": {
-                    "template": {
-                        "arg_type": "str",
-                        "required": False,
-                    },
-                    "dfhintra": {
-                        "arg_type": "dict",
-                        "required": False,
-                        "options": {
-                            "dsn": {
-                                "arg_type": "data_set_base",
-                                "required": False,
-                            },
-                        },
-                    },
-                },
-            },
-            ds_constants["CICS_DATA_SETS_ALIAS"]: {
-                "arg_type": "dict",
+        arg_spec[REGION_DATA_SETS]["options"].update({
+            DSN: {
+                "type": "dict",
                 "required": False,
                 "options": {
-                    "template": {
-                        "arg_type": "str",
-                        "required": False,
-                    },
-                    "sdfhload": {
-                        "arg_type": "data_set_base",
+                    "dsn": {
+                        "type": "str",
                         "required": False,
                     },
                 },
             },
         })
 
-        return arg_def
+        return arg_spec
 
-    def _get_data_set_object(self, size, result):
-        return _data_set(
-            size=size,
-            name=result.get(ds_constants["REGION_DATA_SETS_ALIAS"])
-            .get("dfhintra")
-            .get("dsn")
-            .upper(),
-            state=result.get(ds_constants["TARGET_STATE_ALIAS"]),
-            exists=False,
-            vsam=False,
-        )
-
-    def _get_data_set_size(self, result):
-        return _dataset_size(
-            unit=result.get(ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]),
-            primary=result.get(ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]),
-            secondary=intra_constants["SECONDARY_SPACE_VALUE_DEFAULT"],
-        )
-
-    def validate_parameters(self):  # type: () -> None
-        arg_defs = self._get_arg_defs()
-
-        result = BetterArgParser(arg_defs).parse_args({
-            ds_constants["REGION_DATA_SETS_ALIAS"]: self._module.params.get(
-                ds_constants["REGION_DATA_SETS_ALIAS"]
-            ),
-            ds_constants["CICS_DATA_SETS_ALIAS"]: self._module.params.get(
-                ds_constants["CICS_DATA_SETS_ALIAS"]
-            ),
-            ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]: self._module.params.get(
-                ds_constants["PRIMARY_SPACE_VALUE_ALIAS"]
-            ),
-            ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]: self._module.params.get(
-                ds_constants["PRIMARY_SPACE_UNIT_ALIAS"]
-            ),
-            ds_constants["DATASET_LOCATION_ALIAS"]: self._module.params.get(
-                ds_constants["DATASET_LOCATION_ALIAS"]
-            ),
-            ds_constants["TARGET_STATE_ALIAS"]: self._module.params.get(
-                ds_constants["TARGET_STATE_ALIAS"]
-            ),
+    def get_arg_defs(self):  # type: () -> dict
+        defs = super().get_arg_defs()
+        defs[REGION_DATA_SETS]["options"][DSN]["options"]["dsn"].update({
+            "arg_type": "data_set_base"
         })
-
-        size = self._get_data_set_size(result)
-        self.data_set = self._get_data_set_object(size, result)
+        defs[REGION_DATA_SETS]["options"][DSN]["options"]["dsn"].pop("type")
+        return defs
 
     def create_data_set(self):  # type: () -> None
-        create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_intra(self.data_set))
-
-        super().build_vsam_data_set(create_cmd, "Create intrapartition data set")
-
-    def delete_data_set(self):  # type: () -> None
-        if not self.data_set["exists"]:
-            self.result["end_state"] = _state(
-                exists=self.data_set["exists"], vsam=self.data_set["vsam"]
-            )
-            self._exit()
-
-        super().delete_data_set("Removing intrapartition data set")
+        create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_intra(self.get_data_set()))
+        super().build_vsam_data_set(create_cmd)
 
 
 def main():

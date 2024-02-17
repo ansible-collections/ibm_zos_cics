@@ -52,10 +52,10 @@
           - initial_result.changed is true
 
           - initial_result.start_state.exists == false
-          - initial_result.start_state.vsam == false
+          - initial_result.start_state.data_set_organization == "NONE"
 
           - initial_result.end_state.exists == true
-          - initial_result.end_state.vsam == true
+          - initial_result.end_state.data_set_organization == "VSAM"
 
     # #############################################################################
     # ############################## Module Testing ###############################
@@ -78,10 +78,10 @@
           - absent_result.changed is true
 
           - absent_result.start_state.exists == true
-          - absent_result.start_state.vsam == true
+          - absent_result.start_state.data_set_organization == "VSAM"
 
           - absent_result.end_state.exists == false
-          - absent_result.end_state.vsam == false
+          - absent_result.end_state.data_set_organization == "NONE"
 
 
     # #############################################################################

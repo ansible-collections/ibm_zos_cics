@@ -54,10 +54,10 @@
           - initial_result.changed is true
 
           - initial_result.start_state.exists == false
-          - initial_result.start_state.vsam == false
+          - initial_result.start_state.data_set_organization == "NONE"
 
           - initial_result.end_state.exists == true
-          - initial_result.end_state.vsam == true
+          - initial_result.end_state.data_set_organization == "VSAM"
 
     # #############################################################################
     # ############################## Module Testing ###############################
@@ -80,10 +80,10 @@
           - warm_result.changed is false
 
           - warm_result.start_state.exists == true
-          - warm_result.start_state.vsam == true
+          - warm_result.start_state.data_set_organization == "VSAM"
 
           - warm_result.end_state.exists == true
-          - warm_result.end_state.vsam == true
+          - warm_result.end_state.data_set_organization == "VSAM"
 
     # #############################################################################
     # ################################## Cleanup ##################################

@@ -117,10 +117,10 @@
           - initial_result_loc.changed is true
 
           - initial_result_loc.start_state.exists == false
-          - initial_result_loc.start_state.vsam == false
+          - initial_result_loc.start_state.data_set_organization == "NONE"
 
           - initial_result_loc.end_state.exists == true
-          - initial_result_loc.end_state.vsam == true
+          - initial_result_loc.end_state.data_set_organization == "VSAM"
 
     - name: Run Local Request Queue module with Initial target state
       environment: "{{ environment_vars }}"
@@ -149,10 +149,10 @@
           - initial_result_lrq.changed is true
 
           - initial_result_lrq.start_state.exists == false
-          - initial_result_lrq.start_state.vsam == false
+          - initial_result_lrq.start_state.data_set_organization == "NONE"
 
           - initial_result_lrq.end_state.exists == true
-          - initial_result_lrq.end_state.vsam == true
+          - initial_result_lrq.end_state.data_set_organization == "VSAM"
 
 
     # #############################################################################
