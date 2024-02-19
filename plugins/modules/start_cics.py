@@ -351,12 +351,13 @@ class AnsibleStartCICSModule(object):
             list_of_strings = JCLHelper._concatenate_key_value_pairs_into_list(
                 sit_parms)
             self._validate_content(list_of_strings)
-            dlm = self._get_delimiter(list_of_strings)
+            wrapped_content = AnsibleStartCICSModule._wrap_sit_parameters(list_of_strings)
+            dlm = self._get_delimiter(wrapped_content)
             if dlm:
                 self.dds.append(
-                    {SYSIN: {DLM: dlm, CONTENT: list_of_strings}})
+                    {SYSIN: {DLM: dlm, CONTENT: wrapped_content}})
             else:
-                self.dds.append({SYSIN: {CONTENT: list_of_strings}})
+                self.dds.append({SYSIN: {CONTENT: wrapped_content}})
 
     def _manage_dictionaries_in_sit_parameters(self, dictionary):
         key_values_to_add = {}
@@ -459,6 +460,34 @@ class AnsibleStartCICSModule(object):
     def update_arg_def(self, dict_to_update, arg_type="data_set_base"):
         dict_to_update.update({"arg_type": arg_type})
         dict_to_update.pop("type")
+
+    @staticmethod
+    def _wrap_sit_parameters(content):
+        wrapped_content = []
+        # These sit parameters are the only ones which can be wrapped.
+        wrappable_sit_parameters = ["CRLPROFILE", "USSHOME", "GMTEXT", "USSCONFIG", "HTTPSERVERHDR",
+                                    "HTTPUSRAGENTHDR", "INFOCENTER", "JVMPROFILEDIR"]
+        for line in content:
+            wrapped = False
+            for sit_parm in wrappable_sit_parameters:
+                extracted_sit_parameter_from_line = AnsibleStartCICSModule._find_sit_parm_key(line)
+                if extracted_sit_parameter_from_line == sit_parm:
+                    if len(line) > 80:
+                        # If the lines too long, break after character 80 and put 80 character chunks into the list.
+                        wrapped_content.extend([line[i:i + 80] for i in range(0, len(line), 80)])
+                        wrapped = True
+                        break
+            if not wrapped:
+                wrapped_content.append(line)
+        return wrapped_content
+
+    @staticmethod
+    def _find_sit_parm_key(input_string):
+        index = input_string.find('=')
+        if index != -1:
+            return input_string[:index].strip()
+        else:
+            return None
 
     @staticmethod
     def init_argument_spec():  # type: () -> dict

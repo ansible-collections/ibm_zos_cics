@@ -59,6 +59,7 @@
           ircstrt: "YES"
           mxt: 500
           pgaipgm: ACTIVE
+          gmtext: "GOOD MORNING. WELCOME TO CICS REGION {{ cics_applid }}. ENJOY YOUR DAY AND SHUTDOWN WHEN READY."
           sec: "YES"
           spool: "YES"
           srbsvc: 218

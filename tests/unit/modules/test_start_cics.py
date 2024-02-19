@@ -586,6 +586,63 @@ def test_validate_parameters_region_ds_too_long():
     assert module.result["failed"]
 
 
+def test_wrap_sit_parameters_no_wrapping():
+    content = ["USSHOME=HOMEDIR", "START=INITIAL", "APPLID=ABC123"]
+    wrapped_content = StartCICSModule._wrap_sit_parameters(content)
+    assert wrapped_content == content
+
+
+def test_wrap_sit_parameters_no_equals():
+    content = ["USSHOME=HOMEDIR", "HELLO", "APPLID=ABC123"]
+    wrapped_content = StartCICSModule._wrap_sit_parameters(content)
+    assert wrapped_content == content
+
+
+def test_wrap_sit_parameters_wrapping_two_parms():
+    content = ["USSHOME=LONGHOMEDIRECTORYLONGERTHAN80CHARACTERSNEEDSTOBEWRAPPEDBYTHEWRAPPINGMETHOD",
+               "START=INITIAL",
+               "GMTEXT='GOOD MORNING USER, WELCOME TO YOUR CICS REGION. THIS IS A LONG MESSAGE FOR TEST.'",
+               "APPLID=ABC123"]
+    wrapped_content = StartCICSModule._wrap_sit_parameters(content)
+
+    assert wrapped_content == ["USSHOME=LONGHOMEDIRECTORYLONGERTHAN80CHARACTERSNEEDSTOBEWRAPPEDBYTHEWRAPPINGMETH",
+                               "OD",
+                               "START=INITIAL",
+                               "GMTEXT='GOOD MORNING USER, WELCOME TO YOUR CICS REGION. THIS IS A LONG MESSAGE F",
+                               "OR TEST.'",
+                               "APPLID=ABC123"]
+
+
+def test_wrap_sit_parameters_wrapping_one_parm():
+    content = ["USSHOME=LONGHOMEDIRECTORYLONGERTHAN80CHARACTERSNEEDSTOBEWRAPPEDBYTHEWRAPPINGMETHOD",
+               "START=INITIAL",
+               "APPLID=ABC123"]
+    wrapped_content = StartCICSModule._wrap_sit_parameters(content)
+
+    assert wrapped_content == ["USSHOME=LONGHOMEDIRECTORYLONGERTHAN80CHARACTERSNEEDSTOBEWRAPPEDBYTHEWRAPPINGMETH",
+                               "OD",
+                               "START=INITIAL",
+                               "APPLID=ABC123"]
+
+
+def test_find_sit_parm_key():
+    sit_parm = "GMTEXT='HELLO"
+    key = StartCICSModule._find_sit_parm_key(sit_parm)
+    assert key == "GMTEXT"
+
+
+def test_find_sit_parm_key_two_equals():
+    sit_parm = "GMTEXT='HELLO=HOWAREYOU'"
+    key = StartCICSModule._find_sit_parm_key(sit_parm)
+    assert key == "GMTEXT"
+
+
+def test_find_sit_parm_key_not_present():
+    sit_parm = "HELLO"
+    key = StartCICSModule._find_sit_parm_key(sit_parm)
+    assert key is None
+
+
 def fail_json(*args, **kwargs):
     """function to patch over fail_json; package return data into an exception"""
     kwargs['failed'] = True
