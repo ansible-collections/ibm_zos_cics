@@ -3,7 +3,7 @@
 # (c) Copyright IBM Corp. 2023
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import data_set_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import local_catalog as local_catalog_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import icetool
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
@@ -70,10 +70,10 @@ def initialise_module(**kwargs):
 def test_create_an_intial_local_catalog():
     lcd_module = initialise_module()
 
-    dataset_utils.idcams = MagicMock(
+    data_set_utils.idcams = MagicMock(
         return_value=(0, NAME, "")
     )
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         side_effect=[
             (8, LISTDS_data_set_doesnt_exist(NAME), ""),
             (0, LISTDS_data_set(NAME, "VSAM"), ""),
@@ -131,7 +131,7 @@ def test_create_an_intial_local_catalog():
 def test_delete_an_existing_local_catalog():
     lcd_module = initialise_module(state="absent")
 
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         side_effect=[
             (0, LISTDS_data_set(NAME, "VSAM"), ""),
             (8, LISTDS_data_set_doesnt_exist(NAME), ""),
@@ -144,7 +144,7 @@ def test_delete_an_existing_local_catalog():
             stderr=ICETOOL_stderr()
         )
     )
-    dataset_utils.idcams = MagicMock(
+    data_set_utils.idcams = MagicMock(
         return_value=(0, IDCAMS_delete_vsam(NAME), ""),
     )
 
@@ -190,13 +190,13 @@ def test_delete_an_existing_local_catalog():
 def test_delete_an_existing_local_catalog_and_replace():
     lcd_module = initialise_module()
 
-    dataset_utils.idcams = MagicMock(
+    data_set_utils.idcams = MagicMock(
         side_effect=[
             (0, IDCAMS_delete_vsam(NAME), ""),
             (0, NAME, ""),
         ]
     )
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         side_effect=[
             (0, LISTDS_data_set(NAME, "VSAM"), ""),
             (8, LISTDS_data_set_doesnt_exist(NAME), ""),
@@ -282,7 +282,7 @@ def test_delete_an_existing_local_catalog_and_replace():
 def test_remove_non_existent_local_catalog():
     lcd_module = initialise_module(state="absent")
 
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         return_value=(8, LISTDS_data_set_doesnt_exist(NAME), "")
     )
 
@@ -322,7 +322,7 @@ def test_remove_non_existent_local_catalog():
 def test_warm_start_a_local_catalog():
     lcd_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         return_value=(
             0,
             LISTDS_data_set(NAME, "VSAM"),
@@ -377,7 +377,7 @@ def test_warm_start_a_local_catalog():
 def test_error_warm_start_a_unused_local_catalog():
     lcd_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         return_value=(
             0,
             LISTDS_data_set(NAME, "VSAM"),
@@ -434,7 +434,7 @@ def test_error_warm_start_a_unused_local_catalog():
 def test_error_warm_start_a_non_existent_local_catalog():
     lcd_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(
+    data_set_utils.ikjeft01 = MagicMock(return_value=(
         8, LISTDS_data_set_doesnt_exist(NAME), ""))
 
     lcd_module.main()
@@ -473,10 +473,10 @@ def test_error_warm_start_a_non_existent_local_catalog():
 def test_bad_response_from_ccutl():
     lcd_module = initialise_module()
 
-    dataset_utils.idcams = MagicMock(
+    data_set_utils.idcams = MagicMock(
         return_value=(0, NAME, "")
     )
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         side_effect=[
             (8, LISTDS_data_set_doesnt_exist(NAME), ""),
             (0, LISTDS_data_set(NAME, "VSAM"), ""),

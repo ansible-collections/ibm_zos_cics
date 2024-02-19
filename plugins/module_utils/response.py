@@ -14,3 +14,9 @@ def _execution(name, rc, stdout, stderr):  # type: (str, int, str, str) -> dict
         "stdout": stdout,
         "stderr": stderr,
     }
+
+
+class MVSExecutionException(Exception):
+    def __init__(self, message, executions):   # type: (str, list[_execution]) -> None
+        self.message = message
+        self.executions = executions

@@ -3,7 +3,7 @@
 # (c) Copyright IBM Corp. 2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import data_set_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
     PYTHON_LANGUAGE_FEATURES_MESSAGE,
@@ -71,13 +71,13 @@ def initialise_module(**kwargs):
 def test_create_an_intial_aux_trace():
     trace_module = initialise_module()
 
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         side_effect=[
             (8, LISTDS_data_set_doesnt_exist(NAMEA), ""),
             (0, LISTDS_data_set(NAMEA, "PS"), ""),
         ]
     )
-    dataset_utils._execute_iefbr14 = MagicMock(
+    data_set_utils._execute_iefbr14 = MagicMock(
         return_value=MVSCmdResponse(
             rc=0, stdout="", stderr=IEFBR14_create_stderr(NAMEA, "DFHAUXT")
         )
@@ -125,10 +125,10 @@ def test_create_an_intial_aux_trace():
 def test_delete_an_existing_aux_trace():
     trace_module = initialise_module(state="absent")
 
-    dataset_utils.idcams = MagicMock(
+    data_set_utils.idcams = MagicMock(
         return_value=(0, IDCAMS_delete_vsam(NAMEA), "")
     )
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         side_effect=[
             (0, LISTDS_data_set(NAMEA, "PS"), ""),
             (8, LISTDS_data_set_doesnt_exist(NAMEA), ""),
@@ -177,7 +177,7 @@ def test_delete_an_existing_aux_trace():
 def test_remove_non_existent_aux_trace():
     trace_module = initialise_module(state="absent")
 
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         return_value=(8, LISTDS_data_set_doesnt_exist(NAMEA), "")
     )
 
@@ -217,13 +217,13 @@ def test_remove_non_existent_aux_trace():
 def test_create_an_intial_destination_b_aux_trace():
     trace_module = initialise_module(destination="B")
 
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         side_effect=[
             (8, LISTDS_data_set_doesnt_exist(NAMEB), ""),
             (0, LISTDS_data_set(NAMEB, "PS"), ""),
         ]
     )
-    dataset_utils._execute_iefbr14 = MagicMock(
+    data_set_utils._execute_iefbr14 = MagicMock(
         return_value=MVSCmdResponse(
             rc=0, stdout="", stderr=IEFBR14_create_stderr(NAMEB, "DFHBUXT")
         )
@@ -270,7 +270,7 @@ def test_create_an_intial_destination_b_aux_trace():
 def test_warm_on_non_existent_aux():
     aux_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         return_value=(8, LISTDS_data_set_doesnt_exist(NAMEA), "")
     )
 
@@ -310,7 +310,7 @@ def test_warm_on_non_existent_aux():
 def test_warm_on_empty_aux():
     aux_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         return_value=(0, LISTDS_data_set(NAMEA, "PS"), "")
     )
     icetool._execute_icetool = MagicMock(
@@ -365,7 +365,7 @@ def test_warm_on_empty_aux():
 def test_warm_success_aux():
     aux_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         return_value=(0, LISTDS_data_set(NAMEA, "PS"), "")
     )
     icetool._execute_icetool = MagicMock(

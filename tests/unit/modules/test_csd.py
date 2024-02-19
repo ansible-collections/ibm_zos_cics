@@ -3,7 +3,7 @@
 # (c) Copyright IBM Corp. 2023
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import data_set_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import csd as csd_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import icetool
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
@@ -72,10 +72,10 @@ def initialise_module(**kwargs):
 def test_create_an_intial_csd():
     csd_module = initialise_module()
 
-    dataset_utils.idcams = MagicMock(
+    data_set_utils.idcams = MagicMock(
         return_value=(0, NAME, "")
     )
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         side_effect=[
             (8, LISTDS_data_set_doesnt_exist(NAME), ""),
             (0, LISTDS_data_set(NAME, "VSAM"), ""),
@@ -133,10 +133,10 @@ def test_create_an_intial_csd():
 def test_delete_an_existing_csd():
     csd_module = initialise_module(state="absent")
 
-    dataset_utils.idcams = MagicMock(
+    data_set_utils.idcams = MagicMock(
         return_value=(0, IDCAMS_delete_vsam(NAME), "")
     )
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         side_effect=[
             (0, LISTDS_data_set(NAME, "VSAM"), ""),
             (8, LISTDS_data_set_doesnt_exist(NAME), ""),
@@ -185,7 +185,7 @@ def test_delete_an_existing_csd():
 def test_do_nothing_to_an_existing_csd():
     csd_module = initialise_module()
 
-    dataset_utils.ikjeft01 = MagicMock(side_effect=[(0, LISTDS_data_set(NAME, "VSAM"), ""), (0, LISTDS_data_set(NAME, "VSAM"), "")])
+    data_set_utils.ikjeft01 = MagicMock(side_effect=[(0, LISTDS_data_set(NAME, "VSAM"), ""), (0, LISTDS_data_set(NAME, "VSAM"), "")])
     icetool._execute_icetool = MagicMock(
         return_value=MVSCmdResponse(
             rc=0,
@@ -245,7 +245,7 @@ def test_do_nothing_to_an_existing_csd():
 def test_remove_non_existent_csd():
     csd_module = initialise_module(state="absent")
 
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         return_value=(8, LISTDS_data_set_doesnt_exist(NAME), "")
     )
 
@@ -285,7 +285,7 @@ def test_remove_non_existent_csd():
 def test_warm_start_a_existing_csd():
     csd_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         return_value=(
             0,
             LISTDS_data_set(NAME, "VSAM"),
@@ -340,7 +340,7 @@ def test_warm_start_a_existing_csd():
 def test_error_warm_start_a_unused_csd():
     csd_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         return_value=(
             0,
             LISTDS_data_set(NAME, "VSAM"),
@@ -392,7 +392,7 @@ def test_error_warm_start_a_unused_csd():
 def test_error_warm_start_a_non_existent_csd():
     csd_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(
+    data_set_utils.ikjeft01 = MagicMock(return_value=(
         8, LISTDS_data_set_doesnt_exist(NAME), ""))
 
     csd_module.main()
@@ -427,10 +427,10 @@ def test_error_warm_start_a_non_existent_csd():
 def test_bad_response_from_csdup():
     csd_module = initialise_module()
 
-    dataset_utils.idcams = MagicMock(
+    data_set_utils.idcams = MagicMock(
         return_value=(0, NAME, "")
     )
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         side_effect=[
             (8, LISTDS_data_set_doesnt_exist(NAME), ""),
             (0, LISTDS_data_set(NAME, "VSAM"), ""),
