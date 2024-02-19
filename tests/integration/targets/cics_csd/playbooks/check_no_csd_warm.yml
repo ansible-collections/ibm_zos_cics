@@ -6,9 +6,8 @@
   hosts: "all"
   gather_facts: false
   vars:
-    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_absent }}"
     ds_name: "DFHCSD"
-    ds_path: "{{ region_dataset_path }}.{{ ds_name }}"
+    ds_path: "{{ region_data_set_path }}.{{ ds_name }}"
 
   module_defaults:
     ibm.ibm_zos_cics.csd:
@@ -17,7 +16,7 @@
       space_primary: 5
       space_type: "M"
       region_data_sets:
-        template: "{{ region_dataset_path }}.<< data_set_name >>"
+        template: "{{ region_data_set_path }}.<< data_set_name >>"
 
   tasks:
     # #############################################################################
@@ -60,6 +59,7 @@
           - warm_result.changed is false
 
           - warm_result.start_state.exists == false
-          - warm_result.start_state.vsam == false
+          - warm_result.start_state.data_set_organization == "NONE"
 
           - warm_result.end_state.exists == false
+          - warm_result.end_state.data_set_organization == "NONE"

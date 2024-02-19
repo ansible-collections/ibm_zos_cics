@@ -4,8 +4,20 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils, icetool
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, _response, _state
-from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import set_data_set, set_module_args
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
+from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
+    PYTHON_LANGUAGE_FEATURES_MESSAGE,
+    ICETOOL_name,
+    ICETOOL_stderr,
+    ICETOOL_stdout,
+    IDCAMS_delete_run_name,
+    IDCAMS_delete_vsam,
+    IDCAMS_create_run_name,
+    LISTDS_data_set_doesnt_exist,
+    LISTDS_data_set,
+    LISTDS_run_name,
+    set_module_args
+)
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import local_request_queue
 import pytest
 import sys
@@ -20,12 +32,14 @@ except ImportError:
 
 __metaclass__ = type
 
+NAME = "TEST.REGIONS.LRQ"
+
 default_arg_parms = {
     "space_primary": 5,
     "space_type": "M",
     "region_data_sets": {
         "dfhlrq": {
-            "dsn": "TEST.REGIONS.LRQ"
+            "dsn": NAME
         }
     },
     "cics_data_sets": {
@@ -45,281 +59,372 @@ def initialise_module(**kwargs):
     return lrq_module
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_create_an_intial_local_request_queue():
     lrq_module = initialise_module()
 
     dataset_utils.idcams = MagicMock(
-        return_value=(0, "TEST.REGIONS.LRQ", "stderr"))
+        return_value=(0, NAME, ""))
     dataset_utils.ikjeft01 = MagicMock(
         side_effect=[
-            (8,
-             "TEST.REGIONS.LRQ NOT IN CATALOG",
-             "stderr"),
-            (0,
-             "TEST.REGIONS.LRQ VSAM",
-             "stderr")])
+            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+        ]
+    )
 
     lrq_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.LRQ NOT IN CATALOG",
-                stderr="stderr"),
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
+            ),
             _execution(
-                name="IDCAMS - Create local request queue data set - Run 1",
+                name=IDCAMS_create_run_name(1, NAME),
                 rc=0,
-                stdout="TEST.REGIONS.LRQ",
-                stderr="stderr"),
+                stdout=NAME,
+                stderr="",
+            ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.LRQ VSAM",
-                stderr="stderr")],
-        start_state=_state(
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
             exists=False,
-            vsam=False),
-        end_state=_state(
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
             exists=True,
-            vsam=True))
-    expected_result.update({"changed": True})
+            data_set_organization="VSAM"
+        ),
+        changed=True,
+        failed=False
+    )
     assert lrq_module.result == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_delete_an_existing_local_request_queue():
     lrq_module = initialise_module(state="absent")
 
-    dataset_utils.idcams = MagicMock(return_value=(
-        0, "ENTRY (C) TEST.REGIONS.LRQ DELETED\n", "stderr"))
-    dataset_utils.ikjeft01 = MagicMock(
-        side_effect=[
-            (0,
-             "TEST.REGIONS.LRQ VSAM",
-             "stderr"),
-            (8,
-             "TEST.REGIONS.LRQ NOT IN CATALOG",
-             "stderr")])
-
-    lrq_module.main()
-    expected_result = _response(
-        executions=[
-            _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
-                rc=0,
-                stdout="TEST.REGIONS.LRQ VSAM",
-                stderr="stderr"),
-            _execution(
-                name="IDCAMS - Removing local request queue data set - Run 1",
-                rc=0,
-                stdout="ENTRY (C) TEST.REGIONS.LRQ DELETED\n",
-                stderr="stderr"),
-            _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
-                rc=8,
-                stdout="TEST.REGIONS.LRQ NOT IN CATALOG",
-                stderr="stderr")],
-        start_state=_state(
-            exists=True,
-            vsam=True),
-        end_state=_state(
-            exists=False,
-            vsam=False))
-    expected_result.update({"changed": True})
-    assert lrq_module.result == expected_result
-
-
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
-def test_delete_an_existing_lrq_and_replace():
-    lrq_module = initialise_module()
-    data_set = set_data_set(exists=True, name="TEST.REGIONS.LRQ", vsam=True)
-    lrq_module.data_set = data_set
-
     dataset_utils.idcams = MagicMock(
-        side_effect=[
-            (0, "ENTRY (C) TEST.REGIONS.LRQ DELETED\n", "stderr"),
-            (0, "TEST.REGIONS.LRQ", "stderr"),
-        ]
+        return_value=(0, IDCAMS_delete_vsam(NAME), "")
     )
     dataset_utils.ikjeft01 = MagicMock(
         side_effect=[
-            (0, "TEST.REGIONS.LRQ VSAM", "stderr"),
-            (8, "TEST.REGIONS.LRQ NOT IN CATALOG", "stderr"),
-            (0, "TEST.REGIONS.LRQ VSAM", "stderr"),
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+        ]
+    )
+
+    lrq_module.main()
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
+            ),
+            _execution(
+                name=IDCAMS_delete_run_name(1, NAME),
+                rc=0,
+                stdout=IDCAMS_delete_vsam(NAME),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=True,
+        failed=False
+    )
+    assert lrq_module.result == expected_result
+
+
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
+def test_delete_an_existing_lrq_and_replace():
+    lrq_module = initialise_module()
+
+    dataset_utils.ikjeft01 = MagicMock(
+        side_effect=[
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+        ]
+    )
+    dataset_utils.idcams = MagicMock(
+        side_effect=[
+            (0, IDCAMS_delete_vsam(NAME), ""),
+            (0, NAME, ""),
         ]
     )
     icetool._execute_icetool = MagicMock(
         return_value=(
-            MVSCmdResponse(rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr")
+            MVSCmdResponse(
+                rc=0,
+                stdout=ICETOOL_stdout(52),
+                stderr=ICETOOL_stderr()
+            )
         )
     )
 
     lrq_module.main()
-    expected_result = _response(executions=[
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=0, stdout="TEST.REGIONS.LRQ VSAM", stderr="stderr"),
-        _execution(name="ICETOOL - Get record count", rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr"),
-        _execution(name="IDCAMS - Removing local request queue data set - Run 1", rc=0, stdout="ENTRY (C) TEST.REGIONS.LRQ DELETED\n", stderr="stderr"),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=8, stdout="TEST.REGIONS.LRQ NOT IN CATALOG", stderr="stderr"),
-        _execution(name="IDCAMS - Create local request queue data set - Run 1", rc=0, stdout="TEST.REGIONS.LRQ", stderr="stderr"),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=0, stdout="TEST.REGIONS.LRQ VSAM", stderr="stderr")
-    ],
-        start_state=_state(exists=True, vsam=True),
-        end_state=_state(exists=True, vsam=True)
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
+            ),
+            _execution(
+                name=ICETOOL_name(1),
+                rc=0,
+                stdout=ICETOOL_stdout(52),
+                stderr=ICETOOL_stderr()
+            ),
+            _execution(
+                name=IDCAMS_delete_run_name(1, NAME),
+                rc=0,
+                stdout=IDCAMS_delete_vsam(NAME),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
+            ),
+            _execution(
+                name=IDCAMS_create_run_name(1, NAME),
+                rc=0,
+                stdout=NAME,
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        changed=True,
+        failed=False
     )
-    expected_result.update({"changed": True})
     assert lrq_module.result == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_remove_non_existent_lrq():
     lrq_module = initialise_module(state="absent")
 
-    dataset_utils.idcams = MagicMock(return_value=(
-        8, "ENTRY TEST.REGIONS.LRQ NOTFOUND", "stderr"))
-    dataset_utils.ikjeft01 = MagicMock(return_value=(
-        8, "TEST.REGIONS.LRQ NOT IN CATALOG", "stderr"))
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(8, LISTDS_data_set_doesnt_exist(NAME), "")
+    )
 
     lrq_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.LRQ NOT IN CATALOG",
-                stderr="stderr"),
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
+            ),
             _execution(
-                name="IDCAMS - Removing local request queue data set - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="ENTRY TEST.REGIONS.LRQ NOTFOUND",
-                stderr="stderr"),
-            _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
-                rc=8,
-                stdout="TEST.REGIONS.LRQ NOT IN CATALOG",
-                stderr="stderr")],
-        start_state=_state(
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
             exists=False,
-            vsam=False),
-        end_state=_state(
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
             exists=False,
-            vsam=False))
-    expected_result.update({"changed": True})
+            data_set_organization="NONE"
+        ),
+        changed=False,
+        failed=False
+    )
     assert lrq_module.result == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_warm_on_non_existent_lrq():
     lrq_module = initialise_module(state="warm")
 
     dataset_utils.ikjeft01 = MagicMock(return_value=(
-        8, "TEST.REGIONS.LRQ NOT IN CATALOG", "stderr"))
+        8, LISTDS_data_set_doesnt_exist(NAME), ""))
 
     lrq_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.LRQ NOT IN CATALOG",
-                stderr="stderr"),
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr=""),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.LRQ NOT IN CATALOG",
-                stderr="stderr"),
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr=""),
         ],
-        start_state=_state(
+        start_state=dict(
             exists=False,
-            vsam=False),
-        end_state=_state(
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
             exists=False,
-            vsam=False))
-    expected_result.update({"changed": False})
-    expected_result.update({"failed": True})
+            data_set_organization="NONE"
+        ),
+        changed=False,
+        failed=True
+    )
     assert lrq_module.result == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_warm_on_empty_lrq():
     lrq_module = initialise_module(state="warm")
 
     dataset_utils.ikjeft01 = MagicMock(
-        return_value=(0, "TEST.REGIONS.LRQ VSAM", "stderr"))
-    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(
-        rc=0, stdout="RECORD COUNT:  000000000000000", stderr="stderr"))
+        return_value=(
+            0,
+            LISTDS_data_set(NAME, "VSAM"),
+            ""
+        )
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=MVSCmdResponse(
+            rc=0,
+            stdout=ICETOOL_stdout(0),
+            stderr=ICETOOL_stderr()
+        )
+    )
 
     lrq_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.LRQ VSAM",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""),
             _execution(
-                name="ICETOOL - Get record count",
+                name=ICETOOL_name(1),
                 rc=0,
-                stdout="RECORD COUNT:  000000000000000",
-                stderr="stderr"),
+                stdout=ICETOOL_stdout(0),
+                stderr=ICETOOL_stderr()),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.LRQ VSAM",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""),
         ],
-        start_state=_state(
+        start_state=dict(
             exists=True,
-            vsam=True),
-        end_state=_state(
+            data_set_organization="VSAM"
+        ),
+        end_state=dict(
             exists=True,
-            vsam=True))
-    expected_result.update({"changed": False})
-    expected_result.update({"failed": True})
+            data_set_organization="VSAM"
+        ),
+        changed=False,
+        failed=True
+    )
     assert lrq_module.result == expected_result
 
 
-@pytest.mark.skipif(sys.version_info.major < 3,
-                    reason="Requires python 3 language features")
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
 def test_warm_success_lrq():
     lrq_module = initialise_module(state="warm")
 
     dataset_utils.ikjeft01 = MagicMock(
-        return_value=(0, "TEST.REGIONS.LRQ VSAM", "stderr"))
-    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(
-        rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr"))
+        return_value=(
+            0,
+            LISTDS_data_set(NAME, "VSAM"),
+            ""
+        )
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=MVSCmdResponse(
+            rc=0,
+            stdout=ICETOOL_stdout(52),
+            stderr=ICETOOL_stderr()
+        )
+    )
 
     lrq_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.LRQ VSAM",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""),
             _execution(
-                name="ICETOOL - Get record count",
+                name=ICETOOL_name(1),
                 rc=0,
-                stdout="RECORD COUNT:  000000000000052",
-                stderr="stderr"),
+                stdout=ICETOOL_stdout(52),
+                stderr=ICETOOL_stderr()),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.LRQ VSAM",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""),
         ],
-        start_state=_state(
+        start_state=dict(
             exists=True,
-            vsam=True),
-        end_state=_state(
+            data_set_organization="VSAM"
+        ),
+        end_state=dict(
             exists=True,
-            vsam=True))
-    expected_result.update({"changed": False})
-    expected_result.update({"failed": False})
+            data_set_organization="VSAM"
+        ),
+        changed=False,
+        failed=False
+    )
     assert lrq_module.result == expected_result

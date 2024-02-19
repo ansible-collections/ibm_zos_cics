@@ -9,10 +9,9 @@ __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdinDefinition, DatasetDefinition, DDStatement, StdoutDefinition
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd, MVSCmdResponse
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import _dataset_constants as ds_constants
 
 
-def _get_csdup_dds(catalog):  # type: (dict) -> dict
+def _get_csdup_dds(catalog):  # type: (dict) -> list(DDStatement)
     return [
         DDStatement('steplib', DatasetDefinition(catalog["sdfhload"], disposition="SHR")),
         DDStatement(
@@ -26,7 +25,7 @@ def _get_csdup_dds(catalog):  # type: (dict) -> dict
     ]
 
 
-def _run_dfhcsdup(starting_catalog):  # type: (dict) -> [_execution]
+def _run_dfhcsdup(starting_catalog):  # type: (dict) -> list(_execution)
     executions = []
     dfhcsdup_response = _execute_dfhcsdup(starting_catalog)
 
@@ -53,7 +52,7 @@ def _execute_dfhcsdup(starting_catalog):  # type: (dict) -> MVSCmdResponse
         debug=False)
 
 
-def _get_csdupcmd():  # type () -> dict
+def _get_csdupcmd():  # type: () -> list(str)
     cmd = [
         "INITIALIZE"
     ]
@@ -63,15 +62,15 @@ def _get_csdupcmd():  # type () -> dict
 def _get_idcams_cmd_csd(dataset):  # type: (dict) -> dict
     defaults = {
         "CLUSTER": {
-            "RECORDSIZE": "{0} {1}".format(_csd_constants["RECORD_COUNT_DEFAULT"], _csd_constants["RECORD_SIZE_DEFAULT"]),
+            "RECORDSIZE": "{0} {1}".format(RECORD_COUNT_DEFAULT, RECORD_SIZE_DEFAULT),
             "INDEXED": None,
-            "KEYS": "{0} {1}".format(_csd_constants["KEY_LENGTH"], _csd_constants["KEY_OFFSET"]),
-            "FREESPACE": "{0} {1}".format(_csd_constants["CI_PERCENT"], _csd_constants["CA_PERCENT"]),
-            "SHAREOPTIONS": "{0}".format(_csd_constants["SHARE_CROSSREGION"]),
+            "KEYS": "{0} {1}".format(KEY_LENGTH, KEY_OFFSET),
+            "FREESPACE": "{0} {1}".format(CI_PERCENT, CA_PERCENT),
+            "SHAREOPTIONS": str(SHARE_CROSSREGION),
             "REUSE": None
         },
         "DATA": {
-            "CONTROLINTERVALSIZE": "{0}".format(_csd_constants["CONTROL_INTERVAL_SIZE_DEFAULT"])
+            "CONTROLINTERVALSIZE": str(CONTROL_INTERVAL_SIZE_DEFAULT)
         },
         "INDEX": {
             None
@@ -81,21 +80,11 @@ def _get_idcams_cmd_csd(dataset):  # type: (dict) -> dict
     return defaults
 
 
-_csd_constants = {
-    "PRIMARY_SPACE_VALUE_DEFAULT": 4,
-    "SECONDARY_SPACE_VALUE_DEFAULT": 1,
-    "SPACE_UNIT_DEFAULT": "M",
-    "TARGET_STATE_OPTIONS": [
-        ds_constants["TARGET_STATE_ABSENT"],
-        ds_constants["TARGET_STATE_INITIAL"],
-        ds_constants["TARGET_STATE_WARM"]
-    ],
-    "RECORD_COUNT_DEFAULT": 200,
-    "RECORD_SIZE_DEFAULT": 2000,
-    "CONTROL_INTERVAL_SIZE_DEFAULT": 8192,
-    "KEY_LENGTH": 22,
-    "KEY_OFFSET": 0,
-    "CI_PERCENT": 10,
-    "CA_PERCENT": 10,
-    "SHARE_CROSSREGION": 2
-}
+RECORD_COUNT_DEFAULT = 200
+RECORD_SIZE_DEFAULT = 2000
+CONTROL_INTERVAL_SIZE_DEFAULT = 8192
+KEY_LENGTH = 22
+KEY_OFFSET = 0
+CI_PERCENT = 10
+CA_PERCENT = 10
+SHARE_CROSSREGION = 2

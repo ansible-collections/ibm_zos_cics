@@ -4,16 +4,24 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils, icetool
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
-    _execution, _response, _state, )
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
-    set_data_set, set_module_args, )
+    PYTHON_LANGUAGE_FEATURES_MESSAGE,
+    ICETOOL_name,
+    ICETOOL_stderr,
+    ICETOOL_stdout,
+    IDCAMS_delete_run_name,
+    IDCAMS_delete_vsam,
+    IDCAMS_create_run_name,
+    LISTDS_data_set_doesnt_exist,
+    LISTDS_data_set,
+    LISTDS_run_name,
+    set_module_args
+)
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import auxiliary_temp
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import icetool
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
 import pytest
 import sys
-
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
 
 try:
     from unittest.mock import MagicMock
@@ -23,10 +31,12 @@ except ImportError:
 
 __metaclass__ = type
 
+NAME = "TEST.REGIONS.DFHTEMP"
+
 default_arg_parms = {
     "space_primary": 5,
     "space_type": "M",
-    "region_data_sets": {"dfhtemp": {"dsn": "TEST.REGIONS.DFHTEMP"}},
+    "region_data_sets": {"dfhtemp": {"dsn": NAME}},
     "cics_data_sets": {"sdfhload": "TEST.CICS.INSTALL.SDFHLOAD"},
     "state": "initial",
 }
@@ -43,331 +53,375 @@ def initialise_module(**kwargs):
 
 
 @pytest.mark.skipif(
-    sys.version_info.major < 3, reason="Requires python 3 language features"
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_create_an_intial_temp_ds():
     temp_module = initialise_module()
 
     dataset_utils.idcams = MagicMock(
-        return_value=(0, "TEST.REGIONS.DFHTEMP", "stderr"))
+        return_value=(0, NAME, "")
+    )
     dataset_utils.ikjeft01 = MagicMock(
         side_effect=[
-            (8, "TEST.REGIONS.DFHTEMP NOT IN CATALOG", "stderr"),
-            (0, "TEST.REGIONS.DFHTEMP VSAM", "stderr"),
+            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
         ]
     )
-    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(rc=0, stdout="RECORD COUNT:  000000000000000", stderr="stderr"))
-    auxiliary_temp.AnsibleAuxiliaryTempModule._exit = MagicMock(return_value=None)
 
     temp_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHTEMP NOT IN CATALOG",
-                stderr="stderr",
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
             ),
             _execution(
-                name="IDCAMS - Create auxiliary temp data set - Run 1",
+                name=IDCAMS_create_run_name(1, NAME),
                 rc=0,
-                stdout="TEST.REGIONS.DFHTEMP",
-                stderr="stderr",
+                stdout=NAME,
+                stderr="",
             ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHTEMP VSAM",
-                stderr="stderr",
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
             ),
         ],
-        start_state=_state(exists=False, vsam=False),
-        end_state=_state(exists=True, vsam=True),
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        changed=True,
+        failed=False
     )
-    expected_result.update({"changed": True})
-    assert temp_module.result == expected_result
+    assert temp_module.get_result() == expected_result
 
 
 @pytest.mark.skipif(
-    sys.version_info.major < 3, reason="Requires python 3 language features"
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_delete_an_existing_auxiliary_temp_ds():
     temp_module = initialise_module(state="absent")
 
     dataset_utils.idcams = MagicMock(
-        return_value=(0, "ENTRY (C) TEST.REGIONS.DFHTEMP DELETED\n", "stderr")
+        return_value=(0, IDCAMS_delete_vsam(NAME), "")
     )
     dataset_utils.ikjeft01 = MagicMock(
         side_effect=[
-            (0, "TEST.REGIONS.DFHTEMP VSAM", "stderr"),
-            (8, "TEST.REGIONS.DFHTEMP NOT IN CATALOG", "stderr"),
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
         ]
     )
-    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr"))
-    auxiliary_temp.AnsibleAuxiliaryTempModule._exit = MagicMock(return_value=None)
 
     temp_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHTEMP VSAM",
-                stderr="stderr",
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
             ),
             _execution(
-                name="IDCAMS - Removing auxiliary temp data set - Run 1",
+                name=IDCAMS_delete_run_name(1, NAME),
                 rc=0,
-                stdout="ENTRY (C) TEST.REGIONS.DFHTEMP DELETED\n",
-                stderr="stderr",
+                stdout=IDCAMS_delete_vsam(NAME),
+                stderr="",
             ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHTEMP NOT IN CATALOG",
-                stderr="stderr",
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
             ),
         ],
-        start_state=_state(exists=True, vsam=True),
-        end_state=_state(exists=False, vsam=False),
+        start_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=True,
+        failed=False
     )
-    expected_result.update({"changed": True})
-    assert temp_module.result == expected_result
+    assert temp_module.get_result() == expected_result
 
 
 @pytest.mark.skipif(
-    sys.version_info.major < 3, reason="Requires python 3 language features"
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_delete_an_existing_temp_and_replace():
     temp_module = initialise_module()
-    data_set = set_data_set(
-        exists=True,
-        name="TEST.REGIONS.DFHTEMP",
-        vsam=True)
-    temp_module.data_set = data_set
 
     dataset_utils.ikjeft01 = MagicMock(
         side_effect=[
-            (0, "TEST.REGIONS.DFHTEMP VSAM", "stderr"),
-            (8, "TEST.REGIONS.DFHTEMP NOT IN CATALOG", "stderr"),
-            (0, "TEST.REGIONS.DFHTEMP VSAM", "stderr"),
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            (0, LISTDS_data_set(NAME, "VSAM"), ""),
         ]
     )
     dataset_utils.idcams = MagicMock(
         side_effect=[
-            (0, "ENTRY (C) TEST.REGIONS.DFHTEMP DELETED\n", "stderr"),
-            (0, "TEST.REGIONS.DFHTEMP", "stderr"),
+            (0, IDCAMS_delete_vsam(NAME), ""),
+            (0, NAME, ""),
         ]
     )
     icetool._execute_icetool = MagicMock(
         return_value=(
-            MVSCmdResponse(rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr")
+            MVSCmdResponse(
+                rc=0,
+                stdout=ICETOOL_stdout(52),
+                stderr=ICETOOL_stderr()
+            )
         )
     )
-    auxiliary_temp.AnsibleAuxiliaryTempModule._exit = MagicMock(return_value=None)
 
     temp_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHTEMP VSAM",
-                stderr="stderr",
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
             ),
             _execution(
-                name="ICETOOL - Get record count",
+                name=ICETOOL_name(1),
                 rc=0,
-                stdout="RECORD COUNT:  000000000000052",
-                stderr="stderr"
+                stdout=ICETOOL_stdout(52),
+                stderr=ICETOOL_stderr()
             ),
             _execution(
-                name="IDCAMS - Removing auxiliary temp data set - Run 1",
+                name=IDCAMS_delete_run_name(1, NAME),
                 rc=0,
-                stdout="ENTRY (C) TEST.REGIONS.DFHTEMP DELETED\n",
-                stderr="stderr",
+                stdout=IDCAMS_delete_vsam(NAME),
+                stderr="",
             ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHTEMP NOT IN CATALOG",
-                stderr="stderr",
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
             ),
             _execution(
-                name="IDCAMS - Create auxiliary temp data set - Run 1",
+                name=IDCAMS_create_run_name(1, NAME),
                 rc=0,
-                stdout="TEST.REGIONS.DFHTEMP",
-                stderr="stderr",
+                stdout=NAME,
+                stderr="",
             ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHTEMP VSAM",
-                stderr="stderr",
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr="",
             ),
         ],
-        start_state=_state(exists=True, vsam=True),
-        end_state=_state(exists=True, vsam=True),
+        start_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="VSAM"
+        ),
+        changed=True,
+        failed=False
     )
-    expected_result.update({"changed": True})
-    assert temp_module.result == expected_result
+    assert temp_module.get_result() == expected_result
 
 
 @pytest.mark.skipif(
-    sys.version_info.major < 3, reason="Requires python 3 language features"
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_remove_non_existent_temp():
     temp_module = initialise_module(state="absent")
 
-    dataset_utils.idcams = MagicMock(
-        return_value=(8, "ENTRY TEST.REGIONS.DFHTEMP NOTFOUND", "stderr")
-    )
     dataset_utils.ikjeft01 = MagicMock(
-        return_value=(8, "TEST.REGIONS.DFHTEMP NOT IN CATALOG", "stderr")
+        return_value=(8, LISTDS_data_set_doesnt_exist(NAME), "")
     )
-    auxiliary_temp.AnsibleAuxiliaryTempModule._exit = MagicMock(
-        return_value=None)
 
     temp_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHTEMP NOT IN CATALOG",
-                stderr="stderr",
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
             ),
             _execution(
-                name="IDCAMS - Removing auxiliary temp data set - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="ENTRY TEST.REGIONS.DFHTEMP NOTFOUND",
-                stderr="stderr",
-            ),
-            _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
-                rc=8,
-                stdout="TEST.REGIONS.DFHTEMP NOT IN CATALOG",
-                stderr="stderr",
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr="",
             ),
         ],
-        start_state=_state(exists=False, vsam=False),
-        end_state=_state(exists=False, vsam=False),
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=False,
+        failed=False
     )
-    expected_result.update({"changed": True})
-    assert temp_module.result == expected_result
+    assert temp_module.get_result() == expected_result
 
 
 @pytest.mark.skipif(
-    sys.version_info.major < 3, reason="Requires python 3 language features"
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_warm_on_non_existent_temp():
     temp_module = initialise_module(state="warm")
 
     dataset_utils.ikjeft01 = MagicMock(return_value=(
-        8, "TEST.REGIONS.DFHTEMP NOT IN CATALOG", "stderr"))
+        8, LISTDS_data_set_doesnt_exist(NAME), ""))
 
     temp_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHTEMP NOT IN CATALOG",
-                stderr="stderr"),
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr=""),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=8,
-                stdout="TEST.REGIONS.DFHTEMP NOT IN CATALOG",
-                stderr="stderr"),
+                stdout=LISTDS_data_set_doesnt_exist(NAME),
+                stderr=""),
         ],
-        start_state=_state(
+        start_state=dict(
             exists=False,
-            vsam=False),
-        end_state=_state(
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
             exists=False,
-            vsam=False))
-    expected_result.update({"changed": False})
-    expected_result.update({"failed": True})
-    assert temp_module.result == expected_result
+            data_set_organization="NONE"
+        ),
+        changed=False,
+        failed=True
+    )
+    assert temp_module.get_result() == expected_result
 
 
 @pytest.mark.skipif(
-    sys.version_info.major < 3, reason="Requires python 3 language features"
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_warm_on_empty_temp():
     temp_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(
-        0, "TEST.REGIONS.DFHTEMP VSAM", "stderr"))
-    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(
-        rc=0, stdout="RECORD COUNT:  000000000000000", stderr="stderr"))
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(
+            0,
+            LISTDS_data_set(NAME, "VSAM"),
+            ""
+        )
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=MVSCmdResponse(
+            rc=0,
+            stdout=ICETOOL_stdout(0),
+            stderr=ICETOOL_stderr()
+        )
+    )
 
     temp_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHTEMP VSAM",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""),
             _execution(
-                name="ICETOOL - Get record count",
+                name=ICETOOL_name(1),
                 rc=0,
-                stdout="RECORD COUNT:  000000000000000",
-                stderr="stderr"),
+                stdout=ICETOOL_stdout(0),
+                stderr=ICETOOL_stderr()),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHTEMP VSAM",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""),
         ],
-        start_state=_state(
+        start_state=dict(
             exists=True,
-            vsam=True),
-        end_state=_state(
+            data_set_organization="VSAM"
+        ),
+        end_state=dict(
             exists=True,
-            vsam=True))
-    expected_result.update({"changed": False})
-    expected_result.update({"failed": True})
-    assert temp_module.result == expected_result
+            data_set_organization="VSAM"
+        ),
+        changed=False,
+        failed=True
+    )
+    assert temp_module.get_result() == expected_result
 
 
 @pytest.mark.skipif(
-    sys.version_info.major < 3, reason="Requires python 3 language features"
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_warm_success_temp():
     temp_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(
-        0, "TEST.REGIONS.DFHTEMP VSAM", "stderr"))
-    icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(
-        rc=0, stdout="RECORD COUNT:  000000000000052", stderr="stderr"))
+    dataset_utils.ikjeft01 = MagicMock(
+        return_value=(
+            0,
+            LISTDS_data_set(NAME, "VSAM"),
+            ""
+        )
+    )
+    icetool._execute_icetool = MagicMock(
+        return_value=MVSCmdResponse(
+            rc=0,
+            stdout=ICETOOL_stdout(52),
+            stderr=ICETOOL_stderr()
+        )
+    )
 
     temp_module.main()
-    expected_result = _response(
+    expected_result = dict(
         executions=[
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHTEMP VSAM",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""
+            ),
             _execution(
-                name="ICETOOL - Get record count",
+                name=ICETOOL_name(1),
                 rc=0,
-                stdout="RECORD COUNT:  000000000000052",
-                stderr="stderr"),
+                stdout=ICETOOL_stdout(52),
+                stderr=ICETOOL_stderr()
+            ),
             _execution(
-                name="IKJEFT01 - Get Data Set Status - Run 1",
+                name=LISTDS_run_name(1),
                 rc=0,
-                stdout="TEST.REGIONS.DFHTEMP VSAM",
-                stderr="stderr"),
+                stdout=LISTDS_data_set(NAME, "VSAM"),
+                stderr=""
+            ),
         ],
-        start_state=_state(
+        start_state=dict(
             exists=True,
-            vsam=True),
-        end_state=_state(
+            data_set_organization="VSAM"
+        ),
+        end_state=dict(
             exists=True,
-            vsam=True))
-    expected_result.update({"changed": False})
-    expected_result.update({"failed": False})
-    assert temp_module.result == expected_result
+            data_set_organization="VSAM"
+        ),
+        changed=False,
+        failed=False
+    )
+    assert temp_module.get_result() == expected_result

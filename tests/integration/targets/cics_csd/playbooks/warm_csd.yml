@@ -6,9 +6,8 @@
   hosts: "all"
   gather_facts: false
   vars:
-    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_absent }}"
     ds_name: "DFHCSD"
-    ds_path: "{{ region_dataset_path }}.{{ ds_name }}"
+    ds_path: "{{ region_data_set_path }}.{{ ds_name }}"
 
   module_defaults:
     ibm.ibm_zos_cics.csd:
@@ -17,7 +16,7 @@
       space_primary: 5
       space_type: "M"
       region_data_sets:
-        template: "{{ region_dataset_path }}.<< data_set_name >>"
+        template: "{{ region_data_set_path }}.<< data_set_name >>"
 
   tasks:
     # #############################################################################
@@ -55,10 +54,10 @@
           - initial_result.changed is true
 
           - initial_result.start_state.exists == false
-          - initial_result.start_state.vsam == false
+          - initial_result.start_state.data_set_organization == "NONE"
 
           - initial_result.end_state.exists == true
-          - initial_result.end_state.vsam == true
+          - initial_result.end_state.data_set_organization == "VSAM"
 
     # #############################################################################
     # ############################## Module Testing ###############################
@@ -81,10 +80,10 @@
           - warm_result.changed is false
 
           - warm_result.start_state.exists == true
-          - warm_result.start_state.vsam == true
+          - warm_result.start_state.data_set_organization == "VSAM"
 
           - warm_result.end_state.exists == true
-          - warm_result.end_state.vsam == true
+          - warm_result.end_state.data_set_organization == "VSAM"
 
     # #############################################################################
     # ################################## Cleanup ##################################
@@ -97,7 +96,7 @@
         state: absent
       register: delete_result
       retries: 3
-      until: delete_result is not failed
+      until: delete_result is changed
 
     - name: Assert Delete Passed
       ansible.builtin.assert:

@@ -12,7 +12,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import MVS_CMD_RETRY_ATTEMPTS
 
 
-def _get_icetool_dds(location):  # type: (str) -> list[DDStatement]
+def _get_icetool_dds(location):  # type: (str) -> list(DDStatement)
     return [
         DDStatement('sysprint', StdoutDefinition()),
         DDStatement('dd1', DatasetDefinition(dataset_name=location, disposition="SHR")),
@@ -46,7 +46,7 @@ def _get_record_count(stdout):  # type: (str) -> dict
     if len(lines) > 0:
         record_count = int(lines[0].split(":")[1])
 
-    return {"record_count": record_count}
+    return record_count
 
 
 def _run_icetool(location):  # type: (str) -> (list(_execution), dict)
@@ -57,7 +57,7 @@ def _run_icetool(location):  # type: (str) -> (list(_execution), dict)
 
         executions.append(
             _execution(
-                name="ICETOOL - Get record count",
+                name="ICETOOL - Get record count - Run {0}".format(x + 1),
                 rc=icetool_response.rc,
                 stdout=icetool_response.stdout,
                 stderr=icetool_response.stderr))
@@ -74,8 +74,11 @@ def _run_icetool(location):  # type: (str) -> (list(_execution), dict)
             else:
                 raise Exception(
                     "ICETOOL failed with RC {0}".format(icetool_response.rc), executions)
-        else:
+        elif icetool_response.stdout != "":
             break
+
+    if (icetool_response.stdout == "") and (icetool_response.stderr == ""):
+        raise Exception("ICETOOL Command output not recognised", executions)
 
     return executions, _get_record_count(icetool_response.stdout)
 

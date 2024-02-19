@@ -6,9 +6,8 @@
   hosts: "all"
   gather_facts: false
   vars:
-    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}"
     catalog_name: "DFHCSD"
-    catalog_path: "{{ region_dataset_path }}.{{ catalog_name }}"
+    catalog_path: "{{ region_data_set_path }}.{{ catalog_name }}"
 
   module_defaults:
     ibm.ibm_zos_cics.csd:
@@ -17,7 +16,7 @@
       space_primary: 5
       space_type: "M"
       region_data_sets:
-        template: "{{ region_dataset_path }}.<< data_set_name >>"
+        template: "{{ region_data_set_path }}.<< data_set_name >>"
 
   tasks:
     # #############################################################################
@@ -58,10 +57,10 @@
           - res.failed is false
           - res.changed is true
           - res.start_state.exists is false
-          - res.start_state.vsam is false
+          - res.start_state.data_set_organization == "NONE"
 
           - res.end_state.exists is true
-          - res.end_state.vsam is true
+          - res.end_state.data_set_organization == "VSAM"
 
     - name: Try recreating same catalog
       environment: "{{ environment_vars }}"
@@ -73,15 +72,15 @@
       ansible.builtin.debug:
         msg: "{{ res }}"
 
-    - name: Assert CSD Created, changed is false
+    - name: Assert CSD Created, changed is true
       ansible.builtin.assert:
         that:
           - res.failed is false
-          - res.changed is false
+          - res.changed is true
           - res.start_state.exists is true
-          - res.start_state.vsam is true
+          - res.start_state.data_set_organization == "VSAM"
           - res.end_state.exists is true
-          - res.end_state.vsam is true
+          - res.end_state.data_set_organization == "VSAM"
 
     - name: Remove CSD
       environment: "{{ environment_vars }}"
@@ -99,6 +98,6 @@
           - res.failed is false
           - res.changed is true
           - res.start_state.exists is true
-          - res.start_state.vsam is true
+          - res.start_state.data_set_organization == "VSAM"
           - res.end_state.exists is false
-          - res.end_state.vsam is false
+          - res.end_state.data_set_organization == "NONE"

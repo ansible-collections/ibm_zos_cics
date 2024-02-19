@@ -6,7 +6,6 @@
   hosts: "all"
   gather_facts: false
   vars:
-    region_dataset_path: "ANSIBIT.TESTS.{{ cics_test_area_initial }}"
     catalog_name: "DFHLCD"
 
   tasks:
@@ -17,7 +16,7 @@
     - name: Delete Catalog Data Set if it exists
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
-        name: "{{ region_dataset_path }}.LOW.{{ catalog_name }}"
+        name: "{{ region_data_set_path }}.LOW.{{ catalog_name }}"
         state: absent
       register: delete_result
       retries: 3
@@ -37,7 +36,7 @@
       ibm.ibm_zos_cics.local_catalog:
         region_data_sets:
           dfhlcd:
-            dsn: "{{ region_dataset_path }}.low.{{ catalog_name }}"
+            dsn: "{{ region_data_set_path }}.low.{{ catalog_name }}"
         cics_data_sets:
           sdfhload: "{{ cics_steplib }}"
         space_primary: 5
@@ -56,10 +55,10 @@
           - result.changed is true
 
           - result.start_state.exists == false
-          - result.start_state.vsam == false
+          - result.start_state.data_set_organization == "NONE"
 
           - result.end_state.exists == true
-          - result.end_state.vsam == true
+          - result.end_state.data_set_organization == "VSAM"
 
     # #############################################################################
     # ################################## Cleanup ##################################
@@ -68,11 +67,11 @@
     - name: Delete Catalog Data Set
       environment: "{{ environment_vars }}"
       ibm.ibm_zos_core.zos_data_set:
-        name: "{{ region_dataset_path }}.LOW.{{ catalog_name }}"
+        name: "{{ region_data_set_path }}.LOW.{{ catalog_name }}"
         state: absent
       register: delete_result
       retries: 3
-      until: delete_result is not failed
+      until: delete_result is changed
 
     - name: Assert Delete Passed
       ansible.builtin.assert:

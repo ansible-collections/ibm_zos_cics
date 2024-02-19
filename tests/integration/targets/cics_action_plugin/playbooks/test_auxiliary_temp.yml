@@ -5,8 +5,28 @@
 
   hosts: "all"
   gather_facts: false
+  vars:
+    temp_name: "DFHTEMP"
+    temp_path: "{{ region_data_set_path }}.{{ temp_name }}"
 
   tasks:
+    # #############################################################################
+    # ############################## Initial cleanup ##############################
+    # #############################################################################
+
+    - name: Delete TEMP Data Set if it exists
+      environment: "{{ environment_vars }}"
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ temp_path }}"
+        state: absent
+      register: delete_result
+      retries: 3
+      until: delete_result is not failed
+    - name: Assert Delete Passed
+      ansible.builtin.assert:
+        that:
+          - delete_result.failed == false
+
     # #############################################################################
     # ############################## Module Testing ###############################
     # #############################################################################
@@ -107,7 +127,7 @@
         state: "initial"
         region_data_sets:
           dfhtemp:
-            dsn: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}.DFHTEMP"
+            dsn: "{{ region_data_set_path }}.DFHTEMP"
       register: result
     - name: Assert TEMP passed
       ansible.builtin.assert:
@@ -121,7 +141,7 @@
         state: "initial"
         region_data_sets:
           dfhtemp:
-            dsn: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}.DFHTEMP"
+            dsn: "{{ region_data_set_path }}.DFHTEMP"
       register: result
     - name: Assert TEMP passed
       ansible.builtin.assert:
@@ -135,7 +155,7 @@
         state: absent
         region_data_sets:
           dfhtemp:
-            dsn: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}.DFHTEMP"
+            dsn: "{{ region_data_set_path }}.DFHTEMP"
       register: result
     - name: Assert TEMP passed
       ansible.builtin.assert:
@@ -149,7 +169,7 @@
         state: absent
         region_data_sets:
           dfhtemp:
-            dsn: "ANSIBIT.CICS.TESTS.{{ cics_test_area_initial }}.DFHTEMP"
+            dsn: "{{ region_data_set_path }}.DFHTEMP"
       register: result
     - name: Assert TEMP passed
       ansible.builtin.assert:

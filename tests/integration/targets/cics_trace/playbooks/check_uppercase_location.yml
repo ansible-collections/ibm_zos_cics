@@ -6,7 +6,6 @@
   hosts: "all"
   gather_facts: false
   vars:
-    region_data_set_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_absent }}"
     auxt_name: "DFHAUXT"
     buxt_name: "DFHBUXT"
     auxt_path: "{{ region_data_set_path }}.{{ auxt_name }}"
@@ -106,7 +105,7 @@
         state: absent
       register: delete_result
       retries: 3
-      until: delete_result is not failed
+      until: delete_result is changed
 
     - name: Assert Delete Passed
       ansible.builtin.assert:
@@ -120,7 +119,7 @@
         state: absent
       register: delete_result
       retries: 3
-      until: delete_result is not failed
+      until: delete_result is changed
 
     - name: Assert Delete Passed
       ansible.builtin.assert:

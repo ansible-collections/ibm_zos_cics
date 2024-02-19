@@ -1,6 +1,7 @@
 cics_steplib:
-cics_test_area_initial:
-cics_test_area_absent:
+region_data_set_common: "{{ ansible_user }}.CICS.TESTS"
+region_data_set_unique:
+region_data_set_path: "{{ region_data_set_common }}.{{ region_data_set_unique }}"
 cics_applid:
 cics_install_path:
 le_path:

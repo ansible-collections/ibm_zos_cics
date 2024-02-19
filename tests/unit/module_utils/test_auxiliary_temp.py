@@ -6,23 +6,27 @@
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
-from ansible_collections.ibm.ibm_zos_cics.plugins.modules import auxiliary_temp
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import auxiliary_temp
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import CYLINDERS, MEGABYTES
+from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE
+from ansible_collections.ibm.ibm_zos_cics.plugins.modules.auxiliary_temp import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT
 import pytest
 import sys
 
 
 @pytest.mark.skipif(
-    sys.version_info.major < 3, reason="Requires python 3 language features"
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_get_idcams_cmd_megabytes():
-    dataset_size = dataset_utils._dataset_size(unit="M", primary=10, secondary=1)
-    dataset = dataset_utils._data_set(
-        size=dataset_size,
+    dataset = dict(
         name="ANSI.CYLS.DFHTEMP",
         state="initial",
         exists=False,
-        vsam=False,
+        data_set_organization="NONE",
+        unit=MEGABYTES,
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_intra = dataset_utils._build_idcams_define_cmd(
         auxiliary_temp._get_idcams_cmd_temp(dataset)
@@ -31,7 +35,7 @@ def test_get_idcams_cmd_megabytes():
         idcams_cmd_intra
         == """
     DEFINE CLUSTER (NAME(ANSI.CYLS.DFHTEMP) -
-    MEGABYTES(10 1) -
+    MEGABYTES(200 10) -
     RECORDSIZE(4089 4089) -
     NONINDEXED -
     CONTROLINTERVALSIZE(4096) -
@@ -43,16 +47,17 @@ def test_get_idcams_cmd_megabytes():
 
 
 @pytest.mark.skipif(
-    sys.version_info.major < 3, reason="Requires python 3 language features"
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_get_idcams_cmd_cylinders():
-    dataset_size = dataset_utils._dataset_size(unit="CYL", primary=3, secondary=1)
-    dataset = dataset_utils._data_set(
-        size=dataset_size,
+    dataset = dict(
         name="ANSI.CYLS.DFHTEMP",
         state="initial",
         exists=False,
-        vsam=False,
+        data_set_organization="NONE",
+        unit=CYLINDERS,
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT
     )
     idcams_cmd_intra = dataset_utils._build_idcams_define_cmd(
         auxiliary_temp._get_idcams_cmd_temp(dataset)
@@ -61,7 +66,7 @@ def test_get_idcams_cmd_cylinders():
         idcams_cmd_intra
         == """
     DEFINE CLUSTER (NAME(ANSI.CYLS.DFHTEMP) -
-    CYLINDERS(3 1) -
+    CYLINDERS(200 10) -
     RECORDSIZE(4089 4089) -
     NONINDEXED -
     CONTROLINTERVALSIZE(4096) -

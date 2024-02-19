@@ -4,7 +4,17 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
-
+from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
+    PYTHON_LANGUAGE_FEATURES_MESSAGE,
+    IDCAMS_create_already_exists_stdout,
+    IDCAMS_create_stdout,
+    IDCAMS_delete_not_found,
+    IDCAMS_delete_vsam,
+    IDCAMS_run_cmd,
+    LISTDS_data_set,
+    LISTDS_data_set_doesnt_exist,
+    LISTDS_run_name
+)
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
 __metaclass__ = type
@@ -17,15 +27,6 @@ try:
     from unittest.mock import MagicMock
 except ImportError:
     from mock import MagicMock
-
-
-def test_catalog_size_class():
-    catalog_size = dataset_utils._dataset_size(unit="M", primary=10, secondary=1)
-    assert catalog_size == {
-        'unit': "M",
-        'primary': 10,
-        'secondary': 1
-    }
 
 
 def test_unit_size_m():
@@ -71,58 +72,18 @@ def test_unit_size_empty():
 
 
 def test__run_idcams_create():
-
+    location = "ANSIBIT.CICS.IYTWYD03.DFHGCD"
     rc = 0
-    stdout = (
-        "1IDCAMS  SYSTEM SERVICES                                           TIME: 10:04:57  "
-        "      06/29/23     PAGE      1\n"
-        "0        \n"
-        "    DEFINE CLUSTER -\n"
-        "        (NAME(ANSIBIT.CICS.IYTWYD03.DFHGCD) -\n"
-        "        INDEXED                      -\n"
-        "        MEGABYTES(5 1)             -\n"
-        "        SHR(2)              -\n"
-        "        FREESPACE(10 10)              -\n"
-        "        RECORDSIZE(4089 32760)       -\n"
-        "        REUSE)              -\n"
-        "        DATA                           -\n"
-        "        (NAME(ANSIBIT.CICS.IYTWYD03.DFHGCD.DATA)  -\n"
-        "        CONTROLINTERVALSIZE(32768)    -\n"
-        "        KEYS(52 0))  -\n"
-        "        INDEX                          -\n"
-        "        (NAME(ANSIBIT.CICS.IYTWYD03.DFHGCD.INDEX))\n"
-        "0IDC0508I DATA ALLOCATION STATUS FOR VOLUME P2P0D5 IS 0\n"
-        "0IDC0509I INDEX ALLOCATION STATUS FOR VOLUME P2P0D5 IS 0\n"
-        "IDC0181I STORAGECLASS USED IS STANDARD\n"
-        "IDC0181I MANAGEMENTCLASS USED IS STANDARD\n"
-        "0IDC0001I FUNCTION COMPLETED, HIGHEST CONDITION CODE WAS 0\n"
-        "0        \n"
-        "        \n"
-        "0IDC0002I IDCAMS PROCESSING COMPLETE. MAXIMUM CONDITION CODE WAS 0")
+    stdout = IDCAMS_create_stdout(location)
     stderr = ""
     dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
-    cmd = '''
-    DEFINE CLUSTER -
-        (NAME(ANSIBIT.CICS.IYTWYD03.DFHGCD) -
-        INDEXED                      -
-        MEGABYTES(5 1)             -
-        SHR(2)              -
-        FREESPACE(10 10)              -
-        RECORDSIZE(4089 32760)       -
-        REUSE)              -
-        DATA                           -
-        (NAME(ANSIBIT.CICS.IYTWYD03.DFHGCD.DATA)  -
-        CONTROLINTERVALSIZE(32768)    -
-        KEYS(52 0))  -
-        INDEX                          -
-        (NAME(ANSIBIT.CICS.IYTWYD03.DFHGCD.INDEX))
-    '''
+    cmd = IDCAMS_run_cmd(location)
 
     result_exececutions = dataset_utils._run_idcams(
         cmd=cmd,
         name="Create Catalog",
-        location="ANSIBIT.CICS.IYTWYD03.DFHGCD",
+        location=location,
         delete=False)
 
     assert len(result_exececutions) == 1
@@ -135,61 +96,18 @@ def test__run_idcams_create():
 
 
 def test__run_idcams_create_exists():
-
+    location = "ANSIBIT.CICS.IYTWYD01.DFHGCD"
     rc = 12
-    stdout = (
-        "1IDCAMS  SYSTEM SERVICES                                           TIME: 10:04:51  "
-        "      06/29/23     PAGE      1\n"
-        "0        \n"
-        "    DEFINE CLUSTER -\n"
-        "        (NAME(ANSIBIT.CICS.IYTWYD01.DFHGCD) -\n"
-        "        INDEXED                      -\n"
-        "        MEGABYTES(5 1)             -\n"
-        "        SHR(2)              -\n"
-        "        FREESPACE(10 10)              -\n"
-        "        RECORDSIZE(4089 32760)       -\n"
-        "        REUSE)              -\n"
-        "        DATA                           -\n"
-        "        (NAME(ANSIBIT.CICS.IYTWYD01.DFHGCD.DATA)  -\n"
-        "        CONTROLINTERVALSIZE(32768)    -\n"
-        "        KEYS(52 0))  -\n"
-        "        INDEX                          -\n"
-        "        (NAME(ANSIBIT.CICS.IYTWYD01.DFHGCD.INDEX))\n"
-        "0IGD17101I DATA SET ANSIBIT.CICS.IYTWYD01.DFHGCD\n"
-        "NOT DEFINED BECAUSE DUPLICATE NAME EXISTS IN CATALOG\n"
-        "RETURN CODE IS 8 REASON CODE IS 38 IGG0CLEH\n"
-        "IGD17219I UNABLE TO CONTINUE DEFINE OF DATA SET\n"
-        "ANSIBIT.CICS.IYTWYD01.DFHGCD\n"
-        "0IDC3013I DUPLICATE DATA SET NAME\n"
-        "IDC3009I ** VSAM CATALOG RETURN CODE IS 8 - REASON CODE IS IGG0CLEH-38\n"
-        "0IDC3003I FUNCTION TERMINATED. CONDITION CODE IS 12\n"
-        "0        \n"
-        "\n"
-        "0IDC0002I IDCAMS PROCESSING COMPLETE. MAXIMUM CONDITION CODE WAS 12")
+    stdout = IDCAMS_create_already_exists_stdout(location)
     stderr = ""
     dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
-    cmd = '''
-    DEFINE CLUSTER -
-        (NAME(ANSIBIT.CICS.IYTWYD01.DFHGCD) -
-        INDEXED                      -
-        MEGABYTES(5 1)             -
-        SHR(2)              -
-        FREESPACE(10 10)              -
-        RECORDSIZE(4089 32760)       -
-        REUSE)              -
-        DATA                           -
-        (NAME(ANSIBIT.CICS.IYTWYD01.DFHGCD.DATA)  -
-        CONTROLINTERVALSIZE(32768)    -
-        KEYS(52 0))  -
-        INDEX                          -
-        (NAME(ANSIBIT.CICS.IYTWYD01.DFHGCD.INDEX))
-    '''
+    cmd = IDCAMS_run_cmd(location)
 
     result_exececutions = dataset_utils._run_idcams(
         cmd=cmd,
         name="Create Catalog",
-        location="ANSIBIT.CICS.IYTWYD01.DFHGCD",
+        location=location,
         delete=False)
 
     assert len(result_exececutions) == 1
@@ -202,31 +120,20 @@ def test__run_idcams_create_exists():
 
 
 def test__run_idcams_delete():
-
+    location = "ANSIBIT.CICS.IYTWYD03.DFHGCD"
     rc = 0
-    stdout = (
-        "1IDCAMS  SYSTEM SERVICES                                           TIME: 10:15:27"
-        "        06/29/23     PAGE      1\n"
-        "0        \n"
-        "        DELETE ANSIBIT.CICS.IYTWYD03.DFHGCD\n"
-        "0IDC0550I ENTRY (D) ANSIBIT.CICS.IYTWYD03.DFHGCD.DATA DELETED\n"
-        "0IDC0550I ENTRY (I) ANSIBIT.CICS.IYTWYD03.DFHGCD.INDEX DELETED\n"
-        "0IDC0550I ENTRY (C) ANSIBIT.CICS.IYTWYD03.DFHGCD DELETED\n"
-        "0IDC0001I FUNCTION COMPLETED, HIGHEST CONDITION CODE WAS 0\n"
-        "0        \n"
-        "\n"
-        "0IDC0002I IDCAMS PROCESSING COMPLETE. MAXIMUM CONDITION CODE WAS 0")
+    stdout = IDCAMS_delete_vsam(location)
     stderr = ""
     dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
     cmd = '''
-        DELETE ANSIBIT.CICS.IYTWYD03.DFHGCD
-    '''
+        DELETE {0}
+    '''.format(location)
 
     result_exececutions = dataset_utils._run_idcams(
         cmd=cmd,
         name="Remove Catalog",
-        location="ANSIBIT.CICS.IYTWYD03.DFHGCD",
+        location=location,
         delete=True)
 
     assert len(result_exececutions) == 1
@@ -239,31 +146,20 @@ def test__run_idcams_delete():
 
 
 def test__run_idcams_delete_no_exist():
-
+    location = "ANSIBIT.CICS.IYTWYD02.DFHGCD"
     rc = 8
-    stdout = (
-        "1IDCAMS  SYSTEM SERVICES                                           TIME: 10:15:24"
-        "        06/29/23     PAGE      1\n"
-        "0        \n"
-        "        DELETE ANSIBIT.CICS.IYTWYD02.DFHGCD\n"
-        "0IDC3012I ENTRY ANSIBIT.CICS.IYTWYD02.DFHGCD NOT FOUND\n"
-        "IDC3009I ** VSAM CATALOG RETURN CODE IS 8 - REASON CODE IS IGG0CLEG-42\n"
-        "IDC0551I ** ENTRY ANSIBIT.CICS.IYTWYD02.DFHGCD NOT DELETED\n"
-        "0IDC0001I FUNCTION COMPLETED, HIGHEST CONDITION CODE WAS 8\n"
-        "0        \n"
-        "    \n"
-        "0IDC0002I IDCAMS PROCESSING COMPLETE. MAXIMUM CONDITION CODE WAS 8")
+    stdout = IDCAMS_delete_not_found(location)
     stderr = ""
     dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
     cmd = '''
-        DELETE ANSIBIT.CICS.IYTWYD02.DFHGCD
-    '''
+        DELETE {0}
+    '''.format(location)
 
     result_exececutions = dataset_utils._run_idcams(
         cmd=cmd,
         name="Remove Catalog",
-        location="ANSIBIT.CICS.IYTWYD02.DFHGCD",
+        location=location,
         delete=True)
 
     assert len(result_exececutions) == 1
@@ -276,15 +172,15 @@ def test__run_idcams_delete_no_exist():
 
 
 def test__run_idcams_bad_return_code_when_creating():
-
+    location = "ANSIBIT.CICS.IYTWYD02.DFHGCD"
     rc = 99
-    stdout = "ANSIBIT.CICS.IYTWYD02.DFHGCD"
+    stdout = IDCAMS_create_stdout(location)
     stderr = ""
     dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
     cmd = '''
     DEFINE CLUSTER -
-        (NAME(ANSIBIT.CICS.IYTWYD01.DFHGCD) -
+        (NAME({0}) -
         INDEXED                      -
         MEGABYTES(5 1)             -
         SHR(2)              -
@@ -292,12 +188,12 @@ def test__run_idcams_bad_return_code_when_creating():
         RECORDSIZE(4089 32760)       -
         REUSE)              -
         DATA                           -
-        (NAME(ANSIBIT.CICS.IYTWYD01.DFHGCD.DATA)  -
+        (NAME({0}.DATA)  -
         CONTROLINTERVALSIZE(32768)    -
         KEYS(52 0))  -
         INDEX                          -
-        (NAME(ANSIBIT.CICS.IYTWYD01.DFHGCD.INDEX))
-    '''
+        (NAME({0}.INDEX))
+    '''.format(location)
 
     expected_executions = [
         _execution(name="IDCAMS - Create Catalog - Run 1", rc=rc, stdout=stdout, stderr=stderr)
@@ -307,7 +203,7 @@ def test__run_idcams_bad_return_code_when_creating():
         dataset_utils._run_idcams(
             cmd=cmd,
             name="Create Catalog",
-            location="ANSIBIT.CICS.IYTWYD02.DFHGCD",
+            location=location,
             delete=False)
     except Exception as e:
         assert e.args[0] == "RC 99 when creating data set"
@@ -315,15 +211,15 @@ def test__run_idcams_bad_return_code_when_creating():
 
 
 def test__run_idcams_bad_return_code_when_deleting():
-
+    location = "ANSIBIT.CICS.IYTWYD02.DFHGCD"
     rc = 99
-    stdout = "ANSIBIT.CICS.IYTWYD02.DFHGCD"
+    stdout = IDCAMS_delete_vsam(location)
     stderr = ""
     dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
     cmd = '''
-        DELETE ANSIBIT.CICS.IYTWYD02.DFHGCD
-    '''
+        DELETE {0}
+    '''.format(location)
 
     expected_executions = [
         _execution(name="IDCAMS - Remove Catalog - Run 1", rc=rc, stdout=stdout, stderr=stderr)
@@ -333,7 +229,7 @@ def test__run_idcams_bad_return_code_when_deleting():
         dataset_utils._run_idcams(
             cmd=cmd,
             name="Remove Catalog",
-            location="ANSIBIT.CICS.IYTWYD02.DFHGCD",
+            location=location,
             delete=True)
     except Exception as e:
         assert e.args[0] == "RC 99 when deleting data set"
@@ -341,129 +237,196 @@ def test__run_idcams_bad_return_code_when_deleting():
 
 
 def test__run_listds_exists_vsam():
-
+    location = "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD"
     rc = 0
-    stdout = (
-        "1READY                                                                    "
-        "                                               \n  LISTDS 'ANSIBIT.CICS.TE"
-        "STS.A365D7A.DFHGCD'                                                       "
-        "                      \n ANSIBIT.CICS.TESTS.A365D7A.DFHGCD                "
-        "                                                                       \n "
-        "--LRECL--DSORG-                                                           "
-        "                                              \n   **     VSAM            "
-        "                                                                          "
-        "                     \n --VOLUMES-BLKSIZE                                 "
-        "                                                                      \n  "
-        "           **                                                             "
-        "                                             \n READY                     "
-        "                                                                          "
-        "                    \n END                                                "
-        "                                                                     \n")
+    stdout = LISTDS_data_set(location, "VSAM")
     stderr = ""
     dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
-    result_exececutions, result_status = dataset_utils._run_listds(
-        "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD")
+    result_exececutions, result_status = dataset_utils._run_listds(location)
 
     assert len(result_exececutions) == 1
     assert result_exececutions[0] == {
-        "name": "IKJEFT01 - Get Data Set Status - Run 1",
+        "name": LISTDS_run_name(1),
         "rc": rc,
         "stdout": stdout,
         "stderr": stderr,
     }
     assert result_status == {
         "exists": True,
-        "vsam": True,
+        "data_set_organization": "VSAM"
     }
 
 
-def test__run_listds_exists_not_vsam():
-
+def test__run_listds_exists_sequential():
+    location = "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD"
     rc = 0
-    stdout = (
-        "1READY                                                                    "
-        "                                               \n  LISTDS 'ANSIBIT.CICS.TE"
-        "STS.A365D7A.DFHGCD'                                                       "
-        "                      \n ANSIBIT.CICS.TESTS.A365D7A.DFHGCD                "
-        "                                                                       \n "
-        "--LRECL--DSORG-                                                           "
-        "                                              \n   **      PO             "
-        "                                                                          "
-        "                     \n --VOLUMES-BLKSIZE                                 "
-        "                                                                      \n  "
-        "           **                                                             "
-        "                                             \n READY                     "
-        "                                                                          "
-        "                    \n END                                                "
-        "                                                                     \n")
+    stdout = LISTDS_data_set(location, "PS")
     stderr = ""
     dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
-    result_exececutions, result_status = dataset_utils._run_listds(
-        "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD")
+    result_exececutions, result_status = dataset_utils._run_listds(location)
 
     assert len(result_exececutions) == 1
     assert result_exececutions[0] == {
-        "name": "IKJEFT01 - Get Data Set Status - Run 1",
+        "name": LISTDS_run_name(1),
         "rc": rc,
         "stdout": stdout,
         "stderr": stderr,
     }
     assert result_status == {
         "exists": True,
-        "vsam": False,
+        "data_set_organization": "Sequential"
+    }
+
+
+def test__run_listds_exists_partitioned():
+    location = "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD"
+    rc = 0
+    stdout = LISTDS_data_set(location, "PO")
+    stderr = ""
+    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+
+    result_exececutions, result_status = dataset_utils._run_listds(location)
+
+    assert len(result_exececutions) == 1
+    assert result_exececutions[0] == {
+        "name": LISTDS_run_name(1),
+        "rc": rc,
+        "stdout": stdout,
+        "stderr": stderr,
+    }
+    assert result_status == {
+        "exists": True,
+        "data_set_organization": "Partitioned"
+    }
+
+
+def test__run_listds_exists_indexed_sequential():
+    location = "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD"
+    rc = 0
+    stdout = LISTDS_data_set(location, "IS")
+    stderr = ""
+    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+
+    result_exececutions, result_status = dataset_utils._run_listds(location)
+
+    assert len(result_exececutions) == 1
+    assert result_exececutions[0] == {
+        "name": LISTDS_run_name(1),
+        "rc": rc,
+        "stdout": stdout,
+        "stderr": stderr,
+    }
+    assert result_status == {
+        "exists": True,
+        "data_set_organization": "Indexed Sequential"
+    }
+
+
+def test__run_listds_exists_direct_access():
+    location = "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD"
+    rc = 0
+    stdout = LISTDS_data_set(location, "DA")
+    stderr = ""
+    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+
+    result_exececutions, result_status = dataset_utils._run_listds(location)
+
+    assert len(result_exececutions) == 1
+    assert result_exececutions[0] == {
+        "name": LISTDS_run_name(1),
+        "rc": rc,
+        "stdout": stdout,
+        "stderr": stderr,
+    }
+    assert result_status == {
+        "exists": True,
+        "data_set_organization": "Direct Access"
+    }
+
+
+def test__run_listds_exists_other():
+    location = "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD"
+    rc = 0
+    stdout = LISTDS_data_set(location, "??")
+    stderr = ""
+    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+
+    result_exececutions, result_status = dataset_utils._run_listds(location)
+
+    assert len(result_exececutions) == 1
+    assert result_exececutions[0] == {
+        "name": LISTDS_run_name(1),
+        "rc": rc,
+        "stdout": stdout,
+        "stderr": stderr,
+    }
+    assert result_status == {
+        "exists": True,
+        "data_set_organization": "Other"
+    }
+
+
+def test__run_listds_exists_unspecified():
+    location = "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD"
+    rc = 0
+    stdout = LISTDS_data_set(location, "**")
+    stderr = ""
+    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+
+    result_exececutions, result_status = dataset_utils._run_listds(location)
+
+    assert len(result_exececutions) == 1
+    assert result_exececutions[0] == {
+        "name": LISTDS_run_name(1),
+        "rc": rc,
+        "stdout": stdout,
+        "stderr": stderr,
+    }
+    assert result_status == {
+        "exists": True,
+        "data_set_organization": "Unspecified"
     }
 
 
 def test__run_listds_bad_rc():
-
-    name = "IKJEFT01 - Get Data Set Status - Run 1"
+    location = "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD"
+    name = LISTDS_run_name(1)
     rc = 16
-    stdout = "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD"
+    stdout = LISTDS_data_set(location, "VSAM")
     stderr = ""
     dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
     expected_executions = [_execution(name=name, rc=rc, stdout=stdout, stderr=stderr)]
 
     try:
-        dataset_utils._run_listds("ANSIBIT.CICS.TESTS.A365D7A.DFHGCD")
+        dataset_utils._run_listds(location)
     except Exception as e:
         assert e.args[0] == "RC 16 running LISTDS Command"
         assert e.args[1] == expected_executions
 
 
 def test__run_listds_not_exists():
-
+    location = "ANSIBIT.CICS.TESTS.A294D11B.DFHGaCD"
     rc = 8
-    stdout = (
-        "1READY                                                            "
-        "                                                       \n"
-        "LISTDS 'ANSIBIT.CICS.TESTS.A294D11B.DFHGaCD'                     "
-        "                                                      \n"
-        "ANSIBIT.CICS.TESTS.A294D11B.DFHGACD                              "
-        "                                                       \n"
-        "DATA SET 'ANSIBIT.CICS.TESTS.A294D11B.DFHGACD' NOT IN CATALOG    "
-        "                                                       \n"
-        "READY                                                            "
-        "                                                       \n"
-        "END")
+    stdout = LISTDS_data_set_doesnt_exist(location)
     stderr = ""
     dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
     result_exececutions, result_status = dataset_utils._run_listds(
-        "ANSIBIT.CICS.TESTS.A294D11B.DFHGaCD")
+        location)
 
     assert len(result_exececutions) == 1
     assert result_exececutions[0] == {
-        "name": "IKJEFT01 - Get Data Set Status - Run 1",
+        "name": LISTDS_run_name(1),
         "rc": rc,
         "stdout": stdout,
         "stderr": stderr,
     }
     assert result_status == {
         "exists": False,
-        "vsam": False,
+        "data_set_organization": "NONE",
     }
 
 
@@ -474,16 +437,16 @@ def test__run_listds_with_no_zoau_response():
     dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
     expected_executions = [
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 1", rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 2", rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 3", rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 4", rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 5", rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 6", rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 7", rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 8", rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 9", rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name="IKJEFT01 - Get Data Set Status - Run 10", rc=rc, stdout=stdout, stderr=stderr)
+        _execution(name=LISTDS_run_name(1), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=LISTDS_run_name(2), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=LISTDS_run_name(3), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=LISTDS_run_name(4), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=LISTDS_run_name(5), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=LISTDS_run_name(6), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=LISTDS_run_name(7), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=LISTDS_run_name(8), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=LISTDS_run_name(9), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=LISTDS_run_name(10), rc=rc, stdout=stdout, stderr=stderr)
     ]
 
     try:
@@ -493,10 +456,10 @@ def test__run_listds_with_no_zoau_response():
         assert e.args[1] == expected_executions
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+@pytest.mark.skipif(sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE)
 def test__run_iefbr14():
     rc = 0
-    stdout = ("")
+    stdout = ""
     stderr = ""
     dataset_utils.MVSCmd.execute = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 

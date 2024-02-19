@@ -10,7 +10,6 @@
       template: "{{ cics_install_path }}.<< lib_name >>"
     le_data_sets:
       template: "{{ le_path }}.<< lib_name >>"
-    region_data_set_path: "{{ ansible_user }}.CICS.TESTS.{{ cics_test_area_initial }}"
   tasks:
     - name: "Run DFHSIP"
       environment: "{{ environment_vars }}"

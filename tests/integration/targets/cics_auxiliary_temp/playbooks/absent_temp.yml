@@ -6,16 +6,15 @@
   hosts: "all"
   gather_facts: false
   vars:
-    region_dataset_path: "ANSIBIT.CICS.TESTS.{{ cics_test_area_absent }}"
     temp_name: "DFHTEMP"
-    temp_path: "{{ region_dataset_path }}.{{ temp_name }}"
+    temp_path: "{{ region_data_set_path }}.{{ temp_name }}"
 
   module_defaults:
     ibm.ibm_zos_cics.auxiliary_temp:
       space_primary: 4
       space_type: "M"
       region_data_sets:
-        template: "{{ region_dataset_path }}.<< data_set_name >>"
+        template: "{{ region_data_set_path }}.<< data_set_name >>"
 
   tasks:
     # #############################################################################
@@ -53,10 +52,10 @@
           - initial_result.changed is true
 
           - initial_result.start_state.exists == false
-          - initial_result.start_state.vsam == false
+          - initial_result.start_state.data_set_organization == "NONE"
 
           - initial_result.end_state.exists == true
-          - initial_result.end_state.vsam == true
+          - initial_result.end_state.data_set_organization == "VSAM"
 
     # #############################################################################
     # ############################## Module Testing ###############################
@@ -79,10 +78,10 @@
           - absent_result.changed is true
 
           - absent_result.start_state.exists == true
-          - absent_result.start_state.vsam == true
+          - absent_result.start_state.data_set_organization == "VSAM"
 
           - absent_result.end_state.exists == false
-          - absent_result.end_state.vsam == false
+          - absent_result.end_state.data_set_organization == "NONE"
 
 
     # #############################################################################
