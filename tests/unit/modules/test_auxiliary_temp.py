@@ -3,7 +3,7 @@
 # (c) Copyright IBM Corp. 2023
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils, icetool
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import data_set_utils, icetool
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
     PYTHON_LANGUAGE_FEATURES_MESSAGE,
@@ -58,10 +58,10 @@ def initialise_module(**kwargs):
 def test_create_an_intial_temp_ds():
     temp_module = initialise_module()
 
-    dataset_utils.idcams = MagicMock(
+    data_set_utils.idcams = MagicMock(
         return_value=(0, NAME, "")
     )
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         side_effect=[
             (8, LISTDS_data_set_doesnt_exist(NAME), ""),
             (0, LISTDS_data_set(NAME, "VSAM"), ""),
@@ -110,10 +110,10 @@ def test_create_an_intial_temp_ds():
 def test_delete_an_existing_auxiliary_temp_ds():
     temp_module = initialise_module(state="absent")
 
-    dataset_utils.idcams = MagicMock(
+    data_set_utils.idcams = MagicMock(
         return_value=(0, IDCAMS_delete_vsam(NAME), "")
     )
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         side_effect=[
             (0, LISTDS_data_set(NAME, "VSAM"), ""),
             (8, LISTDS_data_set_doesnt_exist(NAME), ""),
@@ -162,14 +162,14 @@ def test_delete_an_existing_auxiliary_temp_ds():
 def test_delete_an_existing_temp_and_replace():
     temp_module = initialise_module()
 
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         side_effect=[
             (0, LISTDS_data_set(NAME, "VSAM"), ""),
             (8, LISTDS_data_set_doesnt_exist(NAME), ""),
             (0, LISTDS_data_set(NAME, "VSAM"), ""),
         ]
     )
-    dataset_utils.idcams = MagicMock(
+    data_set_utils.idcams = MagicMock(
         side_effect=[
             (0, IDCAMS_delete_vsam(NAME), ""),
             (0, NAME, ""),
@@ -245,7 +245,7 @@ def test_delete_an_existing_temp_and_replace():
 def test_remove_non_existent_temp():
     temp_module = initialise_module(state="absent")
 
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         return_value=(8, LISTDS_data_set_doesnt_exist(NAME), "")
     )
 
@@ -285,7 +285,7 @@ def test_remove_non_existent_temp():
 def test_warm_on_non_existent_temp():
     temp_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(return_value=(
+    data_set_utils.ikjeft01 = MagicMock(return_value=(
         8, LISTDS_data_set_doesnt_exist(NAME), ""))
 
     temp_module.main()
@@ -322,7 +322,7 @@ def test_warm_on_non_existent_temp():
 def test_warm_on_empty_temp():
     temp_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         return_value=(
             0,
             LISTDS_data_set(NAME, "VSAM"),
@@ -376,7 +376,7 @@ def test_warm_on_empty_temp():
 def test_warm_success_temp():
     temp_module = initialise_module(state="warm")
 
-    dataset_utils.ikjeft01 = MagicMock(
+    data_set_utils.ikjeft01 = MagicMock(
         return_value=(
             0,
             LISTDS_data_set(NAME, "VSAM"),

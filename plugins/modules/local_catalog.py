@@ -203,7 +203,8 @@ executions:
       returned: always
 """
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set_utils import (
     _build_idcams_define_cmd
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
@@ -275,9 +276,9 @@ class AnsibleLocalCatalogModule(DataSet):
         try:
             ccutl_executions = _run_dfhccutl(self.get_data_set())
             self.executions.extend(ccutl_executions)
-        except Exception as e:
-            self.executions.extend(e.args[1])
-            self._fail(e.args[0])
+        except MVSExecutionException as e:
+            self.executions.extend(e.executions)
+            self._fail(e.message)
 
 
 def main():

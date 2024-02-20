@@ -5,7 +5,7 @@
 
 from __future__ import absolute_import, division, print_function
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import CYLINDERS, MEGABYTES
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException, _execution
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE, CSDUP_name, CSDUP_stderr, CSDUP_stdout
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.csd import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT
 
@@ -13,7 +13,7 @@ from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw impor
 
 __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import csd
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import data_set_utils
 import pytest
 import sys
 
@@ -38,7 +38,7 @@ def test_get_idcams_cmd_megabytes():
         primary=SPACE_PRIMARY_DEFAULT,
         secondary=SPACE_SECONDARY_DEFAULT
     )
-    idcams_cmd_csd = dataset_utils._build_idcams_define_cmd(csd._get_idcams_cmd_csd(csd_data_set))
+    idcams_cmd_csd = data_set_utils._build_idcams_define_cmd(csd._get_idcams_cmd_csd(csd_data_set))
     assert idcams_cmd_csd == '''
     DEFINE CLUSTER (NAME(ANSI.TEST.DFHCSD) -
     MEGABYTES(4 1) -
@@ -66,7 +66,7 @@ def test_get_idcams_cmd_cylinders():
         primary=SPACE_PRIMARY_DEFAULT,
         secondary=SPACE_SECONDARY_DEFAULT
     )
-    idcams_cmd_csd = dataset_utils._build_idcams_define_cmd(csd._get_idcams_cmd_csd(csd_data_set))
+    idcams_cmd_csd = data_set_utils._build_idcams_define_cmd(csd._get_idcams_cmd_csd(csd_data_set))
     assert idcams_cmd_csd == '''
     DEFINE CLUSTER (NAME(ANSI.TEST.DFHCSD) -
     CYLINDERS(4 1) -
@@ -124,9 +124,9 @@ def test_bad_csdup_response():
 
     try:
         csd._run_dfhcsdup(csd_input)
-    except Exception as e:
-        error_message = e.args[0]
-        executions = e.args[1]
+    except MVSExecutionException as e:
+        error_message = e.message
+        executions = e.executions
 
         assert error_message == "DFHCSDUP failed with RC 99"
         assert executions == expected_executions

@@ -13,9 +13,10 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     RMUTL_update_run_name
 )
 __metaclass__ = type
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import data_set_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import global_catalog
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
+    MVSExecutionException,
     _execution,
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.global_catalog import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT
@@ -47,7 +48,7 @@ def test_get_idcams_cmd_megabytes():
         primary=SPACE_PRIMARY_DEFAULT,
         secondary=SPACE_SECONDARY_DEFAULT
     )
-    idcams_cmd_gcd = dataset_utils._build_idcams_define_cmd(
+    idcams_cmd_gcd = data_set_utils._build_idcams_define_cmd(
         global_catalog._get_idcams_cmd_gcd(catalog)
     )
     assert (
@@ -84,7 +85,7 @@ def test_get_idcams_cmd_cylinders():
         primary=SPACE_PRIMARY_DEFAULT,
         secondary=SPACE_SECONDARY_DEFAULT
     )
-    idcams_cmd_gcd = dataset_utils._build_idcams_define_cmd(
+    idcams_cmd_gcd = data_set_utils._build_idcams_define_cmd(
         global_catalog._get_idcams_cmd_gcd(catalog)
     )
     assert (
@@ -108,28 +109,19 @@ def test_get_idcams_cmd_cylinders():
 def test_global_catalog_get_records_autoinit_unknown():
     stdout = RMUTL_stdout("AUTOINIT", "UNKNOWN")
     resp = global_catalog._get_catalog_records(stdout=stdout)
-    assert resp == {
-        "autostart_override": "AUTOINIT",
-        "next_start": "UNKNOWN",
-    }
+    assert resp == ("AUTOINIT", "UNKNOWN")
 
 
 def test_global_catalog_get_records_autoasis_emergency():
     stdout = RMUTL_stdout("AUTOASIS", "EMERGENCY")
     resp = global_catalog._get_catalog_records(stdout=stdout)
-    assert resp == {
-        "autostart_override": "AUTOASIS",
-        "next_start": "EMERGENCY",
-    }
+    assert resp == ("AUTOASIS", "EMERGENCY")
 
 
 def test_global_catalog_get_records_autocold_emergency():
     stdout = RMUTL_stdout("AUTOCOLD", "EMERGENCY")
     resp = global_catalog._get_catalog_records(stdout=stdout)
-    assert resp == {
-        "autostart_override": "AUTOCOLD",
-        "next_start": "EMERGENCY",
-    }
+    assert resp == ("AUTOCOLD", "EMERGENCY")
 
 
 def test_global_catalog_run_rmutl_with_cmd():
@@ -196,10 +188,7 @@ def test_global_catalog_run_rmutl_no_cmd():
             stderr=rmutl_response.stderr,
         )
     ]
-    expected_details = {
-        "autostart_override": "AUTOASIS",
-        "next_start": "EMERGENCY",
-    }
+    expected_details = ("AUTOASIS", "EMERGENCY")
     global_catalog.MVSCmd.execute = MagicMock(return_value=rmutl_response)
     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
     actual_executions, actual_details = global_catalog._run_dfhrmutl(
@@ -231,10 +220,7 @@ def test_global_catalog_run_rmutl_no_cmd_with_failure():
             stderr=rmutl_response.stderr,
         ),
     ]
-    expected_details = {
-        "autostart_override": "AUTOASIS",
-        "next_start": "EMERGENCY",
-    }
+    expected_details = ("AUTOASIS", "EMERGENCY")
     global_catalog.MVSCmd.execute = MagicMock(
         side_effect=[
             MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
@@ -295,10 +281,7 @@ def test_global_catalog_run_rmutl_no_cmd_many_failures():
             stderr=rmutl_response.stderr,
         ),
     ]
-    expected_details = {
-        "autostart_override": "AUTOINIT",
-        "next_start": "UNKNOWN",
-    }
+    expected_details = ("AUTOINIT", "UNKNOWN")
     global_catalog.MVSCmd.execute = MagicMock(
         side_effect=[
             MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
@@ -338,10 +321,10 @@ def test_global_catalog_run_rmutl_rc16_error():
         global_catalog._run_dfhrmutl(
             location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
         )
-    except Exception as e:
+    except MVSExecutionException as e:
         error_raised = True
-        assert e.args[0] == "DFHRMUTL failed with RC 16 - REASON:X'12'"
-        assert e.args[1] == expected_executions
+        assert e.message == "DFHRMUTL failed with RC 16 - REASON:X'12'"
+        assert e.executions == expected_executions
 
     assert error_raised is True
 
@@ -367,10 +350,10 @@ def test_global_catalog_run_rmutl_many_rc16_error():
         global_catalog._run_dfhrmutl(
             location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
         )
-    except Exception as e:
+    except MVSExecutionException as e:
         error_raised = True
-        assert e.args[0] == "DFHRMUTL failed with RC 16 - REASON:X'B2'"
-        assert e.args[1] == expected_executions
+        assert e.message == "DFHRMUTL failed with RC 16 - REASON:X'B2'"
+        assert e.executions == expected_executions
 
     assert error_raised is True
 
@@ -396,10 +379,10 @@ def test_global_catalog_run_rmutl_many_rc_error():
         global_catalog._run_dfhrmutl(
             location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
         )
-    except Exception as e:
+    except MVSExecutionException as e:
         error_raised = True
-        assert e.args[0] == "DFHRMUTL failed with RC 15"
-        assert e.args[1] == expected_executions
+        assert e.message == "DFHRMUTL failed with RC 15"
+        assert e.executions == expected_executions
 
     assert error_raised is True
 
@@ -417,9 +400,9 @@ def test_global_catalog_run_rmutl_rc_not_0():
         global_catalog._run_dfhrmutl(
             location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
         )
-    except Exception as e:
+    except MVSExecutionException as e:
         error_raised = True
-        assert e.args[0] == "DFHRMUTL failed with RC 123"
-        assert e.args[1] == expected_executions
+        assert e.message == "DFHRMUTL failed with RC 123"
+        assert e.executions == expected_executions
 
     assert error_raised is True

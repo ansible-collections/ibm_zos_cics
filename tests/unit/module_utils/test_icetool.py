@@ -5,7 +5,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException, _execution
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import ICETOOL_name, ICETOOL_stderr, ICETOOL_stdout
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
 __metaclass__ = type
@@ -57,18 +57,18 @@ def test__run_icetool():
 
 def test__run_icetool_rc_16_no_reason():
     icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(rc=16, stdout="", stderr=ICETOOL_stderr()))
-    with pytest.raises(Exception) as e_info:
+    with pytest.raises(MVSExecutionException) as e_info:
         icetool._run_icetool(NAME)
 
-    assert (e_info.value).args[0] == "ICETOOL failed with RC 16"
+    assert (e_info.value).message == "ICETOOL failed with RC 16"
 
 
 def test__run_icetool_rc_nonzero():
     icetool._execute_icetool = MagicMock(return_value=MVSCmdResponse(rc=99, stdout="", stderr=ICETOOL_stderr()))
-    with pytest.raises(Exception) as e_info:
+    with pytest.raises(MVSExecutionException) as e_info:
         icetool._run_icetool(NAME)
 
-    assert (e_info.value).args[0] == "ICETOOL failed with RC 99"
+    assert (e_info.value).message == "ICETOOL failed with RC 99"
 
 
 def test__run_icetool_with_no_zoau_response():
@@ -92,6 +92,6 @@ def test__run_icetool_with_no_zoau_response():
 
     try:
         icetool._run_icetool(NAME)
-    except Exception as e:
-        assert e.args[0] == "ICETOOL Command output not recognised"
-        assert e.args[1] == expected_executions
+    except MVSExecutionException as e:
+        assert e.message == "ICETOOL Command output not recognised"
+        assert e.executions == expected_executions

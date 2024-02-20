@@ -192,7 +192,7 @@ executions:
       returned: always
 """
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set_utils import (
     _build_idcams_define_cmd
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (

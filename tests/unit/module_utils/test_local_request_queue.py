@@ -9,7 +9,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import C
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE
 __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import local_request_queue
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import data_set_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.local_request_queue import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT
 import pytest
 import sys
@@ -26,7 +26,7 @@ def test_get_idcams_cmd_megabytes():
         primary=SPACE_PRIMARY_DEFAULT,
         secondary=SPACE_SECONDARY_DEFAULT
     )
-    idcams_cmd_lrq = dataset_utils._build_idcams_define_cmd(local_request_queue._get_idcams_cmd_lrq(dataset))
+    idcams_cmd_lrq = data_set_utils._build_idcams_define_cmd(local_request_queue._get_idcams_cmd_lrq(dataset))
     assert idcams_cmd_lrq == '''
     DEFINE CLUSTER (NAME(ANSI.CYLS.DFHLRQ) -
     MEGABYTES(4 1) -
@@ -54,7 +54,7 @@ def test_get_idcams_cmd_cylinders():
         primary=SPACE_PRIMARY_DEFAULT,
         secondary=SPACE_SECONDARY_DEFAULT
     )
-    idcams_cmd_lrq = dataset_utils._build_idcams_define_cmd(local_request_queue._get_idcams_cmd_lrq(dataset))
+    idcams_cmd_lrq = data_set_utils._build_idcams_define_cmd(local_request_queue._get_idcams_cmd_lrq(dataset))
     assert idcams_cmd_lrq == '''
     DEFINE CLUSTER (NAME(ANSI.CYLS.DFHLRQ) -
     CYLINDERS(4 1) -

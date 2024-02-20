@@ -9,11 +9,11 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import MVS_CMD_RETRY_ATTEMPTS
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set_utils import MVS_CMD_RETRY_ATTEMPTS
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException, _execution
 
 
-def _get_ccmutl_dds(catalog):   # type: (dict) -> list(DDStatement)
+def _get_ccmutl_dds(catalog):   # type: (dict) -> list[DDStatement]
     return [
         DDStatement('steplib', DatasetDefinition(catalog["sdfhload"])),
         DDStatement('sysprint', StdoutDefinition()),
@@ -39,7 +39,7 @@ def _run_dfhccutl(starting_catalog):  # type: (dict) -> list
             stderr=dfhccutl_response.stderr))
 
         if dfhccutl_response.rc != 0:
-            raise Exception(
+            raise MVSExecutionException(
                 "DFHCCUTL failed with RC {0}".format(
                     dfhccutl_response.rc
                 ), executions

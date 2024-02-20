@@ -10,7 +10,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
 
 __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import intrapartition
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import data_set_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.intrapartition import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT
 import pytest
 import sys
@@ -29,7 +29,7 @@ def test_get_idcams_cmd_megabytes():
         primary=SPACE_PRIMARY_DEFAULT,
         secondary=SPACE_SECONDARY_DEFAULT
     )
-    idcams_cmd_intra = dataset_utils._build_idcams_define_cmd(
+    idcams_cmd_intra = data_set_utils._build_idcams_define_cmd(
         intrapartition._get_idcams_cmd_intra(dataset)
     )
     assert (
@@ -58,7 +58,7 @@ def test_get_idcams_cmd_cylinders():
         primary=SPACE_PRIMARY_DEFAULT,
         secondary=SPACE_SECONDARY_DEFAULT
     )
-    idcams_cmd_intra = dataset_utils._build_idcams_define_cmd(
+    idcams_cmd_intra = data_set_utils._build_idcams_define_cmd(
         intrapartition._get_idcams_cmd_intra(dataset)
     )
     assert (

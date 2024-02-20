@@ -5,13 +5,13 @@
 
 from __future__ import absolute_import, division, print_function
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import CYLINDERS, MEGABYTES
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException, _execution
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE, CCUTL_name, CCUTL_stderr
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
 __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import local_catalog as local_catalog_utils
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import data_set_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.local_catalog import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT
 import pytest
 import sys
@@ -37,7 +37,7 @@ def test_get_idcams_cmd_megabytes():
         primary=SPACE_PRIMARY_DEFAULT,
         secondary=SPACE_SECONDARY_DEFAULT
     )
-    idcams_cmd_lcd = dataset_utils._build_idcams_define_cmd(local_catalog_utils._get_idcams_cmd_lcd(catalog))
+    idcams_cmd_lcd = data_set_utils._build_idcams_define_cmd(local_catalog_utils._get_idcams_cmd_lcd(catalog))
     assert idcams_cmd_lcd == '''
     DEFINE CLUSTER (NAME(ANSI.TEST.DFHLCD) -
     MEGABYTES(200 5) -
@@ -65,7 +65,7 @@ def test_get_idcams_cmd_cylinders():
         primary=SPACE_PRIMARY_DEFAULT,
         secondary=SPACE_SECONDARY_DEFAULT
     )
-    idcams_cmd_lcd = dataset_utils._build_idcams_define_cmd(local_catalog_utils._get_idcams_cmd_lcd(catalog))
+    idcams_cmd_lcd = data_set_utils._build_idcams_define_cmd(local_catalog_utils._get_idcams_cmd_lcd(catalog))
     assert idcams_cmd_lcd == '''
     DEFINE CLUSTER (NAME(ANSI.TEST.DFHLCD) -
     CYLINDERS(200 5) -
@@ -131,9 +131,9 @@ def test_bad_ccutl_response():
 
     try:
         local_catalog_utils._run_dfhccutl(local_catalog)
-    except Exception as e:
-        error_message = e.args[0]
-        executions = e.args[1]
+    except MVSExecutionException as e:
+        error_message = e.message
+        executions = e.executions
 
         assert error_message == "DFHCCUTL failed with RC 99"
         assert executions == expected_executions
