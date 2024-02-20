@@ -114,18 +114,16 @@ def test_write_exec_statement_with_dds():
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_build_exec_statement_string():
-    jcl_helper = JCLHelper()
     expected_jcl = "//CICS     EXEC PGM=DFHSIP,PARM=SI,REGION=0M,TIME=1440"
     exec_dict = {"name": "CICS", "pgm": "DFHSIP", "parm": "SI", "region": "0M", "time": 1440}
-    assert jcl_helper._build_exec_statement_string(
+    assert JCLHelper._build_exec_statement_string(
         exec_dict) == expected_jcl
 
 
 def test_build_exec_statement_string_with_no_parameters():
-    jcl_helper = JCLHelper()
     expected_jcl = "//CICS     EXEC"
     exec_dict = {"name": "CICS"}
-    assert jcl_helper._build_exec_statement_string(
+    assert JCLHelper._build_exec_statement_string(
         exec_dict) == expected_jcl
 
 
@@ -205,41 +203,190 @@ def test_write_null_statement():
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_build_job_statement():
-    jcl_helper = JCLHelper()
     job_parameters = {"job_name": "JOB123",
                       "class": "A",
                       "user": "BOBSMITH",
                       "region": "0M"}
-    expected_statement = JCL_PREFIX + "JOB123" + "   JOB CLASS=A,USER=BOBSMITH,REGION=0M"
-    assert jcl_helper._build_job_statement(
+    expected_statement = JCL_PREFIX + "JOB123   JOB CLASS=A,USER=BOBSMITH,REGION=0M"
+    assert JCLHelper._build_job_statement(
         job_parameters) == expected_statement
 
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_build_job_statement_with_accounting_info():
-    jcl_helper = JCLHelper()
     job_parameters = {"job_name": "JOB123",
-                      "accounting_information": "accinfo",
+                      "accounting_information": {"pano": "ABCD"},
                       "class": "A",
                       "user": "BOBSMITH",
                       "region": "0M"}
-    expected_statement = JCL_PREFIX + "JOB123" + \
-        "   JOB accinfo,CLASS=A,USER=BOBSMITH,REGION=0M"
-    assert jcl_helper._build_job_statement(
+    expected_statement = JCL_PREFIX + "JOB123   JOB ABCD,CLASS=A,USER=BOBSMITH,REGION=0M"
+    assert JCLHelper._build_job_statement(
         job_parameters) == expected_statement
 
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
-def test_build_job_statement_no_accounting_info():
-    jcl_helper = JCLHelper()
+def test_build_job_statement_with_programmer_name():
     job_parameters = {"job_name": "JOB123",
+                      "programmer_name": "USER",
                       "class": "A",
                       "user": "BOBSMITH",
                       "region": "0M"}
-    expected_statement = JCL_PREFIX + "JOB123" + \
-        "   JOB CLASS=A,USER=BOBSMITH,REGION=0M"
-    assert jcl_helper._build_job_statement(
+    expected_statement = JCL_PREFIX + "JOB123   JOB ,'USER',CLASS=A,USER=BOBSMITH,REGION=0M"
+    assert JCLHelper._build_job_statement(
         job_parameters) == expected_statement
+
+
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+def test_build_job_statement_with_programmer_name_and_account_info():
+    job_parameters = {"job_name": "JOB123",
+                      "accounting_information": {"pano": "ABCD"},
+                      "programmer_name": "USER",
+                      "class": "A",
+                      "user": "BOBSMITH",
+                      "region": "0M"}
+    expected_statement = JCL_PREFIX + "JOB123   JOB ABCD,'USER',CLASS=A,USER=BOBSMITH,REGION=0M"
+    assert JCLHelper._build_job_statement(
+        job_parameters) == expected_statement
+
+
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+def test_build_job_statement_with_msglevel_parameter_statements():
+    job_parameters = {"job_name": "JOB123",
+                      "programmer_name": "USER",
+                      "class": "A",
+                      "msglevel": {"statements": 0},
+                      "user": "BOBSMITH",
+                      "region": "0M"}
+    expected_statement = JCL_PREFIX + "JOB123   JOB ,'USER',CLASS=A,MSGLEVEL=0,USER=BOBSMITH,REGION=0M"
+    assert JCLHelper._build_job_statement(
+        job_parameters) == expected_statement
+
+
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+def test_build_job_statement_with_msglevel_parameter_messages():
+    job_parameters = {"job_name": "JOB123",
+                      "programmer_name": "USER",
+                      "class": "A",
+                      "msglevel": {"messages": 1},
+                      "user": "BOBSMITH",
+                      "region": "0M"}
+    expected_statement = JCL_PREFIX + "JOB123   JOB ,'USER',CLASS=A,MSGLEVEL=(,1),USER=BOBSMITH,REGION=0M"
+    assert JCLHelper._build_job_statement(
+        job_parameters) == expected_statement
+
+
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+def test_build_job_statement_with_msglevel_parameter():
+    job_parameters = {"job_name": "JOB123",
+                      "programmer_name": "USER",
+                      "class": "A",
+                      "msglevel": {"statements": 1, "messages": 1},
+                      "user": "BOBSMITH",
+                      "region": "0M"}
+    expected_statement = JCL_PREFIX + "JOB123   JOB ,'USER',CLASS=A,MSGLEVEL=(1,1),USER=BOBSMITH,REGION=0M"
+    assert JCLHelper._build_job_statement(
+        job_parameters) == expected_statement
+
+
+def test_format_job_positional_parameters_two_accounting_infomation_values():
+    jcl_helper = JCLHelper()
+    job_parameters = {"accounting_information": {"pano": "ABCD", "times": 12}, "programmer_name": "USER"}
+    expected_statement = "(ABCD,,12),USER"
+    assert jcl_helper._format_job_positional_parameters(job_parameters) == expected_statement
+
+
+def test_format_job_positional_parameters_accounting_information_only():
+    jcl_helper = JCLHelper()
+    job_parameters = {"accounting_information": {"pano": "ABCD"}}
+    expected_statement = "ABCD"
+    assert jcl_helper._format_job_positional_parameters(job_parameters) == expected_statement
+
+
+def test_format_job_positional_parameters_two_accounting_infomation_values():
+    jcl_helper = JCLHelper()
+    job_parameters = {"accounting_information": {"pano": "ABCD", "times": 12}}
+    expected_statement = "(ABCD,,12)"
+    assert jcl_helper._format_job_positional_parameters(job_parameters) == expected_statement
+
+
+def test_format_job_positional_parameters_only_programmer_name():
+    jcl_helper = JCLHelper()
+    job_parameters = {"programmer_name": "USER"}
+    expected_statement = ",'USER'"
+    assert jcl_helper._format_job_positional_parameters(job_parameters) == expected_statement
+
+
+def test_format_job_positional_parameters_positional_info_not_set():
+    jcl_helper = JCLHelper()
+    job_parameters = {"job_name": "JOB123"}
+    expected_statement = None
+    assert jcl_helper._format_job_positional_parameters(job_parameters) == expected_statement
+
+
+def test_format_job_positional_parameters_job_parameters_none():
+    jcl_helper = JCLHelper()
+    expected_statement = None
+    assert jcl_helper._format_job_positional_parameters(None) == expected_statement
+
+
+def test_format_accounting_information():
+    accounting_information = {"pano": "AB12", "room": "ROOM", "times": "TIME", "lines": 23}
+    formatted_information = JCLHelper._format_accounting_information(accounting_information)
+    assert formatted_information == "(AB12,ROOM,TIME,23)"
+
+
+def test_format_accounting_information_with_missing_values():
+    accounting_information = {"pano": "AB12", "times": "TIME", "lines": 23}
+    formatted_information = JCLHelper._format_accounting_information(accounting_information)
+    assert formatted_information == "(AB12,,TIME,23)"
+
+
+def test_format_accounting_information_with_missing_value_2():
+    accounting_information = {"room": "ABC", "times": "TIME", "lines": 23}
+    formatted_information = JCLHelper._format_accounting_information(accounting_information)
+    assert formatted_information == "(,ABC,TIME,23)"
+
+
+def test_format_accounting_information_with_missing_values_3():
+    accounting_information = {"pano": "EDFG", "lines": 23, "cards": "CARD"}
+    formatted_information = JCLHelper._format_accounting_information(accounting_information)
+    assert formatted_information == "(EDFG,,,23,CARD)"
+
+
+def test_format_accounting_information_with_one_value():
+    accounting_information = {"pano": "EDFG"}
+    formatted_information = JCLHelper._format_accounting_information(accounting_information)
+    assert formatted_information == "EDFG"
+
+
+def test_format_programmer_name_no_apostrophes():
+    name = "USER"
+    formatted = JCLHelper._format_programmer_name(name)
+    assert formatted == "'USER'"
+
+
+def test_format_programmer_name_with_apostrophes():
+    name = "USER'NAME"
+    formatted = JCLHelper._format_programmer_name(name)
+    assert formatted == "'USER''NAME'"
+
+
+def test_format_msglevel_parameter_both_parameters():
+    msglevel_dict = {"statements": 1, "messages": 0}
+    msglevel_dict_formatted = JCLHelper._format_msglevel_parameter(msglevel_dict)
+    assert msglevel_dict_formatted == "(1,0)"
+
+
+def test_format_msglevel_parameter_statements_only():
+    msglevel_dict = {"statements": 1}
+    msglevel_dict_formatted = JCLHelper._format_msglevel_parameter(msglevel_dict)
+    assert msglevel_dict_formatted == 1
+
+
+def test_format_msglevel_parameter_messages_only():
+    msglevel_dict = {"messages": 1}
+    msglevel_dict_formatted = JCLHelper._format_msglevel_parameter(msglevel_dict)
+    assert msglevel_dict_formatted == "(,1)"
 
 
 def test_build_dd_statement():

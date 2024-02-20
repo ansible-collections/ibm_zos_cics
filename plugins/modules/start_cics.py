@@ -496,9 +496,48 @@ class AnsibleStartCICSModule(object):
                 'type': 'dict',
                 'required': False,
                 'options': {
+
                     'accounting_information': {
-                        'type': 'str',
+                        'type': 'dict',
                         'required': False,
+                        'options': {
+                            'pano': {
+                                'type': 'str',
+                                'required': False,
+                            },
+                            'room': {
+                                'type': 'str',
+                                'required': False,
+                            },
+                            'time': {
+                                'type': 'int',
+                                'required': False,
+                            },
+                            'lines': {
+                                'type': 'int',
+                                'required': False,
+                            },
+                            'cards': {
+                                'type': 'int',
+                                'required': False,
+                            },
+                            'forms': {
+                                'type': 'str',
+                                'required': False,
+                            },
+                            'copies': {
+                                'type': 'int',
+                                'required': False,
+                            },
+                            'log': {
+                                'type': 'str',
+                                'required': False,
+                            },
+                            'linect': {
+                                'type': 'int',
+                                'required': False,
+                            }
+                        }
                     },
                     'class': {
                         'type': 'str',
@@ -517,8 +556,20 @@ class AnsibleStartCICSModule(object):
                         'required': False
                     },
                     'msglevel': {
-                        'type': 'str',
+                        'type': 'dict',
                         'required': False,
+                        'options': {
+                            'statements': {
+                                'type': 'int',
+                                'required': False,
+                                'choices': [0, 1, 2]
+                            },
+                            'messages': {
+                                'type': 'int',
+                                'required': False,
+                                'choices': [0, 1]
+                            }
+                        }
                     },
                     'programmer_name': {
                         'type': 'str',

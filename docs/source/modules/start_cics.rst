@@ -26,8 +26,45 @@ Parameters
     Specifies various parameters to be applied to the startup job.
 
 
-    accounting_information (False, str, None)
+    accounting_information (False, dict, None)
       Allows jobs to be grouped into a class.
+
+
+      pano (False, str, None)
+        Specifies the programmer's accounting number. Pano is 1 through 4 alphanumeric characters.
+
+
+      room (False, str, None)
+        Specifies the programmer's room number. Room is 1 through 4 alphanumeric characters.
+
+
+      time (False, int, None)
+        Specifies the estimated execution time in minutes. Time is 1 through 4 decimal numbers. For example, code 30 for 30 minutes. If you omit a time subparameter and a TIME parameter on the JES2 /\*JOBPARM statement, JES2 uses an installation default specified at initialization. If job execution exceeds the time, JES2 sends a message to the operator.
+
+
+      lines (False, int, None)
+        Specifies the estimated line count, in thousands of lines, from this job's sysout data sets. Lines is 1 through 4 decimal numbers. For example, code 5 for 5000 lines. If you omit lines, JES2 uses an installation default specified at initialization.
+
+
+      cards (False, int, None)
+        Specifies the estimated number of cards JES2 is to punch from this job's sysout data sets. Cards is 1 through 4 decimal numbers. If you omit cards, JES2 uses an installation default specified at initialization.
+
+
+      forms (False, str, None)
+        Specifies the forms that JES2 is to use for printing this job's sysout data sets. Forms is 1 through 4 alphanumeric characters. For example, code 5 for 5-part forms. If you omit forms, JES2 uses an installation default specified at initialization.
+
+
+      copies (False, int, None)
+        Specifies the number of times JES2 is to print and/or punch this job's sysout data sets. Copies is 1 through 3 decimal numbers not exceeding an installation-specified limit. The maximum is 255. For example, code 2 for two copies. If you omit copies, JES2 assumes one copy.
+
+
+      log (False, str, None)
+        Specifies whether or not JES2 is to print the job log. Code N to request no job log. If you code any other character or omit this subparameter, JES2 prints the job log. If your installation specified NOLOG for this job's class during JES2 initialization, JES2 will not print a job log.
+
+
+      linect (False, int, None)
+        Specifies the number of lines JES2 is to print per page for this job's sysout data sets. Linect is 1 through 3 decimal numbers. If you omit linect, JES2 uses an installation default specified at initialization. If you code a zero, JES2 does not eject to a new page when the number of lines exceeds the installation default.
+
 
 
     class (False, str, None)
@@ -42,8 +79,17 @@ Parameters
       Use the MEMLIMIT parameter to specify the limit on the total size of usable 64-bit z/OS storage in a single address space.
 
 
-    msglevel (False, str, None)
+    msglevel (False, dict, None)
       Use the MSGLEVEL parameter to control the listing of the JCL output for the job.
+
+
+      statements (False, int, None)
+        Indicates which job control statements the system is to print in the statement images portion of the JCL output.
+
+
+      messages (False, int, None)
+        Indicates which messages the system is to print in the system messages portion of the JCL output.
+
 
 
     msgclass (False, str, None)

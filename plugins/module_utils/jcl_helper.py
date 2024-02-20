@@ -48,7 +48,7 @@ class JCLHelper:
         return self.jcl
 
     def _write_job_statement(self, job_parameters):
-        job_statement = self._build_job_statement(job_parameters)
+        job_statement = JCLHelper._build_job_statement(job_parameters)
         self._write_list_of_strings(
             JCLHelper._split_long_dd_statement(job_statement))
 
@@ -87,17 +87,18 @@ class JCLHelper:
         for exec_statement in list_of_exec_dicts:
             if exec_statement.get(DDS) or exec_statement.get(DDS) is not {}:
                 dd_dict = exec_statement.pop(DDS)
-            exec_statement_string = self._build_exec_statement_string(exec_statement)
+            exec_statement_string = JCLHelper._build_exec_statement_string(exec_statement)
 
             self._write_list_of_strings(
                 JCLHelper._split_long_dd_statement(exec_statement_string))
             if dd_dict:
                 self._write_dds(dd_dict)
 
-    def _build_exec_statement_string(self, exec_dict):
+    @staticmethod
+    def _build_exec_statement_string(exec_dict):
         step_name = JCLHelper._format_dd_name(exec_dict.pop(NAME))
         exec_string = '{0}{1}{2}'.format(JCL_PREFIX, step_name, EXEC)
-        parameters = self._concatenate_key_value_pairs_into_list(exec_dict)
+        parameters = JCLHelper._concatenate_key_value_pairs_into_list(exec_dict)
         if parameters:
             return JCLHelper._add_parameters_onto_dd_statement(exec_string, parameters, False)
         else:
@@ -175,21 +176,71 @@ class JCLHelper:
     def _write_null_statement(self):
         self.jcl.append(JCL_PREFIX)
 
-    def _build_job_statement(self, job_parameters):
+    @staticmethod
+    def _build_job_statement(job_parameters):
+        positional_parameters = JCLHelper._format_job_positional_parameters(job_parameters)
+        if job_parameters.get(MSGLEVEL):
+            job_parameters[MSGLEVEL] = JCLHelper._format_msglevel_parameter(job_parameters[MSGLEVEL])
+        # Put key values equal to one another
         job_name = job_parameters.pop(JOB_NAME)
-        accounting_information = job_parameters.pop(ACCOUNTING_INFORMATION, None)
-        # Put parameter names and values equal to one another, in the correct format for JCL
-        list_of_additional_parameters = self._concatenate_key_value_pairs_into_list(
-            job_parameters)
+        list_of_additional_parameters = JCLHelper._concatenate_key_value_pairs_into_list(job_parameters)
 
-        #     Construct the start of the JCL job statement
-        job_string = '{0}{1}{2}'.format(
-            JCL_PREFIX, JCLHelper._format_dd_name(job_name), JOB)
-        if accounting_information:
-            job_string = '{0} {1}'.format(job_string, accounting_information)
-            if list_of_additional_parameters:
-                return JCLHelper._add_parameters_onto_dd_statement(job_string, list_of_additional_parameters, True)
+        job_string = '{0}{1}{2}'.format(JCL_PREFIX, JCLHelper._format_dd_name(job_name), JOB)
+        if positional_parameters:
+            job_string = '{0} {1}'.format(job_string, positional_parameters)
+            return JCLHelper._add_parameters_onto_dd_statement(job_string, list_of_additional_parameters, True)
         return JCLHelper._add_parameters_onto_dd_statement(job_string, list_of_additional_parameters, False)
+
+    @staticmethod
+    def _format_job_positional_parameters(job_parameters):
+        if job_parameters:
+            accounting_info = JCLHelper._format_accounting_information(job_parameters.pop(ACCOUNTING_INFORMATION, None))
+            programmer_name = JCLHelper._format_programmer_name(job_parameters.pop(PROGRAMMER_NAME, None))
+            if programmer_name:
+                return "{0},{1}".format(accounting_info, programmer_name)
+            elif accounting_info or accounting_info != "":
+                return accounting_info
+
+    @staticmethod
+    def _format_accounting_information(acc_information):
+        if acc_information:
+            # Putting into a list as keys need to be a specific order
+            acc_values = [acc_information.get("pano"), acc_information.get("room"), acc_information.get("times"),
+                          acc_information.get("lines"), acc_information.get("cards"), acc_information.get("forms"),
+                          acc_information.get("copies"), acc_information.get("log"), acc_information.get("linect")]
+            result = ""
+            amount_of_values_added = 0
+            for value in acc_values:
+                if value:
+                    amount_of_values_added += 1
+                    result += str(value)
+                # Needs a comma appending as we need to either seperate values or indicate missing keys.
+                result += ','
+            result = result.rstrip(",")
+            if amount_of_values_added < 2:
+                return result
+            return "({0})".format(result)
+        # Return an empty string so that if programmer name is set, we can handle the formatting nice and tidy.
+        return ""
+
+    @staticmethod
+    def _format_programmer_name(programmer_name):
+        if programmer_name:
+            formatted_string = ""
+            for char in programmer_name:
+                if char == "'":
+                    formatted_string += "''"  # Duplicate the apostrophe
+                else:
+                    formatted_string += char
+            return "'{0}'".format(formatted_string)
+
+    @staticmethod
+    def _format_msglevel_parameter(msglevel_dict):
+        msglevel_var = msglevel_dict.get("statements", "")
+        messages = msglevel_dict.get("messages")
+        if messages is not None:
+            msglevel_var = "({0},{1})".format(msglevel_var, messages)
+        return msglevel_var
 
     def _build_dd_concatenation_list(self, dd_name, list_of_dicts):
         # Get the dictionary in the list, to append a DD name.
