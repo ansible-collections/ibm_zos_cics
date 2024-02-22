@@ -1571,15 +1571,23 @@ Return Values
 -------------
 
 changed (always, bool, )
-  True if the state was changed, otherwise False.
+  True if the CICS startup JCL was submitted, otherwise False.
 
 
 failed (always, bool, )
   True if the query job failed, otherwise False.
 
 
+jcl (always, list, )
+  The CICS startup JCL that is built during module execution.
+
+
+err (always, str, )
+  The error message returned when building the JCL.
+
+
 executions (always, list, )
-  A list of program executions performed during the task.
+  A list of program executions performed during the Ansible task.
 
 
   name (always, str, )

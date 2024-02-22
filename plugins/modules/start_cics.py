@@ -56,7 +56,7 @@ EXAMPLES = r"""
       wlmhealth: "OFF"
       wrkarea: 2048
       sysidnt: ZPY1
-- name: Start CICS with more customisation
+- name: Start CICS with more customization
   ibm.ibm_zos_cics.start_cics:
     submit_jcl: True
     applid: ABC9ABC1
@@ -113,15 +113,23 @@ EXAMPLES = r"""
 
 RETURN = r"""
   changed:
-    description: True if the state was changed, otherwise False.
+    description: True if the CICS startup JCL was submitted, otherwise False.
     returned: always
     type: bool
   failed:
     description: True if the query job failed, otherwise False.
     returned: always
     type: bool
+  jcl:
+    description: The CICS startup JCL that is built during module execution.
+    returned: always
+    type: list
+  err:
+    description: The error message returned when building the JCL.
+    returned: always
+    type: str
   executions:
-    description: A list of program executions performed during the task.
+    description: A list of program executions performed during the Ansible task.
     returned: always
     type: list
     elements: dict
