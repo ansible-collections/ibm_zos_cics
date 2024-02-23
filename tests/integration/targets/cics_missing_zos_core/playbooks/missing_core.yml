@@ -18,7 +18,7 @@
         region_data_sets:
           template: "{{ region_data_set_path }}.<< data_set_name >>"
         cics_data_sets:
-          sdfhload: "{{ cics_steplib }}"
+          template: "{{ cics_install_path }}.<< lib_name >>"
       register: result
       failed_when: false
       ignore_errors: true
@@ -36,7 +36,7 @@
         region_data_sets:
           template: "{{ region_data_set_path }}.<< data_set_name >>"
         cics_data_sets:
-          sdfhload: "{{ cics_steplib }}"
+          template: "{{ cics_install_path }}.<< lib_name >>"
       register: result
       failed_when: false
       ignore_errors: true
@@ -54,7 +54,7 @@
         region_data_sets:
           template: "{{ region_data_set_path }}.<< data_set_name >>"
         cics_data_sets:
-          sdfhload: "{{ cics_steplib }}"
+          template: "{{ cics_install_path }}.<< lib_name >>"
       register: result
       failed_when: false
       ignore_errors: true
@@ -72,7 +72,7 @@
         region_data_sets:
           template: "{{ region_data_set_path }}.<< data_set_name >>"
         cics_data_sets:
-          sdfhload: "{{ cics_steplib }}"
+          template: "{{ cics_install_path }}.<< lib_name >>"
       register: result
       failed_when: false
       ignore_errors: true
@@ -90,7 +90,7 @@
         region_data_sets:
           template: "{{ region_data_set_path }}.<< data_set_name >>"
         cics_data_sets:
-          sdfhload: "{{ cics_steplib }}"
+          template: "{{ cics_install_path }}.<< lib_name >>"
       register: result
       failed_when: false
       ignore_errors: true

@@ -12,7 +12,7 @@
   module_defaults:
     ibm.ibm_zos_cics.csd:
       cics_data_sets:
-        sdfhload: "{{ cics_steplib }}"
+        template: "{{ cics_install_path }}.<< lib_name >>"
       space_primary: 4
       space_type: "M"
       region_data_sets:

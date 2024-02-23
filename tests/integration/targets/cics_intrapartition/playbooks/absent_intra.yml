@@ -16,7 +16,7 @@
       region_data_sets:
         template: "{{ region_data_set_path }}.<< data_set_name >>"
       cics_data_sets:
-        sdfhload: "{{ cics_steplib }}"
+        template: "{{ cics_install_path }}.<< lib_name >>"
 
   tasks:
     # #############################################################################

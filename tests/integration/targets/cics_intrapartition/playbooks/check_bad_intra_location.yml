@@ -16,7 +16,7 @@
         dfhintra:
           dsn: "{{ region_data_set_path }}..."
       cics_data_sets:
-        sdfhload: "{{ cics_steplib }}"
+        template: "{{ cics_install_path }}.<< lib_name >>"
 
   tasks:
     # #############################################################################
