@@ -168,7 +168,7 @@ class DataSet():
         # Optional parameters
         if params.get(SPACE_TYPE):
             self.unit = params[SPACE_TYPE]
-        if params.get(CICS_DATA_SETS):
+        if params.get(CICS_DATA_SETS) and params.get(CICS_DATA_SETS).get("sdfhload"):
             self.sdfhload = params[CICS_DATA_SETS]["sdfhload"].upper()
         if params.get(DESTINATION):
             self.destination = params[DESTINATION]
