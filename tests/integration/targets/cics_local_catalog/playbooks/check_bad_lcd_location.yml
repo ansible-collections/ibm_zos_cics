@@ -19,7 +19,7 @@
       ibm.ibm_zos_cics.local_catalog:
         state: "initial"
         cics_data_sets:
-          sdfhload: "{{ cics_steplib }}"
+          template: "{{ cics_install_path }}.<< lib_name >>"
         space_primary: 5
         space_type: "M"
         region_data_sets:

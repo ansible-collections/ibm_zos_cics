@@ -38,7 +38,7 @@
           dfhcsd:
             dsn: "{{ region_data_set_path }}.low.{{ ds_name }}"
         cics_data_sets:
-          sdfhload: "{{ cics_steplib }}"
+          template: "{{ cics_install_path }}.<< lib_name >>"
         space_primary: 5
         space_type: "M"
         state: "initial"

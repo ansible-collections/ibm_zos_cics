@@ -9,7 +9,7 @@
   module_defaults:
     group/ibm.ibm_zos_cics.region_group:
       cics_data_sets:
-        sdfhload: "{{ cics_steplib }}"
+        template: "{{ cics_install_path }}.<< lib_name >>"
       region_data_sets:
         template: "{{ region_data_set_path }}.<< data_set_name >>"
 
