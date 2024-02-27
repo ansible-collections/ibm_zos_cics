@@ -1,28 +1,41 @@
 # (c) Copyright IBM Corp. 2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name: Check Validation of Parameters
+- name: Test validation errors for MODULE_NAME module
 
   hosts: "all"
   gather_facts: false
+  environment: "{{ environment_vars }}"
   vars:
-    dfhdmpa_name: "DFHDMPA"
-    dfhdmpb_name: "DFHDMPB"
-    dfhdmpa_path: "{{ region_data_set_path }}.{{ dfhdmpa_name }}"
-    dfhdmpb_path: "{{ region_data_set_path }}.{{ dfhdmpb_name }}"
+    data_set_path: "{{ region_data_set_path }}.{{ data_set_name }}"
+
+  module_defaults:
+    ibm.ibm_zos_cics.MODULE_NAME:
+      cics_data_sets:
+        template: "{{ cics_install_path }}.<< lib_name >>"
 
   tasks:
+    # #############################################################################
+    # ############################## Initial Cleanup ##############################
+    # #############################################################################
+
+    - name: Delete upper case {{ data_set_name }}
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ data_set_path | upper }}"
+        state: absent
+      register: result
+      retries: 3
+      until: result is not failed
+
     # #############################################################################
     # ############################## Module Testing ###############################
     # #############################################################################
 
     - name: Missing region_data_sets
-      environment: "{{ environment_vars }}"
-      ibm.ibm_zos_cics.transaction_dump:
+      ibm.ibm_zos_cics.MODULE_NAME:
         state: absent
       register: result
       ignore_errors: true
-
     - name: Debug
       ansible.builtin.debug:
         msg: "{{ result }}"
@@ -30,23 +43,21 @@
     - name: Assert Failure
       ansible.builtin.assert:
         that:
-          - result.failed is true
-          - result.changed is false
+          - result.failed == true
+          - result.changed == false
           - result.msg == "region_data_sets required"
 
     # #############################################################################
 
     - name: Missing template and dsn
-      environment: "{{ environment_vars }}"
-      ibm.ibm_zos_cics.transaction_dump:
+      ibm.ibm_zos_cics.MODULE_NAME:
         region_data_sets:
           template:
-          dfhdmpa:
+          DATA_SET_NAME_LOWER:
             dsn:
         state: absent
       register: result
       ignore_errors: true
-
     - name: Debug
       ansible.builtin.debug:
         msg: "{{ result }}"
@@ -54,21 +65,19 @@
     - name: Assert Failure
       ansible.builtin.assert:
         that:
-          - result.failed is true
-          - result.changed is false
-          - result.msg == "Specify either template or dfhdmpa in region_data_sets"
+          - result.failed == true
+          - result.changed == false
+          - result.msg == "Specify either template or DATA_SET_NAME_LOWER in region_data_sets"
 
     # #############################################################################
 
     - name: Bad dsn
-      environment: "{{ environment_vars }}"
-      ibm.ibm_zos_cics.transaction_dump:
+      ibm.ibm_zos_cics.MODULE_NAME:
         region_data_sets:
           template: "{{ region_data_set_path }}..."
         state: absent
       register: result
       ignore_errors: true
-
     - name: Debug
       ansible.builtin.debug:
         msg: "{{ result }}"
@@ -76,32 +85,36 @@
     - name: Assert Failure
       ansible.builtin.assert:
         that:
-          - result.failed is true
-          - result.changed is false
+          - result.failed == true
+          - result.changed == false
           - result.rc == 1
           - "'exception' in result"
           - "'Invalid argument \"{{ region_data_set_path }}...\" for type \"data_set_base\".' in result.exception"
 
     # #############################################################################
 
-    - name: Mismatched destination
-      environment: "{{ environment_vars }}"
-      ibm.ibm_zos_cics.transaction_dump:
+    - name: Lowercase dsn
+      ibm.ibm_zos_cics.MODULE_NAME:
         region_data_sets:
-          dfhdmpa:
-            dsn: "{{ dfhdmpa_path }}"
-        state: absent
-        destination: B
+          template: "{{ data_set_path | lower }}"
+        state: "initial"
       register: result
-      ignore_errors: true
-
     - name: Debug
       ansible.builtin.debug:
         msg: "{{ result }}"
 
-    - name: Assert Failure
+    - name: Assert {{ data_set_name }} created
       ansible.builtin.assert:
         that:
-          - result.failed is true
-          - result.changed is false
-          - result.msg == "Specify either template or dfhdmpb in region_data_sets"
+          - result.failed == false
+          - result.changed == true
+          - result.start_state.exists == false
+          - result.end_state.exists == true
+
+    - name: Delete upper case {{ data_set_name }} (changed is true)
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ data_set_path | upper }}"
+        state: absent
+      register: result
+      retries: 3
+      until: result is changed

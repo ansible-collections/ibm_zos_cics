@@ -5,6 +5,7 @@
 
   hosts: "all"
   gather_facts: false
+  environment: "{{ environment_vars }}"
 
   tasks:
     # #############################################################################
@@ -12,7 +13,6 @@
     # #############################################################################
 
     - name: Create global catalog data set
-      environment: "{{ environment_vars }}"
       ibm.ibm_zos_cics.global_catalog:
         state: "initial"
         region_data_sets:
@@ -30,7 +30,6 @@
           - "'unable to locate collection ibm.ibm_zos_core' in result.msg"
 
     - name: Create local catalog data set
-      environment: "{{ environment_vars }}"
       ibm.ibm_zos_cics.local_catalog:
         state: "initial"
         region_data_sets:
@@ -48,7 +47,6 @@
           - "'unable to locate collection ibm.ibm_zos_core' in result.msg"
 
     - name: Create lrq data set
-      environment: "{{ environment_vars }}"
       ibm.ibm_zos_cics.local_request_queue:
         state: "initial"
         region_data_sets:
@@ -66,7 +64,6 @@
           - "'unable to locate collection ibm.ibm_zos_core' in result.msg"
 
     - name: Create Intrapartition data set
-      environment: "{{ environment_vars }}"
       ibm.ibm_zos_cics.intrapartition:
         state: "initial"
         region_data_sets:
@@ -84,7 +81,6 @@
           - "'unable to locate collection ibm.ibm_zos_core' in result.msg"
 
     - name: Create Auxiliary Temp data set
-      environment: "{{ environment_vars }}"
       ibm.ibm_zos_cics.auxiliary_temp:
         state: "initial"
         region_data_sets:
