@@ -13,7 +13,7 @@ module: stop_cics
 short_description: Query CICS and CICSPlex SM resources and definitions
 description:
   - Stop a CICS Region using CEMT PERFORM SHUTDOWN. The shutdown-assist transaction will be used if SDTRAN is specified
-    in the CICS Region system initialisation parameters. The task will run until the region has successful shutdown or
+    in the CICS Region system initialisation parameters. The task will run until the region has successfully shutdown or
     the shutdown has failed.
 version_added: 1.1.0-beta.4
 author:
@@ -25,12 +25,16 @@ options:
       - If a job name was not specified in the start-up playbook, the C(applid) can be provided instead.
     type: str
     required: true
-  immediate:
+  mode:
     description:
-      - Specify true to use an immediate shutdown on the CICS Region.
-    type: bool
+      - Specify the type of shutdown to be executed on the CICS Region.
+    type: str
     required: false
-    default: false
+    default: normal
+    choices:
+      - normal
+      - immediate
+      - cancel
 '''
 
 
@@ -42,12 +46,12 @@ EXAMPLES = r'''
 - name: "Stop CICS immediately"
   ibm.ibm_zos_cics.stop_cics:
     job_name: STARTJOB
-    immediately: True
+    mode: immediate
 '''
 
 RETURN = r'''
   changed:
-    description: True if the region was shutdown successfully, otherwise False.
+    description: True if the shutdown command was executed.
     returned: always
     type: bool
   failed:
@@ -67,21 +71,20 @@ RETURN = r'''
       rc:
         description: The return code for the program execution.
         type: int
-        returned: always
-      stdout:
-        description: The standard out stream returned by the program execution.
-        type: str
-        returned: always
-      stderr:
-        description: The standard error stream returned from the program execution.
+        returned: On shutdown execution
+      return:
+        description: The standard output returned by the program execution.
         type: str
         returned: always
 '''
 
 from ansible.module_utils.basic import AnsibleModule
 
+CANCEL = 'cancel'
 IMMEDIATE = 'immediate'
 JOB_NAME = 'job_name'
+MODE = 'mode'
+NORMAL = 'normal'
 
 
 class AnsibleStopCICSModule(object):
@@ -100,10 +103,11 @@ class AnsibleStopCICSModule(object):
                 'type': 'str',
                 'required': True,
             },
-            IMMEDIATE: {
-                'type': 'bool',
+            MODE: {
+                'type': 'str',
                 'required': False,
-                'default' : False,
+                'default': NORMAL,
+                'choices': [NORMAL, IMMEDIATE, CANCEL]
             },
         }
 

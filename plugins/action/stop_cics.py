@@ -5,23 +5,27 @@ import time
 import logging
 from ansible.plugins.action import ActionBase
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.stop_cics import (
-    JOB_NAME, IMMEDIATE)
+    JOB_NAME, MODE, IMMEDIATE, CANCEL)
 from ansible.errors import AnsibleActionFail
 
 ACTIVE_AND_WAITING = 'CICS is still active... waiting for successful shutdown.'
-CHECK_CICS_STATUS = 'Check CICS status'
-EXECUTIONS = 'executions'
-FAILED = 'failed'
-IMMEDIATE = 'immediate'
-JOB_NAME = 'job_name'
-RUNNING_ATTEMPTING_TO_STOP = 'CICS is running, attempting to stop CICS.'
-SHUTDOWN_REGION = 'Shutdown CICS'
+CANCEL_REGION = 'CANCEL {0}'
 CICS_NOT_ACTIVE = 'CICS region is not active.'
-SHUTDOWN_SUCCESS = 'CICS has been shutdown.'
-MODULE_NAME = 'ibm.ibm_zos_cics.stop_cics'
+CHECK_CICS_STATUS = 'z/OS Job Query - Chsecking status of job {0}'
+EXECUTIONS = 'executions'
 DEFAULT_SHUTDOWN = 'MODIFY {},CEMT PERFORM SHUTDOWN'
+FAILED = 'failed'
 IMMEDIATE_SHUTDOWN = 'MODIFY {},CEMT PERFORM SHUTDOWN IMMEDIATE'
+JOB_NAME = 'job_name'
+JOB_QUERY_FAILED = 'Job query failed.'
+MODULE_NAME = 'ibm.ibm_zos_cics.stop_cics'
+NAME = 'name'
+RC = 'rc'
+RETURN = 'return'
+RUNNING_ATTEMPTING_TO_STOP = 'CICS is running, attempting to stop CICS.'
 SHUTDOWN_FAILED = 'Shutdown Failed'
+SHUTDOWN_REGION = 'Shutdown CICS'
+SHUTDOWN_SUCCESS = 'CICS has been shutdown.'
 
 
 class ActionModule(ActionBase):
@@ -45,33 +49,34 @@ class ActionModule(ActionBase):
         self.result = dict(changed=False, failed=False, executions=[])
 
     def shutdown_cics_region(self):  # type: () -> None
-        region_running, result = self.is_job_running()
-        self.result[EXECUTIONS].append({CHECK_CICS_STATUS: result})
+        region_running = self.is_job_running()
+        self.result[EXECUTIONS].append({NAME: CHECK_CICS_STATUS.format(self.module_args[JOB_NAME]), RETURN: self.jobs})
         if region_running:
             self.logger.debug(RUNNING_ATTEMPTING_TO_STOP)
-            self.result[EXECUTIONS].append({SHUTDOWN_REGION : self.run_shutdown_command(self.get_shutdown_command())})
+            shutdown_result = self.run_shutdown_command(self.get_shutdown_command())
+            self.result[EXECUTIONS].append({NAME: SHUTDOWN_REGION, RC: shutdown_result.pop(RC), RETURN: shutdown_result})
             self.wait_for_successful_shutdown()
         else:
             self.logger.debug(CICS_NOT_ACTIVE)
 
     def wait_for_successful_shutdown(self):  # type: () -> None
-        region_running, result = self.is_job_running()
+        region_running = self.is_job_running()
         while region_running:
             self.logger.debug(ACTIVE_AND_WAITING)
-            region_running, result = self.is_job_running()
+            region_running = self.is_job_running()
             time.sleep(15)
         self.logger.debug(SHUTDOWN_SUCCESS)
-        self.result[EXECUTIONS].append({CHECK_CICS_STATUS: result})
+        self.result[EXECUTIONS].append({NAME: CHECK_CICS_STATUS.format(self.module_args[JOB_NAME]), RETURN: self.jobs})
 
-    def is_job_running(self):  # type: () -> tuple[bool, dict]
-        result = self._get_job_query_result()
-        if result.get(FAILED) is True:
+    def is_job_running(self):  # type: () -> bool
+        self.jobs = self._get_job_query_result()
+        if self.jobs.get(FAILED):
             self.result[FAILED] = True
-            raise AnsibleActionFail("Job Query Failed")
+            raise AnsibleActionFail(JOB_QUERY_FAILED)
 
         # Get list of running jobs, if it's equal to 1, region is active (as cant have more than 1 running job), so
         # return true and also return query result to append to executions where needed.
-        return len([job for job in result["jobs"] if job["ret_code"] is None]) == 1, result
+        return len([job for job in self.jobs["jobs"] if job["ret_code"] is None]) == 1
 
     def _get_job_query_result(self):  # type: () -> dict
         return self._execute_module(module_name="ibm.ibm_zos_core.zos_job_query",
@@ -81,10 +86,12 @@ class ActionModule(ActionBase):
     def get_shutdown_command(self):  # type: () -> str
         job_name = self.module_args[JOB_NAME]
 
-        if self.module_args.get(IMMEDIATE) is True:
-            return DEFAULT_SHUTDOWN.format(job_name)
-        else:
+        if self.module_args.get(MODE) == IMMEDIATE:
             return IMMEDIATE_SHUTDOWN.format(job_name)
+        elif self.module_args.get(MODE) == CANCEL:
+            return CANCEL_REGION.format(job_name)
+        else:
+            return DEFAULT_SHUTDOWN.format(job_name)
 
     def run_shutdown_command(self, cmd):  # type: (str) -> dict
         shutdown_result = self._execute_module(
@@ -92,7 +99,8 @@ class ActionModule(ActionBase):
             module_args=dict(cmd=cmd),
             task_vars=self.task_vars
         )
-        if shutdown_result.get(FAILED) is True:
+        self.result["changed"] = True
+        if shutdown_result.get(FAILED):
             self.result[FAILED] = True
             raise AnsibleActionFail(SHUTDOWN_FAILED)
         return shutdown_result

@@ -1,19 +1,12 @@
 # (c) Copyright IBM Corp. 2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name: Test DFHSIP Module
-
+- name: Test Start CICS with invalid applid
+  environment: "{{ environment_vars }}"
   hosts: 'all'
   gather_facts: false
-  vars:
-    cics_data_sets:
-      template: "{{ cics_install_path }}.<< lib_name >>"
-      sdfhlic: "{{ cics_install_path }}.LIC.SDFHLIC"
-    le_data_sets:
-      template: "{{ le_path }}.<< lib_name >>"
   tasks:
-    - name: "Run DFHSIP with too long job name "
-      environment: "{{ environment_vars }}"
+    - name: Run Start CICS with too long applid
       ibm.ibm_zos_cics.start_cics:
         applid: "TOOLONGAPPLID"
         job_parameters:
@@ -21,8 +14,11 @@
           class: A
           region: 0M
           memlimit: 10G
-        cics_data_sets: "{{ cics_data_sets }}"
-        le_data_sets: "{{ le_data_sets }}"
+        cics_data_sets:
+          template: "{{ cics_install_path }}.<< lib_name >>"
+          sdfhlic: "{{ cics_install_path }}.LIC.SDFHLIC"
+        le_data_sets:
+          template: "{{ le_path }}.<< lib_name >>"
         region_data_sets:
           template: "{{ region_data_set_path }}.<< data_set_name >>"
         output_data_sets:
