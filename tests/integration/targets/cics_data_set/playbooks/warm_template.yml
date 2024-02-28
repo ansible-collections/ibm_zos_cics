@@ -1,0 +1,153 @@
+# (c) Copyright IBM Corp. 2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Test Warm state for MODULE_NAME module
+
+  hosts: "all"
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+  vars:
+    data_set_path: "{{ region_data_set_path }}.{{ data_set_name }}"
+    # Default values for template, can be overridden by command line args
+    vsam: false
+    empty_allowed: false
+
+  module_defaults:
+    ibm.ibm_zos_cics.MODULE_NAME:
+      cics_data_sets:
+        template: "{{ cics_install_path }}.<< lib_name >>"
+      region_data_sets:
+        template: "{{ region_data_set_path }}.<< data_set_name >>"
+
+  tasks:
+    # #############################################################################
+    # ############################## Initial Cleanup ##############################
+    # #############################################################################
+
+    - name: Delete {{ data_set_name }}
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ data_set_path }}"
+        state: absent
+      register: result
+      retries: 3
+      until: result is not failed
+
+    # #############################################################################
+    # ############################## Module Testing ###############################
+    # #############################################################################
+
+    - name: Run MODULE_NAME module with warm state (doesn't exist)
+      ibm.ibm_zos_cics.MODULE_NAME:
+        state: "warm"
+      register: result
+      ignore_errors: true
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ result }}"
+
+    - name: Assert {{ data_set_name }} failed to create
+      ansible.builtin.assert:
+        that:
+          - result.failed == true
+          - result.changed == false
+          - result.start_state.exists == false
+          - result.end_state.exists == false
+          - "'msg' in result"
+          - "'Data set {{ data_set_path }} does not exist.' in result.msg"
+
+    # #############################################################################
+
+    - name: Run MODULE_NAME module with initial state
+      ibm.ibm_zos_cics.MODULE_NAME:
+        state: "initial"
+      register: result
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ result }}"
+
+    - name: Assert {{ data_set_name }} created
+      ansible.builtin.assert:
+        that:
+          - result.failed == false
+          - result.changed == true
+          - result.start_state.exists == false
+          - result.end_state.exists == true
+
+    # #############################################################################
+
+    - name: Run MODULE_NAME module with warm state (exists but empty)
+      ibm.ibm_zos_cics.MODULE_NAME:
+        state: "warm"
+      register: result
+      ignore_errors: true
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ result }}"
+
+    # Some data sets will successfully warm start when the data set is empty
+    - name: Assert {{ data_set_name }} created
+      when: empty_allowed
+      ansible.builtin.assert:
+        that:
+          - result.failed == false
+          - result.changed == false
+          - result.start_state.exists == true
+          - result.end_state.exists == true
+
+    # Some data sets will fail to warm start when the data set is empty
+    - name: Assert {{ data_set_name }} failed to create
+      when: not empty_allowed
+      ansible.builtin.assert:
+        that:
+          - result.failed == true
+          - result.changed == false
+          - result.start_state.exists == true
+          - result.end_state.exists == true
+          - "'msg' in result"
+          - ("'Data set {{ data_set_path }} is empty.' in result.msg")
+            or
+            ("'Unused catalog. The catalog must be used by CICS before doing a warm start.' in result.msg'")
+
+    # #############################################################################
+
+    # For sequential data sets, we can add some arbitrary text to allow a successful warm start to run.
+    # TODO Is there something equivalent we can do for VSAM data sets?
+    - name: Add text to sequential data sets
+      when: not vsam
+      block:
+      - name: Add an arbitrary line of text to the data set
+        ibm.ibm_zos_core.zos_lineinfile:
+          src: "{{ data_set_path }}"
+          line: "Blah"
+        register: result
+        retries: 3
+        until: result is not failed
+        delay: 5
+
+      - name: Run MODULE_NAME module with warm state (should succeed)
+        ibm.ibm_zos_cics.MODULE_NAME:
+          state: "warm"
+        register: result
+      - name: Debug
+        ansible.builtin.debug:
+          msg: "{{ result }}"
+
+      - name: Assert {{ data_set_name }} created
+        ansible.builtin.assert:
+          that:
+            - result.failed == false
+            - result.changed == false
+            - result.start_state.exists == true
+            - result.end_state.exists == true
+
+    # #############################################################################
+    # ################################## Cleanup ##################################
+    # #############################################################################
+
+    - name: Delete {{ data_set_name }}
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ data_set_path }}"
+        state: absent
+      register: result
+      retries: 3
+      until: result is changed
