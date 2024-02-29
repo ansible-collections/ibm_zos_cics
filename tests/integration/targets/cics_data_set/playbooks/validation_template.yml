@@ -31,90 +31,97 @@
     # ############################## Module Testing ###############################
     # #############################################################################
 
-    - name: Missing region_data_sets
-      ibm.ibm_zos_cics.MODULE_NAME:
-        state: absent
-      register: result
-      ignore_errors: true
-    - name: Debug
-      ansible.builtin.debug:
-        msg: "{{ result }}"
+    - name: Wrap test in block so cleanup always runs
+      block:
+      - name: Missing region_data_sets
+        ibm.ibm_zos_cics.MODULE_NAME:
+          state: absent
+        register: result
+        ignore_errors: true
+      - name: Debug
+        ansible.builtin.debug:
+          msg: "{{ result }}"
 
-    - name: Assert Failure
-      ansible.builtin.assert:
-        that:
-          - result.failed == true
-          - result.changed == false
-          - result.msg == "region_data_sets required"
+      - name: Assert Failure
+        ansible.builtin.assert:
+          that:
+            - result.failed == true
+            - result.changed == false
+            - result.msg == "region_data_sets required"
 
-    # #############################################################################
+      # #############################################################################
 
-    - name: Missing template and dsn
-      ibm.ibm_zos_cics.MODULE_NAME:
-        region_data_sets:
-          template:
-          DATA_SET_NAME_LOWER:
-            dsn:
-        state: absent
-      register: result
-      ignore_errors: true
-    - name: Debug
-      ansible.builtin.debug:
-        msg: "{{ result }}"
+      - name: Missing template and dsn
+        ibm.ibm_zos_cics.MODULE_NAME:
+          region_data_sets:
+            template:
+            DATA_SET_NAME_LOWER:
+              dsn:
+          state: absent
+        register: result
+        ignore_errors: true
+      - name: Debug
+        ansible.builtin.debug:
+          msg: "{{ result }}"
 
-    - name: Assert Failure
-      ansible.builtin.assert:
-        that:
-          - result.failed == true
-          - result.changed == false
-          - result.msg == "Specify either template or DATA_SET_NAME_LOWER in region_data_sets"
+      - name: Assert Failure
+        ansible.builtin.assert:
+          that:
+            - result.failed == true
+            - result.changed == false
+            - result.msg == "Specify either template or DATA_SET_NAME_LOWER in region_data_sets"
 
-    # #############################################################################
+      # #############################################################################
 
-    - name: Bad dsn
-      ibm.ibm_zos_cics.MODULE_NAME:
-        region_data_sets:
-          template: "{{ region_data_set_path }}..."
-        state: absent
-      register: result
-      ignore_errors: true
-    - name: Debug
-      ansible.builtin.debug:
-        msg: "{{ result }}"
+      - name: Bad dsn
+        ibm.ibm_zos_cics.MODULE_NAME:
+          region_data_sets:
+            template: "{{ region_data_set_path }}..."
+          state: absent
+        register: result
+        ignore_errors: true
+      - name: Debug
+        ansible.builtin.debug:
+          msg: "{{ result }}"
 
-    - name: Assert Failure
-      ansible.builtin.assert:
-        that:
-          - result.failed == true
-          - result.changed == false
-          - result.rc == 1
-          - "'exception' in result"
-          - "'Invalid argument \"{{ region_data_set_path }}...\" for type \"data_set_base\".' in result.exception"
+      - name: Assert Failure
+        ansible.builtin.assert:
+          that:
+            - result.failed == true
+            - result.changed == false
+            - result.rc == 1
+            - "'exception' in result"
+            - "'Invalid argument \"{{ region_data_set_path }}...\" for type \"data_set_base\".' in result.exception"
 
-    # #############################################################################
+      # #############################################################################
 
-    - name: Lowercase dsn
-      ibm.ibm_zos_cics.MODULE_NAME:
-        region_data_sets:
-          template: "{{ data_set_path | lower }}"
-        state: "initial"
-      register: result
-    - name: Debug
-      ansible.builtin.debug:
-        msg: "{{ result }}"
+      - name: Lowercase dsn
+        ibm.ibm_zos_cics.MODULE_NAME:
+          region_data_sets:
+            template: "{{ data_set_path | lower }}"
+          state: "initial"
+        register: result
+      - name: Debug
+        ansible.builtin.debug:
+          msg: "{{ result }}"
 
-    - name: Assert {{ data_set_name }} created
-      ansible.builtin.assert:
-        that:
-          - result.failed == false
-          - result.changed == true
-          - result.start_state.exists == false
-          - result.end_state.exists == true
+      - name: Assert {{ data_set_name }} created
+        ansible.builtin.assert:
+          that:
+            - result.failed == false
+            - result.changed == true
+            - result.start_state.exists == false
+            - result.end_state.exists == true
 
-    - name: Delete upper case {{ data_set_name }} (changed is true)
-      ibm.ibm_zos_core.zos_data_set:
-        name: "{{ data_set_path | upper }}"
-        state: absent
-      register: result
-      retries: 3
-      until: result is changed
+      # #############################################################################
+      # ################################## Cleanup ##################################
+      # #############################################################################
+
+      always:
+      - name: Delete upper case {{ data_set_name }}
+        ibm.ibm_zos_core.zos_data_set:
+          name: "{{ data_set_path | upper }}"
+          state: absent
+        register: result
+        retries: 3
+        until: result is changed
