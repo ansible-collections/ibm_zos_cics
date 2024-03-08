@@ -16,7 +16,7 @@ class _ModuleActionPlugin(ActionBase):
         if not region_data_sets.get(ds_name, None) or not region_data_sets.get(ds_name).get("dsn", None):
             # Template?
             if region_data_sets.get("template", None):
-                dsn = self._template_dsn(
+                dsn = _template_dsn(
                     _templar=self._templar,
                     task_vars=task_vars,
                     var_name="data_set_name",
@@ -52,7 +52,7 @@ class _ModuleActionPlugin(ActionBase):
             if not cics_data_sets.get("template", None):
                 raise KeyError(
                     "Specify either template or sdfhload in cics_data_sets")
-            dsn = self._template_dsn(
+            dsn = _template_dsn(
                 _templar=self._templar,
                 task_vars=task_vars,
                 var_name="lib_name",
@@ -69,15 +69,6 @@ class _ModuleActionPlugin(ActionBase):
                 }
             )
         return module_args
-
-    def _template_dsn(self, _templar, task_vars, var_name, replace_val, template):
-        cpy = task_vars.copy()
-        cpy.update({var_name: replace_val})
-        return _templar.copy_with_new_env(
-            variable_start_string="<<",
-            variable_end_string=">>",
-            available_variables=cpy,
-        ).template(template)
 
     def _run(self, ds_name, module_name, cics_data_sets_required, tmp=None, task_vars=None):
         super(_ModuleActionPlugin, self).run(tmp, task_vars)
@@ -103,3 +94,13 @@ class _ModuleActionPlugin(ActionBase):
             task_vars=task_vars,
             tmp=tmp,
         )
+
+
+def _template_dsn(_templar, task_vars, var_name, replace_val, template):
+    cpy = task_vars.copy()
+    cpy.update({var_name: replace_val})
+    return _templar.copy_with_new_env(
+        variable_start_string="<<",
+        variable_end_string=">>",
+        available_variables=cpy,
+    ).template(template)

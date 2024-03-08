@@ -4,9 +4,15 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import CYLINDERS, MEGABYTES
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException, _execution
-from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE, CSDUP_name, CSDUP_stderr, CSDUP_stdout
+from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
+    PYTHON_LANGUAGE_FEATURES_MESSAGE,
+    CSDUP_name,
+    CSDUP_stderr,
+    CSDUP_initialize_stdout
+)
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.csd import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
@@ -95,11 +101,11 @@ def test_csdup_response():
     }
 
     expected_executions = [
-        _execution(name=CSDUP_name(), rc=0, stdout=CSDUP_stdout(NAME), stderr=CSDUP_stderr(NAME)),
+        _execution(name=CSDUP_name(), rc=0, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)),
     ]
 
-    csd._execute_dfhcsdup = MagicMock(return_value=MVSCmdResponse(rc=0, stdout=CSDUP_stdout(NAME), stderr=CSDUP_stderr(NAME)))
-    executions = csd._run_dfhcsdup(csd_input)
+    csd._execute_dfhcsdup = MagicMock(return_value=MVSCmdResponse(rc=0, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)))
+    executions = csd._run_dfhcsdup(csd_input, csd._get_csdup_initilize_cmd())
 
     assert executions == expected_executions
 
@@ -117,13 +123,13 @@ def test_bad_csdup_response():
     }
 
     expected_executions = [
-        _execution(name=CSDUP_name(), rc=99, stdout=CSDUP_stdout(NAME), stderr=CSDUP_stderr(NAME)),
+        _execution(name=CSDUP_name(), rc=99, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)),
     ]
 
-    csd._execute_dfhcsdup = MagicMock(return_value=MVSCmdResponse(rc=99, stdout=CSDUP_stdout(NAME), stderr=CSDUP_stderr(NAME)))
+    csd._execute_dfhcsdup = MagicMock(return_value=MVSCmdResponse(rc=99, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)))
 
     try:
-        csd._run_dfhcsdup(csd_input)
+        csd._run_dfhcsdup(csd_input, csd._get_csdup_initilize_cmd())
     except MVSExecutionException as e:
         error_message = e.message
         executions = e.executions
