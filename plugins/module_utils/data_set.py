@@ -5,16 +5,18 @@
 
 from __future__ import (absolute_import, division, print_function)
 
+
 __metaclass__ = type
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set_utils import (
     _build_idcams_define_cmd,
     _run_idcams,
     _run_listds,
     _run_iefbr14
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import _run_icetool
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
 
@@ -166,7 +168,7 @@ class DataSet():
         # Optional parameters
         if params.get(SPACE_TYPE):
             self.unit = params[SPACE_TYPE]
-        if params.get(CICS_DATA_SETS):
+        if params.get(CICS_DATA_SETS) and params.get(CICS_DATA_SETS).get("sdfhload"):
             self.sdfhload = params[CICS_DATA_SETS]["sdfhload"].upper()
         if params.get(DESTINATION):
             self.destination = params[DESTINATION]
@@ -185,9 +187,9 @@ class DataSet():
             self.executions.extend(idcams_executions)
 
             self.changed = True
-        except Exception as e:
-            self.executions.extend(e.args[1])
-            self._fail(e.args[0])
+        except MVSExecutionException as e:
+            self.executions.extend(e.executions)
+            self._fail(e.message)
 
     def build_seq_data_set(self, ddname, definition):  # type: (str, DatasetDefinition) -> None
         try:
@@ -195,9 +197,9 @@ class DataSet():
             self.executions.extend(iefbr14_executions)
 
             self.changed = True
-        except Exception as e:
-            self.executions.extend(e.args[1])
-            self._fail(e.args[0])
+        except MVSExecutionException as e:
+            self.executions.extend(e.executions)
+            self._fail(e.message)
 
     def delete_data_set(self):  # type: () -> None
         if self.exists:
@@ -213,9 +215,9 @@ class DataSet():
                     delete=True)
                 self.executions.extend(idcams_executions)
                 self.changed = True
-            except Exception as e:
-                self.executions.extend(e.args[1])
-                self._fail(e.args[0])
+            except MVSExecutionException as e:
+                self.executions.extend(e.executions)
+                self._fail(e.message)
 
     def init_data_set(self):   # type: () -> None
         if self.exists:
@@ -236,9 +238,9 @@ class DataSet():
                 self.executions.extend(icetool_executions)
                 if record_count <= 0:
                     self._fail("Data set {0} is empty.".format(self.name))
-            except Exception as e:
-                self.executions.extend(e.args[1])
-                self._fail(e.args[0])
+            except MVSExecutionException as e:
+                self.executions.extend(e.executions)
+                self._fail(e.message)
         else:
             self._fail("Data set {0} does not exist.".format(self.name))
 
@@ -258,15 +260,12 @@ class DataSet():
 
     def update_data_set_state(self):   # type: () -> None
         try:
-            listds_executions, ds_status = _run_listds(self.name)
-
-            self.exists = ds_status["exists"]
-            self.data_set_organization = ds_status["data_set_organization"]
+            listds_executions, self.exists, self.data_set_organization = _run_listds(self.name)
 
             self.executions.extend(listds_executions)
-        except Exception as e:
-            self.executions.extend(e.args[1])
-            self._fail(e.args[0])
+        except MVSExecutionException as e:
+            self.executions.extend(e.executions)
+            self._fail(e.message)
 
     def main(self):  # type: () -> None
         self.update_data_set_state()

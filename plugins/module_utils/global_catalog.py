@@ -9,18 +9,18 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd, MVSCmdResponse
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import MVS_CMD_RETRY_ATTEMPTS
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException, _execution
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set_utils import MVS_CMD_RETRY_ATTEMPTS
 
 
-def _get_value_from_line(line):  # type: (str) -> str
+def _get_value_from_line(line):  # type: (list[str]) -> str | None
     val = None
     if len(line) == 1:
         val = line[0].split(":")[1]
     return val
 
 
-def _get_filtered_list(elements, target):  # type: (list(str),str) -> list
+def _get_filtered_list(elements, target):  # type: (list[str],str) -> list[str]
     return list(filter(lambda x: target in x, elements))
 
 
@@ -36,23 +36,21 @@ def _get_rmutl_dds(
     ]
 
 
-def _get_reason_code(filtered):  # type: (list(str)) -> str
+def _get_reason_code(filtered):  # type: (list[str]) -> str | None
     if len(filtered) == 0:
-        raise Exception(
-            "DFHRMUTL failed with RC 16 but no reason code was found")
+        return None
 
     elements2 = list(filtered[0].split(','))
     filtered2 = list(filter(lambda x: "REASON:X" in x, elements2))
     if len(filtered2) == 0:
-        raise Exception(
-            "DFHRMUTL failed with RC 16 but no reason code was found")
+        return None
 
     elements3 = [element.replace("0", "")
                  for element in filtered2[0].split("'")]
     return elements3[1]
 
 
-def _get_catalog_records(stdout):  # type: (str) -> str
+def _get_catalog_records(stdout):  # type: (str) -> tuple[str | None, str | None]
     elements = ['{0}'.format(element.replace(" ", "").upper())
                 for element in stdout.split("\n")]
 
@@ -64,13 +62,15 @@ def _get_catalog_records(stdout):  # type: (str) -> str
         autostart_filtered)
     nextstart = _get_value_from_line(nextstart_filtered)
 
-    return {
-        "autostart_override": autostart_override,
-        "next_start": nextstart
-    }
+    return (autostart_override, nextstart)
 
 
-def _run_dfhrmutl(location, sdfhload, cmd=""):  # type: (str, str, str) -> list()
+def _run_dfhrmutl(
+        location,  # type: str
+        sdfhload,  # type: str
+        cmd=""  # type: str
+):
+    # type: (...) -> tuple[list[dict[str, str| int]], tuple[str | None, str | None]] | list[dict[str, str| int]]
 
     executions = []
 
@@ -93,11 +93,15 @@ def _run_dfhrmutl(location, sdfhload, cmd=""):  # type: (str, str, str) -> list(
             filtered = list(filter(lambda x: "REASON:X" in x, elements))
 
             reason_code = _get_reason_code(filtered)
-            if reason_code != "A8":
-                raise Exception(
+            if reason_code and reason_code != "A8":
+                raise MVSExecutionException(
                     "DFHRMUTL failed with RC 16 - {0}".format(filtered[0]), executions)
+            elif reason_code is None:
+                raise MVSExecutionException(
+                    "DFHRMUTL failed with RC 16 but no reason code was found", executions)
+
         else:
-            raise Exception(
+            raise MVSExecutionException(
                 "DFHRMUTL failed with RC {0}".format(
                     dfhrmutl_response.rc), executions)
 

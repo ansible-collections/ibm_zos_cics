@@ -7,9 +7,10 @@ import sys
 import os
 
 # This needs to be set before the imports get evaluated!
-os.environ['ANSIBLE_COLLECTIONS_PATHS'] = os.path.abspath('../../../..')
+os.environ['ANSIBLE_COLLECTIONS_PATH'] = os.path.abspath('../../../..')
 
 from ansible_doc_extractor.cli import render_docs
+from ansible.plugins.loader import init_plugin_loader
 
 if __name__ == '__main__':
     relpath = '../plugins/modules'
@@ -22,4 +23,5 @@ if __name__ == '__main__':
             )
         )
     )
-    sys.exit(render_docs('source/modules', modules, open('templates/module.rst.j2')))
+    init_plugin_loader()
+    sys.exit(render_docs('source/modules', modules, open('templates/module.rst.j2'), False))

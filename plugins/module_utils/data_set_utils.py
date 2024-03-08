@@ -8,14 +8,14 @@ __metaclass__ = type
 import re
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.mvs_cmd import idcams, ikjeft01
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, MVSExecutionException
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DDStatement
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DDStatement, DatasetDefinition
 
 MVS_CMD_RETRY_ATTEMPTS = 10
 
 
-def _run_idcams(cmd, name, location, delete=False):  # type: (str, str, str, bool) -> list(_execution)
+def _run_idcams(cmd, name, location, delete=False):  # type: (str, str, str, bool) -> list[dict[str, str| int]]
     executions = []
 
     for x in range(MVS_CMD_RETRY_ATTEMPTS):
@@ -32,7 +32,7 @@ def _run_idcams(cmd, name, location, delete=False):  # type: (str, str, str, boo
             break
 
     if location.upper() not in stdout.upper():
-        raise Exception("IDCAMS Command output not recognised", executions)
+        raise MVSExecutionException("IDCAMS Command output not recognised", executions)
 
     if delete:
         pattern = r"^.+ENTRY\(A|C|D|I\){0}DELETED+$".format(location.upper())
@@ -48,13 +48,13 @@ def _run_idcams(cmd, name, location, delete=False):  # type: (str, str, str, boo
             "").replace(
             "\n",
                 ""))):
-            raise Exception("RC {0} when deleting data set".format(rc), executions)
+            raise MVSExecutionException("RC {0} when deleting data set".format(rc), executions)
     else:
         if rc == 12 and "NOTDEFINEDBECAUSEDUPLICATENAMEEXISTSINCATALOG" in stdout.upper(
         ).replace(" ", "").replace("\n", ""):
             return executions
         if rc != 0:
-            raise Exception("RC {0} when creating data set".format(rc), executions)
+            raise MVSExecutionException("RC {0} when creating data set".format(rc), executions)
 
     return executions
 
@@ -115,7 +115,7 @@ def _build_idcams_define_parms(dataset, parm):  # type: (dict, str) -> str
     return parmsStr
 
 
-def _run_listds(location):
+def _run_listds(location):  # type: (str) -> tuple[list[_execution], bool, str]
     cmd = " LISTDS '{0}'".format(location)
     executions = []
 
@@ -132,17 +132,17 @@ def _run_listds(location):
             break
 
     if location.upper() not in stdout.upper():
-        raise Exception("LISTDS Command output not recognised", executions)
+        raise MVSExecutionException("LISTDS Command output not recognised", executions)
 
     # DS Name in output, good output
 
     if rc == 8 and "NOT IN CATALOG" in stdout:
-        return executions, dict(exists=False, data_set_organization="NONE")
+        return executions, False, "NONE"
 
     # Exists
 
     if rc != 0:
-        raise Exception("RC {0} running LISTDS Command".format(rc), executions)
+        raise MVSExecutionException("RC {0} running LISTDS Command".format(rc), executions)
 
     # Exists, RC 0
 
@@ -163,10 +163,10 @@ def _run_listds(location):
     else:
         data_set_organization = "Unspecified"
 
-    return executions, dict(exists=True, data_set_organization=data_set_organization)
+    return executions, True, data_set_organization
 
 
-def _run_iefbr14(ddname, definition):  # type: (str, DatasetDefinition) -> list(dict)
+def _run_iefbr14(ddname, definition):  # type: (str, DatasetDefinition) -> list[dict[str, str| int]]
 
     executions = []
 
@@ -184,14 +184,14 @@ def _run_iefbr14(ddname, definition):  # type: (str, DatasetDefinition) -> list(
         if iefbr14_response.rc == 0:
             break
         else:
-            raise Exception(
+            raise MVSExecutionException(
                 "RC {0} when creating sequential data set".format(
                     iefbr14_response.rc), executions)
 
     return executions
 
 
-def _get_iefbr14_dds(ddname, definition):  # type: (str, DatasetDefinition) -> list(DDStatement)
+def _get_iefbr14_dds(ddname, definition):  # type: (str, DatasetDefinition) -> list[DDStatement]
     return [DDStatement(ddname, definition)]
 
 

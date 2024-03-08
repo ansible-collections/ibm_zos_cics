@@ -18,8 +18,8 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
 __metaclass__ = type
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import dataset_utils
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import data_set_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException, _execution
 import pytest
 import sys
 
@@ -31,43 +31,43 @@ except ImportError:
 
 def test_unit_size_m():
     unit = "M"
-    unit_string = dataset_utils._get_dataset_size_unit(unit)
+    unit_string = data_set_utils._get_dataset_size_unit(unit)
     assert unit_string == "MEGABYTES"
 
 
 def test_unit_size_k():
     unit = "K"
-    unit_string = dataset_utils._get_dataset_size_unit(unit)
+    unit_string = data_set_utils._get_dataset_size_unit(unit)
     assert unit_string == "KILOBYTES"
 
 
 def test_unit_size_cyl():
     unit = "CYL"
-    unit_string = dataset_utils._get_dataset_size_unit(unit)
+    unit_string = data_set_utils._get_dataset_size_unit(unit)
     assert unit_string == "CYLINDERS"
 
 
 def test_unit_size_rec():
     unit = "REC"
-    unit_string = dataset_utils._get_dataset_size_unit(unit)
+    unit_string = data_set_utils._get_dataset_size_unit(unit)
     assert unit_string == "RECORDS"
 
 
 def test_unit_size_trk():
     unit = "TRK"
-    unit_string = dataset_utils._get_dataset_size_unit(unit)
+    unit_string = data_set_utils._get_dataset_size_unit(unit)
     assert unit_string == "TRACKS"
 
 
 def test_unit_size_bad_unit():
     unit = "FISHES"
-    unit_string = dataset_utils._get_dataset_size_unit(unit)
+    unit_string = data_set_utils._get_dataset_size_unit(unit)
     assert unit_string == "MEGABYTES"
 
 
 def test_unit_size_empty():
     unit = ""
-    unit_string = dataset_utils._get_dataset_size_unit(unit)
+    unit_string = data_set_utils._get_dataset_size_unit(unit)
     assert unit_string == "MEGABYTES"
 
 
@@ -76,11 +76,11 @@ def test__run_idcams_create():
     rc = 0
     stdout = IDCAMS_create_stdout(location)
     stderr = ""
-    dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
     cmd = IDCAMS_run_cmd(location)
 
-    result_exececutions = dataset_utils._run_idcams(
+    result_exececutions = data_set_utils._run_idcams(
         cmd=cmd,
         name="Create Catalog",
         location=location,
@@ -100,11 +100,11 @@ def test__run_idcams_create_exists():
     rc = 12
     stdout = IDCAMS_create_already_exists_stdout(location)
     stderr = ""
-    dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
     cmd = IDCAMS_run_cmd(location)
 
-    result_exececutions = dataset_utils._run_idcams(
+    result_exececutions = data_set_utils._run_idcams(
         cmd=cmd,
         name="Create Catalog",
         location=location,
@@ -124,13 +124,13 @@ def test__run_idcams_delete():
     rc = 0
     stdout = IDCAMS_delete_vsam(location)
     stderr = ""
-    dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
     cmd = '''
         DELETE {0}
     '''.format(location)
 
-    result_exececutions = dataset_utils._run_idcams(
+    result_exececutions = data_set_utils._run_idcams(
         cmd=cmd,
         name="Remove Catalog",
         location=location,
@@ -150,13 +150,13 @@ def test__run_idcams_delete_no_exist():
     rc = 8
     stdout = IDCAMS_delete_not_found(location)
     stderr = ""
-    dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
     cmd = '''
         DELETE {0}
     '''.format(location)
 
-    result_exececutions = dataset_utils._run_idcams(
+    result_exececutions = data_set_utils._run_idcams(
         cmd=cmd,
         name="Remove Catalog",
         location=location,
@@ -176,7 +176,7 @@ def test__run_idcams_bad_return_code_when_creating():
     rc = 99
     stdout = IDCAMS_create_stdout(location)
     stderr = ""
-    dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
     cmd = '''
     DEFINE CLUSTER -
@@ -200,14 +200,14 @@ def test__run_idcams_bad_return_code_when_creating():
     ]
 
     try:
-        dataset_utils._run_idcams(
+        data_set_utils._run_idcams(
             cmd=cmd,
             name="Create Catalog",
             location=location,
             delete=False)
-    except Exception as e:
-        assert e.args[0] == "RC 99 when creating data set"
-        assert e.args[1] == expected_executions
+    except MVSExecutionException as e:
+        assert e.message == "RC 99 when creating data set"
+        assert e.executions == expected_executions
 
 
 def test__run_idcams_bad_return_code_when_deleting():
@@ -215,7 +215,7 @@ def test__run_idcams_bad_return_code_when_deleting():
     rc = 99
     stdout = IDCAMS_delete_vsam(location)
     stderr = ""
-    dataset_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
 
     cmd = '''
         DELETE {0}
@@ -226,14 +226,14 @@ def test__run_idcams_bad_return_code_when_deleting():
     ]
 
     try:
-        dataset_utils._run_idcams(
+        data_set_utils._run_idcams(
             cmd=cmd,
             name="Remove Catalog",
             location=location,
             delete=True)
-    except Exception as e:
-        assert e.args[0] == "RC 99 when deleting data set"
-        assert e.args[1] == expected_executions
+    except MVSExecutionException as e:
+        assert e.message == "RC 99 when deleting data set"
+        assert e.executions == expected_executions
 
 
 def test__run_listds_exists_vsam():
@@ -241,9 +241,9 @@ def test__run_listds_exists_vsam():
     rc = 0
     stdout = LISTDS_data_set(location, "VSAM")
     stderr = ""
-    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
-    result_exececutions, result_status = dataset_utils._run_listds(location)
+    result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
 
     assert len(result_exececutions) == 1
     assert result_exececutions[0] == {
@@ -252,10 +252,8 @@ def test__run_listds_exists_vsam():
         "stdout": stdout,
         "stderr": stderr,
     }
-    assert result_status == {
-        "exists": True,
-        "data_set_organization": "VSAM"
-    }
+    assert exists is True
+    assert ds_org == "VSAM"
 
 
 def test__run_listds_exists_sequential():
@@ -263,9 +261,9 @@ def test__run_listds_exists_sequential():
     rc = 0
     stdout = LISTDS_data_set(location, "PS")
     stderr = ""
-    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
-    result_exececutions, result_status = dataset_utils._run_listds(location)
+    result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
 
     assert len(result_exececutions) == 1
     assert result_exececutions[0] == {
@@ -274,10 +272,8 @@ def test__run_listds_exists_sequential():
         "stdout": stdout,
         "stderr": stderr,
     }
-    assert result_status == {
-        "exists": True,
-        "data_set_organization": "Sequential"
-    }
+    assert exists is True
+    assert ds_org == "Sequential"
 
 
 def test__run_listds_exists_partitioned():
@@ -285,9 +281,9 @@ def test__run_listds_exists_partitioned():
     rc = 0
     stdout = LISTDS_data_set(location, "PO")
     stderr = ""
-    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
-    result_exececutions, result_status = dataset_utils._run_listds(location)
+    result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
 
     assert len(result_exececutions) == 1
     assert result_exececutions[0] == {
@@ -296,10 +292,8 @@ def test__run_listds_exists_partitioned():
         "stdout": stdout,
         "stderr": stderr,
     }
-    assert result_status == {
-        "exists": True,
-        "data_set_organization": "Partitioned"
-    }
+    assert exists is True
+    assert ds_org == "Partitioned"
 
 
 def test__run_listds_exists_indexed_sequential():
@@ -307,9 +301,9 @@ def test__run_listds_exists_indexed_sequential():
     rc = 0
     stdout = LISTDS_data_set(location, "IS")
     stderr = ""
-    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
-    result_exececutions, result_status = dataset_utils._run_listds(location)
+    result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
 
     assert len(result_exececutions) == 1
     assert result_exececutions[0] == {
@@ -318,10 +312,8 @@ def test__run_listds_exists_indexed_sequential():
         "stdout": stdout,
         "stderr": stderr,
     }
-    assert result_status == {
-        "exists": True,
-        "data_set_organization": "Indexed Sequential"
-    }
+    assert exists is True
+    assert ds_org == "Indexed Sequential"
 
 
 def test__run_listds_exists_direct_access():
@@ -329,9 +321,9 @@ def test__run_listds_exists_direct_access():
     rc = 0
     stdout = LISTDS_data_set(location, "DA")
     stderr = ""
-    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
-    result_exececutions, result_status = dataset_utils._run_listds(location)
+    result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
 
     assert len(result_exececutions) == 1
     assert result_exececutions[0] == {
@@ -340,10 +332,8 @@ def test__run_listds_exists_direct_access():
         "stdout": stdout,
         "stderr": stderr,
     }
-    assert result_status == {
-        "exists": True,
-        "data_set_organization": "Direct Access"
-    }
+    assert exists is True
+    assert ds_org == "Direct Access"
 
 
 def test__run_listds_exists_other():
@@ -351,9 +341,9 @@ def test__run_listds_exists_other():
     rc = 0
     stdout = LISTDS_data_set(location, "??")
     stderr = ""
-    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
-    result_exececutions, result_status = dataset_utils._run_listds(location)
+    result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
 
     assert len(result_exececutions) == 1
     assert result_exececutions[0] == {
@@ -362,10 +352,8 @@ def test__run_listds_exists_other():
         "stdout": stdout,
         "stderr": stderr,
     }
-    assert result_status == {
-        "exists": True,
-        "data_set_organization": "Other"
-    }
+    assert exists is True
+    assert ds_org == "Other"
 
 
 def test__run_listds_exists_unspecified():
@@ -373,9 +361,9 @@ def test__run_listds_exists_unspecified():
     rc = 0
     stdout = LISTDS_data_set(location, "**")
     stderr = ""
-    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
-    result_exececutions, result_status = dataset_utils._run_listds(location)
+    result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
 
     assert len(result_exececutions) == 1
     assert result_exececutions[0] == {
@@ -384,10 +372,8 @@ def test__run_listds_exists_unspecified():
         "stdout": stdout,
         "stderr": stderr,
     }
-    assert result_status == {
-        "exists": True,
-        "data_set_organization": "Unspecified"
-    }
+    assert exists is True
+    assert ds_org == "Unspecified"
 
 
 def test__run_listds_bad_rc():
@@ -396,15 +382,15 @@ def test__run_listds_bad_rc():
     rc = 16
     stdout = LISTDS_data_set(location, "VSAM")
     stderr = ""
-    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
     expected_executions = [_execution(name=name, rc=rc, stdout=stdout, stderr=stderr)]
 
     try:
-        dataset_utils._run_listds(location)
-    except Exception as e:
-        assert e.args[0] == "RC 16 running LISTDS Command"
-        assert e.args[1] == expected_executions
+        data_set_utils._run_listds(location)
+    except MVSExecutionException as e:
+        assert e.message == "RC 16 running LISTDS Command"
+        assert e.executions == expected_executions
 
 
 def test__run_listds_not_exists():
@@ -412,10 +398,9 @@ def test__run_listds_not_exists():
     rc = 8
     stdout = LISTDS_data_set_doesnt_exist(location)
     stderr = ""
-    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
-    result_exececutions, result_status = dataset_utils._run_listds(
-        location)
+    result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
 
     assert len(result_exececutions) == 1
     assert result_exececutions[0] == {
@@ -424,17 +409,15 @@ def test__run_listds_not_exists():
         "stdout": stdout,
         "stderr": stderr,
     }
-    assert result_status == {
-        "exists": False,
-        "data_set_organization": "NONE",
-    }
+    assert exists is False
+    assert ds_org == "NONE"
 
 
 def test__run_listds_with_no_zoau_response():
     rc = 0
     stdout = ""
     stderr = ""
-    dataset_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
 
     expected_executions = [
         _execution(name=LISTDS_run_name(1), rc=rc, stdout=stdout, stderr=stderr),
@@ -450,10 +433,10 @@ def test__run_listds_with_no_zoau_response():
     ]
 
     try:
-        dataset_utils._run_listds("LOCATION THATS NOT IN STDOUT")
-    except Exception as e:
-        assert e.args[0] == "LISTDS Command output not recognised"
-        assert e.args[1] == expected_executions
+        data_set_utils._run_listds("LOCATION THATS NOT IN STDOUT")
+    except MVSExecutionException as e:
+        assert e.message == "LISTDS Command output not recognised"
+        assert e.executions == expected_executions
 
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE)
@@ -461,7 +444,7 @@ def test__run_iefbr14():
     rc = 0
     stdout = ""
     stderr = ""
-    dataset_utils.MVSCmd.execute = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
+    data_set_utils.MVSCmd.execute = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     definition = DatasetDefinition(
         dataset_name="DFHTEST",
@@ -476,7 +459,7 @@ def test__run_iefbr14():
         type="SEQ"
     )
 
-    result_exececutions = dataset_utils._run_iefbr14(
+    result_exececutions = data_set_utils._run_iefbr14(
         ddname="DFHIEFT",
         definition=definition
     )

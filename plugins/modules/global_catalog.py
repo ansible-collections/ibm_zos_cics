@@ -242,7 +242,8 @@ executions:
       returned: always
 """
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set_utils import (
     _build_idcams_define_cmd
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
@@ -377,9 +378,9 @@ class AnsibleGlobalCatalogModule(DataSet):
                 cmd="SET_AUTO_START=AUTOINIT")
             self.changed = True
             self.executions.extend(dfhrmutl_executions)
-        except Exception as e:
-            self.executions.extend(e.args[1])
-            self._fail(e.args[0])
+        except MVSExecutionException as e:
+            self.executions.extend(e.executions)
+            self._fail(e.message)
 
     def warm_data_set(self):  # type: () -> None
         super().warm_data_set()
@@ -400,9 +401,9 @@ class AnsibleGlobalCatalogModule(DataSet):
                 cmd="SET_AUTO_START=AUTOASIS")
             self.changed = True
             self.executions.extend(dfhrmutl_executions)
-        except Exception as e:
-            self.executions.extend(e.args[1])
-            self._fail(e.args[0])
+        except MVSExecutionException as e:
+            self.executions.extend(e.executions)
+            self._fail(e.message)
 
     def cold_data_set(self):  # type: () -> None
         if not self.exists:
@@ -425,9 +426,9 @@ class AnsibleGlobalCatalogModule(DataSet):
                 cmd="SET_AUTO_START=AUTOCOLD")
             self.changed = True
             self.executions.extend(dfhrmutl_executions)
-        except Exception as e:
-            self.executions.extend(e.args[1])
-            self._fail(e.args[0])
+        except MVSExecutionException as e:
+            self.executions.extend(e.executions)
+            self._fail(e.message)
 
     def execute_target_state(self):   # type: () -> None
         if self.target_state == ABSENT:
@@ -446,16 +447,13 @@ class AnsibleGlobalCatalogModule(DataSet):
 
         if self.exists and (self.data_set_organization == self.expected_data_set_organization):
             try:
-                dfhrmutl_executions, catalog_status = _run_dfhrmutl(
+                dfhrmutl_executions, (self.autostart_override, self.next_start) = _run_dfhrmutl(
                     self.name, self.sdfhload)
 
-                self.autostart_override = catalog_status["autostart_override"]
-                self.next_start = catalog_status["next_start"]
-
                 self.executions.extend(dfhrmutl_executions)
-            except Exception as e:
-                self.executions.extend(e.args[1])
-                self._fail(e.args[0])
+            except MVSExecutionException as e:
+                self.executions.extend(e.executions)
+                self._fail(e.message)
         else:
             self.autostart_override = ""
             self.next_start = ""

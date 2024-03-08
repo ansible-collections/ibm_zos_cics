@@ -5,6 +5,7 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 DOCUMENTATION = r'''
@@ -207,7 +208,8 @@ executions:
 """
 
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set_utils import (
     _build_idcams_define_cmd
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
@@ -282,9 +284,9 @@ class AnsibleCSDModule(DataSet):
             self.executions.extend(csdup_initialize_executions)
             csdup_consoles_executions = _run_dfhcsdup(self.get_data_set(), _get_add_dfhtermc_to_group_cmd())
             self.executions.extend(csdup_consoles_executions)
-        except Exception as e:
-            self.executions.extend(e.args[1])
-            self._fail(e.args[0])
+        except MVSExecutionException as e:
+            self.executions.extend(e.executions)
+            self._fail(e.message)
 
 
 def main():

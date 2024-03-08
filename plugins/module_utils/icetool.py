@@ -8,11 +8,11 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd, MVSCmdResponse
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.dataset_utils import MVS_CMD_RETRY_ATTEMPTS
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, MVSExecutionException
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set_utils import MVS_CMD_RETRY_ATTEMPTS
 
 
-def _get_icetool_dds(location):  # type: (str) -> list(DDStatement)
+def _get_icetool_dds(location):  # type: (str) -> list[DDStatement]
     return [
         DDStatement('sysprint', StdoutDefinition()),
         DDStatement('dd1', DatasetDefinition(dataset_name=location, disposition="SHR")),
@@ -23,7 +23,7 @@ def _get_icetool_dds(location):  # type: (str) -> list(DDStatement)
     ]
 
 
-def _get_reason_code(filtered):  # type: ([str]) -> str
+def _get_reason_code(filtered):  # type: (list[str]) -> str
     if len(filtered) == 0:
         return ""
 
@@ -37,7 +37,7 @@ def _get_reason_code(filtered):  # type: ([str]) -> str
     return elements3[1]
 
 
-def _get_record_count(stdout):  # type: (str) -> dict
+def _get_record_count(stdout):  # type: (str) -> int
     record_count = -1
     elements = ['{0}'.format(element.replace(" ", "").upper())
                 for element in stdout.split("\n")]
@@ -49,7 +49,7 @@ def _get_record_count(stdout):  # type: (str) -> dict
     return record_count
 
 
-def _run_icetool(location):  # type: (str) -> (list(_execution), dict)
+def _run_icetool(location):  # type: (str) -> tuple[list[_execution], int]
     executions = []
 
     for x in range(MVS_CMD_RETRY_ATTEMPTS):
@@ -69,16 +69,16 @@ def _run_icetool(location):  # type: (str) -> (list(_execution), dict)
 
             reason_code = _get_reason_code(filtered)
             if reason_code != "":
-                raise Exception(
+                raise MVSExecutionException(
                     "ICETOOL failed with RC {0} - {1}".format(icetool_response.rc, filtered[0]), executions)
             else:
-                raise Exception(
+                raise MVSExecutionException(
                     "ICETOOL failed with RC {0}".format(icetool_response.rc), executions)
         elif icetool_response.stdout != "":
             break
 
     if (icetool_response.stdout == "") and (icetool_response.stderr == ""):
-        raise Exception("ICETOOL Command output not recognised", executions)
+        raise MVSExecutionException("ICETOOL Command output not recognised", executions)
 
     return executions, _get_record_count(icetool_response.stdout)
 

@@ -8,7 +8,7 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdinDefinition, DatasetDefinition, DDStatement, StdoutDefinition
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd, MVSCmdResponse
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, MVSExecutionException
 
 
 def _get_csdup_dds(data_set, cmd):  # type: (dict, str) -> list[DDStatement]
@@ -36,7 +36,7 @@ def _run_dfhcsdup(data_set, cmd):  # type: (dict, str) -> list[_execution]
         stderr=dfhcsdup_response.stderr))
 
     if dfhcsdup_response.rc != 0:
-        raise Exception(
+        raise MVSExecutionException(
             "DFHCSDUP failed with RC {0}".format(
                 dfhcsdup_response.rc
             ), executions
