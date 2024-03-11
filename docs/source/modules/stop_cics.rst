@@ -12,7 +12,7 @@ stop_cics -- Query CICS and CICSPlex SM resources and definitions
 Synopsis
 --------
 
-Stop a CICS Region using CEMT PERFORM SHUTDOWN. The shutdown-assist transaction will be used if SDTRAN is specified in the CICS Region system initialisation parameters. The task will run until the region has successfully shutdown or the shutdown has failed.
+Stop a CICS region by using CEMT PERFORM SHUTDOWN. You can choose to perform a NORMAL or IMMEDIATE shutdown. During a NORMAL or IMMEDIATE shutdown, a shutdown assist program should run to enable CICS to shut down in a controlled manner. By default, the CICS-supplied shutdown assist transaction, CESD is used. You can specify a custom shutdown assist program in the SDTRAN system initialization parameter. The task runs until the region has successfully shut down, or until the shutdown fails.
 
 
 
@@ -25,7 +25,9 @@ Parameters
   job_name (True, str, None)
     Identifies the name of the job that the region was started with. Job names are 1-8 characters.
 
-    If a job name was not specified in the start-up playbook, the \ :literal:`applid`\  can be provided instead.
+    If a job name was not specified in the Start CICS playbook, the \ :literal:`applid`\  is used for the job name of the running region.
+
+    The Stop CICS module uses this job name to identify the CICS region to be shut down.
 
 
   mode (False, str, normal)
@@ -68,7 +70,7 @@ failed (always, bool, )
 
 
 executions (always, list, )
-  A list of program executions performed during the task.
+  A list of program executions performed during the Ansible task.
 
 
   name (always, str, )
