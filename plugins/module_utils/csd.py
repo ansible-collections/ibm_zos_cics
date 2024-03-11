@@ -11,23 +11,23 @@ from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw impor
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, MVSExecutionException
 
 
-def _get_csdup_dds(catalog):  # type: (dict) -> list(DDStatement)
+def _get_csdup_dds(data_set, cmd):  # type: (dict, str) -> list[DDStatement]
     return [
-        DDStatement('steplib', DatasetDefinition(catalog["sdfhload"], disposition="SHR")),
+        DDStatement('steplib', DatasetDefinition(data_set["sdfhload"], disposition="SHR")),
         DDStatement(
             'dfhcsd',
             DatasetDefinition(
-                dataset_name=catalog["name"],
+                dataset_name=data_set["name"],
                 disposition="SHR")),
         DDStatement('sysprint', StdoutDefinition()),
         DDStatement('sysudump', StdoutDefinition()),
-        DDStatement('sysin', StdinDefinition(content=_get_csdupcmd())),
+        DDStatement('sysin', StdinDefinition(content=cmd)),
     ]
 
 
-def _run_dfhcsdup(starting_catalog):  # type: (dict) -> list(_execution)
+def _run_dfhcsdup(data_set, cmd):  # type: (dict, str) -> list[_execution]
     executions = []
-    dfhcsdup_response = _execute_dfhcsdup(starting_catalog)
+    dfhcsdup_response = _execute_dfhcsdup(data_set, cmd)
 
     executions.append(_execution(
         name="DFHCSDUP - Initialise CSD",
@@ -44,19 +44,20 @@ def _run_dfhcsdup(starting_catalog):  # type: (dict) -> list(_execution)
     return executions
 
 
-def _execute_dfhcsdup(starting_catalog):  # type: (dict) -> MVSCmdResponse
+def _execute_dfhcsdup(data_set, cmd):  # type: (dict, str) -> MVSCmdResponse
     return MVSCmd.execute(
         pgm="DFHCSDUP",
-        dds=_get_csdup_dds(catalog=starting_catalog),
+        dds=_get_csdup_dds(data_set, cmd),
         verbose=True,
         debug=False)
 
 
-def _get_csdupcmd():  # type: () -> list(str)
-    cmd = [
-        "INITIALIZE"
-    ]
-    return cmd
+def _get_csdup_initilize_cmd():  # type: () -> str
+    return "INITIALIZE"
+
+
+def _get_add_dfhtermc_to_group_cmd():  # type: () -> str
+    return "ADD GROUP(DFHTERMC) LIST(DFHLIST1)"
 
 
 def _get_idcams_cmd_csd(dataset):  # type: (dict) -> dict

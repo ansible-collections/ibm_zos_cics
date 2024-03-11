@@ -221,6 +221,8 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
     DataSet
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.csd import (
+    _get_add_dfhtermc_to_group_cmd,
+    _get_csdup_initilize_cmd,
     _get_idcams_cmd_csd,
     _run_dfhcsdup
 )
@@ -278,8 +280,10 @@ class AnsibleCSDModule(DataSet):
     def init_data_set(self):  # type: () -> None
         super().init_data_set()
         try:
-            csdup_initialize_executions = _run_dfhcsdup(self.get_data_set())
+            csdup_initialize_executions = _run_dfhcsdup(self.get_data_set(), _get_csdup_initilize_cmd())
             self.executions.extend(csdup_initialize_executions)
+            csdup_consoles_executions = _run_dfhcsdup(self.get_data_set(), _get_add_dfhtermc_to_group_cmd())
+            self.executions.extend(csdup_consoles_executions)
         except MVSExecutionException as e:
             self.executions.extend(e.executions)
             self._fail(e.message)
