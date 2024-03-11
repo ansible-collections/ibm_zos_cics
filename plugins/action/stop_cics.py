@@ -11,7 +11,7 @@ from ansible.errors import AnsibleActionFail
 ACTIVE_AND_WAITING = 'CICS is still active... waiting for successful shutdown.'
 CANCEL_REGION = 'CANCEL {0}'
 CICS_NOT_ACTIVE = 'CICS region is not active.'
-CHECK_CICS_STATUS = 'z/OS Job Query - Chsecking status of job {0}'
+CHECK_CICS_STATUS = 'z/OS Job Query - Checking status of job {0}'
 EXECUTIONS = 'executions'
 DEFAULT_SHUTDOWN = 'MODIFY {},CEMT PERFORM SHUTDOWN'
 FAILED = 'failed'
