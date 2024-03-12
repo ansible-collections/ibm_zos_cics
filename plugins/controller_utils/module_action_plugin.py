@@ -4,93 +4,100 @@ __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
 
+REGION_DS_KEYS = ["dfhgcd", "dfhlcd", "dfhintra", "dfhlrq", "dfhtemp", "dfhauxt", "dfhbuxt", "dfhdmpa", "dfhdmpb", "dfhcsd"]
+CICS_DS_KEYS = ["sdfhload", "sdfhauth", "sdfhlic"]
+
 
 class _ModuleActionPlugin(ActionBase):
-    def _get_region_data_set_args(self, module_args, ds_name, task_vars):
 
-        if not module_args.get("region_data_sets", None):
-            raise KeyError("region_data_sets required")
+    def _check_template(self, arg_dict):
+        if self.module_args[arg_dict].get("template"):
+            return True
+        else:
+            return False
 
-        region_data_sets = module_args.get("region_data_sets")
+    def _check_region_override(self, ds_name):
+        if self.module_args["region_data_sets"].get(ds_name):
+            if self.module_args["region_data_sets"][ds_name]["dsn"]:
+                return True
+        return False
 
-        if not region_data_sets.get(ds_name, None) or not region_data_sets.get(ds_name).get("dsn", None):
-            # Template?
-            if region_data_sets.get("template", None):
-                dsn = _template_dsn(
-                    _templar=self._templar,
-                    task_vars=task_vars,
-                    var_name="data_set_name",
-                    replace_val=ds_name.upper(),
-                    template=region_data_sets.get("template", None),
-                )
-                module_args.update(
-                    {
-                        "region_data_sets": {
-                            ds_name: {
-                                "dsn": dsn,
-                            },
-                            "template": region_data_sets.get("template"),
-                        },
-                    }
-                )
-            else:
-                raise KeyError(
-                    "Specify either template or {0} in region_data_sets".format(
-                        ds_name)
-                )
+    def _check_cics_override(self, ds_name):
+        if self.module_args["cics_data_sets"].get(ds_name):
+            return True
+        else:
+            return False
 
-        return module_args
+    def _remove_region_data_set_args(self, ds_name):
+        for region_key in list(self.module_args["region_data_sets"]):
+            if region_key in REGION_DS_KEYS and region_key != ds_name:
+                del self.module_args["region_data_sets"][region_key]
 
-    def _get_cics_data_set_args(self, module_args, task_vars):
+    def _remove_cics_data_set_args(self, ds_name):
+        for cics_key in list(self.module_args["cics_data_sets"]):
+            if cics_key in CICS_DS_KEYS and cics_key != ds_name:
+                del self.module_args["cics_data_sets"][cics_key]
 
-        if not module_args.get("cics_data_sets", None):
-            raise KeyError("cics_data_sets required")
+    def _process_region_data_set_args(self, ds_name, task_vars):
+        if self._check_region_override(ds_name):
+            pass
+        elif self._check_template("region_data_sets"):
+            self.module_args["region_data_sets"].update({
+                ds_name: {
+                    "dsn": _template_dsn(
+                        _templar=self._templar,
+                        task_vars=task_vars,
+                        var_name="data_set_name",
+                        replace_val=ds_name.upper(),
+                        template=self.module_args["region_data_sets"]["template"]
+                    )
+                }
+            })
+        else:
+            raise KeyError("template and {0}".format(ds_name))
 
-        cics_data_sets = module_args["cics_data_sets"]
+        self._remove_region_data_set_args(ds_name)
 
-        if not cics_data_sets.get("sdfhload", None):
-            if not cics_data_sets.get("template", None):
-                raise KeyError(
-                    "Specify either template or sdfhload in cics_data_sets")
-            dsn = _template_dsn(
+    def _process_cics_data_set_args(self, task_vars):
+        if self._check_cics_override("sdfhload"):
+            pass
+        elif self._check_template("cics_data_sets"):
+            self.module_args["cics_data_sets"]["sdfhload"] = _template_dsn(
                 _templar=self._templar,
                 task_vars=task_vars,
                 var_name="lib_name",
                 replace_val="SDFHLOAD",
-                template=cics_data_sets.get("template", None),
+                template=self.module_args["cics_data_sets"]["template"],
             )
+        else:
+            raise KeyError("template and {0}".format("sdfhload"))
 
-            module_args.update(
-                {
-                    "cics_data_sets": {
-                        "sdfhload": dsn,
-                        "template": cics_data_sets.get("template"),
-                    },
-                }
-            )
-        return module_args
+        self._remove_cics_data_set_args("sdfhload")
 
     def _run(self, ds_name, module_name, cics_data_sets_required, tmp=None, task_vars=None):
         super(_ModuleActionPlugin, self).run(tmp, task_vars)
-        module_args = self._task.args.copy()
+        self.module_args = self._task.args.copy()
 
         try:
-            module_args.update(
-                self._get_region_data_set_args(module_args, ds_name, task_vars)
-            )
+            self._process_region_data_set_args(ds_name, task_vars)
         except KeyError as e:
-            return {"failed": True, "changed": False, "msg": e.args[0]}
+            message = "Argument {0} undefined".format(e.args[0])
+            return {"failed": True, "changed": False, "msg": message, "args": self.module_args}
 
         try:
             if cics_data_sets_required:
-                module_args.update(
-                    self._get_cics_data_set_args(module_args, task_vars))
+                self._process_cics_data_set_args(task_vars)
+            else:
+                if self.module_args.get("cics_data_sets"):
+                    del self.module_args["cics_data_sets"]
+
         except KeyError as e:
-            return {"failed": True, "changed": False, "msg": e.args[0], "args": module_args}
+            message = "Argument {0} undefined".format(e.args[0])
+            return {"failed": True, "changed": False, "msg": message, "args": self.module_args}
 
         return self._execute_module(
             module_name="ibm.ibm_zos_cics.{0}".format(module_name),
-            module_args=module_args,
+            module_args=self.module_args,
             task_vars=task_vars,
             tmp=tmp,
         )
