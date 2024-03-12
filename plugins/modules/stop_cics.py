@@ -10,7 +10,7 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: stop_cics
-short_description: Query CICS and CICSPlex SM resources and definitions
+short_description: Stop a CICS Region
 description:
   - Stop a CICS region by using CEMT PERFORM SHUTDOWN. You can choose to perform a NORMAL or IMMEDIATE shutdown.
     During a NORMAL or IMMEDIATE shutdown, a shutdown assist program should run to enable CICS to shut down in a controlled manner.
@@ -73,11 +73,78 @@ RETURN = r'''
       rc:
         description: The return code for the program execution.
         type: int
-        returned: On shutdown execution
+        returned: on shutdown execution
       return:
         description: The standard output returned by the program execution.
-        type: str
+        type: dict
         returned: always
+        contains:
+          changed:
+           description: True if the state was changed, otherwise False.
+           returned: always
+           type: bool
+          jobs:
+            description: The output information for a list of jobs matching specified criteria.
+            type: list
+            returned: success
+            elements: dict
+            contains:
+              job_id:
+                description: Unique job identifier assigned to the job by JES.
+                type: str
+              job_name:
+                description: The name of the batch job.
+                type: str
+              owner:
+                description: The owner who ran the job.
+                type: str
+              ret_code:
+                description:
+                  Return code output collected from job log.
+                type: dict
+                contains:
+                  msg:
+                    description:
+                      Return code or abend resulting from the job submission.
+                    type: str
+                  msg_code:
+                    description:
+                      Return code extracted from the `msg` so that it can be evaluated.
+                      For example, ABEND(S0C4) would yield "S0C4".
+                    type: str
+                  msg_txt:
+                    description:
+                      Returns additional information related to the job.
+                    type: str
+                  code:
+                    description:
+                      Return code converted to integer value (when possible).
+                    type: int
+                  steps:
+                    description:
+                      Series of JCL steps that were executed and their return codes.
+                    type: list
+                    elements: dict
+                    contains:
+                      step_name:
+                        description:
+                          Name of the step shown as "was executed" in the DD section.
+                        type: str
+                      step_cc:
+                        description:
+                          The CC returned for this step in the DD section.
+                        type: int
+          message:
+            description: Message returned on failure.
+            returned: failure
+            type: str
+          content:
+            description: The resulting text from the command submitted.
+            returned: on success of shutdown command submission.
+            type: list
+
+
+
 '''
 
 from ansible.module_utils.basic import AnsibleModule

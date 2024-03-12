@@ -4,3 +4,5 @@ region_data_set_unique:
 region_data_set_path: "{{ region_data_set_common }}.{{ region_data_set_unique }}"
 cics_applid:
 le_path:
+start_region_applid:
+usshome:

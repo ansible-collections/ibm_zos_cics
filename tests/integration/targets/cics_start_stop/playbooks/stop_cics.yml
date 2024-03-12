@@ -1,4 +1,4 @@
-# (c) Copyright IBM Corp. 2023
+# (c) Copyright IBM Corp. 2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
 - name: Stop CICS
@@ -7,31 +7,32 @@
   environment: "{{ environment_vars }}"
 
   tasks:
-    - name: Issue shutdown command
-      environment: "{{ environment_vars }}"
-      ibm.ibm_zos_cics.stop_cics:
-        job_name: "{{ start_region_applid }}"
-        mode: "{{ mode }}"
-      register: stop_result
+    - name: Skip whole test if Ansible version too low
+      when: ansible_version.minor > 11
+      block:
+        - name: Issue shutdown command
+          environment: "{{ environment_vars }}"
+          ibm.ibm_zos_cics.stop_cics:
+            job_name: "{{ start_region_applid }}"
+            mode: "{{ mode }}"
+          register: stop_result
 
-    - name: Log output of stop
-      ansible.builtin.debug:
-        msg: "{{ stop_result }}"
+        - name: Log output of stop
+          ansible.builtin.debug:
+            msg: "{{ stop_result }}"
 
-    - name: Assert CICS stop did not fail
-      ansible.builtin.assert:
-        that:
-          - stop_result.failed != True
-        fail_msg: "CICS Region did not stop successfully"
+        - name: Assert CICS stop did not fail
+          ansible.builtin.assert:
+            that:
+              - stop_result.failed != True
+            fail_msg: "CICS Region did not stop successfully"
 
-    - name: Check jobs running
-      ibm.ibm_zos_core.zos_job_query:
-        job_name: "{{ start_region_applid }}"
-      register: jobs_running_after_stop
+        - name: Assert CICS stopped
+          ansible.builtin.assert:
+            that:
+              - stop_result.executions[2].return.jobs | selectattr("ret_code", 'equalto', None) | list | length == 0
+            fail_msg: "CICS Region did not stop successfully"
 
-    - name: Assert CICS stopped
-      ansible.builtin.assert:
-        that:
-          - jobs_running_after_stop.jobs | selectattr("ret_code", 'equalto', None) | list | length == 0
-          - jobs_running_after_stop.failed == false
-        fail_msg: "CICS Region did not stop successfully"
+        - name: Execute an operator command to delete job
+          ibm.ibm_zos_core.zos_operator:
+            cmd: "\\$P JOB''{{ start_region_applid }}''"

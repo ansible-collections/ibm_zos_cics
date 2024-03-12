@@ -7,82 +7,85 @@
   gather_facts: false
   environment: "{{ environment_vars }}"
   tasks:
-    - name: Run Start CICS with more customisation
-      ibm.ibm_zos_cics.start_cics:
-        submit_jcl: true
-        applid: "{{ start_region_applid }}"
-        job_parameters:
-          accounting_information:
-            pano: ABCD
-          programmer_name: "{{ ansible_user }}"
-          msgclass: A
-          class: A
-          msglevel:
-            statements: 0
-            messages: 1
-          region: 0M
-          memlimit: 10G
-        cics_data_sets:
-          template: "{{ cics_install_path }}.<< lib_name >>"
-          sdfhlic: "{{ cics_install_path }}.LIC.SDFHLIC"
-        le_data_sets:
-          template: '{{ le_path }}.<< lib_name >>'
-        region_data_sets:
-          template: "{{ region_data_set_path }}.<< data_set_name >>"
-        steplib:
-          libraries:
-            - "{{ cics_install_path }}.SDFHLPA"
-        output_data_sets:
-          default_sysout_class: A
-          ceemsg:
-            sysout: B
-          logusr:
-            omit: True
-        sit_parameters:
-          start: INITIAL
-          sit: 6$
-          aicons: AUTO
-          auxtr: "ON"
-          auxtrsw: ALL
-          cicssvc: 217
-          edsalim: 500M
-          icvr: 20000
-          grplist: (DFHLIST*)
-          ircstrt: "YES"
-          mxt: 500
-          pgaipgm: ACTIVE
-          gmtext: '''GOOD MORNING. WELCOME TO A LONG MESSAGE FOR THE INTEGRATION TEST. ENJOY YOUR DAY AND SHUTDOWN WHEN READY.'''
-          sec: "YES"
-          spool: "YES"
-          srbsvc: 218
-          tcpip: "NO"
-          stntrxx:
-            ap: "ALL"
-          wlmhealth: "OFF"
-          wrkarea: 2048
-          sysidnt: ZPY1
-          usshome: /cics/cics740
-      register: start_result
+    - name: Skip whole test if Ansible version too low
+      when: ansible_version.minor > 11
+      block:
+        - name: Run Start CICS with more customisation
+          ibm.ibm_zos_cics.start_cics:
+            submit_jcl: true
+            applid: "{{ start_region_applid }}"
+            job_parameters:
+              accounting_information:
+                pano: ABCD
+              programmer_name: "{{ ansible_user }}"
+              msgclass: A
+              class: A
+              msglevel:
+                statements: 0
+                messages: 1
+              region: 0M
+              memlimit: 10G
+            cics_data_sets:
+              template: "{{ cics_install_path }}.<< lib_name >>"
+              sdfhlic: "{{ cics_install_path }}.LIC.SDFHLIC"
+            le_data_sets:
+              template: '{{ le_path }}.<< lib_name >>'
+            region_data_sets:
+              template: "{{ region_data_set_path }}.<< data_set_name >>"
+            steplib:
+              libraries:
+                - "{{ cics_install_path }}.SDFHLPA"
+            output_data_sets:
+              default_sysout_class: A
+              ceemsg:
+                sysout: B
+              logusr:
+                omit: True
+            sit_parameters:
+              start: INITIAL
+              sit: 6$
+              aicons: AUTO
+              auxtr: "ON"
+              auxtrsw: ALL
+              cicssvc: 217
+              edsalim: 500M
+              icvr: 20000
+              grplist: (DFHLIST*)
+              ircstrt: "YES"
+              mxt: 500
+              pgaipgm: ACTIVE
+              gmtext: '''GOOD MORNING. WELCOME TO A LONG MESSAGE FOR THE INTEGRATION TEST. ENJOY YOUR DAY AND SHUTDOWN WHEN READY.'''
+              sec: "YES"
+              spool: "YES"
+              srbsvc: 218
+              tcpip: "NO"
+              stntrxx:
+                ap: "ALL"
+              wlmhealth: "OFF"
+              wrkarea: 2048
+              sysidnt: ZPY1
+              usshome: "{{ usshome }}"
+          register: start_result
 
-    - name: Assert result of start CICS
-      ansible.builtin.assert:
-        that:
-          - start_result.failed is false
-          - start_result.changed is true
-          - start_result.jcl != None
+        - name: Assert result of start CICS
+          ansible.builtin.assert:
+            that:
+              - start_result.failed is false
+              - start_result.changed is true
+              - start_result.jcl != None
 
-    - name: Log output of start
-      ansible.builtin.debug:
-        msg: "{{ start_result  }}"
+        - name: Log output of start
+          ansible.builtin.debug:
+            msg: "{{ start_result  }}"
 
-    - name: Check jobs running
-      ibm.ibm_zos_core.zos_job_query:
-        job_name: "{{ start_region_applid }}"
-      register: running_result
+        - name: Check jobs running
+          ibm.ibm_zos_core.zos_job_query:
+            job_name: "{{ start_region_applid }}"
+          register: running_result
 
-    - name: Assert CICS started
-      ansible.builtin.assert:
-        that:
-          - running_result.jobs | selectattr("ret_code", 'equalto', None) | list | length > 0
-          - running_result.failed != True
-        fail_msg: "CICS Region did not start successfully"
+        - name: Assert CICS started
+          ansible.builtin.assert:
+            that:
+              - running_result.jobs | selectattr("ret_code", 'equalto', None) | list | length > 0
+              - running_result.failed != True
+            fail_msg: "CICS Region did not start successfully"

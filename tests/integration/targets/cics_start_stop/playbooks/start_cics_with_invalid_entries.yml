@@ -6,41 +6,45 @@
   hosts: 'all'
   gather_facts: false
   tasks:
-    - name: Run Start CICS with too long applid
-      ibm.ibm_zos_cics.start_cics:
-        applid: "TOOLONGAPPLID"
-        job_parameters:
-          msgclass: A
-          class: A
-          region: 0M
-          memlimit: 10G
-        cics_data_sets:
-          template: "{{ cics_install_path }}.<< lib_name >>"
-          sdfhlic: "{{ cics_install_path }}.LIC.SDFHLIC"
-        le_data_sets:
-          template: "{{ le_path }}.<< lib_name >>"
-        region_data_sets:
-          template: "{{ region_data_set_path }}.<< data_set_name >>"
-        output_data_sets:
-          default_sysout_class: A
-        sit_parameters:
-          start: INITIAL
-          sit: 6$
-          aicons: AUTO
-          auxtr: "ON"
-          auxtrsw: ALL
-          cicssvc: 217
-          sysidnt: ZPY1
-      register: result
-      ignore_errors: true
+    - name: Skip whole test if Ansible version too low
+      when: ansible_version.minor > 11
+      block:
+        - name: Run Start CICS with too long applid
+          ibm.ibm_zos_cics.start_cics:
+            applid: "TOOLONGAPPLID"
+            job_parameters:
+              msgclass: A
+              class: A
+              region: 0M
+              memlimit: 10G
+            cics_data_sets:
+              template: "{{ cics_install_path }}.<< lib_name >>"
+              sdfhlic: "{{ cics_install_path }}.LIC.SDFHLIC"
+            le_data_sets:
+              template: "{{ le_path }}.<< lib_name >>"
+            region_data_sets:
+              template: "{{ region_data_set_path }}.<< data_set_name >>"
+            output_data_sets:
+              default_sysout_class: A
+            sit_parameters:
+              start: INITIAL
+              sit: 6$
+              aicons: AUTO
+              auxtr: "ON"
+              auxtrsw: ALL
+              cicssvc: 217
+              sysidnt: ZPY1
+              usshome: "{{ usshome }}"
+          register: result
+          ignore_errors: true
 
-    - name: Print the JCL
-      ansible.builtin.debug:
-        var: result
+        - name: Print the JCL
+          ansible.builtin.debug:
+            var: result
 
-    - name: Assert result of start CICS
-      ansible.builtin.assert:
-        that:
-          - result.failed is true
-          - result.changed is false
-          - "'Invalid argument \"TOOLONGAPPLID\" for type \"qualifier\".' in result.msg"
+        - name: Assert result of start CICS
+          ansible.builtin.assert:
+            that:
+              - result.failed is true
+              - result.changed is false
+              - "'Invalid argument \"TOOLONGAPPLID\" for type \"qualifier\".' in result.msg"

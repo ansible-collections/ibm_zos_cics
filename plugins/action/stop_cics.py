@@ -63,8 +63,8 @@ class ActionModule(ActionBase):
         region_running = self.is_job_running()
         while region_running:
             self.logger.debug(ACTIVE_AND_WAITING)
-            region_running = self.is_job_running()
             time.sleep(15)
+            region_running = self.is_job_running()
         self.logger.debug(SHUTDOWN_SUCCESS)
         self.result[EXECUTIONS].append({NAME: CHECK_CICS_STATUS.format(self.module_args[JOB_NAME]), RETURN: self.jobs})
 
@@ -74,13 +74,12 @@ class ActionModule(ActionBase):
             self.result[FAILED] = True
             raise AnsibleActionFail(JOB_QUERY_FAILED)
 
-        # Get list of running jobs, if it's equal to 1, region is active (as cant have more than 1 running job), so
-        # return true and also return query result to append to executions where needed.
+        # Get list of running jobs, if it's equal to 1, region is active, so return true
         return len([job for job in self.jobs["jobs"] if job["ret_code"] is None]) == 1
 
     def _get_job_query_result(self):  # type: () -> dict
         return self._execute_module(module_name="ibm.ibm_zos_core.zos_job_query",
-                                    module_args=dict(job_name=self.module_args[JOB_NAME]),
+                                    module_args={JOB_NAME: self.module_args[JOB_NAME]},
                                     task_vars=self.task_vars)
 
     def get_shutdown_command(self):  # type: () -> str
@@ -96,7 +95,7 @@ class ActionModule(ActionBase):
     def run_shutdown_command(self, cmd):  # type: (str) -> dict
         shutdown_result = self._execute_module(
             module_name="ibm.ibm_zos_core.zos_operator",
-            module_args=dict(cmd=cmd),
+            module_args={"cmd": cmd},
             task_vars=self.task_vars
         )
         self.result["changed"] = True
