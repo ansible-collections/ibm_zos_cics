@@ -23,6 +23,7 @@ from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement impo
 SDFHLOAD = "sdfhload"
 STATE = "state"
 SPACE_PRIMARY = "space_primary"
+SPACE_SECONDARY = "space_secondary"
 SPACE_TYPE = "space_type"
 KILOBYTES = "K"
 MEGABYTES = "M"
@@ -118,6 +119,9 @@ class DataSet():
             SPACE_PRIMARY: {
                 "type": "int",
             },
+            SPACE_SECONDARY: {
+                "type": "int",
+            },
             SPACE_TYPE: {
                 "type": "str",
                 "choices": SPACE_OPTIONS,
@@ -165,6 +169,7 @@ class DataSet():
         # Mandatory parameters
         self.target_state = params[STATE]
         self.primary = params[SPACE_PRIMARY]
+        self.secondary = params[SPACE_SECONDARY]
         self.region_param = params[REGION_DATA_SETS]
 
         # Optional parameters

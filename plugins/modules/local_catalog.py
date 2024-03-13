@@ -32,10 +32,18 @@ options:
         Note that this is just the value; the unit is specified with O(space_type).
       - This option takes effect only when the local catalog is being created.
         If the local catalog already exists, the option has no effect.
-      - The size value of the secondary space allocation for the local catalog data set is 1; the unit is specified with O(space_type).
     type: int
     required: false
     default: 200
+  space_secondary:
+    description:
+      - The size of the secondary space allocated to the local catalog data set.
+        Note that this is just the value; the unit is specified with O(space_type).
+      - This option takes effect only when the local catalog is being created.
+        If the local catalog already exists, the option has no effect.
+    type: int
+    required: false
+    default: 5
   space_type:
     description:
       - The unit portion of the local catalog data set size. Note that this is
@@ -212,6 +220,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
     RECORDS,
     REGION_DATA_SETS,
     SPACE_PRIMARY,
+    SPACE_SECONDARY,
     SPACE_TYPE,
     DataSet
 )
@@ -237,6 +246,9 @@ class AnsibleLocalCatalogModule(DataSet):
 
         arg_spec[SPACE_PRIMARY].update({
             "default": SPACE_PRIMARY_DEFAULT
+        })
+        arg_spec[SPACE_SECONDARY].update({
+            "default": SPACE_SECONDARY_DEFAULT
         })
         arg_spec[SPACE_TYPE].update({
             "default": RECORDS

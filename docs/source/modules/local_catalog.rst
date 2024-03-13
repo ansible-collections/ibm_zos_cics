@@ -108,12 +108,22 @@ space_primary
 
   This option takes effect only when the local catalog is being created. If the local catalog already exists, the option has no effect.
 
-  The size value of the secondary space allocation for the local catalog data set is 1; the unit is specified with \ :literal:`space\_type`\ .
-
 
   | **required**: False
   | **type**: int
   | **default**: 200
+
+
+     
+space_secondary
+  The size of the secondary space allocated to the local catalog data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+
+  This option takes effect only when the local catalog is being created. If the local catalog already exists, the option has no effect.
+
+
+  | **required**: False
+  | **type**: int
+  | **default**: 5
 
 
      

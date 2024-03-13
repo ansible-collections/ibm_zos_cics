@@ -104,12 +104,22 @@ space_primary
 
   This option takes effect only when the CSD is being created. If the CSD already exists, the option has no effect.
 
-  The size value of the secondary space allocation for the CSD is 1; the unit is specified with \ :literal:`space\_type`\ .
-
 
   | **required**: False
   | **type**: int
   | **default**: 4
+
+
+     
+space_secondary
+  The size of the secondary space allocated to the CSD. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+
+  This option takes effect only when the CSD is being created. If the CSD already exists, the option has no effect.
+
+
+  | **required**: False
+  | **type**: int
+  | **default**: 1
 
 
      
