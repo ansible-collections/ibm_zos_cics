@@ -31,12 +31,10 @@ Parameters
 
 
      
-job_name
-  Identifies the name of the job that the region was started with. Job names are 1-8 characters.
+job_id
+  Identifies the job ID belonging to the running CICS region.
 
-  If a job name was not specified in the Start CICS playbook, the \ :literal:`applid`\  is used for the job name of the running region.
-
-  The Stop CICS module uses this job name to identify the CICS region to be shut down.
+  The Stop CICS module uses this job ID to identify the state of the CICS region and shut it down.
 
 
   | **required**: True
@@ -64,11 +62,11 @@ Examples
    
    - name: "Stop CICS"
      ibm.ibm_zos_cics.stop_cics:
-       job_name: ABC9ABC1
+       job_id: JOB12345
 
    - name: "Stop CICS immediately"
      ibm.ibm_zos_cics.stop_cics:
-       job_name: STARTJOB
+       job_id: JOB12354
        mode: immediate
 
 

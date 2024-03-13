@@ -5,7 +5,7 @@ import time
 import logging
 from ansible.plugins.action import ActionBase
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.stop_cics import (
-    JOB_NAME, MODE, IMMEDIATE, CANCEL)
+    JOB_ID, MODE, IMMEDIATE, CANCEL)
 from ansible.errors import AnsibleActionFail
 
 ACTIVE_AND_WAITING = 'CICS is still active... waiting for successful shutdown.'
@@ -50,7 +50,7 @@ class ActionModule(ActionBase):
 
     def shutdown_cics_region(self):  # type: () -> None
         region_running = self.is_job_running()
-        self.result[EXECUTIONS].append({NAME: CHECK_CICS_STATUS.format(self.module_args[JOB_NAME]), RETURN: self.jobs})
+        self.result[EXECUTIONS].append({NAME: CHECK_CICS_STATUS.format(self.module_args[JOB_ID]), RETURN: self.jobs})
         if region_running:
             self.logger.debug(RUNNING_ATTEMPTING_TO_STOP)
             shutdown_result = self.run_shutdown_command(self.get_shutdown_command())
@@ -66,7 +66,7 @@ class ActionModule(ActionBase):
             time.sleep(15)
             region_running = self.is_job_running()
         self.logger.debug(SHUTDOWN_SUCCESS)
-        self.result[EXECUTIONS].append({NAME: CHECK_CICS_STATUS.format(self.module_args[JOB_NAME]), RETURN: self.jobs})
+        self.result[EXECUTIONS].append({NAME: CHECK_CICS_STATUS.format(self.module_args[JOB_ID]), RETURN: self.jobs})
 
     def is_job_running(self):  # type: () -> bool
         self.jobs = self._get_job_query_result()
@@ -79,11 +79,11 @@ class ActionModule(ActionBase):
 
     def _get_job_query_result(self):  # type: () -> dict
         return self._execute_module(module_name="ibm.ibm_zos_core.zos_job_query",
-                                    module_args={JOB_NAME: self.module_args[JOB_NAME]},
+                                    module_args={JOB_ID: self.module_args[JOB_ID]},
                                     task_vars=self.task_vars)
 
     def get_shutdown_command(self):  # type: () -> str
-        job_name = self.module_args[JOB_NAME]
+        job_name = self.jobs['jobs'][0][JOB_NAME]
 
         if self.module_args.get(MODE) == IMMEDIATE:
             return IMMEDIATE_SHUTDOWN.format(job_name)

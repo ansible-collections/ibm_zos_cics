@@ -20,11 +20,10 @@ version_added: 1.1.0-beta.4
 author:
   - Kiera Bennett (@KieraBennett)
 options:
-  job_name:
+  job_id:
     description:
-      - Identifies the name of the job that the region was started with. Job names are 1-8 characters.
-      - If a job name was not specified in the Start CICS playbook, the C(applid) is used for the job name of the running region.
-      - The Stop CICS module uses this job name to identify the CICS region to be shut down.
+      - Identifies the job ID belonging to the running CICS region.
+      - The Stop CICS module uses this job ID to identify the state of the CICS region and shut it down.
     type: str
     required: true
   mode:
@@ -43,11 +42,11 @@ options:
 EXAMPLES = r'''
 - name: "Stop CICS"
   ibm.ibm_zos_cics.stop_cics:
-    job_name: ABC9ABC1
+    job_id: JOB12345
 
 - name: "Stop CICS immediately"
   ibm.ibm_zos_cics.stop_cics:
-    job_name: STARTJOB
+    job_id: JOB12354
     mode: immediate
 '''
 
@@ -151,7 +150,7 @@ from ansible.module_utils.basic import AnsibleModule
 
 CANCEL = 'cancel'
 IMMEDIATE = 'immediate'
-JOB_NAME = 'job_name'
+JOB_ID = 'job_id'
 MODE = 'mode'
 NORMAL = 'normal'
 
@@ -168,7 +167,7 @@ class AnsibleStopCICSModule(object):
 
     def init_argument_spec(self):
         return {
-            JOB_NAME: {
+            JOB_ID: {
                 'type': 'str',
                 'required': True,
             },

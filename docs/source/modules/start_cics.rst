@@ -1511,7 +1511,7 @@ Examples
           wlmhealth: "OFF"
           wrkarea: 2048
           sysidnt: ZPY1
-    - name: Start CICS with more customisation
+    - name: Start CICS with more customization
       ibm.ibm_zos_cics.start_cics:
         submit_jcl: True
         applid: ABC9ABC1
@@ -1580,6 +1580,10 @@ failed (always, bool, )
 
 jcl (always, list, )
   The CICS startup JCL that is built during module execution.
+
+
+job_id (If the CICS startup JCL has been submitted., str, )
+  The job ID of the CICS startup job.
 
 
 err (always, str, )

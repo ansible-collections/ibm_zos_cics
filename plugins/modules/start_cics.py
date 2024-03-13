@@ -124,6 +124,10 @@ RETURN = r"""
     description: The CICS startup JCL that is built during module execution.
     returned: always
     type: list
+  job_id:
+    description: The job ID of the CICS startup job.
+    returned: If the CICS startup JCL has been submitted.
+    type: str
   err:
     description: The error message returned when building the JCL.
     returned: always
@@ -405,8 +409,9 @@ class AnsibleStartCICSModule(object):
                 rc, stdout, stderr = self._module.run_command(["echo", jcl])
                 rc, stdout, stderr = self._module.run_command(["jsub"], data=stdout)
                 self.result["changed"] = True
-                self.result["executions"].append({"stdout": stdout, "stderr": stderr,
-                                                  "rc": rc})
+                self.result["executions"].append({"name": "z/OS Job Submit - Submit CICS Startup JCL",
+                                                  "stdout": stdout, "stderr": stderr, "rc": rc})
+                self.result["job_id"] = stdout.strip('\n')
             except Exception:
                 self._fail("Failed to submit jcl as job with return code: {0}".format(rc))
 
