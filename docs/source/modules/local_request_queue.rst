@@ -33,34 +33,6 @@ Parameters
 
 
      
-cics_data_sets
-  The name of the \ :literal:`SDFHLOAD`\  library of the CICS installation, for example, \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
-
-
-  | **required**: False
-  | **type**: dict
-
-
-     
-  sdfhload
-    The location of the the \ :literal:`SDFHLOAD`\  library to override the template.
-
-
-    | **required**: False
-    | **type**: str
-
-
-     
-  template
-    The templated location of the \ :literal:`SDFHLOAD`\  library.
-
-
-    | **required**: False
-    | **type**: str
-
-
-
-     
 region_data_sets
   The location of the region data sets to be created using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
 
