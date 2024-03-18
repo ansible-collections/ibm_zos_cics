@@ -45,7 +45,7 @@ def _process_module_args(module_args, _templar, task_vars):
 
     for region_ds in REGION_DS_KEYS:
         _process_region_data_set_args(module_args, _templar, region_ds, task_vars)
-    # We asume template has been deleted before module execution
+    # Template field in region_data_sets needs to be removed before module execution
     if module_args["region_data_sets"].get("template"):
         del module_args["region_data_sets"]["template"]
 

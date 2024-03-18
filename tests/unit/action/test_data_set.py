@@ -21,7 +21,7 @@ def get_templar(module_args):
 
 def test_data_set_with_template():
     args_with_template = {
-        "region_data_sets": {"template" : "data.set.template.<< data_set_name >>"},
+        "region_data_sets": {"template": "data.set.template.<< data_set_name >>"},
         "space_primary": 1,
         "space_type": "M",
         "state": "initial"
@@ -33,8 +33,8 @@ def test_data_set_with_template():
 
     assert args_with_template == {
         "region_data_sets": {
-            "dfhlrq" : {"dsn": "data.set.template.DFHLRQ"},
-            "template" : "data.set.template.<< data_set_name >>",
+            "dfhlrq": {"dsn": "data.set.template.DFHLRQ"},
+            "template": "data.set.template.<< data_set_name >>",
         },
         "space_primary": 1,
         "space_type": "M",
@@ -44,7 +44,7 @@ def test_data_set_with_template():
 
 def test_data_set_with_override():
     args_with_override = {
-        "region_data_sets": {"dfhlrq" : {"dsn": "data.set.path"}},
+        "region_data_sets": {"dfhlrq": {"dsn": "data.set.path"}},
         "space_primary": 1,
         "space_type": "M",
         "state": "initial"
@@ -56,7 +56,7 @@ def test_data_set_with_override():
 
     assert args_with_override == {
         "region_data_sets": {
-            "dfhlrq" : {"dsn": "data.set.path"}
+            "dfhlrq": {"dsn": "data.set.path"}
         },
         "space_primary": 1,
         "space_type": "M",
@@ -66,7 +66,7 @@ def test_data_set_with_override():
 
 def test_data_set_with_override_but_no_dsn_key():
     args_with_override = {
-        "region_data_sets": {"dfhlrq" : {"garbage" : "more.garbage"}},
+        "region_data_sets": {"dfhlrq": {"garbage": "more.garbage"}},
         "space_primary": 1,
         "space_type": "M",
         "state": "initial"
@@ -82,7 +82,7 @@ def test_data_set_with_override_but_no_dsn_key():
 
 def test_data_set_with_override_but_no_dsn_value():
     args_with_override = {
-        "region_data_sets": {"dfhlrq" : {"dsn": None}},
+        "region_data_sets": {"dfhlrq": {"dsn": None}},
         "space_primary": 1,
         "space_type": "M",
         "state": "initial"
@@ -98,7 +98,7 @@ def test_data_set_with_override_but_no_dsn_value():
 
 def test_data_set_without_override_or_template():
     args_with_garbage = {
-        "region_data_sets": {"garbage" : "more.garbage"},
+        "region_data_sets": {"garbage": "more.garbage"},
         "space_primary": 1,
         "space_type": "M",
         "state": "initial"
@@ -114,8 +114,8 @@ def test_data_set_without_override_or_template():
 
 def test_data_set_with_unnecessary_cics_data_sets_arg():
     args_with_template = {
-        "region_data_sets": {"template" : "data.set.template.<< data_set_name >>"},
-        "cics_data_sets": {"template" : "data.set.template.<< lib_name >>"},
+        "region_data_sets": {"template": "data.set.template.<< data_set_name >>"},
+        "cics_data_sets": {"template": "data.set.template.<< lib_name >>"},
         "space_primary": 1,
         "space_type": "M",
         "state": "initial"
@@ -127,8 +127,8 @@ def test_data_set_with_unnecessary_cics_data_sets_arg():
 
     assert args_with_template == {
         "region_data_sets": {
-            "dfhlrq" : {"dsn": "data.set.template.DFHLRQ"},
-            "template" : "data.set.template.<< data_set_name >>",
+            "dfhlrq": {"dsn": "data.set.template.DFHLRQ"},
+            "template": "data.set.template.<< data_set_name >>",
         },
         "space_primary": 1,
         "space_type": "M",
@@ -138,8 +138,8 @@ def test_data_set_with_unnecessary_cics_data_sets_arg():
 
 def test_data_set_with_le_data_sets_arg():
     args_with_template = {
-        "region_data_sets": {"template" : "data.set.template.<< data_set_name >>"},
-        "le_data_sets": {"template" : "le.data.set.template.<< lib_name >>"},
+        "region_data_sets": {"template": "data.set.template.<< data_set_name >>"},
+        "le_data_sets": {"template": "le.data.set.template.<< lib_name >>"},
         "space_primary": 1,
         "space_type": "M",
         "state": "initial"
@@ -151,8 +151,8 @@ def test_data_set_with_le_data_sets_arg():
 
     assert args_with_template == {
         "region_data_sets": {
-            "dfhlrq" : {"dsn": "data.set.template.DFHLRQ"},
-            "template" : "data.set.template.<< data_set_name >>",
+            "dfhlrq": {"dsn": "data.set.template.DFHLRQ"},
+            "template": "data.set.template.<< data_set_name >>",
         },
         "space_primary": 1,
         "space_type": "M",
@@ -162,8 +162,8 @@ def test_data_set_with_le_data_sets_arg():
 
 def test_data_set_with_required_cics_data_sets_templated():
     args_with_template = {
-        "region_data_sets": {"template" : "data.set.template.<< data_set_name >>"},
-        "cics_data_sets": {"template" : "data.set.template.<< lib_name >>"},
+        "region_data_sets": {"template": "data.set.template.<< data_set_name >>"},
+        "cics_data_sets": {"template": "data.set.template.<< lib_name >>"},
         "space_primary": 1,
         "space_type": "M",
         "state": "initial"
@@ -175,11 +175,11 @@ def test_data_set_with_required_cics_data_sets_templated():
 
     assert args_with_template == {
         "region_data_sets": {
-            "dfhgcd" : {"dsn": "data.set.template.DFHGCD"},
-            "template" : "data.set.template.<< data_set_name >>",
+            "dfhgcd": {"dsn": "data.set.template.DFHGCD"},
+            "template": "data.set.template.<< data_set_name >>",
         },
         "cics_data_sets": {
-            "template" : "data.set.template.<< lib_name >>",
+            "template": "data.set.template.<< lib_name >>",
             "sdfhload": "data.set.template.SDFHLOAD"
         },
         "space_primary": 1,

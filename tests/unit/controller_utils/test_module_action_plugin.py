@@ -28,9 +28,9 @@ def get_templar(module_args):
 
 
 def test__check_region_override():
-    args_with_override = {"region_data_sets": {"dfhgcd" : {"dsn": "data.set.path"}}}
-    args_with_template = {"region_data_sets": {"template" : "data.set.template.<< data_set_name >>"}}
-    args_with_both = {"region_data_sets": {"template" : "data.set.template.<< data_set_name >>", "dfhgcd" : {"dsn": "data.set.path"}}}
+    args_with_override = {"region_data_sets": {"dfhgcd": {"dsn": "data.set.path"}}}
+    args_with_template = {"region_data_sets": {"template": "data.set.template.<< data_set_name >>"}}
+    args_with_both = {"region_data_sets": {"template": "data.set.template.<< data_set_name >>", "dfhgcd": {"dsn": "data.set.path"}}}
 
     assert _check_region_override(args_with_override, "dfhgcd") is True
     assert _check_region_override(args_with_template, "dfhgcd") is False
@@ -38,9 +38,9 @@ def test__check_region_override():
 
 
 def test__check_library_override():
-    args_with_override = {"cics_data_sets": {"sdfhload" : "data.set.path"}}
-    args_with_template = {"cics_data_sets": {"template" : "data.set.template.<< data_set_name >>"}}
-    args_with_both = {"cics_data_sets": {"template" : "data.set.template.<< data_set_name >>", "sdfhload" : "data.set.path"}}
+    args_with_override = {"cics_data_sets": {"sdfhload": "data.set.path"}}
+    args_with_template = {"cics_data_sets": {"template": "data.set.template.<< data_set_name >>"}}
+    args_with_both = {"cics_data_sets": {"template": "data.set.template.<< data_set_name >>", "sdfhload": "data.set.path"}}
 
     assert _check_library_override(args_with_override, "cics_data_sets", "sdfhload") is True
     assert _check_library_override(args_with_template, "cics_data_sets", "sdfhload") is False
@@ -48,7 +48,7 @@ def test__check_library_override():
 
 
 def test__remove_region_data_set_args():
-    args_with_extra_region_data_sets = {"region_data_sets": {"dfhgcd" : {"dsn": "data.set.path"}, "dfhlcd": {"dsn": "data.set.path"}}}
+    args_with_extra_region_data_sets = {"region_data_sets": {"dfhgcd": {"dsn": "data.set.path"}, "dfhlcd": {"dsn": "data.set.path"}}}
     _remove_region_data_set_args(args_with_extra_region_data_sets, "dfhgcd")
 
     assert "dfhgcd" in list(args_with_extra_region_data_sets["region_data_sets"].keys())
@@ -56,7 +56,7 @@ def test__remove_region_data_set_args():
 
 
 def test__remove_cics_data_set_args():
-    args_with_extra_cics_data_sets = {"cics_data_sets": {"sdfhload" : "data.set.path", "sdfhlic" : "data.set.path", "sdfhauth" : "data.set.path"}}
+    args_with_extra_cics_data_sets = {"cics_data_sets": {"sdfhload": "data.set.path", "sdfhlic": "data.set.path", "sdfhauth": "data.set.path"}}
     _remove_cics_data_set_args(args_with_extra_cics_data_sets, "sdfhload")
 
     assert "sdfhload" in list(args_with_extra_cics_data_sets["cics_data_sets"].keys())
@@ -65,7 +65,7 @@ def test__remove_cics_data_set_args():
 
 
 def test__process_region_data_set_args_with_template():
-    args_with_template = {"region_data_sets": {"template" : "data.set.template.<< data_set_name >>"}}
+    args_with_template = {"region_data_sets": {"template": "data.set.template.<< data_set_name >>"}}
     templar = get_templar(args_with_template)
     task_vars = args_with_template
 
@@ -76,7 +76,7 @@ def test__process_region_data_set_args_with_template():
 
 
 def test__process_region_data_set_args_without_template():
-    args_with_override = {"region_data_sets": {"dfhgcd" : {"dsn": "data.set.template.global"}}}
+    args_with_override = {"region_data_sets": {"dfhgcd": {"dsn": "data.set.template.global"}}}
     templar = get_templar(args_with_override)
     task_vars = args_with_override
 
@@ -86,7 +86,7 @@ def test__process_region_data_set_args_without_template():
 
 
 def test__process_region_data_set_args_without_template_or_override():
-    args_with_garbage = {"region_data_sets": {"garbage" : "more.garbage"}}
+    args_with_garbage = {"region_data_sets": {"garbage": "more.garbage"}}
     templar = get_templar(args_with_garbage)
     task_vars = args_with_garbage
 
@@ -97,7 +97,7 @@ def test__process_region_data_set_args_without_template_or_override():
 
 
 def test__process_libraries_args_with_template():
-    args_with_template = {"cics_data_sets": {"template" : "data.set.template.<< lib_name >>"}}
+    args_with_template = {"cics_data_sets": {"template": "data.set.template.<< lib_name >>"}}
     templar = get_templar(args_with_template)
     task_vars = args_with_template
 
@@ -108,7 +108,7 @@ def test__process_libraries_args_with_template():
 
 
 def test__process_libraries_args_without_template():
-    args_with_override = {"cics_data_sets": {"sdfhload" : "data.set.template.load"}}
+    args_with_override = {"cics_data_sets": {"sdfhload": "data.set.template.load"}}
     templar = get_templar(args_with_override)
     task_vars = args_with_override
 
@@ -118,7 +118,7 @@ def test__process_libraries_args_without_template():
 
 
 def test__process_libraries_args_without_template_or_override():
-    args_with_garbage = {"cics_data_sets": {"garbage" : "more.garbage"}}
+    args_with_garbage = {"cics_data_sets": {"garbage": "more.garbage"}}
     templar = get_templar(args_with_garbage)
     task_vars = args_with_garbage
 
@@ -129,9 +129,9 @@ def test__process_libraries_args_without_template_or_override():
 
 
 def test__check_template():
-    args_with_override = {"region_data_sets": {"dfhgcd" : {"dsn": "data.set.path"}}}
-    args_with_template = {"region_data_sets": {"template" : "data.set.template.<< data_set_name >>"}}
-    args_with_both = {"region_data_sets": {"template" : "data.set.template.<< data_set_name >>", "dfhgcd" : {"dsn": "data.set.path"}}}
+    args_with_override = {"region_data_sets": {"dfhgcd": {"dsn": "data.set.path"}}}
+    args_with_template = {"region_data_sets": {"template": "data.set.template.<< data_set_name >>"}}
+    args_with_both = {"region_data_sets": {"template": "data.set.template.<< data_set_name >>", "dfhgcd": {"dsn": "data.set.path"}}}
 
     assert _check_template(args_with_override, "region_data_sets") is False
     assert _check_template(args_with_template, "region_data_sets") is True
@@ -139,7 +139,7 @@ def test__check_template():
 
 
 def test__set_top_libraries_key():
-    args_without_top_libs = {"region_data_sets": {"template" : "data.set.template.<< data_set_name >>"}}
+    args_without_top_libs = {"region_data_sets": {"template": "data.set.template.<< data_set_name >>"}}
     _set_top_libraries_key(args_without_top_libs, "dfhrpl")
 
     assert "top_libraries" in list(args_without_top_libs["dfhrpl"].keys())
@@ -147,7 +147,7 @@ def test__set_top_libraries_key():
 
 
 def test__set_top_libraries_key_with_existing_key():
-    args_without_top_libs = {"region_data_sets": {"template" : "data.set.template.<< data_set_name >>"}, "dfhrpl": {"top_libraries": "data.set.path"}}
+    args_without_top_libs = {"region_data_sets": {"template": "data.set.template.<< data_set_name >>"}, "dfhrpl": {"top_libraries": "data.set.path"}}
 
     assert len(list(args_without_top_libs.keys())) == 2
 
@@ -155,67 +155,14 @@ def test__set_top_libraries_key_with_existing_key():
 
     assert len(list(args_without_top_libs.keys())) == 2
     assert "top_libraries" in list(args_without_top_libs["dfhrpl"].keys())
-
-
-def test__remove_data_set_args_just_state():
-    args_with_extra_args_not_applicable_to_start = {
-        "region_data_sets": {"template" : "region.data.set.template.<< data_set_name >>"},
-        "cics_data_sets": {"template" : "cics.data.set.template.<< lib_name >>"},
-        "le_data_sets": {"template" : "le.data.set.template.<< lib_name >>"},
-        "state": "initial"
-    }
-
-    _remove_data_set_args(args_with_extra_args_not_applicable_to_start)
-
-    assert len(list(args_with_extra_args_not_applicable_to_start.keys())) == 3
-    assert args_with_extra_args_not_applicable_to_start == {
-        "region_data_sets": {"template" : "region.data.set.template.<< data_set_name >>"},
-        "cics_data_sets": {"template" : "cics.data.set.template.<< lib_name >>"},
-        "le_data_sets": {"template" : "le.data.set.template.<< lib_name >>"},
-    }
-
-
-def test__remove_data_set_args_just_space_primary():
-    args_with_extra_args_not_applicable_to_start = {
-        "region_data_sets": {"template" : "region.data.set.template.<< data_set_name >>"},
-        "cics_data_sets": {"template" : "cics.data.set.template.<< lib_name >>"},
-        "le_data_sets": {"template" : "le.data.set.template.<< lib_name >>"},
-        "space_primary": 1,
-    }
-
-    _remove_data_set_args(args_with_extra_args_not_applicable_to_start)
-
-    assert len(list(args_with_extra_args_not_applicable_to_start.keys())) == 3
-    assert args_with_extra_args_not_applicable_to_start == {
-        "region_data_sets": {"template" : "region.data.set.template.<< data_set_name >>"},
-        "cics_data_sets": {"template" : "cics.data.set.template.<< lib_name >>"},
-        "le_data_sets": {"template" : "le.data.set.template.<< lib_name >>"},
-    }
-
-
-def test__remove_data_set_args_just_space_type():
-    args_with_extra_args_not_applicable_to_start = {
-        "region_data_sets": {"template" : "region.data.set.template.<< data_set_name >>"},
-        "cics_data_sets": {"template" : "cics.data.set.template.<< lib_name >>"},
-        "le_data_sets": {"template" : "le.data.set.template.<< lib_name >>"},
-        "space_type": "M",
-    }
-
-    _remove_data_set_args(args_with_extra_args_not_applicable_to_start)
-
-    assert len(list(args_with_extra_args_not_applicable_to_start.keys())) == 3
-    assert args_with_extra_args_not_applicable_to_start == {
-        "region_data_sets": {"template" : "region.data.set.template.<< data_set_name >>"},
-        "cics_data_sets": {"template" : "cics.data.set.template.<< lib_name >>"},
-        "le_data_sets": {"template" : "le.data.set.template.<< lib_name >>"},
-    }
+    assert args_without_top_libs["dfhrpl"]["top_libraries"] == "data.set.path"
 
 
 def test__remove_data_set_args():
     args_with_extra_args_not_applicable_to_start = {
-        "region_data_sets": {"template" : "region.data.set.template.<< data_set_name >>"},
-        "cics_data_sets": {"template" : "cics.data.set.template.<< lib_name >>"},
-        "le_data_sets": {"template" : "le.data.set.template.<< lib_name >>"},
+        "region_data_sets": {"template": "region.data.set.template.<< data_set_name >>"},
+        "cics_data_sets": {"template": "cics.data.set.template.<< lib_name >>"},
+        "le_data_sets": {"template": "le.data.set.template.<< lib_name >>"},
         "space_primary": 1,
         "space_type": "M",
         "state": "initial"
@@ -225,7 +172,7 @@ def test__remove_data_set_args():
 
     assert len(list(args_with_extra_args_not_applicable_to_start.keys())) == 3
     assert args_with_extra_args_not_applicable_to_start == {
-        "region_data_sets": {"template" : "region.data.set.template.<< data_set_name >>"},
-        "cics_data_sets": {"template" : "cics.data.set.template.<< lib_name >>"},
-        "le_data_sets": {"template" : "le.data.set.template.<< lib_name >>"},
+        "region_data_sets": {"template": "region.data.set.template.<< data_set_name >>"},
+        "cics_data_sets": {"template": "cics.data.set.template.<< lib_name >>"},
+        "le_data_sets": {"template": "le.data.set.template.<< lib_name >>"},
     }
