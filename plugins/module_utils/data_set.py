@@ -125,20 +125,6 @@ class DataSet():
                 "required": True,
                 "choices": STATE_OPTIONS
             },
-            CICS_DATA_SETS: {
-                "type": "dict",
-                "required": False,
-                "options": {
-                    "template": {
-                        "type": "str",
-                        "required": False,
-                    },
-                    "sdfhload": {
-                        "type": "str",
-                        "required": False,
-                    },
-                },
-            },
             REGION_DATA_SETS: {
                 "type": "dict",
                 "required": True,
@@ -153,10 +139,11 @@ class DataSet():
 
     def get_arg_defs(self):  # type: () -> dict
         defs = self._get_arg_spec()
-        defs[CICS_DATA_SETS]["options"]["sdfhload"].update({
-            "arg_type": "data_set_base"
-        })
-        defs[CICS_DATA_SETS]["options"]["sdfhload"].pop("type")
+        if defs.get(CICS_DATA_SETS):
+            defs[CICS_DATA_SETS]["options"]["sdfhload"].update({
+                "arg_type": "data_set_base"
+            })
+            defs[CICS_DATA_SETS]["options"]["sdfhload"].pop("type")
         return defs
 
     def validate_parameters(self):  # type: () -> None

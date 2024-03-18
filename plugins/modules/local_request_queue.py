@@ -73,22 +73,6 @@ options:
               - The data set name of the local request queue to override the template.
             type: str
             required: false
-  cics_data_sets:
-    description:
-      - The name of the C(SDFHLOAD) library of the CICS installation, for example, C(CICSTS61.CICS.SDFHLOAD).
-    type: dict
-    required: false
-    suboptions:
-      template:
-        description:
-          - The templated location of the C(SDFHLOAD) library.
-        required: false
-        type: str
-      sdfhload:
-        description:
-          - The location of the the C(SDFHLOAD) library to override the template.
-        type: str
-        required: false
   state:
     description:
       - The intended state for the local request queue, which the module will aim to

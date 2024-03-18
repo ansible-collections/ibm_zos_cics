@@ -78,22 +78,6 @@ options:
               - The data set name of DFHDMPB to override the template.
             type: str
             required: false
-  cics_data_sets:
-    description:
-      - The name of the C(SDFHLOAD) library of the CICS installation, for example, C(CICSTS61.CICS.SDFHLOAD).
-    type: dict
-    required: false
-    suboptions:
-      template:
-        description:
-          - The templated location of the C(SDFHLOAD) library.
-        required: false
-        type: str
-      sdfhload:
-        description:
-          - The location of the C(SDFHLOAD) library to override the template.
-        type: str
-        required: false
   destination:
     description:
       - The transaction dump data set to create. If the value is left blank, A is implied, but you can specify A or B.
