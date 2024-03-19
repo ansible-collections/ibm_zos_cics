@@ -76,7 +76,7 @@ def test__run_idcams_create():
     rc = 0
     stdout = IDCAMS_create_stdout(location)
     stderr = ""
-    data_set_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils._execute_idcams = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     cmd = IDCAMS_run_cmd(location)
 
@@ -100,7 +100,7 @@ def test__run_idcams_create_exists():
     rc = 12
     stdout = IDCAMS_create_already_exists_stdout(location)
     stderr = ""
-    data_set_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils._execute_idcams = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     cmd = IDCAMS_run_cmd(location)
 
@@ -124,7 +124,7 @@ def test__run_idcams_delete():
     rc = 0
     stdout = IDCAMS_delete_vsam(location)
     stderr = ""
-    data_set_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils._execute_idcams = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     cmd = '''
         DELETE {0}
@@ -150,7 +150,7 @@ def test__run_idcams_delete_no_exist():
     rc = 8
     stdout = IDCAMS_delete_not_found(location)
     stderr = ""
-    data_set_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils._execute_idcams = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     cmd = '''
         DELETE {0}
@@ -176,7 +176,7 @@ def test__run_idcams_bad_return_code_when_creating():
     rc = 99
     stdout = IDCAMS_create_stdout(location)
     stderr = ""
-    data_set_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils._execute_idcams = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     cmd = '''
     DEFINE CLUSTER -
@@ -215,7 +215,7 @@ def test__run_idcams_bad_return_code_when_deleting():
     rc = 99
     stdout = IDCAMS_delete_vsam(location)
     stderr = ""
-    data_set_utils.idcams = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils._execute_idcams = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     cmd = '''
         DELETE {0}
@@ -241,7 +241,7 @@ def test__run_listds_exists_vsam():
     rc = 0
     stdout = LISTDS_data_set(location, "VSAM")
     stderr = ""
-    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils._execute_listds = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
 
@@ -261,7 +261,7 @@ def test__run_listds_exists_sequential():
     rc = 0
     stdout = LISTDS_data_set(location, "PS")
     stderr = ""
-    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils._execute_listds = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
 
@@ -281,7 +281,7 @@ def test__run_listds_exists_partitioned():
     rc = 0
     stdout = LISTDS_data_set(location, "PO")
     stderr = ""
-    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils._execute_listds = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
 
@@ -301,7 +301,7 @@ def test__run_listds_exists_indexed_sequential():
     rc = 0
     stdout = LISTDS_data_set(location, "IS")
     stderr = ""
-    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils._execute_listds = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
 
@@ -321,7 +321,7 @@ def test__run_listds_exists_direct_access():
     rc = 0
     stdout = LISTDS_data_set(location, "DA")
     stderr = ""
-    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils._execute_listds = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
 
@@ -341,7 +341,7 @@ def test__run_listds_exists_other():
     rc = 0
     stdout = LISTDS_data_set(location, "??")
     stderr = ""
-    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils._execute_listds = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
 
@@ -361,7 +361,7 @@ def test__run_listds_exists_unspecified():
     rc = 0
     stdout = LISTDS_data_set(location, "**")
     stderr = ""
-    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils._execute_listds = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
 
@@ -382,7 +382,7 @@ def test__run_listds_bad_rc():
     rc = 16
     stdout = LISTDS_data_set(location, "VSAM")
     stderr = ""
-    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils._execute_listds = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     expected_executions = [_execution(name=name, rc=rc, stdout=stdout, stderr=stderr)]
 
@@ -398,7 +398,7 @@ def test__run_listds_not_exists():
     rc = 8
     stdout = LISTDS_data_set_doesnt_exist(location)
     stderr = ""
-    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils._execute_listds = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
 
@@ -417,7 +417,7 @@ def test__run_listds_with_no_zoau_response():
     rc = 0
     stdout = ""
     stderr = ""
-    data_set_utils.ikjeft01 = MagicMock(return_value=[rc, stdout, stderr])
+    data_set_utils._execute_listds = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     expected_executions = [
         _execution(name=LISTDS_run_name(1), rc=rc, stdout=stdout, stderr=stderr),

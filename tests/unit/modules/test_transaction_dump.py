@@ -71,10 +71,10 @@ def initialise_module(**kwargs):
 def test_create_an_intial_transaction_dump():
     transaction_dump_module = initialise_module()
 
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (8, LISTDS_data_set_doesnt_exist(NAMEA), ""),
-            (0, LISTDS_data_set(NAMEA, "PS"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAMEA), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAMEA, "PS"), ""),
         ]
     )
     data_set_utils._execute_iefbr14 = MagicMock(
@@ -125,13 +125,13 @@ def test_create_an_intial_transaction_dump():
 def test_delete_an_existing_transaction_dump():
     transaction_dump_module = initialise_module(state="absent")
 
-    data_set_utils.idcams = MagicMock(
-        return_value=(0, IDCAMS_delete_vsam(NAMEA), "")
+    data_set_utils._execute_idcams = MagicMock(
+        return_value=MVSCmdResponse(0, IDCAMS_delete_vsam(NAMEA), "")
     )
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (0, LISTDS_data_set(NAMEA, "PS"), ""),
-            (8, LISTDS_data_set_doesnt_exist(NAMEA), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAMEA, "PS"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAMEA), ""),
         ]
     )
 
@@ -177,8 +177,8 @@ def test_delete_an_existing_transaction_dump():
 def test_remove_non_existent_transaction_dump():
     transaction_dump_module = initialise_module(state="absent")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(8, LISTDS_data_set_doesnt_exist(NAMEA), "")
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAMEA), "")
     )
 
     transaction_dump_module.main()
@@ -217,10 +217,10 @@ def test_remove_non_existent_transaction_dump():
 def test_create_an_intial_destination_b_transaction_dump():
     transaction_dump_module = initialise_module(destination="B")
 
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (8, LISTDS_data_set_doesnt_exist(NAMEB), ""),
-            (0, LISTDS_data_set(NAMEB, "PS"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAMEB), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAMEB, "PS"), ""),
         ]
     )
     data_set_utils._execute_iefbr14 = MagicMock(
@@ -270,8 +270,8 @@ def test_create_an_intial_destination_b_transaction_dump():
 def test_warm_on_non_existent():
     transaction_dump_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(8, LISTDS_data_set_doesnt_exist(NAMEA), "")
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAMEA), "")
     )
 
     transaction_dump_module.main()
@@ -310,8 +310,8 @@ def test_warm_on_non_existent():
 def test_warm_on_empty():
     transaction_dump_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(0, LISTDS_data_set(NAMEA, "PS"), "")
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(0, LISTDS_data_set(NAMEA, "PS"), "")
     )
     icetool._execute_icetool = MagicMock(
         return_value=(
@@ -365,8 +365,8 @@ def test_warm_on_empty():
 def test_warm_success():
     transaction_dump_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(0, LISTDS_data_set(NAMEA, "PS"), "")
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(0, LISTDS_data_set(NAMEA, "PS"), "")
     )
     icetool._execute_icetool = MagicMock(
         return_value=(
