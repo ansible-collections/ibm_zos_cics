@@ -73,13 +73,13 @@ def initialise_module(**kwargs):
 def test_create_an_intial_csd():
     csd_module = initialise_module()
 
-    data_set_utils.idcams = MagicMock(
-        return_value=(0, NAME, "")
+    data_set_utils._execute_idcams = MagicMock(
+        return_value=MVSCmdResponse(0, NAME, "")
     )
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
-            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
         ]
     )
     csd_utils._execute_dfhcsdup = MagicMock(
@@ -143,13 +143,13 @@ def test_create_an_intial_csd():
 def test_delete_an_existing_csd():
     csd_module = initialise_module(state="absent")
 
-    data_set_utils.idcams = MagicMock(
-        return_value=(0, IDCAMS_delete_vsam(NAME), "")
+    data_set_utils._execute_idcams = MagicMock(
+        return_value=MVSCmdResponse(0, IDCAMS_delete_vsam(NAME), "")
     )
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (0, LISTDS_data_set(NAME, "VSAM"), ""),
-            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), ""),
         ]
     )
 
@@ -195,7 +195,12 @@ def test_delete_an_existing_csd():
 def test_do_nothing_to_an_existing_csd():
     csd_module = initialise_module()
 
-    data_set_utils.ikjeft01 = MagicMock(side_effect=[(0, LISTDS_data_set(NAME, "VSAM"), ""), (0, LISTDS_data_set(NAME, "VSAM"), "")])
+    data_set_utils._execute_listds = MagicMock(
+        side_effect=[
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), "")
+        ]
+    )
     icetool._execute_icetool = MagicMock(
         return_value=MVSCmdResponse(
             rc=0,
@@ -264,8 +269,8 @@ def test_do_nothing_to_an_existing_csd():
 def test_remove_non_existent_csd():
     csd_module = initialise_module(state="absent")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(8, LISTDS_data_set_doesnt_exist(NAME), "")
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), "")
     )
 
     csd_module.main()
@@ -304,8 +309,8 @@ def test_remove_non_existent_csd():
 def test_warm_start_a_existing_csd():
     csd_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(
             0,
             LISTDS_data_set(NAME, "VSAM"),
             ""
@@ -359,8 +364,8 @@ def test_warm_start_a_existing_csd():
 def test_error_warm_start_a_unused_csd():
     csd_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(
             0,
             LISTDS_data_set(NAME, "VSAM"),
             ""
@@ -411,7 +416,7 @@ def test_error_warm_start_a_unused_csd():
 def test_error_warm_start_a_non_existent_csd():
     csd_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(return_value=(
+    data_set_utils._execute_listds = MagicMock(return_value=MVSCmdResponse(
         8, LISTDS_data_set_doesnt_exist(NAME), ""))
 
     csd_module.main()
@@ -446,13 +451,13 @@ def test_error_warm_start_a_non_existent_csd():
 def test_bad_response_from_csdup():
     csd_module = initialise_module()
 
-    data_set_utils.idcams = MagicMock(
-        return_value=(0, NAME, "")
+    data_set_utils._execute_idcams = MagicMock(
+        return_value=MVSCmdResponse(0, NAME, "")
     )
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
-            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
         ]
     )
     csd_utils._execute_dfhcsdup = MagicMock(

@@ -7,10 +7,9 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 import re
 
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.mvs_cmd import idcams, ikjeft01
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, MVSExecutionException
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DDStatement, DatasetDefinition
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DDStatement, StdoutDefinition, DatasetDefinition, StdinDefinition
 
 MVS_CMD_RETRY_ATTEMPTS = 10
 
@@ -19,44 +18,76 @@ def _run_idcams(cmd, name, location, delete=False):  # type: (str, str, str, boo
     executions = []
 
     for x in range(MVS_CMD_RETRY_ATTEMPTS):
-        rc, stdout, stderr = idcams(cmd=cmd, authorized=True)
+        idcams_response = _execute_idcams(cmd=cmd)
         executions.append(
             _execution(
                 name="IDCAMS - {0} - Run {1}".format(
                     name,
                     x + 1),
-                rc=rc,
-                stdout=stdout,
-                stderr=stderr))
-        if location.upper() in stdout.upper():
+                rc=idcams_response.rc,
+                stdout=idcams_response.stdout,
+                stderr=idcams_response.stderr))
+        if location.upper() in idcams_response.stdout.upper():
             break
 
-    if location.upper() not in stdout.upper():
+    if location.upper() not in idcams_response.stdout.upper():
         raise MVSExecutionException("IDCAMS Command output not recognised", executions)
 
     if delete:
         pattern = r"^.+ENTRY\(A|C|D|I\){0}DELETED+$".format(location.upper())
-        if rc == 8 and "ENTRY{0}NOTFOUND".format(
-            location.upper()) in stdout.upper().replace(
+        if idcams_response.rc == 8 and "ENTRY{0}NOTFOUND".format(
+            location.upper()) in idcams_response.stdout.upper().replace(
             " ",
             "").replace(
             "\n",
                 ""):
             return executions
-        elif rc != 0 or not bool(re.search(pattern, stdout.upper().replace(
+        elif idcams_response.rc != 0 or not bool(re.search(pattern, idcams_response.stdout.upper().replace(
             " ",
             "").replace(
             "\n",
                 ""))):
-            raise MVSExecutionException("RC {0} when deleting data set".format(rc), executions)
+            raise MVSExecutionException("RC {0} when deleting data set".format(idcams_response.rc), executions)
     else:
-        if rc == 12 and "NOTDEFINEDBECAUSEDUPLICATENAMEEXISTSINCATALOG" in stdout.upper(
+        if idcams_response.rc == 12 and "NOTDEFINEDBECAUSEDUPLICATENAMEEXISTSINCATALOG" in idcams_response.stdout.upper(
         ).replace(" ", "").replace("\n", ""):
             return executions
-        if rc != 0:
-            raise MVSExecutionException("RC {0} when creating data set".format(rc), executions)
+        if idcams_response.rc != 0:
+            raise MVSExecutionException("RC {0} when creating data set".format(idcams_response.rc), executions)
 
     return executions
+
+
+def _get_idcams_dds(cmd):
+    return [
+        DDStatement('sysin', StdinDefinition(content=cmd)),
+        DDStatement('sysprint', StdoutDefinition()),
+    ]
+
+
+def _execute_idcams(cmd):
+    return MVSCmd.execute_authorized(
+        pgm="IDCAMS",
+        dds=_get_idcams_dds(cmd),
+        verbose=True,
+        debug=False
+    )
+
+
+def _get_listds_dds(cmd):
+    return [
+        DDStatement('systsin', StdinDefinition(content=cmd)),
+        DDStatement('systsprt', StdoutDefinition()),
+    ]
+
+
+def _execute_listds(cmd):
+    return MVSCmd.execute_authorized(
+        pgm="IKJEFT01",
+        dds=_get_listds_dds(cmd),
+        verbose=True,
+        debug=False
+    )
 
 
 def _get_dataset_size_unit(unit_symbol):  # type: (str) -> str
@@ -120,33 +151,33 @@ def _run_listds(location):  # type: (str) -> tuple[list[_execution], bool, str]
     executions = []
 
     for x in range(MVS_CMD_RETRY_ATTEMPTS):
-        rc, stdout, stderr = ikjeft01(cmd=cmd, authorized=True)
+        listds_response = _execute_listds(cmd=cmd)
         executions.append(
             _execution(
                 name="IKJEFT01 - Get Data Set Status - Run {0}".format(
                     x + 1),
-                rc=rc,
-                stdout=stdout,
-                stderr=stderr))
-        if location.upper() in stdout.upper():
+                rc=listds_response.rc,
+                stdout=listds_response.stdout,
+                stderr=listds_response.stderr))
+        if location.upper() in listds_response.stdout.upper():
             break
 
-    if location.upper() not in stdout.upper():
+    if location.upper() not in listds_response.stdout.upper():
         raise MVSExecutionException("LISTDS Command output not recognised", executions)
 
     # DS Name in output, good output
 
-    if rc == 8 and "NOT IN CATALOG" in stdout:
+    if listds_response.rc == 8 and "NOT IN CATALOG" in listds_response.stdout:
         return executions, False, "NONE"
 
     # Exists
 
-    if rc != 0:
-        raise MVSExecutionException("RC {0} running LISTDS Command".format(rc), executions)
+    if listds_response.rc != 0:
+        raise MVSExecutionException("RC {0} running LISTDS Command".format(listds_response.rc), executions)
 
     # Exists, RC 0
 
-    matches = re.findall(r"\s+(PS|PO|IS|DA|VSAM|\?\?)\s+", stdout.upper())
+    matches = re.findall(r"\s+(PS|PO|IS|DA|VSAM|\?\?)\s+", listds_response.stdout.upper())
     if (len(matches) != 0):
         if (matches[0] == "PS"):
             data_set_organization = "Sequential"

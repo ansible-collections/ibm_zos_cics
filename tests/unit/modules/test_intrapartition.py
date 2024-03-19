@@ -59,12 +59,12 @@ def initialise_module(**kwargs):
 def test_create_an_intial_intrapartition_ds():
     intra_module = initialise_module()
 
-    data_set_utils.idcams = MagicMock(
-        return_value=(0, NAME, ""))
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_idcams = MagicMock(
+        return_value=MVSCmdResponse(0, NAME, ""))
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
-            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
         ]
     )
 
@@ -110,13 +110,13 @@ def test_create_an_intial_intrapartition_ds():
 def test_delete_an_existing_intrapartition_ds():
     intra_module = initialise_module(state="absent")
 
-    data_set_utils.idcams = MagicMock(
-        return_value=(0, IDCAMS_delete_vsam(NAME), "")
+    data_set_utils._execute_idcams = MagicMock(
+        return_value=MVSCmdResponse(0, IDCAMS_delete_vsam(NAME), "")
     )
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (0, LISTDS_data_set(NAME, "VSAM"), ""),
-            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), ""),
         ]
     )
 
@@ -162,17 +162,17 @@ def test_delete_an_existing_intrapartition_ds():
 def test_delete_an_existing_intra_and_replace():
     intra_module = initialise_module()
 
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (0, LISTDS_data_set(NAME, "VSAM"), ""),
-            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
-            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
         ]
     )
-    data_set_utils.idcams = MagicMock(
+    data_set_utils._execute_idcams = MagicMock(
         side_effect=[
-            (0, IDCAMS_delete_vsam(NAME), ""),
-            (0, NAME, ""),
+            MVSCmdResponse(0, IDCAMS_delete_vsam(NAME), ""),
+            MVSCmdResponse(0, NAME, ""),
         ]
     )
     icetool._execute_icetool = MagicMock(
@@ -245,8 +245,8 @@ def test_delete_an_existing_intra_and_replace():
 def test_remove_non_existent_intra():
     intra_module = initialise_module(state="absent")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(8, LISTDS_data_set_doesnt_exist(NAME), "")
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), "")
     )
 
     intra_module.main()
@@ -285,7 +285,7 @@ def test_remove_non_existent_intra():
 def test_warm_on_non_existent_intra():
     intra_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(return_value=(
+    data_set_utils._execute_listds = MagicMock(return_value=MVSCmdResponse(
         8, LISTDS_data_set_doesnt_exist(NAME), ""))
 
     intra_module.main()
@@ -322,8 +322,8 @@ def test_warm_on_non_existent_intra():
 def test_warm_on_empty_intra():
     intra_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(
             0,
             LISTDS_data_set(NAME, "VSAM"),
             ""
@@ -376,8 +376,8 @@ def test_warm_on_empty_intra():
 def test_warm_success_intra():
     intra_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(
             0,
             LISTDS_data_set(NAME, "VSAM"),
             ""
