@@ -16,3 +16,4 @@ action_groups:
     - local_request_queue
     - trace
     - transaction_dump
+    - start_cics

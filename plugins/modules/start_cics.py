@@ -235,12 +235,25 @@ class AnsibleStartCICSModule(object):
         exec_data = self._add_exec_parameters(exec_data)
 
     def _populate_dds(self):
+        self._copy_libraries_to_steplib_and_dfhrpl()
         self._add_block_of_libraries(STEPLIB)
         self._add_block_of_libraries(DFHRPL)
         self._add_per_region_data_sets()
         self._add_output_data_sets()
         self._add_sit_parameters()
         return self.dds
+
+    def _copy_libraries_to_steplib_and_dfhrpl(self):
+        steplib_args = {"cics_data_sets": ["sdfhauth", "sdfhlic"], "le_data_sets": ["sceerun", "sceerun2"]}
+        dfhrpl_args = {"cics_data_sets": ["sdfhload"], "le_data_sets": ["sceecics", "sceerun", "sceerun2"]}
+        self._copy_libraries(steplib_args, "steplib")
+        self._copy_libraries(dfhrpl_args, "dfhrpl")
+
+    def _copy_libraries(self, libraries_to_copy, target_arg):
+        for lib_type, list_of_libs in libraries_to_copy.items():
+            for lib in list_of_libs:
+                if self.module_args.get(lib_type) and self.module_args[lib_type].get(lib):
+                    self.module_args[target_arg][TOP_LIBRARIES].append(self.module_args[lib_type][lib].upper())
 
     def _add_exec_parameters(self, exec_data):
         if self._check_parameter_is_provided(SIT_PARAMETERS):
