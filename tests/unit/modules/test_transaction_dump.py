@@ -47,9 +47,6 @@ default_arg_parms = {
             "dsn": NAMEB
         }
     },
-    "cics_data_sets": {
-        "sdfhload": "TEST.CICS.INSTALL.SDFHLOAD"
-    },
     "state": "initial",
     "destination": "A"
 }

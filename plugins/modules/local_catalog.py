@@ -253,9 +253,20 @@ class AnsibleLocalCatalogModule(DataSet):
                 },
             },
         })
-        arg_spec[CICS_DATA_SETS].update({
-            "required": True
-        })
+        arg_spec[CICS_DATA_SETS] = {
+            "type": "dict",
+            "required": True,
+            "options": {
+                "template": {
+                    "type": "str",
+                    "required": False,
+                },
+                "sdfhload": {
+                    "type": "str",
+                    "required": False,
+                },
+            },
+        }
 
         return arg_spec
 

@@ -37,7 +37,6 @@ default_arg_parms = {
     "space_primary": 5,
     "space_type": "M",
     "region_data_sets": {"dfhtemp": {"dsn": NAME}},
-    "cics_data_sets": {"sdfhload": "TEST.CICS.INSTALL.SDFHLOAD"},
     "state": "initial",
 }
 

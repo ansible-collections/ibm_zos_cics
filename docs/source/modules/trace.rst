@@ -31,34 +31,6 @@ Parameters
 
 
      
-cics_data_sets
-  The name of the \ :literal:`SDFHLOAD`\  library of the CICS installation, for example, \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
-
-
-  | **required**: False
-  | **type**: dict
-
-
-     
-  sdfhload
-    The location of the \ :literal:`SDFHLOAD`\  library to override the template.
-
-
-    | **required**: False
-    | **type**: str
-
-
-     
-  template
-    The templated location of the \ :literal:`SDFHLOAD`\  library.
-
-
-    | **required**: False
-    | **type**: str
-
-
-
-     
 destination
   The auxiliary trace data set to create. If the value is left blank, A is implied, but you can specify A or B.
 
