@@ -1,0 +1,45 @@
+- name: Create data set lock if it doesn't exist to indicate console is in use
+  ibm.ibm_zos_core.zos_data_set:
+    name: "{{ ansible_user }}.AN{{ build_number }}.STOPCICS.LOCK"
+    type: seq
+    state: present
+    replace: false
+  register: ds_status
+  until: ds_status.changed
+  retries: 180
+  delay: 10
+
+- name: Stop CICS
+  block:
+    - name: Issue shutdown command
+      ibm.ibm_zos_cics.stop_cics:
+        job_id: "{{ start_result.job_id }}"
+        mode: "{{ mode }}"
+      register: stop_result
+
+  always:
+    - name: Remove data set to indicate console is not in use
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ ansible_user }}.AN{{ build_number }}.STOPCICS.LOCK"
+        state: absent
+      register: ds_status
+      until: ds_status.changed
+      retries: 3
+      delay: 10
+
+- name: Log output of stop
+  ansible.builtin.debug:
+    msg: "{{ stop_result }}"
+
+- name: Assert CICS stop did not fail
+  ansible.builtin.assert:
+    that:
+      - stop_result.failed != True
+      - stop_result.executions[2].return.jobs | selectattr("ret_code", 'equalto', None) | list | length == 0
+    fail_msg: "CICS Region did not stop successfully"
+
+- name: Execute an command to delete job
+  ansible.builtin.command:
+    cmd: "tsocmd CANCEL {{ start_region_applid }} PURGE"
+  register: delete_result
+  changed_when: delete_result.rc == 0
