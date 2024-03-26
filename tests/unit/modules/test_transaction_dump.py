@@ -38,6 +38,7 @@ NAMEB = "TEST.REGIONS.DFHDMPB"
 
 default_arg_parms = {
     "space_primary": 20,
+    "space_secondary": 3,
     "space_type": "M",
     "region_data_sets": {
         "dfhdmpa": {

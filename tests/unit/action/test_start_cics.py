@@ -296,7 +296,8 @@ def test_process_args_with_extra_data_set_args():
         "region_data_sets": {"template": "TEST.CICSPY1.RDEV.<< data_set_name >>"},
         "cics_data_sets": {"template": "TEST.CICS.<< lib_name >>"},
         "le_data_sets": {"template": "TEST.LE.<< lib_name >>"},
-        "space_primary": 1,
+        "space_primary": 2,
+        "space_secondary": 1,
         "space_type": "M",
         "state": "initial"
     }

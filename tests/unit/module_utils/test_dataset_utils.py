@@ -455,6 +455,7 @@ def test__run_iefbr14():
         normal_disposition="catalog",
         conditional_disposition="delete",
         primary=15,
+        secondary=3,
         primary_unit="MB",
         type="SEQ"
     )

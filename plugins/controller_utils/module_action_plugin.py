@@ -151,5 +151,7 @@ def _remove_data_set_args(module_args):
         del module_args["state"]
     if "space_primary" in list(module_args):
         del module_args["space_primary"]
+    if "space_secondary" in list(module_args):
+        del module_args["space_secondary"]
     if "space_type" in list(module_args):
         del module_args["space_type"]

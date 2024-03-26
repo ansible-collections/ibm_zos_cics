@@ -236,7 +236,8 @@ def test__remove_data_set_args():
         "region_data_sets": {"template": "region.data.set.template.<< data_set_name >>"},
         "cics_data_sets": {"template": "cics.data.set.template.<< lib_name >>"},
         "le_data_sets": {"template": "le.data.set.template.<< lib_name >>"},
-        "space_primary": 1,
+        "space_primary": 2,
+        "space_secondary": 1,
         "space_type": "M",
         "state": "initial"
     }
