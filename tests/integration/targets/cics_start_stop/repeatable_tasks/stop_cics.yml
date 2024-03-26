@@ -16,6 +16,7 @@
         job_id: "{{ start_result.job_id }}"
         mode: "{{ mode }}"
       register: stop_result
+      timeout: 300
 
   always:
     - name: Remove data set to indicate console is not in use
