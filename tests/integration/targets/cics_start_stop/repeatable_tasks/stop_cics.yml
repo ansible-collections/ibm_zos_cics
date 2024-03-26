@@ -39,7 +39,7 @@
       - stop_result.executions[2].return.jobs | selectattr("ret_code", 'equalto', None) | list | length == 0
     fail_msg: "CICS Region did not stop successfully"
 
-- name: Execute an command to delete job
+- name: Execute a command to delete job
   ansible.builtin.command:
     cmd: "tsocmd CANCEL {{ start_region_applid }} PURGE"
   register: delete_result

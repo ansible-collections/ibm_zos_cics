@@ -5,12 +5,16 @@
   hosts: 'all'
   gather_facts: false
   environment: "{{ environment_vars }}"
+  vars:
+    script_uss_path: "{{ uss_path }}/script.csdup"
+
   module_defaults:
     group/ibm.ibm_zos_cics.region_group:
       cics_data_sets:
         template: "{{ cics_install_path }}.<< lib_name >>"
       region_data_sets:
         template: "{{ region_data_set_path }}.<< data_set_name >>"
+
   tasks:
     - name: Skip whole test if Ansible version too low
       when: ansible_version.minor > 11

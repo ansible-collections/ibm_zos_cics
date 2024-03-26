@@ -20,7 +20,6 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import M
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
 
-LOCATION = "location"
 SDFHLOAD = "sdfhload"
 STATE = "state"
 SPACE_PRIMARY = "space_primary"
@@ -112,6 +111,9 @@ class DataSet():
         self._module.exit_json(**self.result)
 
     def _get_arg_spec(self):  # type: () -> dict
+        """
+        Get the arg spec, which is the set of arguments that can be passed into the Ansible module
+        """
         return {
             SPACE_PRIMARY: {
                 "type": "int",
@@ -138,6 +140,9 @@ class DataSet():
         }
 
     def get_arg_defs(self):  # type: () -> dict
+        """
+        Get the arg defs, which is a copy of the arg spec, but with certain types changed to the ones used by BetterArgParser
+        """
         defs = self._get_arg_spec()
         if defs.get(CICS_DATA_SETS):
             defs[CICS_DATA_SETS]["options"]["sdfhload"].update({
@@ -146,8 +151,18 @@ class DataSet():
             defs[CICS_DATA_SETS]["options"]["sdfhload"].pop("type")
         return defs
 
-    def validate_parameters(self):  # type: () -> None
+    def validate_parameters(self):  # type: () -> dict
+        """
+        Use BetterArgParser to parse the parameters passed in, which also does some validation
+        """
         params = BetterArgParser(self.get_arg_defs()).parse_args(self._module.params)
+        self.assign_parameters(params)
+
+    def assign_parameters(self, params):  # type: (dict) -> None
+        """
+        Assign parameters to the relevant fields
+        """
+        # Mandatory parameters
         self.target_state = params[STATE]
         self.primary = params[SPACE_PRIMARY]
         self.region_param = params[REGION_DATA_SETS]

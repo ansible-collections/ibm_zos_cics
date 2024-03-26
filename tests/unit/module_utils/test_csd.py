@@ -5,6 +5,7 @@
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdinDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import CYLINDERS, MEGABYTES
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException, _execution
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
@@ -30,6 +31,10 @@ except ImportError:
 
 
 NAME = "ANSI.TEST.DFHCSD"
+
+
+def setUp():
+    StdinDefinition.__init__ = MagicMock(return_value=None)
 
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE)
@@ -89,6 +94,7 @@ def test_get_idcams_cmd_cylinders():
 
 
 def test_csdup_response():
+    setUp()
     csd_input = {
         "exists": False,
         "name": NAME,
@@ -111,6 +117,7 @@ def test_csdup_response():
 
 
 def test_bad_csdup_response():
+    setUp()
     csd_input = {
         "exists": False,
         "name": NAME,
