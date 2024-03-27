@@ -284,7 +284,7 @@ def create_feedback_response(errors):  # type: (str, List) -> OrderedDict
 
 
 def get_error_detail(error_type, error_details):    # type: (str, List) -> Tuple[str, List[OrderedDict]]
-    return error_type,\
+    return error_type, \
         [
             OrderedDict(
                 [('@' + k, v) for k, v in error.items()]
