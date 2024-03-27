@@ -43,6 +43,7 @@ NAME = "TEST.REGIONS.GCD"
 
 default_arg_parms = {
     "space_primary": 5,
+    "space_secondary": 3,
     "space_type": "M",
     "region_data_sets": {
         "dfhgcd": {

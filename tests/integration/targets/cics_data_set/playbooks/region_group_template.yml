@@ -41,6 +41,9 @@
         - name: Run MODULE_NAME module with initial state
           ibm.ibm_zos_cics.MODULE_NAME:
             state: "initial"
+            space_primary: 10
+            space_secondary: 3
+            space_type: "M"
           register: result
         - name: Debug
           ansible.builtin.debug:

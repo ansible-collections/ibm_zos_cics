@@ -14,6 +14,9 @@
         template: "{{ cics_install_path }}.<< lib_name >>"
       region_data_sets:
         template: "{{ region_data_set_path }}.<< data_set_name >>"
+      space_primary: 5
+      space_secondary: 2
+      space_type: "M"
 
   tasks:
     - name: Skip whole test if Ansible version too low

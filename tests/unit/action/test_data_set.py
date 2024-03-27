@@ -22,7 +22,8 @@ def get_templar(module_args):
 def test_data_set_with_template():
     args_with_template = {
         "region_data_sets": {"template": "data.set.template.<< data_set_name >>"},
-        "space_primary": 1,
+        "space_primary": 2,
+        "space_secondary": 1,
         "space_type": "M",
         "state": "initial"
     }
@@ -36,7 +37,8 @@ def test_data_set_with_template():
             "dfhlrq": {"dsn": "data.set.template.DFHLRQ"},
             "template": "data.set.template.<< data_set_name >>",
         },
-        "space_primary": 1,
+        "space_primary": 2,
+        "space_secondary": 1,
         "space_type": "M",
         "state": "initial"
     }

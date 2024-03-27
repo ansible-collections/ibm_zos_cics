@@ -78,12 +78,22 @@ space_primary
 
   This option takes effect only when the transient data intrapartition data set is being created. If the data set already exists, the option has no effect.
 
-  The size value of the secondary space allocation for the transient data intrapartition data set is 1; the unit is specified with \ :literal:`space\_type`\ .
-
 
   | **required**: False
   | **type**: int
   | **default**: 100
+
+
+     
+space_secondary
+  The size of the secondary space allocated to the transient data intrapartition data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+
+  This option takes effect only when the transient data intrapartition data set is being created. If the data set already exists, the option has no effect.
+
+
+  | **required**: False
+  | **type**: int
+  | **default**: 10
 
 
      

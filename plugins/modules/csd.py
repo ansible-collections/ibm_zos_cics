@@ -31,10 +31,18 @@ options:
         Note that this is just the value; the unit is specified with O(space_type).
       - This option takes effect only when the CSD is being created.
         If the CSD already exists, the option has no effect.
-      - The size value of the secondary space allocation for the CSD is 1; the unit is specified with O(space_type).
     type: int
     required: false
     default: 4
+  space_secondary:
+    description:
+      - The size of the secondary space allocated to the CSD.
+        Note that this is just the value; the unit is specified with O(space_type).
+      - This option takes effect only when the CSD is being created.
+        If the CSD already exists, the option has no effect.
+    type: int
+    required: false
+    default: 1
   space_type:
     description:
       - The unit portion of the CSD size. Note that this is
@@ -259,6 +267,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
     MEGABYTES,
     REGION_DATA_SETS,
     SPACE_PRIMARY,
+    SPACE_SECONDARY,
     SPACE_TYPE,
     STATE,
     ABSENT,
@@ -299,6 +308,9 @@ class AnsibleCSDModule(DataSet):
 
         arg_spec[SPACE_PRIMARY].update({
             "default": SPACE_PRIMARY_DEFAULT
+        })
+        arg_spec[SPACE_SECONDARY].update({
+            "default": SPACE_SECONDARY_DEFAULT
         })
         arg_spec[SPACE_TYPE].update({
             "default": MEGABYTES
