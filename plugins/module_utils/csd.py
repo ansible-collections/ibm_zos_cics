@@ -44,7 +44,7 @@ def _run_dfhcsdup(data_set, data_definition):  # type: (dict, DataDefinition) ->
         stdout=dfhcsdup_response.stdout,
         stderr=dfhcsdup_response.stderr))
 
-    if dfhcsdup_response.rc != 0:
+    if dfhcsdup_response.rc >= 8:
         raise MVSExecutionException(
             "DFHCSDUP failed with RC {0}".format(
                 dfhcsdup_response.rc
