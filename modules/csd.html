@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>csd – Create, remove, and manage the CICS CSD &mdash; IBM Z CICS Collection 1.1.0-beta.4 documentation</title>
+  <title>csd – Create, remove, and manage the CICS CSD &mdash; IBM Z CICS Collection 1.1.0-beta.5 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/ansible.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/rtd-ethical-ads.css" type="text/css" />
@@ -47,7 +47,7 @@
   <img class="DocSiteNav-logo"
     src="../_static/images/Ansible-Mark-RGB_White.png"
     alt="Ansible Logo">
-  <div class="DocSiteNav-title">IBM Z CICS Collection 1.1.0-beta.4 documentation</div>
+  <div class="DocSiteNav-title">IBM Z CICS Collection 1.1.0-beta.5 documentation</div>
 </a>
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
@@ -101,6 +101,8 @@
 <li class="toctree-l2"><a class="reference internal" href="intrapartition.html">intrapartition – Create and remove the CICS transient data intrapartition data set</a></li>
 <li class="toctree-l2"><a class="reference internal" href="local_catalog.html">local_catalog – Create, remove, and manage the CICS local catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="local_request_queue.html">local_request_queue – Create and remove the CICS local request queue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start_cics.html">start_cics – Start a CICS region</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stop_cics.html">stop_cics – Stop a CICS Region</a></li>
 <li class="toctree-l2"><a class="reference internal" href="trace.html">trace – Allocate auxiliary trace data sets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transaction_dump.html">transaction_dump – Allocate transaction dump data sets</a></li>
 </ul>
@@ -213,13 +215,40 @@
 </dd>
 </dl>
 </dd>
+<dt>script_location</dt><dd><p>The type of location to load the DFHCSDUP script from.</p>
+<p><code class="docutils literal notranslate"><span class="pre">DATA_SET</span></code> will load from a data set a PDS, PDSE, or sequential data set.</p>
+<p><code class="docutils literal notranslate"><span class="pre">USS</span></code> will load from a file on UNIX System Services (USS).</p>
+<p><code class="docutils literal notranslate"><span class="pre">LOCAL</span></code> will load from a file local to the ansible control node. NOT SUPPORTED IN THIS BETA.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>default</strong>: DATA_SET</div>
+<div class="line"><strong>choices</strong>: DATA_SET, USS, LOCAL</div>
+</div>
+</dd>
+<dt>script_src</dt><dd><p>The path to the source file containing the DFHCSDUP script to submit.</p>
+<p>It could be a data set.(e.g “MY.HLQ.SOME.DEFS”,”MY.HLQ.SOME(DEFS)”).</p>
+<p>Or a USS file (e.g “/u/tester/demo/sample.csdup”).</p>
+<p>Or a LOCAL file (e.g “/User/tester/ansible-playbook/script.csdup”). NOT SUPPORTED IN THIS BETA.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
 <dt>space_primary</dt><dd><p>The size of the primary space allocated to the CSD. Note that this is just the value; the unit is specified with <code class="docutils literal notranslate"><span class="pre">space_type</span></code>.</p>
 <p>This option takes effect only when the CSD is being created. If the CSD already exists, the option has no effect.</p>
-<p>The size value of the secondary space allocation for the CSD is 1; the unit is specified with <code class="docutils literal notranslate"><span class="pre">space_type</span></code>.</p>
 <div class="line-block">
 <div class="line"><strong>required</strong>: False</div>
 <div class="line"><strong>type</strong>: int</div>
 <div class="line"><strong>default</strong>: 4</div>
+</div>
+</dd>
+<dt>space_secondary</dt><dd><p>The size of the secondary space allocated to the CSD. Note that this is just the value; the unit is specified with <code class="docutils literal notranslate"><span class="pre">space_type</span></code>.</p>
+<p>This option takes effect only when the CSD is being created. If the CSD already exists, the option has no effect.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+<div class="line"><strong>default</strong>: 1</div>
 </div>
 </dd>
 <dt>space_type</dt><dd><p>The unit portion of the CSD size. Note that this is just the unit; the value is specified with <code class="docutils literal notranslate"><span class="pre">space_primary</span></code>.</p>
@@ -236,10 +265,11 @@
 <p><code class="docutils literal notranslate"><span class="pre">absent</span></code> will remove the CSD entirely, if it already exists.</p>
 <p><code class="docutils literal notranslate"><span class="pre">initial</span></code> will create the CSD if it does not already exist, and initialize it by using DFHCSDUP.</p>
 <p><code class="docutils literal notranslate"><span class="pre">warm</span></code> will retain an existing CSD in its current state.</p>
+<p><code class="docutils literal notranslate"><span class="pre">script</span></code> will run a DFHCSDUP script to update an existing CSD.</p>
 <div class="line-block">
 <div class="line"><strong>required</strong>: True</div>
 <div class="line"><strong>type</strong>: str</div>
-<div class="line"><strong>choices</strong>: initial, absent, warm</div>
+<div class="line"><strong>choices</strong>: initial, absent, warm, script</div>
 </div>
 </dd>
 </dl>
@@ -279,6 +309,24 @@
 <span class="w">    </span><span class="nt">cics_data_sets</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CICSTS61.CICS.&lt;&lt;</span><span class="nv"> </span><span class="s">lib_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
 <span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;warm&quot;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run a DFHCSDUP script from a data set</span>
+<span class="w">  </span><span class="nt">ibm.ibm_zos_cics.csd</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">region_data_sets</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;REGIONS.ABCD0001.&lt;&lt;</span><span class="nv"> </span><span class="s">data_set_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
+<span class="w">    </span><span class="nt">cics_data_sets</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CICSTS61.CICS.&lt;&lt;</span><span class="nv"> </span><span class="s">lib_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;script&quot;</span>
+<span class="w">    </span><span class="nt">script_src</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;MY.HLQ.SOME.DEFS&quot;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run a DFHCSDUP script from a USS file</span>
+<span class="w">  </span><span class="nt">ibm.ibm_zos_cics.csd</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">region_data_sets</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;REGIONS.ABCD0001.&lt;&lt;</span><span class="nv"> </span><span class="s">data_set_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
+<span class="w">    </span><span class="nt">cics_data_sets</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CICSTS61.CICS.&lt;&lt;</span><span class="nv"> </span><span class="s">lib_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
+<span class="w">    </span><span class="nt">script_src</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/path/to/my/defs.csdup&quot;</span>
+<span class="w">    </span><span class="nt">script_location</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;USS&quot;</span>
 </pre></div>
 </div>
 </section>
@@ -310,12 +358,13 @@
 <div class="line"><strong>type</strong>: dict</div>
 </div>
 <dl>
-<dt>vsam</dt><dd><div class="line-block">
-<div class="line">True if the data set is a VSAM data set.</div>
+<dt>data_set_organization</dt><dd><div class="line-block">
+<div class="line">The organization of the data set at the start of the Ansible task.</div>
 </div>
 <div class="line-block">
 <div class="line"><strong>returned</strong>: always</div>
-<div class="line"><strong>type</strong>: bool</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>sample</strong>: VSAM</div>
 </div>
 </dd>
 <dt>exists</dt><dd><div class="line-block">
@@ -336,12 +385,13 @@
 <div class="line"><strong>type</strong>: dict</div>
 </div>
 <dl>
-<dt>vsam</dt><dd><div class="line-block">
-<div class="line">True if the data set is a VSAM data set.</div>
+<dt>data_set_organization</dt><dd><div class="line-block">
+<div class="line">The organization of the data set at the end of the Ansible task.</div>
 </div>
 <div class="line-block">
 <div class="line"><strong>returned</strong>: always</div>
-<div class="line"><strong>type</strong>: bool</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>sample</strong>: VSAM</div>
 </div>
 </dd>
 <dt>exists</dt><dd><div class="line-block">
