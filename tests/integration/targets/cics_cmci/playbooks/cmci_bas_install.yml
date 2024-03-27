@@ -16,6 +16,7 @@
     region_one: "{{ cmci_scope_region_1 }}"
     region_two: "{{ cmci_scope_region_2 }}"
     target_scope: "{{ cmci_program_name_1 }}"
+    target_scope_special_char: "{{ cmci_system_group_special_chars }}"
     def_ver: "1"
 
   module_defaults:
@@ -159,6 +160,17 @@
         resources:
           filter:
             group: "{{ target_scope }}"
+      register: result
+      failed_when: >
+        'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
+
+    - name: Delete system group with special chars
+      delegate_to: localhost
+      ibm.ibm_zos_cics.cmci_delete:
+        type: CICSRegionGroup
+        resources:
+          filter:
+            group: "{{ target_scope_special_char }}"
       register: result
       failed_when: >
         'cpsm_response' not in result or result.cpsm_response not in ['OK', 'NODATA']
@@ -450,6 +462,50 @@
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].program == program
+
+    - name: Create System Group with special chars
+      delegate_to: localhost
+      ibm.ibm_zos_cics.cmci_create:
+        type: CICSRegionGroup
+        attributes:
+          group: "{{ target_scope_special_char }}"
+      register: result
+
+    - name: Assert create System group with special chars
+      ansible.builtin.assert:
+        that:
+          - result is changed
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].group == target_scope_special_char
+
+    - name: Query System group with special chars in scope
+      delegate_to: localhost
+      ibm.ibm_zos_cics.cmci_get:
+        scope: "{{ target_scope_special_char }}"
+        type: CICSRegionGroup
+        resources:
+          filter:
+            changeusrid: "{{ cmci_user }}"
+            group: "{{ target_scope_special_char }}"
+      register: result
+
+    - name: Assert query System group with special chars
+      ansible.builtin.assert:
+        that:
+          - result.cpsm_response == 'OK'
+          - result.record_count == 1
+          - result.records[0].group == target_scope_special_char
+          - result.records[0].changeusrid == cmci_user
+
+    - name: Delete System group with special chars
+      delegate_to: localhost
+      ibm.ibm_zos_cics.cmci_delete:
+        type: CICSRegionGroup
+        resources:
+          filter:
+            group: "{{ target_scope_special_char }}"
+      register: result
 
     ##################################################################################
     # Tear down
