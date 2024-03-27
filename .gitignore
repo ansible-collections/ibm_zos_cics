@@ -7,5 +7,5 @@ venv*
 .venv
 tests/output
 ibm-ibm_zos_cics-*.tar.gz
-tests/integration/targets/cics_cmci/cmci-variables.yml
 tests/integration/inventory
+tests/integration/variables/cmci.yml
