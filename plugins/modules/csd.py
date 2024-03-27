@@ -99,12 +99,35 @@ options:
       - V(initial) will create the CSD if it does not
         already exist, and initialize it by using DFHCSDUP.
       - V(warm) will retain an existing CSD in its current state.
+      - V(script) will run a DFHCSDUP script to update an existing CSD.
     choices:
       - "initial"
       - "absent"
       - "warm"
+      - "script"
     required: true
     type: str
+  script_location:
+    description:
+      - The type of location to load the DFHCSDUP script from.
+      - V(DATA_SET) will load from a data set a PDS, PDSE, or sequential data set.
+      - V(USS) will load from a file on UNIX System Services (USS).
+      - V(LOCAL) will load from a file local to the ansible control node. NOT SUPPORTED IN THIS BETA.
+    choices:
+      - "DATA_SET"
+      - "USS"
+      - "LOCAL"
+    type: str
+    required: false
+    default: "DATA_SET"
+  script_src:
+    description:
+      - The path to the source file containing the DFHCSDUP script to submit.
+      - It could be a data set.(e.g "MY.HLQ.SOME.DEFS","MY.HLQ.SOME(DEFS)").
+      - Or a USS file (e.g "/u/tester/demo/sample.csdup").
+      - Or a LOCAL file (e.g "/User/tester/ansible-playbook/script.csdup"). NOT SUPPORTED IN THIS BETA.
+    type: str
+    required: false
 '''
 
 
@@ -142,6 +165,24 @@ EXAMPLES = r"""
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
     state: "warm"
+
+- name: Run a DFHCSDUP script from a data set
+  ibm.ibm_zos_cics.csd:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    cics_data_sets:
+      template: "CICSTS61.CICS.<< lib_name >>"
+    state: "script"
+    script_src: "MY.HLQ.SOME.DEFS"
+
+- name: Run a DFHCSDUP script from a USS file
+  ibm.ibm_zos_cics.csd:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    cics_data_sets:
+      template: "CICSTS61.CICS.<< lib_name >>"
+    script_src: "/path/to/my/defs.csdup"
+    script_location: "USS"
 """
 
 
@@ -209,6 +250,7 @@ executions:
 
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition, StdinDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set_utils import (
     _build_idcams_define_cmd
 )
@@ -218,10 +260,13 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
     REGION_DATA_SETS,
     SPACE_PRIMARY,
     SPACE_TYPE,
+    STATE,
+    ABSENT,
+    INITIAL,
+    WARM,
     DataSet
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.csd import (
-    _get_add_dfhtermc_to_group_cmd,
     _get_csdup_initilize_cmd,
     _get_idcams_cmd_csd,
     _run_dfhcsdup
@@ -230,10 +275,21 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.csd import (
 DSN = "dfhcsd"
 SPACE_PRIMARY_DEFAULT = 4
 SPACE_SECONDARY_DEFAULT = 1
+SCRIPT = "script"
+STATE_OPTIONS = [ABSENT, INITIAL, WARM, SCRIPT]
+SCRIPT_SOURCE = "script_src"
+SCRIPT_LOCATION = "script_location"
+DATA_SET = "DATA_SET"
+USS = "USS"
+LOCAL = "LOCAL"
+SCRIPT_LOCATION_OPTIONS = [DATA_SET, USS, LOCAL]
+SCRIPT_LOCATION_DEFAULT = DATA_SET
 
 
 class AnsibleCSDModule(DataSet):
     def __init__(self):
+        self.script_src = ""
+        self.script_location = ""
         super(AnsibleCSDModule, self).__init__(SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT)
         self.name = self.region_param[DSN]["dsn"].upper()
         self.expected_data_set_organization = "VSAM"
@@ -246,6 +302,9 @@ class AnsibleCSDModule(DataSet):
         })
         arg_spec[SPACE_TYPE].update({
             "default": MEGABYTES
+        })
+        arg_spec[STATE].update({
+            "choices": STATE_OPTIONS
         })
         arg_spec[REGION_DATA_SETS]["options"].update({
             DSN: {
@@ -273,6 +332,16 @@ class AnsibleCSDModule(DataSet):
                 },
             },
         }
+        arg_spec.update({
+            SCRIPT_SOURCE: {
+                "type": "str"
+            },
+            SCRIPT_LOCATION: {
+                "type": "str",
+                "choices": SCRIPT_LOCATION_OPTIONS,
+                "default": DATA_SET
+            },
+        })
 
         return arg_spec
 
@@ -282,7 +351,31 @@ class AnsibleCSDModule(DataSet):
             "arg_type": "data_set_base"
         })
         defs[REGION_DATA_SETS]["options"][DSN]["options"]["dsn"].pop("type")
+        if SCRIPT_LOCATION == DATA_SET:
+            defs[SCRIPT_SOURCE].update({
+                "arg_type": "data_set_base"
+            })
+            defs[SCRIPT_SOURCE].pop("type")
         return defs
+
+    def assign_parameters(self, params):  # type: (dict) -> None
+        super().assign_parameters(params)
+        if params.get(SCRIPT_SOURCE):
+            self.script_src = params[SCRIPT_SOURCE]
+        if params.get(SCRIPT_LOCATION):
+            self.script_location = params[SCRIPT_LOCATION]
+
+    def execute_target_state(self):   # type: () -> None
+        if self.target_state == ABSENT:
+            self.delete_data_set()
+        elif self.target_state == INITIAL:
+            self.init_data_set()
+        elif self.target_state == WARM:
+            self.warm_data_set()
+        elif self.target_state == SCRIPT:
+            self.csdup_script()
+        else:
+            self.invalid_target_state()
 
     def create_data_set(self):  # type: () -> None
         create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_csd(self.get_data_set()))
@@ -293,8 +386,34 @@ class AnsibleCSDModule(DataSet):
         try:
             csdup_initialize_executions = _run_dfhcsdup(self.get_data_set(), _get_csdup_initilize_cmd())
             self.executions.extend(csdup_initialize_executions)
-            csdup_consoles_executions = _run_dfhcsdup(self.get_data_set(), _get_add_dfhtermc_to_group_cmd())
-            self.executions.extend(csdup_consoles_executions)
+        except MVSExecutionException as e:
+            self.executions.extend(e.executions)
+            self._fail(e.message)
+
+    def csdup_script(self):
+
+        if not self.script_location:
+            self._fail("script_location required")
+
+        if not self.script_src:
+            self._fail("script_src required")
+
+        try:
+            csdup_script_executions = []
+            if self.script_location == DATA_SET:
+                csdup_script_executions.extend(_run_dfhcsdup(self.get_data_set(), DatasetDefinition(self.script_src)))
+            elif self.script_location == USS:
+                file = open(self.script_src)
+                file_content = file.read()
+                csdup_script_executions.append(_run_dfhcsdup(self.get_data_set(), StdinDefinition(content=file_content)))
+            elif self.script_location == LOCAL:
+                self._fail("script_location: LOCAL not supported in this beta.")
+            else:
+                self._fail("script_location: {0} not recognised.".format(self.script_location))
+
+            self.executions.extend(csdup_script_executions)
+
+            self.changed = True
         except MVSExecutionException as e:
             self.executions.extend(e.executions)
             self._fail(e.message)

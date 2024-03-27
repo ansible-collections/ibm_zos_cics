@@ -9,7 +9,6 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import icetool
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
     PYTHON_LANGUAGE_FEATURES_MESSAGE,
-    CSDUP_add_group_stdout,
     CSDUP_name,
     CSDUP_stderr,
     CSDUP_initialize_stdout,
@@ -25,6 +24,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     set_module_args
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import csd
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdinDefinition
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
 import pytest
 import sys
@@ -56,6 +56,10 @@ default_arg_parms = {
 }
 
 
+def setUp():
+    StdinDefinition.__init__ = MagicMock(return_value=None)
+
+
 def initialise_module(**kwargs):
     initial_args = default_arg_parms
     initial_args.update(kwargs)
@@ -71,6 +75,7 @@ def initialise_module(**kwargs):
     sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_create_an_intial_csd():
+    setUp()
     csd_module = initialise_module()
 
     data_set_utils._execute_idcams = MagicMock(
@@ -84,8 +89,7 @@ def test_create_an_intial_csd():
     )
     csd_utils._execute_dfhcsdup = MagicMock(
         side_effect=[
-            MVSCmdResponse(rc=0, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)),
-            MVSCmdResponse(rc=0, stdout=CSDUP_add_group_stdout(NAME), stderr=CSDUP_stderr(NAME))
+            MVSCmdResponse(rc=0, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME))
         ]
     )
 
@@ -108,12 +112,6 @@ def test_create_an_intial_csd():
                 name=CSDUP_name(),
                 rc=0,
                 stdout=CSDUP_initialize_stdout(NAME),
-                stderr=CSDUP_stderr(NAME)
-            ),
-            _execution(
-                name=CSDUP_name(),
-                rc=0,
-                stdout=CSDUP_add_group_stdout(NAME),
                 stderr=CSDUP_stderr(NAME)
             ),
             _execution(
@@ -141,6 +139,7 @@ def test_create_an_intial_csd():
     sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_delete_an_existing_csd():
+    setUp()
     csd_module = initialise_module(state="absent")
 
     data_set_utils._execute_idcams = MagicMock(
@@ -193,6 +192,7 @@ def test_delete_an_existing_csd():
     sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_do_nothing_to_an_existing_csd():
+    setUp()
     csd_module = initialise_module()
 
     data_set_utils._execute_listds = MagicMock(
@@ -210,8 +210,7 @@ def test_do_nothing_to_an_existing_csd():
     )
     csd_utils._execute_dfhcsdup = MagicMock(
         side_effect=[
-            MVSCmdResponse(rc=0, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)),
-            MVSCmdResponse(rc=0, stdout=CSDUP_add_group_stdout(NAME), stderr=CSDUP_stderr(NAME))
+            MVSCmdResponse(rc=0, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME))
         ]
     )
 
@@ -234,12 +233,6 @@ def test_do_nothing_to_an_existing_csd():
                 name=CSDUP_name(),
                 rc=0,
                 stdout=CSDUP_initialize_stdout(NAME),
-                stderr=CSDUP_stderr(NAME)
-            ),
-            _execution(
-                name=CSDUP_name(),
-                rc=0,
-                stdout=CSDUP_add_group_stdout(NAME),
                 stderr=CSDUP_stderr(NAME)
             ),
             _execution(
@@ -267,6 +260,7 @@ def test_do_nothing_to_an_existing_csd():
     sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_remove_non_existent_csd():
+    setUp()
     csd_module = initialise_module(state="absent")
 
     data_set_utils._execute_listds = MagicMock(
@@ -307,6 +301,7 @@ def test_remove_non_existent_csd():
     sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_warm_start_a_existing_csd():
+    setUp()
     csd_module = initialise_module(state="warm")
 
     data_set_utils._execute_listds = MagicMock(
@@ -362,6 +357,7 @@ def test_warm_start_a_existing_csd():
     sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_error_warm_start_a_unused_csd():
+    setUp()
     csd_module = initialise_module(state="warm")
 
     data_set_utils._execute_listds = MagicMock(
@@ -414,6 +410,7 @@ def test_error_warm_start_a_unused_csd():
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE)
 def test_error_warm_start_a_non_existent_csd():
+    setUp()
     csd_module = initialise_module(state="warm")
 
     data_set_utils._execute_listds = MagicMock(return_value=MVSCmdResponse(
@@ -449,6 +446,7 @@ def test_error_warm_start_a_non_existent_csd():
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE)
 def test_bad_response_from_csdup():
+    setUp()
     csd_module = initialise_module()
 
     data_set_utils._execute_idcams = MagicMock(

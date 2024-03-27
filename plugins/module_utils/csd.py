@@ -3,34 +3,43 @@
 # (c) Copyright IBM Corp. 2023
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdinDefinition, DatasetDefinition, DDStatement, StdoutDefinition
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd, MVSCmdResponse
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution, MVSExecutionException
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
+    MVSExecutionException,
+    _execution,
+)
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import (
+    DataDefinition,
+    DatasetDefinition,
+    DDStatement,
+    StdinDefinition,
+    StdoutDefinition,
+)
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import (
+    MVSCmd,
+    MVSCmdResponse,
+)
 
 
-def _get_csdup_dds(data_set, cmd):  # type: (dict, str) -> list[DDStatement]
+def _get_csdup_dds(data_set, data_definition):  # type: (dict, DataDefinition) -> list[DDStatement]
     return [
         DDStatement('steplib', DatasetDefinition(data_set["sdfhload"], disposition="SHR")),
-        DDStatement(
-            'dfhcsd',
-            DatasetDefinition(
-                dataset_name=data_set["name"],
-                disposition="SHR")),
+        DDStatement('dfhcsd', DatasetDefinition(dataset_name=data_set["name"], disposition="SHR")),
         DDStatement('sysprint', StdoutDefinition()),
         DDStatement('sysudump', StdoutDefinition()),
-        DDStatement('sysin', StdinDefinition(content=cmd)),
+        DDStatement('sysin', data_definition),
     ]
 
 
-def _run_dfhcsdup(data_set, cmd):  # type: (dict, str) -> list[_execution]
+def _run_dfhcsdup(data_set, data_definition):  # type: (dict, DataDefinition) -> list[_execution]
     executions = []
-    dfhcsdup_response = _execute_dfhcsdup(data_set, cmd)
+    dfhcsdup_response = _execute_dfhcsdup(data_set, data_definition)
 
     executions.append(_execution(
-        name="DFHCSDUP - Initialise CSD",
+        name="Run DFHCSDUP",
         rc=dfhcsdup_response.rc,
         stdout=dfhcsdup_response.stdout,
         stderr=dfhcsdup_response.stderr))
@@ -44,20 +53,16 @@ def _run_dfhcsdup(data_set, cmd):  # type: (dict, str) -> list[_execution]
     return executions
 
 
-def _execute_dfhcsdup(data_set, cmd):  # type: (dict, str) -> MVSCmdResponse
+def _execute_dfhcsdup(data_set, data_definition):  # type: (dict, DataDefinition) -> MVSCmdResponse
     return MVSCmd.execute(
         pgm="DFHCSDUP",
-        dds=_get_csdup_dds(data_set, cmd),
+        dds=_get_csdup_dds(data_set, data_definition),
         verbose=True,
         debug=False)
 
 
-def _get_csdup_initilize_cmd():  # type: () -> str
-    return "INITIALIZE"
-
-
-def _get_add_dfhtermc_to_group_cmd():  # type: () -> str
-    return "ADD GROUP(DFHTERMC) LIST(DFHLIST1)"
+def _get_csdup_initilize_cmd():  # type: () -> DataDefinition
+    return StdinDefinition(content="INITIALIZE")
 
 
 def _get_idcams_cmd_csd(dataset):  # type: (dict) -> dict

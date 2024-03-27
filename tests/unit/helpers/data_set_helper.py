@@ -319,7 +319,7 @@ def CCUTL_stderr(data_set_name):
 
 
 def CSDUP_name():
-    return "DFHCSDUP - Initialise CSD"
+    return "Run DFHCSDUP"
 
 
 def CSDUP_initialize_stdout(data_set_name):
