@@ -143,3 +143,78 @@ def test_bad_csdup_response():
 
         assert error_message == "DFHCSDUP failed with RC 99"
         assert executions == expected_executions
+
+
+def test_warning_csdup_response():
+    setUp()
+    csd_input = {
+        "exists": False,
+        "name": NAME,
+        "primary": 5,
+        "secondary": 1,
+        "unit": "M",
+        "state": "initial",
+        "vsam": False,
+        "sdfhload": "CICSTS.IN56.SDFHLOAD",
+    }
+
+    expected_executions = [
+        _execution(name=CSDUP_name(), rc=4, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)),
+    ]
+
+    csd._execute_dfhcsdup = MagicMock(return_value=MVSCmdResponse(rc=4, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)))
+
+    executions = csd._run_dfhcsdup(csd_input, csd._get_csdup_initilize_cmd())
+    assert executions == expected_executions
+
+
+def test_rc_7_csdup_response():
+    setUp()
+    csd_input = {
+        "exists": False,
+        "name": NAME,
+        "primary": 5,
+        "secondary": 1,
+        "unit": "M",
+        "state": "initial",
+        "vsam": False,
+        "sdfhload": "CICSTS.IN56.SDFHLOAD",
+    }
+
+    expected_executions = [
+        _execution(name=CSDUP_name(), rc=7, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)),
+    ]
+
+    csd._execute_dfhcsdup = MagicMock(return_value=MVSCmdResponse(rc=7, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)))
+
+    executions = csd._run_dfhcsdup(csd_input, csd._get_csdup_initilize_cmd())
+    assert executions == expected_executions
+
+
+def test_rc_8_csdup_response():
+    setUp()
+    csd_input = {
+        "exists": False,
+        "name": NAME,
+        "primary": 5,
+        "secondary": 1,
+        "unit": "M",
+        "state": "initial",
+        "vsam": False,
+        "sdfhload": "CICSTS.IN56.SDFHLOAD",
+    }
+
+    expected_executions = [
+        _execution(name=CSDUP_name(), rc=8, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)),
+    ]
+
+    csd._execute_dfhcsdup = MagicMock(return_value=MVSCmdResponse(rc=8, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)))
+
+    try:
+        csd._run_dfhcsdup(csd_input, csd._get_csdup_initilize_cmd())
+    except MVSExecutionException as e:
+        error_message = e.message
+        executions = e.executions
+
+        assert error_message == "DFHCSDUP failed with RC 8"
+        assert executions == expected_executions
