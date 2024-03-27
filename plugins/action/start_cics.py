@@ -9,10 +9,12 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.controller_utils.module_action
     LE_DS_KEYS,
     REGION_DS_KEYS,
     CICS_DS_KEYS,
+    LIBRARY_KEYS,
     _process_libraries_args,
     _process_region_data_set_args,
     _remove_data_set_args,
-    _set_top_libraries_key
+    _set_top_libraries_key,
+    _validate_list_of_data_set_lengths
 )
 
 MODULE_NAME = 'ibm.ibm_zos_cics.start_cics'
@@ -38,8 +40,11 @@ class ActionModule(ActionBase):
 
 
 def _process_module_args(module_args, _templar, task_vars):
-    _set_top_libraries_key(module_args, "dfhrpl")
-    _set_top_libraries_key(module_args, "steplib")
+    for library_key in LIBRARY_KEYS:
+        _set_top_libraries_key(module_args, library_key)
+        _validate_list_of_data_set_lengths(module_args[library_key]["top_libraries"])
+        _validate_list_of_data_set_lengths(module_args[library_key].get("libraries", []))
+
     for cics_lib in CICS_DS_KEYS:
         _process_libraries_args(module_args, _templar, task_vars, "cics_data_sets", cics_lib)
 

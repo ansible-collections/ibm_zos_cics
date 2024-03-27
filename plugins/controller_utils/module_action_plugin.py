@@ -10,6 +10,7 @@ from ansible.plugins.action import ActionBase
 REGION_DS_KEYS = ["dfhgcd", "dfhlcd", "dfhintra", "dfhlrq", "dfhtemp", "dfhauxt", "dfhbuxt", "dfhdmpa", "dfhdmpb", "dfhcsd"]
 CICS_DS_KEYS = ["sdfhload", "sdfhauth", "sdfhlic"]
 LE_DS_KEYS = ["sceecics", "sceerun", "sceerun2"]
+LIBRARY_KEYS = ["steplib", "dfhrpl"]
 
 
 class _DataSetActionPlugin(ActionBase):
@@ -22,6 +23,9 @@ class _DataSetActionPlugin(ActionBase):
         except KeyError as e:
             message = "Argument {0} undefined".format(e.args[0])
             return {"failed": True, "changed": False, "msg": message, "args": self.module_args}
+
+        except ValueError as e:
+            return {"failed": True, "changed": False, "msg": e.args[0], "args": self.module_args}
 
         return self._execute_module(
             module_name="ibm.ibm_zos_cics.{0}".format(module_name),
@@ -89,6 +93,17 @@ def _process_region_data_set_args(module_args, _templar, ds_name, task_vars):
         })
     else:
         raise KeyError("template and {0}".format(ds_name))
+    _validate_data_set_length(module_args["region_data_sets"][ds_name]["dsn"])
+
+
+def _validate_list_of_data_set_lengths(data_set_list):
+    for data_set in data_set_list:
+        _validate_data_set_length(data_set)
+
+
+def _validate_data_set_length(data_set):
+    if len(data_set) > 44:
+        raise ValueError("Data set: {0} is longer than 44 characters.".format(data_set))
 
 
 def _process_libraries_args(module_args, _templar, task_vars, lib_type, lib_ds_name):
@@ -104,6 +119,7 @@ def _process_libraries_args(module_args, _templar, task_vars, lib_type, lib_ds_n
         )
     else:
         raise KeyError("template and {0}".format(lib_ds_name))
+    _validate_data_set_length(module_args[lib_type][lib_ds_name])
 
 
 def _template_dsn(_templar, task_vars, var_name, replace_val, template):
@@ -124,8 +140,10 @@ def _check_template(module_args, arg_dict):
 
 
 def _set_top_libraries_key(module_args, dict_key):
-    if module_args.get(dict_key) is None or module_args[dict_key].get("top_libraries") is None:
+    if module_args.get(dict_key) is None:
         module_args[dict_key] = {"top_libraries": []}
+    elif module_args[dict_key].get("top_libraries") is None:
+        module_args[dict_key].update({"top_libraries": []})
 
 
 def _remove_data_set_args(module_args):

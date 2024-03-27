@@ -14,6 +14,8 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.controller_utils.module_action
     _remove_region_data_set_args,
     _remove_cics_data_set_args,
     _process_region_data_set_args,
+    _validate_data_set_length,
+    _validate_list_of_data_set_lengths,
     _process_libraries_args,
     _check_template,
     _set_top_libraries_key,
@@ -96,6 +98,42 @@ def test__process_region_data_set_args_without_template_or_override():
         assert e.args[0] == "template and dfhgcd"
 
 
+def test__validate_data_set_length():
+    _validate_data_set_length("DATA.SET.DFHAUXT")
+    _validate_data_set_length("DATA.SET.TEST.UNITS.SDFHAUTH")
+    # 44 characters
+    _validate_data_set_length("TESTDATA.TESTDATA.TESTDATA.TESTDATA.DFHINTRA")
+
+
+def test__validate_data_set_length_too_long():
+    ds_name = "data.set.template.long.name.should.fail.global.dfhcsd"
+    try:
+        _validate_data_set_length(ds_name)
+    except ValueError as e:
+        assert e.args[0] == "Data set: {0} is longer than 44 characters.".format(ds_name)
+
+
+def test__validate_data_set_length_45_characters():
+    ds_name = "testdata.testdata.testdata.tests.dfh.dfhintra"
+    try:
+        _validate_data_set_length(ds_name)
+    except ValueError as e:
+        assert e.args[0] == "Data set: {0} is longer than 44 characters.".format(ds_name)
+
+
+def test__validate_list_of_data_set_lengths():
+    ds_list = ["testdata.testdata.testdata.tests.dfhcsd", "testdata.testdata.testdata.tests.dfhintra"]
+    _validate_list_of_data_set_lengths(ds_list)
+
+
+def test__validate_list_of_data_set_lengths_one_too_long():
+    ds_list = ["testdata.testdata.testdata.tests.dfhcsd", "testdata.testdata.testdata.tests.intra.dfhintra"]
+    try:
+        _validate_list_of_data_set_lengths(ds_list)
+    except ValueError as e:
+        assert e.args[0] == "Data set: {0} is longer than 44 characters.".format("testdata.testdata.testdata.tests.intra.dfhintra")
+
+
 def test__process_libraries_args_with_template():
     args_with_template = {"cics_data_sets": {"template": "data.set.template.<< lib_name >>"}}
     templar = get_templar(args_with_template)
@@ -105,6 +143,30 @@ def test__process_libraries_args_with_template():
 
     assert "sdfhload" in list(args_with_template["cics_data_sets"].keys())
     assert args_with_template["cics_data_sets"]["sdfhload"] == "data.set.template.SDFHLOAD"
+
+
+def test__process_libraries_args_with_too_long_cics_data_set():
+    args_with_template = {"cics_data_sets": {"template": "data.set.template.too.long.for.jcl.rules.<< lib_name >>"}}
+    templar = get_templar(args_with_template)
+    task_vars = args_with_template
+
+    try:
+        _process_libraries_args(args_with_template, templar, task_vars, "cics_data_sets", "sdfhload")
+    except ValueError as e:
+        assert e.args[0] == "Data set: data.set.template.too.long.for.jcl.rules.SDFHLOAD is longer than 44 characters."
+    assert args_with_template["cics_data_sets"]["sdfhload"] == "data.set.template.too.long.for.jcl.rules.SDFHLOAD"
+
+
+def test__process_libraries_args_with_too_long_le_data_set():
+    args_with_template = {"le_data_sets": {"template": "data.set.template.too.long.for.jcl.rules.<< lib_name >>"}}
+    templar = get_templar(args_with_template)
+    task_vars = args_with_template
+
+    try:
+        _process_libraries_args(args_with_template, templar, task_vars, "le_data_sets", "sceecics")
+    except ValueError as e:
+        assert e.args[0] == "Data set: data.set.template.too.long.for.jcl.rules.SCEECICS is longer than 44 characters."
+    assert args_with_template["le_data_sets"]["sceecics"] == "data.set.template.too.long.for.jcl.rules.SCEECICS"
 
 
 def test__process_libraries_args_without_template():
@@ -156,6 +218,17 @@ def test__set_top_libraries_key_with_existing_key():
     assert len(list(args_without_top_libs.keys())) == 2
     assert "top_libraries" in list(args_without_top_libs["dfhrpl"].keys())
     assert args_without_top_libs["dfhrpl"]["top_libraries"] == "data.set.path"
+
+
+def test__set_top_libraries_key_with_existing_libraries_key_not_top_libraries_key():
+    args_without_top_libs = {"region_data_sets": {"template": "data.set.template.<< data_set_name >>"}, "dfhrpl": {"libraries": "data.set.path"}}
+
+    assert len(list(args_without_top_libs.keys())) == 2
+    _set_top_libraries_key(args_without_top_libs, "dfhrpl")
+
+    assert len(list(args_without_top_libs.keys())) == 2
+    assert "top_libraries" in list(args_without_top_libs["dfhrpl"].keys())
+    assert args_without_top_libs["dfhrpl"]["libraries"] == "data.set.path"
 
 
 def test__remove_data_set_args():
