@@ -5,6 +5,27 @@ ibm.ibm_zos_cics Release Notes
 .. contents:: Topics
 
 
+v1.1.0-beta.5
+=============
+
+Release Summary
+---------------
+
+This release contains new modules for starting and stopping standalone CICS regions. The ``csd`` module now supports executing a ``CSDUP`` script against an existing ``CSD`` data set.
+
+Major Changes
+-------------
+
+- A new ``state`` option for the ``csd`` module that alllows a user to supply a script as either a data set or a z/OS Unix file containing ``CSDUP`` commands
+- Data set modules now support a ``space_secondary`` option to specify size of the secondary extent
+- Return values for all data set modules now use ``data_set_organization`` to indicate the organization of the data set. The ``vsam`` field has been removed from the return structure.
+
+New Modules
+-----------
+
+- ibm.ibm_zos_cics.start_cics - Start a CICS region
+- ibm.ibm_zos_cics.stop_cics - Stop a CICS Region
+
 v1.1.0-beta.4
 =============
 

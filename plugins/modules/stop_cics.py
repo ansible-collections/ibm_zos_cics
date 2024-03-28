@@ -16,7 +16,7 @@ description:
     During a NORMAL or IMMEDIATE shutdown, a shutdown assist program should run to enable CICS to shut down in a controlled manner.
     By default, the CICS-supplied shutdown assist transaction, CESD is used. You can specify a custom shutdown assist program in the
     SDTRAN system initialization parameter. The task runs until the region has successfully shut down, or until the shutdown fails.
-version_added: 1.1.0-beta.4
+version_added: 1.1.0-beta.5
 author:
   - Kiera Bennett (@KieraBennett)
 options:

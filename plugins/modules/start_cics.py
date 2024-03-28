@@ -14,7 +14,7 @@ short_description: Start a CICS region
 description:
   - Start a CICS® region by providing CICS system data sets and system initialization parameters for CICS startup using the C(DFHSIP) program.
 author: Kiera Bennett (@KieraBennett)
-version_added: 1.1.0-beta.4
+version_added: 1.1.0-beta.5
 seealso:
   - module: stop_cics
 extends_documentation_fragment:

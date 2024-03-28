@@ -66,6 +66,16 @@ plugins:
       name: local_request_queue
       namespace: ''
       version_added: 1.1.0-beta.3
+    start_cics:
+      description: Start a CICS region
+      name: start_cics
+      namespace: ''
+      version_added: 1.1.0-beta.5
+    stop_cics:
+      description: Stop a CICS Region
+      name: stop_cics
+      namespace: ''
+      version_added: 1.1.0-beta.5
     trace:
       description: Allocate auxiliary trace data sets
       name: trace
@@ -81,4 +91,4 @@ plugins:
   strategy: {}
   test: {}
   vars: {}
-version: 1.1.0-beta.4
+version: 1.1.0-beta.5
