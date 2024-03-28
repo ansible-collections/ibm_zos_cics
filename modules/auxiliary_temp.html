@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>auxiliary_temp – Create and remove the CICS auxiliary temporary storage data set &mdash; IBM Z CICS Collection 1.1.0-beta.4 documentation</title>
+  <title>auxiliary_temp – Create and remove the CICS auxiliary temporary storage data set &mdash; IBM Z CICS Collection 1.1.0-beta.5 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/ansible.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/rtd-ethical-ads.css" type="text/css" />
@@ -47,7 +47,7 @@
   <img class="DocSiteNav-logo"
     src="../_static/images/Ansible-Mark-RGB_White.png"
     alt="Ansible Logo">
-  <div class="DocSiteNav-title">IBM Z CICS Collection 1.1.0-beta.4 documentation</div>
+  <div class="DocSiteNav-title">IBM Z CICS Collection 1.1.0-beta.5 documentation</div>
 </a>
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
@@ -101,6 +101,8 @@
 <li class="toctree-l2"><a class="reference internal" href="intrapartition.html">intrapartition – Create and remove the CICS transient data intrapartition data set</a></li>
 <li class="toctree-l2"><a class="reference internal" href="local_catalog.html">local_catalog – Create, remove, and manage the CICS local catalog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="local_request_queue.html">local_request_queue – Create and remove the CICS local request queue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start_cics.html">start_cics – Start a CICS region</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stop_cics.html">stop_cics – Stop a CICS Region</a></li>
 <li class="toctree-l2"><a class="reference internal" href="trace.html">trace – Allocate auxiliary trace data sets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transaction_dump.html">transaction_dump – Allocate transaction dump data sets</a></li>
 </ul>
@@ -165,28 +167,8 @@
 <section id="parameters">
 <h2><a class="toc-backref" href="#id2" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h2>
 <dl>
-<dt>cics_data_sets</dt><dd><p>The name of the <code class="docutils literal notranslate"><span class="pre">SDFHLOAD</span></code> library of the CICS installation, for example, <code class="docutils literal notranslate"><span class="pre">CICSTS61.CICS.SDFHLOAD</span></code>.</p>
-<div class="line-block">
-<div class="line"><strong>required</strong>: False</div>
-<div class="line"><strong>type</strong>: dict</div>
-</div>
-<dl>
-<dt>sdfhload</dt><dd><p>The location of the <code class="docutils literal notranslate"><span class="pre">SDFHLOAD</span></code> library to override the template.</p>
-<div class="line-block">
-<div class="line"><strong>required</strong>: False</div>
-<div class="line"><strong>type</strong>: str</div>
-</div>
-</dd>
-<dt>template</dt><dd><p>The templated location of the <code class="docutils literal notranslate"><span class="pre">SDFHLOAD</span></code> library.</p>
-<div class="line-block">
-<div class="line"><strong>required</strong>: False</div>
-<div class="line"><strong>type</strong>: str</div>
-</div>
-</dd>
-</dl>
-</dd>
 <dt>region_data_sets</dt><dd><p>The location of the region data sets to be created using a template, for example, <code class="docutils literal notranslate"><span class="pre">REGIONS.ABCD0001.&lt;&lt;</span> <span class="pre">data_set_name</span> <span class="pre">&gt;&gt;</span></code>.</p>
-<p>If you want to use a data set that already exists, ensure that the data set is a auxiliary temporary storage data set.</p>
+<p>If you want to use a data set that already exists, ensure that the data set is an auxiliary temporary storage data set.</p>
 <div class="line-block">
 <div class="line"><strong>required</strong>: True</div>
 <div class="line"><strong>type</strong>: dict</div>
@@ -216,11 +198,18 @@
 </dd>
 <dt>space_primary</dt><dd><p>The size of the primary space allocated to the auxiliary temporary storage data set. Note that this is just the value; the unit is specified with <code class="docutils literal notranslate"><span class="pre">space_type</span></code>.</p>
 <p>This option takes effect only when the auxiliary temporary storage data set is being created. If the data set already exists, the option has no effect.</p>
-<p>The size value of the secondary space allocation for the auxiliary temporary storage data set is 10; the unit is specified with <code class="docutils literal notranslate"><span class="pre">space_type</span></code>.</p>
 <div class="line-block">
 <div class="line"><strong>required</strong>: False</div>
 <div class="line"><strong>type</strong>: int</div>
 <div class="line"><strong>default</strong>: 200</div>
+</div>
+</dd>
+<dt>space_secondary</dt><dd><p>The size of the secondary space allocated to the auxiliary temporary storage data set. Note that this is just the value; the unit is specified with <code class="docutils literal notranslate"><span class="pre">space_type</span></code>.</p>
+<p>This option takes effect only when the auxiliary temporary storage data set is being created. If the data set already exists, the option has no effect.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+<div class="line"><strong>default</strong>: 10</div>
 </div>
 </dd>
 <dt>space_type</dt><dd><p>The unit portion of the auxiliary temporary storage data set size. Note that this is just the unit; the value is specified with <code class="docutils literal notranslate"><span class="pre">space_primary</span></code>.</p>
@@ -297,12 +286,13 @@
 <div class="line"><strong>type</strong>: dict</div>
 </div>
 <dl>
-<dt>vsam</dt><dd><div class="line-block">
-<div class="line">True if the data set is a VSAM data set.</div>
+<dt>data_set_organization</dt><dd><div class="line-block">
+<div class="line">The organization of the data set at the start of the Ansible task.</div>
 </div>
 <div class="line-block">
 <div class="line"><strong>returned</strong>: always</div>
-<div class="line"><strong>type</strong>: bool</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>sample</strong>: VSAM</div>
 </div>
 </dd>
 <dt>exists</dt><dd><div class="line-block">
@@ -323,12 +313,13 @@
 <div class="line"><strong>type</strong>: dict</div>
 </div>
 <dl>
-<dt>vsam</dt><dd><div class="line-block">
-<div class="line">True if the data set is a VSAM data set.</div>
+<dt>data_set_organization</dt><dd><div class="line-block">
+<div class="line">The organization of the data set at the end of the Ansible task.</div>
 </div>
 <div class="line-block">
 <div class="line"><strong>returned</strong>: always</div>
-<div class="line"><strong>type</strong>: bool</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>sample</strong>: VSAM</div>
 </div>
 </dd>
 <dt>exists</dt><dd><div class="line-block">

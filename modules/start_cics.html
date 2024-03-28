@@ -1,0 +1,2680 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>start_cics – Start a CICS region &mdash; IBM Z CICS Collection 1.1.0-beta.5 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/ansible.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/rtd-ethical-ads.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/cics-transaction-server-light-theme.svg"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/beta-banner/index.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="stop_cics – Stop a CICS Region" href="stop_cics.html" />
+    <link rel="prev" title="local_request_queue – Create and remove the CICS local request queue" href="local_request_queue.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/ansiblefest" target="_blank">AnsibleFest</a></li>
+    <li><a href="https://www.ansible.com/tower" target="_blank">Products</a></li>
+    <li><a href="https://www.ansible.com/community" target="_blank">Community</a></li>
+    <li><a href="https://www.ansible.com/webinars-training" target="_blank">Webinars & Training</a></li>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="/" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">IBM Z CICS Collection 1.1.0-beta.5 documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            IBM Z CICS Collection
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../requirements.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../playbooks.html">Playbooks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Ansible Content</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="auxiliary_temp.html">auxiliary_temp – Create and remove the CICS auxiliary temporary storage data set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cmci_action.html">cmci_action – Perform actions on CICS and CICSPlex SM resources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cmci_create.html">cmci_create – Create CICS and CICSPlex SM definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cmci_delete.html">cmci_delete – Delete CICS and CICSPlex SM resources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cmci_get.html">cmci_get – Query CICS and CICSPlex SM resources and definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cmci_update.html">cmci_update – Update CICS and CICSPlex resources and definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="csd.html">csd – Create, remove, and manage the CICS CSD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="global_catalog.html">global_catalog – Create, remove, and manage the CICS global catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intrapartition.html">intrapartition – Create and remove the CICS transient data intrapartition data set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="local_catalog.html">local_catalog – Create, remove, and manage the CICS local catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="local_request_queue.html">local_request_queue – Create and remove the CICS local request queue</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">start_cics – Start a CICS region</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#see-also">See Also</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#return-values">Return Values</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stop_cics.html">stop_cics – Stop a CICS Region</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trace.html">trace – Allocate auxiliary trace data sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transaction_dump.html">transaction_dump – Allocate transaction dump data sets</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Release Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Releases</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../community_guides.html">Contributing</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">IBM Z CICS Collection</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">Modules</a></li>
+      <li class="breadcrumb-item active">start_cics – Start a CICS region</li>
+      <li class="wy-breadcrumbs-aside">
+              <!-- User defined GitHub URL -->
+              <a href="https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/start_cics.py" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <section id="start-cics-start-a-cics-region">
+<span id="start-cics-module"></span><h1>start_cics – Start a CICS region<a class="headerlink" href="#start-cics-start-a-cics-region" title="Permalink to this heading"></a></h1>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id2">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#examples" id="id3">Examples</a></p></li>
+<li><p><a class="reference internal" href="#see-also" id="id4">See Also</a></p></li>
+<li><p><a class="reference internal" href="#return-values" id="id5">Return Values</a></p></li>
+</ul>
+</nav>
+<section id="synopsis">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Start a CICS® region by providing CICS system data sets and system initialization parameters for CICS startup using the <code class="docutils literal notranslate"><span class="pre">DFHSIP</span></code> program.</p></li>
+</ul>
+</section>
+<section id="parameters">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h2>
+<dl>
+<dt>applid</dt><dd><p>The name of your z/OS Communications Server application identifier for this CICS region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: True</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>cics_data_sets</dt><dd><p>The data set names of the <code class="docutils literal notranslate"><span class="pre">SDFHAUTH</span></code>, <code class="docutils literal notranslate"><span class="pre">SDFHLOAD</span></code> and <code class="docutils literal notranslate"><span class="pre">SDFHLIC</span></code> libraries, for example, <code class="docutils literal notranslate"><span class="pre">CICSTS61.CICS.SDFHAUTH</span></code> and <code class="docutils literal notranslate"><span class="pre">CICSTS61.CICS.SDFHLOAD</span></code>.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: True</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>sdfhauth</dt><dd><p>The location of the <code class="docutils literal notranslate"><span class="pre">SDFHAUTH</span></code> librarty to override the template.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>sdfhlic</dt><dd><p>The location of the <code class="docutils literal notranslate"><span class="pre">SDFHLIC</span></code> library to override the template.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>sdfhload</dt><dd><p>The location of the <code class="docutils literal notranslate"><span class="pre">SDFHLOAD</span></code> library to override the template.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>template</dt><dd><p>The templated location of the libraries.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>dfhrpl</dt><dd><p>Any locations of additional DFHRPL libraries to add, that are not <code class="docutils literal notranslate"><span class="pre">SDFHLOAD</span></code>, <code class="docutils literal notranslate"><span class="pre">SCEECICS</span></code>, <code class="docutils literal notranslate"><span class="pre">SCEERUN</span></code>, or <code class="docutils literal notranslate"><span class="pre">SCEERUN2</span></code>.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>libraries</dt><dd><p>The DFHRPL libraries to be appended to the bottom of the list.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: list</div>
+</div>
+</dd>
+<dt>top_libraries</dt><dd><p>The DFHRPL libraries to be appended to the very top of the statement.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: list</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>job_parameters</dt><dd><p>Specifies various parameters to be applied to the startup job.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>accounting_information</dt><dd><p>Allows jobs to be grouped into a class.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>cards</dt><dd><p>Specifies the estimated number of cards JES2 is to punch from this job’s sysout data sets. Cards is 1 through 4 decimal numbers. If you omit cards, JES2 uses an installation default specified at initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>copies</dt><dd><p>Specifies the number of times JES2 is to print and/or punch this job’s sysout data sets. Copies is 1 through 3 decimal numbers not exceeding an installation-specified limit. The maximum is 255. For example, code 2 for two copies. If you omit copies, JES2 assumes one copy.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>forms</dt><dd><p>Specifies the forms that JES2 is to use for printing this job’s sysout data sets. Forms is 1 through 4 alphanumeric characters. For example, code 5 for 5-part forms. If you omit forms, JES2 uses an installation default specified at initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>linect</dt><dd><p>Specifies the number of lines JES2 is to print per page for this job’s sysout data sets. Linect is 1 through 3 decimal numbers. If you omit linect, JES2 uses an installation default specified at initialization. If you code a zero, JES2 does not eject to a new page when the number of lines exceeds the installation default.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>lines</dt><dd><p>Specifies the estimated line count, in thousands of lines, from this job’s sysout data sets. Lines is 1 through 4 decimal numbers. For example, code 5 for 5000 lines. If you omit lines, JES2 uses an installation default specified at initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>log</dt><dd><p>Specifies whether or not JES2 is to print the job log. Code N to request no job log. If you code any other character or omit this subparameter, JES2 prints the job log. If your installation specified NOLOG for this job’s class during JES2 initialization, JES2 will not print a job log.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>pano</dt><dd><p>Specifies the programmer’s accounting number. Pano is 1 through 4 alphanumeric characters.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>room</dt><dd><p>Specifies the programmer’s room number. Room is 1 through 4 alphanumeric characters.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>time</dt><dd><p>Specifies the estimated execution time in minutes. Time is 1 through 4 decimal numbers. For example, code 30 for 30 minutes. If you omit a time subparameter and a TIME parameter on the JES2 /*JOBPARM statement, JES2 uses an installation default specified at initialization. If job execution exceeds the time, JES2 sends a message to the operator.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>class</dt><dd><p>Allows jobs to be grouped into a class.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>job_name</dt><dd><p>The name of the CICS startup job. The default value is <code class="docutils literal notranslate"><span class="pre">APPLID</span></code>.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>memlimit</dt><dd><p>Use the MEMLIMIT parameter to specify the limit on the total size of usable 64-bit z/OS storage in a single address space.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>msgclass</dt><dd><p>Use the MSGCLASS parameter to assign the job log to an output class. The job log is a record of job-related information for the programmer.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>msglevel</dt><dd><p>Use the MSGLEVEL parameter to control the listing of the JCL output for the job.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>messages</dt><dd><p>Indicates which messages the system is to print in the system messages portion of the JCL output.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+<div class="line"><strong>choices</strong>: 0, 1</div>
+</div>
+</dd>
+<dt>statements</dt><dd><p>Indicates which job control statements the system is to print in the statement images portion of the JCL output.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+<div class="line"><strong>choices</strong>: 0, 1, 2</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>programmer_name</dt><dd><p>Use the programmer’s name parameter to identify the person or group responsible for a job.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>region</dt><dd><p>Use the REGION parameter to specify the amount of central or virtual storage that the job requires. The system applies the value that you code on REGION to each step of the job.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>user</dt><dd><p>Code the USER parameter to identify to the system the person submitting the job. The user ID is used by RACF®, the system resources manager (SRM), and other system components.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>le_data_sets</dt><dd><p>The data set names of the <code class="docutils literal notranslate"><span class="pre">SCEECICS</span></code>, <code class="docutils literal notranslate"><span class="pre">SCEERUN</span></code> and <code class="docutils literal notranslate"><span class="pre">SCEERUN2</span></code> libraries, for example, <code class="docutils literal notranslate"><span class="pre">SCEERUN</span></code>.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: True</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>sceecics</dt><dd><p>The location of the <code class="docutils literal notranslate"><span class="pre">SCEECICS</span></code> library to override the template.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>sceerun</dt><dd><p>The location of the <code class="docutils literal notranslate"><span class="pre">SCEERUN</span></code> library to override the template.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>sceerun2</dt><dd><p>The location of the <code class="docutils literal notranslate"><span class="pre">SCEERUN2</span></code> library to override the template.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>template</dt><dd><p>The templated location of the Language Enviornment runtime libraries.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>output_data_sets</dt><dd><p>The system output data sets such as <code class="docutils literal notranslate"><span class="pre">CEEMSG</span></code> and <code class="docutils literal notranslate"><span class="pre">SYSPRINT</span></code>, as well as the destination class of the output.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>ceemsg</dt><dd><p>Overrides the default class to use a custom class for the <code class="docutils literal notranslate"><span class="pre">CEEMSG</span></code> data set. Alternatively, omit the <code class="docutils literal notranslate"><span class="pre">CEEMSG</span></code> data set from being added to the job.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>omit</dt><dd><p>Specifies whether <code class="docutils literal notranslate"><span class="pre">CEEMSG</span></code> should be excluded from being added to the list of sysout data sets.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+<dt>sysout</dt><dd><p>Specify the output class to assign the <code class="docutils literal notranslate"><span class="pre">CEEMSG</span></code> data set to.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>ceeout</dt><dd><p>Overrides the default class to use a custom class for the <code class="docutils literal notranslate"><span class="pre">CEEOUT</span></code> data set. Alternatively, omit the <code class="docutils literal notranslate"><span class="pre">CEEOUT</span></code> data set from being added to the job.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>omit</dt><dd><p>Specifies whether <code class="docutils literal notranslate"><span class="pre">CEEOUT</span></code> should be excluded from being added to the list of sysout data sets.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+<dt>sysout</dt><dd><p>Specify the output class to assign the <code class="docutils literal notranslate"><span class="pre">CEEOUT</span></code> data set to.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>default_sysout_class</dt><dd><p>The class to be applied as the default for all of the output data sets. If it isn’t provided and if no overrides are specified for an individual output data set, * will be applied.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>dfhcxrf</dt><dd><p>Overrides the default class to use a custom class for the <code class="docutils literal notranslate"><span class="pre">DFHCXRF</span></code> data set. Alternatively, omit the <code class="docutils literal notranslate"><span class="pre">DFHCXRF</span></code> data set from being added to the job.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>omit</dt><dd><p>Specifies whether <code class="docutils literal notranslate"><span class="pre">DFHCXRF</span></code> should be excluded from being added to the list of sysout data sets.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+<dt>sysout</dt><dd><p>Specify the output class to assign the <code class="docutils literal notranslate"><span class="pre">DFHCXRF</span></code> data set to.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>logusr</dt><dd><p>Overrides the default class to use a custom class for the <code class="docutils literal notranslate"><span class="pre">LOGUSR</span></code> data set. Alternatively, omit the <code class="docutils literal notranslate"><span class="pre">LOGUSR</span></code> data set from being added to the job.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>omit</dt><dd><p>Specifies whether <code class="docutils literal notranslate"><span class="pre">LOGUSR</span></code> should be excluded from being added to the list of sysout data sets.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+<dt>sysout</dt><dd><p>Specify the output class to assign the <code class="docutils literal notranslate"><span class="pre">LOGUSR</span></code> data set to.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>msgusr</dt><dd><p>Overrides the default class to use a custom class for the <code class="docutils literal notranslate"><span class="pre">MSGUSR</span></code> data set. Alternatively, omit the <code class="docutils literal notranslate"><span class="pre">MSGUSR</span></code> data set from being added to the job.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>omit</dt><dd><p>Specifies whether <code class="docutils literal notranslate"><span class="pre">MSGUSR</span></code> should be excluded from being added to the list of sysout data sets.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+<dt>sysout</dt><dd><p>Specify the output class to assign the <code class="docutils literal notranslate"><span class="pre">MSGUSR</span></code> data set to.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>sysabend</dt><dd><p>Overrides the default class to use a custom class for the <code class="docutils literal notranslate"><span class="pre">SYSABEND</span></code> data set. Alternatively, omit the <code class="docutils literal notranslate"><span class="pre">SYSABEND</span></code> data set from being added to the job.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>omit</dt><dd><p>Specifies whether <code class="docutils literal notranslate"><span class="pre">SYSABEND</span></code> should be excluded from being added to the list of sysout data sets.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+<dt>sysout</dt><dd><p>Specify the output class to assign the <code class="docutils literal notranslate"><span class="pre">SYSABEND</span></code> data set to.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>sysout</dt><dd><p>Overrides the default class to use a custom class for the <code class="docutils literal notranslate"><span class="pre">SYSOUT</span></code> data set. Alternatively, omit the <code class="docutils literal notranslate"><span class="pre">SYSOUT</span></code> data set from being added to the job.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>omit</dt><dd><p>Specifies whether <code class="docutils literal notranslate"><span class="pre">SYSOUT</span></code> should be excluded from being added to the list of sysout data sets.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+<dt>sysout</dt><dd><p>Specify the output class to assign the <code class="docutils literal notranslate"><span class="pre">SYSOUT</span></code> data set to.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>sysprint</dt><dd><p>Overrides the default class to use a custom class for the <code class="docutils literal notranslate"><span class="pre">SYSPRINT</span></code> data set. Alternatively, omit the <code class="docutils literal notranslate"><span class="pre">SYSPRINT</span></code> data set from being added to the job.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>omit</dt><dd><p>Specifies whether <code class="docutils literal notranslate"><span class="pre">SYSPRINT</span></code> should be excluded from being added to the list of sysout data sets.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+<dt>sysout</dt><dd><p>Specify the output class to assign the <code class="docutils literal notranslate"><span class="pre">SYSPRINT</span></code> data set to.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>sysudump</dt><dd><p>Overrides the default class to use a custom class for the <code class="docutils literal notranslate"><span class="pre">SYSUDUMP</span></code> data set. Alternatively, omit the <code class="docutils literal notranslate"><span class="pre">SYSUDUMP</span></code> data set from being added to the job.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>omit</dt><dd><p>Specifies whether <code class="docutils literal notranslate"><span class="pre">SYSUDUMP</span></code> should be excluded from being added to the list of sysout data sets.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+<dt>sysout</dt><dd><p>Specify the output class to assign the <code class="docutils literal notranslate"><span class="pre">SYSUDUMP</span></code> data set to.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt>region_data_sets</dt><dd><p>The location of the region data sets, e.g <code class="docutils literal notranslate"><span class="pre">REGIONS.ABCD01.DFHAUXT</span></code>, <code class="docutils literal notranslate"><span class="pre">REGIONS.ABCD01.DFHCSD</span></code> and <code class="docutils literal notranslate"><span class="pre">REGIONS.ABCD01.DFHGCD</span></code>.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: True</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>dfhauxt</dt><dd><p>Overrides the templated location for the auxiliary trace A data set.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>dsn</dt><dd><p>The name of the auxiliary trace A data set to override the template.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>dfhbuxt</dt><dd><p>Overrides the templated location for the auxiliary trace B data set.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>dsn</dt><dd><p>The name of the auxiliary trace B data set to override the template.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>dfhcsd</dt><dd><p>Overrides the templated location for the CSD.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>dsn</dt><dd><p>The name of the CSD to override the template.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>dfhdmpa</dt><dd><p>Overrides the templated location for the dump A data set.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>dsn</dt><dd><p>The name of the dump A data set to override the template.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>dfhdmpb</dt><dd><p>Overrides the templated location for the dump B data set.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>dsn</dt><dd><p>The name of the dump B data set to override the template.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>dfhgcd</dt><dd><p>Overrides the templated location for the global catalog data set.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>dsn</dt><dd><p>The data set name of the global catalog to override the template.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>dfhintra</dt><dd><p>Overrides the templated location for the intrapartition data set.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>dsn</dt><dd><p>The name of the intrapartition data set to override the template.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>dfhlcd</dt><dd><p>Overrides the templated location for the local catalog data set.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>dsn</dt><dd><p>The data set name of the local catalog to override the template.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>dfhlrq</dt><dd><p>Overrides the templated location for the local request queue data set.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>dsn</dt><dd><p>The data set name of the local request queue to override the template.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>dfhtemp</dt><dd><p>Overrides the templated location for the temporary storage data set.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>dsn</dt><dd><p>The data set name of the temporary storage to override the template.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>template</dt><dd><p>The base location of the region data sets to be created using a template, for example, <code class="docutils literal notranslate"><span class="pre">REGIONS.ABCD0001.&lt;&lt;</span> <span class="pre">data_set_name</span> <span class="pre">&gt;&gt;</span></code>. Not required if you provide the data set name (dsn) of all the data sets individually.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>sit_parameters</dt><dd><p>Define the system initalization parameters for the CICS region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>adi</dt><dd><p>The ADI parameter specifies the alternate delay interval in seconds for an alternate CICS® region when you are running CICS with XRF.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>aibridge</dt><dd><p>The AIBRIDGE parameter specifies whether the autoinstall user replaceable module (URM) is to be called when creating bridge facilities (virtual terminals) used by the 3270 bridge mechanism.</p>
+<p>Specify this parameter only in the bridge router region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: AUTO, YES</div>
+</div>
+</dd>
+<dt>aicons</dt><dd><p>The AICONS parameter specifies whether you want autoinstall support for consoles.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, AUTO, YES</div>
+</div>
+</dd>
+<dt>aiexit</dt><dd><p>The AIEXIT parameter specifies the name of the autoinstall user-replaceable program that you want CICS® to use when autoinstalling local z/OS® Communications Server terminals, APPC connections, virtual terminals, and shipped terminals and connections.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>aildelay</dt><dd><p>The AILDELAY parameter specifies the delay period that elapses after all sessions between CICS® and an autoinstalled terminal, APPC device, or APPC system are ended, before the terminal or connection entry is deleted.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>aiqmax</dt><dd><p>The AIQMAX parameter specifies the maximum number of z/OS® Communications Server terminals and APPC connections that can be queued concurrently for autoinstall, the limit is the sum of installs and deletes.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>airdelay</dt><dd><p>The AIRDELAY parameter specifies the delay period that elapses after an emergency restart before autoinstalled terminal and APPC connection entries that are not in session are deleted.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>akpfreq</dt><dd><p>The AKPFREQ parameter specifies the number of write requests to the CICS® system log stream output buffer required before CICS writes an activity keypoint.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>autconn</dt><dd><p>The AUTCONN parameter specifies that the reconnection of terminals after an XRF takeover is to be delayed, to allow time for manual switching.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>autodst</dt><dd><p>The AUTODST parameter specifies whether CICS is to activate automatic dynamic storage tuning for application programs.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>autoresettime</dt><dd><p>The AUTORESETTIME parameter specifies the action CICS  takes for automatic time changes.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: IMMEDIATE, NO, YES</div>
+</div>
+</dd>
+<dt>auxtr</dt><dd><p>The AUXTR parameter specifies whether the auxiliary trace destination is to be activated at system initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: OFF, ON</div>
+</div>
+</dd>
+<dt>auxtrsw</dt><dd><p>The AUXTRSW parameter specifies whether you want the auxiliary trace autoswitch facility.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, NEXT, ALL</div>
+</div>
+</dd>
+<dt>bms</dt><dd><p>The BMS system initialization parameter specifies which version of basic mapping support you require in CICS.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>brmaxkeeptime</dt><dd><p>The BRMAXKEEPTIME parameter specifies the maximum time (in seconds) that bridge facilities (virtual terminals used by the 3270 bridge) are kept if they are not used.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>cdsasze</dt><dd><p>The CDSASZE system initialization parameter specifies the size of the CDSA.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>chkstrm</dt><dd><p>The CHKSTRM parameter specifies that terminal storage-violation checking is to be activated or deactivated.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: CURRENT, NONE</div>
+</div>
+</dd>
+<dt>chkstsk</dt><dd><p>The CHKSTSK parameter specifies that task storage-violation checking at startup is to be activated or deactivated.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: CURRENT, NONE</div>
+</div>
+</dd>
+<dt>cicssvc</dt><dd><p>The CICSSVC parameter  specifies the number that you have assigned to the CICS type 3 SVC.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>cilock</dt><dd><p>The CILOCK parameter specifies whether or not the control interval lock of a non-RLS VSAM file is to be kept after a successful read-for-update request.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>clintcp</dt><dd><p>The CLINTCP parameter specifies the default client code page to be used by the DFHCNV data conversion table, but only if the CLINTCP parameter in the DFHCNV macro is set to SYSDEF.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>clsdstp</dt><dd><p>The CLSDSTP system initialization parameter specifies the notification required for an EXEC CICS ISSUE PASS command.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NOTIFY, NONOTIFY</div>
+</div>
+</dd>
+<dt>clt</dt><dd><p>The CLT parameter specifies the suffix for the command list table (CLT), if this SIT is used by an alternate XRF system.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>cmdprot</dt><dd><p>The CMDPROT parameter specifies whether to allow or inhibit CICS validation of start addresses of storage referenced as output parameters on EXEC CICS commands.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: YES, NO</div>
+</div>
+</dd>
+<dt>cmdsec</dt><dd><p>The CMDSEC parameter specifies whether or not you want CICS to honor the CMDSEC option specified on a transaction’s resource definition.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: ASIS, ALWAYS</div>
+</div>
+</dd>
+<dt>confdata</dt><dd><p>The CONFDATA parameter specifies whether CICS is to redact sensitive data that might otherwise appear in CICS trace entries or in dumps.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: HIDE, SHOW</div>
+</div>
+</dd>
+<dt>conftxt</dt><dd><p>The CONFTXT system initialization parameter specifies whether CICS is to prevent z/OS Communications Server from tracing user data.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>cpsmconn</dt><dd><p>The CPSMCONN parameter specifies whether you want CICS to invoke the specified  component during initialization of the region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, CMAS, LMAS, SMSSJ, WUI</div>
+</div>
+</dd>
+<dt>crlprofile</dt><dd><p>The CRLPROFILE parameter specifies the name of the profile that is used to authorize CICS to access the certification revocation lists (CRLs) that are stored in an LDAP server.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>csdacc</dt><dd><p>The CSDACC parameter specifies the type of access to the CSD to be permitted to this CICS region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: READWRITE, READONLY</div>
+</div>
+</dd>
+<dt>csdbkup</dt><dd><p>The CSDBKUP parameter specifies whether or not the CSD is eligible for BWO.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: STATIC, DYNAMIC</div>
+</div>
+</dd>
+<dt>csdbufnd</dt><dd><p>The CSDBUFND parameter specifies the number of buffers to be used for CSD data.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>csdbufni</dt><dd><p>The CSDBUFNI parameter specifies the number of buffers to be used for the CSD index.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>csddisp</dt><dd><p>The CSDDISP parameter specifies the disposition of the data set to be allocated to the CSD.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: OLD, SHR</div>
+</div>
+</dd>
+<dt>csddsn</dt><dd><p>The CSDDSN parameter specifies the 1-44 character JCL data set name (DSNAME) to be used for the CSD.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>csdfrlog</dt><dd><p>The CSDFRLOG parameter specifies a number that corresponds to the journal name that CICS uses to identify the forward recovery log stream for the CSD.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>csdinteg</dt><dd><p>The CSDINTEG parameter specifies the level of read integrity for the CSD if it is accessed in RLS mode.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: UNCOMMITTED, CONSISTENT, REPEATABLE</div>
+</div>
+</dd>
+<dt>csdjid</dt><dd><p>The CSDJID parameter specifies the journal identifier of the journal that you want CICS to use for automatic journaling of file requests against the CSD.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>csdlsrno</dt><dd><p>The CSDLSRNO system initialization parameter specifies whether the CSD is to be associated with a local shared resource (LSR) pool.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>csdrecov</dt><dd><p>The CSDRECOVsystem initialization parameter specifies whether the CSD is a recoverable file.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NONE, ALL, BACKOUTONLY</div>
+</div>
+</dd>
+<dt>csdrls</dt><dd><p>The CSDRLS system initialization parameter specifies whether CICS is to access the CSD in RLS mode.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>csdstrno</dt><dd><p>The CSDSTRNO system initialization parameter specifies the number of concurrent requests that can be processed against the CSD.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>cwakey</dt><dd><p>The CWAKEY system initialization parameter specifies the storage key for the common work area (CWA) if you are operating CICS with storage protection (STGPROT=YES).</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: USER, CICS</div>
+</div>
+</dd>
+<dt>dae</dt><dd><p>The DAE system initialization parameter specifies the default DAE action when new system dump table entries are created.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>datform</dt><dd><p>The DATFORM system initialization parameter specifies the external date display standard that you want to use for CICS date displays.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: MMDDYY, DDMMYY, YYMMDD</div>
+</div>
+</dd>
+<dt>db2conn</dt><dd><p>The DB2CONN system initialization parameter specifies whether you want CICS to start the  connection automatically during initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>dbctlcon</dt><dd><p>The DBCTLCON system initialization parameter specifies whether you want CICS to start the DBCTL connection automatically during initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>debugtool</dt><dd><p>The DEBUGTOOL system initialization parameter specifies whether you want to use debugging profiles to select the programs that will run under the control of a debugging tool.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>dfltuser</dt><dd><p>The DFLTUSER system initialization parameter specifies the RACF userid of the default user; that is, the user whose security attributes are used to protect CICS resources in the absence of other, more specific, user identification.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>dip</dt><dd><p>The DIP system initialization parameter specifies whether the batch data interchange program, DFHDIP, is to be included.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>dismacp</dt><dd><p>The DISMACP system initialization parameter specifies whether CICS is to disable any transaction that terminates abnormally with an ASRD or ASRE abend.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>doccodepage</dt><dd><p>The DOCCODEPAGE system initialization parameter specifies the default host code page to be used by the document domain.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>dsalim</dt><dd><p>The DSALIM system initialization parameter specifies the upper limit of the total amount of storage within which CICS® can allocate the individual dynamic storage areas (DSAs) that reside in 24-bit storage.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>dshipidl</dt><dd><p>The DSHIPIDL system initialization parameter specifies the minimum time, in hours, minutes, and seconds, that an inactive shipped terminal definition must remain installed in this region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>dshipint</dt><dd><p>The DSHIPINT system initialization parameter specifies the interval between invocations of the timeout delete mechanism.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>dsrtpgm</dt><dd><p>The DSRTPGM system initialization parameter specifies the name of a distributed routing program. The distributed routing program must be specified in the DSRTPGM parameter for all routing and potential target regions.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>dtrpgm</dt><dd><p>The DTRPGM system initialization parameter specifies the name of a dynamic routing program.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>dtrtran</dt><dd><p>The DTRTRAN system initialization parameter specifies the name of the transaction definition that you want CICS to use for dynamic transaction routing.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>dump</dt><dd><p>The DUMP system initialization parameter specifies whether the CICS dump domain is to take SDUMPs.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: YES, NO, TABLEONLY</div>
+</div>
+</dd>
+<dt>dumpds</dt><dd><p>The DUMPDS system initialization parameter specifies the transaction dump data set that is to be opened during CICS initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: AUTO, A, B</div>
+</div>
+</dd>
+<dt>dumpsw</dt><dd><p>The DUMPSW system initialization parameter specifies whether you want CICS to switch automatically to the next dump data set when the first is full.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, NEXT, ALL</div>
+</div>
+</dd>
+<dt>duretry</dt><dd><p>The DURETRY system initialization parameter specifies, in seconds, the total time that CICS is to continue trying to obtain a system dump using the SDUMP macro.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>ecdsasze</dt><dd><p>The ECDSASZE system initialization parameter specifies the size of the ECDSA.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>edsalim</dt><dd><p>The EDSALIM system initialization parameter specifies the upper limit of the total amount of storage within which CICS® can allocate the individual extended dynamic storage areas (ExxDSAs) that reside in 31-bit (above-the-line) storage; that is, above 16 MB but below 2 GB.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>eodi</dt><dd><p>The EODI system initialization parameter specifies the end-of-data indicator for input from sequential devices.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>epcdsasze</dt><dd><p>The EPCDSASZE parameter specifies the size of the EPCDSA dynamic storage area. Message DFHSM0136I at initialization shows the value that is set.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>epudsasze</dt><dd><p>The EPUDSASZE parameter specifies the size of the EPUDSA dynamic storage area. Message DFHSM0136I at initialization shows the value that is set.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>erdsasze</dt><dd><p>The ERDSASZE system initialization parameter specifies the size of the ERDSA.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>esdsasze</dt><dd><p>The ESDSASZE system initialization parameter specifies the size of the ESDSA.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>esmexits</dt><dd><p>The ESMEXITS system initialization parameter specifies whether installation data is to be passed through the RACROUTE interface to the external security manager (ESM) for use in exits written for the ESM.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NOINSTLN, INSTLN</div>
+</div>
+</dd>
+<dt>eudsasze</dt><dd><p>The EUDSASZE system initialization parameter specifies the size of the EUDSA.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>fcqronly</dt><dd><p>The FCQRONLY system initialization parameter specifies whether you want CICS to force all file control requests to run under the CICS QR TCB. This parameter applies to file control requests that access VSAM RLS files and local VSAM LSR files.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>fct</dt><dd><p>The FCT system initialization parameter specifies the suffix of the file control table to be used.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>fepi</dt><dd><p>The FEPI system initialization parameter specifies whether or not you want to use the Front End Programming Interface feature (FEPI).</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>fldsep</dt><dd><p>The FLDSEP system initialization parameter specifies ‘ON’e through four field-separator characters, each of which indicates end of field in the terminal input data.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>fldstrt</dt><dd><p>The FLDSTRT system initialization parameter specifies a single character to be the field-name-start character for free-form input for built-in functions.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>forceqr</dt><dd><p>The FORCEQR system initialization parameter specifies whether you want CICS to force all CICS API user application programs that are specified as threadsafe to run under the CICS QR TCB, as if they were specified as quasi-reentrant programs.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>fsstaff</dt><dd><p>The FSSTAFF system initialization parameter prevents transactions initiated by function-shipped EXEC CICS START requests being started against incorrect terminals.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: YES, NO</div>
+</div>
+</dd>
+<dt>ftimeout</dt><dd><p>The FTIMEOUT system initialization parameter specifies a timeout interval for requests made on files that are opened in RLS mode.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>gmtext</dt><dd><p>The GMTEXT system initialization parameter specifies whether the default logon message text (WELCOME TO CICS) or your own message text is to be displayed on the screen.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>gmtran</dt><dd><p>The GMTRAN system initialization parameter specifies the ID of a transaction.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>gntran</dt><dd><p>The GNTRAN system initialization parameter specifies the transaction that you want CICS to invoke when a user’s terminal-timeout period expires, and instructs CICS whether to keep a pseudo-conversation in use at a terminal that is the subject of a timeout sign-off.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>grname</dt><dd><p>The GRNAME system initialization parameter specifies the z/OS Communications Server generic resource name, as 1 through 8 characters, under which a group of CICS terminal-owning regions in a CICSplex register to z/OS Communications Server.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>grplist</dt><dd><p>The GRPLIST system initialization parameter specifies the names of up to four lists of resource definition groups on the CICS system definition file (CSD). The resource definitions in all the groups in the specified lists are loaded during initialization when CICS performs a cold start. If a warm or emergency start is performed, the resource definitions are derived from the global catalog, and the GRPLIST parameter is ignored.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>gtftr</dt><dd><p>The GTFTR system initialization parameter specifies whether CICS can use the MVS generalized trace facility (GTF) as a destination for trace data.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: OFF, ON</div>
+</div>
+</dd>
+<dt>hpo</dt><dd><p>The HPO system initialization parameter specifies whether you want to use the z/OS Communications Server authorized path feature of the high performance option (HPO).</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>httpserverhdr</dt><dd><p>The HTTPSERVERHDR system initialization parameter specifies the value (up to 64 characters) that CICS sets in the server header of HTTP responses.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>httpusragenthdr</dt><dd><p>The HTTPUSRAGENTHDR system initialization parameter specifies the value (up to 64 characters) that CICS sets in the user-agent header of HTTP requests.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>icp</dt><dd><p>The ICP system initialization parameter specifies that you want to perform a cold start for interval control program.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: COLD</div>
+</div>
+</dd>
+<dt>icv</dt><dd><p>The ICV system initialization parameter specifies the region exit time interval in milliseconds.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>icvr</dt><dd><p>The ICVR system initialization parameter specifies the default runaway task time interval in milliseconds as a decimal number.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>icvtsd</dt><dd><p>The ICVTSD system initialization parameter specifies the terminal scan delay value.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>infocenter</dt><dd><p>The INFOCENTER system initialization parameter specifies the location of the online . If you add this parameter to the Web User Interface (WUI) CICS startup JCL, a link labeled Information Center is displayed on WUI views and menus. If you do not code this parameter, CICS does not construct links to IBM Documentation. .</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>initparm</dt><dd><p>The INITPARM system initialization parameter specifies parameters that are to be passed to application programs that use the ASSIGN INITPARM command.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>inttr</dt><dd><p>The INTTR system initialization parameter specifies whether the internal CICS trace destination is to be activated at system initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: ON, OFF</div>
+</div>
+</dd>
+<dt>ircstrt</dt><dd><p>The IRCSTRT system initialization parameter specifies whether IRC is to be started up at system initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>isc</dt><dd><p>The ISC system initialization parameter specifies whether the CICS programs required for multiregion operation (MRO) and  are to be included.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>jesdi</dt><dd><p>The JESDI system initialization parameter specifies, in a SIT for an alternate XRF system, the JES delay interval.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>jvmprofiledir</dt><dd><p>The JVMPROFILEDIR system initialization parameter specifies the name (up to 240 characters long) of a z/OS UNIX directory that contains the JVM profiles for CICS. CICS searches this directory for the profiles it needs to configure JVMs.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>kerberosuser</dt><dd><p>The KERBEROSUSER system initialization parameter specifies the user ID that is associated with the Kerberos service principal for the CICS region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>keyring</dt><dd><p>The KEYRING system initialization parameter specifies the fully qualified name of the key ring, within the RACF database, that contains the keys and X.509 certificates used by CICS support for the Secure Sockets Layer (SSL) and for web services security. The region user ID that will use the key ring must either own the key ring or have the authority to use the key ring if it is owned by a different region user ID. You can create an initial key ring with the DFH$RING exec in .CICS.SDFHSAMP.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>lgdfint</dt><dd><p>The LGDFINT system initialization parameter specifies the log defer interval to be used by CICS® log manager when determining how long to delay a forced journal write request before invoking the MVS™ system logger.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>lgnmsg</dt><dd><p>The LGNMSG system initialization parameter specifies whether z/OS Communications Server logon data is to be made available to an application program.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>llacopy</dt><dd><p>The LLACOPY system initialization parameter specifies the situations where CICS uses either the LLACOPY macro or the BLDL macro when locating modules in the DFHRPL or dynamic LIBRARY concatenation.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: YES, NO, NEWCOPY</div>
+</div>
+</dd>
+<dt>localccsid</dt><dd><p>The LOCALCCSID system initialization parameter specifies the default CCSID for the local region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>lpa</dt><dd><p>The LPA system initialization parameter specifies whether CICS and user modules can be used from the link pack areas.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>maxopentcbs</dt><dd><p>The MAXOPENTCBS system initialization parameter specifies the maximum number, in the range 32 through 4032, of open task control blocks (open TCBs) CICS® can create in the pool of L8 and L9 mode TCBs.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>maxsockets</dt><dd><p>The MAXSOCKETS system initialization parameter specifies the maximum number of IP sockets that can be managed by the CICS sockets domain.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>maxssltcbs</dt><dd><p>The MAXSSLTCBS system initialization parameter specifies the maximum number of S8 TCBs that can run in the SSL pool.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>maxtlslevel</dt><dd><p>The MAXTLSLEVEL system initialization parameter specifies the maximum TLS protocol that CICS uses for secure TCP/IP connections.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: TLS11, TLS12, TLS13</div>
+</div>
+</dd>
+<dt>maxxptcbs</dt><dd><p>The MAXXPTCBS system initialization parameter specifies the maximum number, in the range 1 through 2000, of open X8 and X9 TCBs that can exist concurrently in the CICS region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>mct</dt><dd><p>The MCT system initialization parameter specifies the monitoring control table suffix.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>mintlslevel</dt><dd><p>The MINTLSLEVEL system initialization parameter specifies the minimum TLS protocol that CICS uses for secure TCP/IP connections.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: TLS11, TLS12, TLS13</div>
+</div>
+</dd>
+<dt>mn</dt><dd><p>The MN system initialization parameter specifies whether monitoring is to be switched ‘ON’ or ‘OFF’ at initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: OFF, ON</div>
+</div>
+</dd>
+<dt>mnconv</dt><dd><p>The MNCONV system initialization parameter specifies whether conversational tasks have separate performance class records produced for each pair of terminal control I/O requests.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>mnexc</dt><dd><p>The MNEXC system initialization parameter specifies whether the monitoring exception class is to be made active during initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: OFF, ON</div>
+</div>
+</dd>
+<dt>mnfreq</dt><dd><p>The MNFREQ system initialization parameter specifies the interval for which CICS automatically produces a transaction performance class record for any long-running transaction.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>mnidn</dt><dd><p>The MNIDN system initialization parameter specifies whether the monitoring identity class is to be made active during CICS initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: OFF, ON</div>
+</div>
+</dd>
+<dt>mnper</dt><dd><p>The MNPER system initialization parameter specifies whether the monitoring performance class is to be made active during CICS initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: OFF, ON</div>
+</div>
+</dd>
+<dt>mnres</dt><dd><p>The MNRES system initialization parameter specifies whether transaction resource monitoring is to be made active during CICS initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: OFF, ON</div>
+</div>
+</dd>
+<dt>mnsync</dt><dd><p>The MNSYNC system initialization parameter specifies whether you want CICS to produce a transaction performance class record when a transaction takes an implicit or explicit syncpoint (unit-of-work).</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>mntime</dt><dd><p>The MNTIME system initialization parameter specifies whether you want the time stamp fields in the performance class monitoring data to be returned to an application using the EXEC CICS COLLECT STATISTICS MONITOR(taskno) command in either GMT or local time.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: GMT, LOCAL</div>
+</div>
+</dd>
+<dt>mqconn</dt><dd><p>The MQCONN system initialization parameter specifies whether you want CICS to start a connection to automatically during initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>mrobtch</dt><dd><p>The MROBTCH system initialization parameter specifies the number of events that must occur before CICS is posted for dispatch because of the batching mechanism.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>mrofse</dt><dd><p>The MROFSE system initialization parameter specifies whether you want to extend the lifetime of the long-running mirror to keep it allocated until the end of the task rather than after a user syncpoint for function shipping applications.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>mrolrm</dt><dd><p>The MROLRM system initialization parameter specifies whether you want to establish an MRO long-running mirror task.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>msgcase</dt><dd><p>The MSGCASE system initialization parameter specifies how you want the message domains to display mixed case messages.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: MIXED, UPPER</div>
+</div>
+</dd>
+<dt>msglvl</dt><dd><p>The MSGLVL system initialization parameter specifies the message level that controls the generation of messages to the console and JES message log.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+<div class="line"><strong>choices</strong>: 1, 0</div>
+</div>
+</dd>
+<dt>mxt</dt><dd><p>The MXT system initialization parameter specifies the maximum number, in the range 10 through 2000, of user tasks that can exist in a CICS system at the same time. The MXT value does not include CICS system tasks.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>natlang</dt><dd><p>The NATLANG system initialization parameter specifies the single-character code for the language to be supported in this CICS run.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: E, C, K</div>
+</div>
+</dd>
+<dt>ncpldft</dt><dd><p>The NCPLDFT system initialization parameter specifies the name of the default named counter pool to be used by the CICS region ‘ON’ calls it makes to a named counter server.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>newsit</dt><dd><p>The NEWSIT system initialization parameter specifies whether CICS is to load the specified SIT, and enforce the use of all system initialization parameters, modified by any system initialization parameters provided by PARM, SYSIN, or the system console, even in a warm start.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>nistsp800131a</dt><dd><p>The NISTSP800131A system initialization parameter specifies whether the CICS region is to check for conformance to the NIST SP800-131A standard.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NOCHECK, CHECK</div>
+</div>
+</dd>
+<dt>nonrlsrecov</dt><dd><p>The NONRLSRECOV system initialization parameter specifies whether VSAM catalog recovery options should override those specified on the CICS FILE resource definition for all non-RLS files. Default behavior, with NONRLSRECOV=VSAMCAT, will take recovery attributes from the catalog if they are present, and from the file definition otherwise. RLS files must always specify recovery options on the catalog.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: VSAMCAT, FILEDEF</div>
+</div>
+</dd>
+<dt>nqrnl</dt><dd><p>The NQRNL system initialization parameter controls resource name list (RNL) processing by z/OS global resource serialization, which can cause the scope value of a resource to change. CICS uses z/OS global resource serialization to provide sysplex-wide protection of application resources.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>offsite</dt><dd><p>The ‘OFF’SITE system initialization parameter specifies whether CICS is to restart in ‘OFF’-site recovery mode; that is, a restart is taking place at a remote site.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>opertim</dt><dd><p>The OPERTIM system initialization parameter specifies the write-to-operator timeout value, in the range 0 through 86400 seconds (24 hours).</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>opndlim</dt><dd><p>The OPNDLIM system initialization parameter specifies the destination and close destination request limit.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>parmerr</dt><dd><p>The PARMERR system initialization parameter specifies what action you want to follow if CICS detects incorrect system initialization parameter overrides during initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: INTERACT, IGNORE, ABEND</div>
+</div>
+</dd>
+<dt>pcdsasze</dt><dd><p>The PCDSASZE parameter specifies the size of the PCDSA dynamic storage area. Message DFHSM0136I at initialization shows the value that is set.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>pdi</dt><dd><p>The PDI system initialization parameter specifies the XRF primary delay interval, in seconds, in a SIT for an active CICS region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>pdir</dt><dd><p>The PDIR system initialization parameter specifies a suffix for the PDIR list.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>pgaictlg</dt><dd><p>The PGAICTLG system initialization parameter specifies whether autoinstalled program definitions should be cataloged.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: MODIFY, NONE, ALL</div>
+</div>
+</dd>
+<dt>pgaiexit</dt><dd><p>The PGAIEXIT system initialization parameter specifies the name of the program autoinstall exit program.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>pgaipgm</dt><dd><p>The PGAIPGM system initialization parameter specifies the state of the program autoinstall function at initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: INACTIVE, ACTIVE</div>
+</div>
+</dd>
+<dt>pgchain</dt><dd><p>The PGCHAIN system initialization parameter specifies the character string that is identified by terminal control as a BMS terminal page-chaining command.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>pgcopy</dt><dd><p>The PGCOPY system initialization parameter specifies the character string that is identified by terminal control as a BMS command to copy output from one terminal to another.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>pgpurge</dt><dd><p>The PGPURGE system initialization parameter specifies the character string that is identified by terminal control as a BMS terminal page-purge command.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>pgret</dt><dd><p>The PGRET system initialization parameter specifies the character string that is recognized by terminal control as a BMS terminal page-retrieval command.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>pltpi</dt><dd><p>The PLTPI system initialization parameter specifies the suffix for, or the full name of, a program list table that contains a list of programs to be run in the final stages of system initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>pltpisec</dt><dd><p>The PLTPISEC system initialization parameter specifies whether you want CICS to perform command security or resource security checking for PLT programs during CICS initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NONE, CMDSEC, RESSEC, ALL</div>
+</div>
+</dd>
+<dt>pltpiusr</dt><dd><p>The PLTPIUSR system initialization parameter specifies the user ID that CICS uses for security checking for PLT programs that run during CICS initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>pltsd</dt><dd><p>The PLTSD system initialization parameter specifies the suffix for, or full name of, a program list table that contains a list of programs to be run during system termination.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>prgdlay</dt><dd><p>The PRGDLAY system initialization parameter specifies the BMS purge delay time interval that is added t the specified delivery time to determine when a message is to be considered undeliverable and therefore purged.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>print</dt><dd><p>The PRINT system initialization parameter specifies the method of requesting printout of the contents of a 3270 screen.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES, PA1, PA2, PA3</div>
+</div>
+</dd>
+<dt>prtyage</dt><dd><p>The PRTYAGE system initialization parameter specifies the number of milliseconds to be used in the priority aging algorithm that is used to increment the priority of a task.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>prvmod</dt><dd><p>The PRVMOD system initialization parameter specifies the names of those modules that are not to be used from the LPA.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>psbchk</dt><dd><p>The PSBCHK system initialization parameter specifies whether CICS is to perform PSB authorization checks for remote terminal users who use transaction routing to initiate a transaction in this CICS region to access an attached IMS system.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>psdint</dt><dd><p>The PSDINT system initialization parameter specifies the persistent session delay interval, which states if, and for how long, z/OS CommunicationsServer holds sessions in a recovery-pending state.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>pstype</dt><dd><p>The PSTYPE system initialization parameter specifies whether CICS uses z/OS Communications Server single-node persistent sessions (SNPS), multinode persistent sessions (MNPS), or does not use z/OS Communications Server persistent sessions support (NOPS).</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: SNPS, MNPS, NOPS</div>
+</div>
+</dd>
+<dt>pudsasze</dt><dd><p>The PUDSASZE parameter specifies the size of the PUDSA dynamic storage area. Message DFHSM0136I at initialization shows the value that is set.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>pvdelay</dt><dd><p>The PVDELAY system initialization parameter specifies the persistent verification delay as a value in the range 0 through 10080 minutes (up to 7 days).</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>quiestim</dt><dd><p>The QUIESTIM system initialization parameter specifies a timeout value for data set quiesce requests.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>racfsync</dt><dd><p>The RACFSYNC system initialization parameter specifies whether CICS listens for type 71 ENF events and refreshes user security.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: YES, NO</div>
+</div>
+</dd>
+<dt>ramax</dt><dd><p>The RAMAX system initialization parameter specifies the size in bytes of the I/O area allocated for each RECEIVE ANY issued by CICS, in the range 0 through 32767 bytes.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>rapool</dt><dd><p>The RAPOOL system initialization parameter specifies the number of concurrent receive-any requests that CICS is to process from the z/OS Communications Server for SNA.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>rdsasze</dt><dd><p>The RDSASZE system initialization parameter specifies the size of the RDSA.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>rentpgm</dt><dd><p>The RENTPGM system initialization parameter specifies whether you want CICS to allocate the read-only DSAs from read-only key-0 protected storage.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: PROTECT, NOPROTECT</div>
+</div>
+</dd>
+<dt>resoverrides</dt><dd><p>The RESOVERRIDES system initialization parameter specifies the 1-64 character name of the resource overrides file. For more information, see .</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>resp</dt><dd><p>The RESP system initialization parameter specifies the type of request that CICS terminal control receives from logical units.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: FME, RRN</div>
+</div>
+</dd>
+<dt>ressec</dt><dd><p>The RESSEC system initialization parameter specifies whether you want CICS to honor the RESSEC option specified on a transaction’s resource definition.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: ASIS, ALWAYS</div>
+</div>
+</dd>
+<dt>rls</dt><dd><p>The RLS system initialization parameter specifies whether CICS is to support VSAM record-level sharing (RLS).</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>rlstolsr</dt><dd><p>The RLSTOLSR system initialization parameter specifies whether CICS is to include files that are to be opened in RLS mode when calculating the number of buffers, strings, and other resources for an LSR pool.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>rmtran</dt><dd><p>The RMTRAN system initialization parameter specifies the name of the transaction that you want an alternate CICS to initiate when logged-on class 1 terminals, which are defined with the attribute RECOVNOTIFY(TRANSACTION) specified, are switched following a takeover.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>rrms</dt><dd><p>The RRMS system initialization parameter specifies whether CICS is to register as a resource manager with recoverable resource management services (RRMS).</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>rst</dt><dd><p>The RST system initialization parameter specifies a recoverable service table suffix.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>rstsignoff</dt><dd><p>The RSTSIGNOFF system initialization parameter specifies whether all users signed-on to the active CICS region are to remain signed-on following a persistent sessions restart or an XRF takeover.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NOFORCE, FORCE</div>
+</div>
+</dd>
+<dt>rstsigntime</dt><dd><p>The RSTSIGNTIME parameter specifies the timeout delay interval for signon retention during a persistent sessions restart or an XRF takeover.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>ruwapool</dt><dd><p>The RUWAPOOL parameter specifies the option for allocating a storage pool the first time a program invoked by Language Environment runs in a task.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>sdsasze</dt><dd><p>The SDSASZE system initialization parameter specifies the size of the SDSA.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>sdtmemlimit</dt><dd><p>The SDTMEMLIMIT system initialization parameter specifies a limit to the amount of storage above the bar that is available for shared data tables to use for control information (entry descriptors, backout elements, and index nodes). The default is 4 GB. When you set this parameter, check your current setting for the z/OS MEMLIMIT parameter.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>sdtran</dt><dd><p>The SDTRAN system initialization parameter specifies the name of the shutdown transaction to be started at the beginning of normal and immediate shutdown.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>sec</dt><dd><p>The SEC system initialization parameter specifies what level of external security you want CICS to use.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: YES, NO</div>
+</div>
+</dd>
+<dt>secprfx</dt><dd><p>The SECPRFX system initialization parameter specifies whether CICS prefixes the resource names in any authorization requests to RACF.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>sit</dt><dd><p>The SIT system initialization parameter specifies the suffix, if any, of the system initialization table that you want CICS to load at the start of initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>skrxxxx</dt><dd><p>The SKRxxxx system initialization parameter specifies that a single-keystroke-retrieval operation is required.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+</dd>
+<dt>snpreset</dt><dd><p>The SNPRESET system initialization parameter specifies whether preset userid terminals share a single access control environment element (ACEE) that is associated with the userid, or a unique ACEE for every terminal.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: UNIQUE, SHARED</div>
+</div>
+</dd>
+<dt>snscope</dt><dd><p>The SNSCOPE system initialization parameter specifies whether a userid can be signed on to CICS more than once, within the scope of a single CICS region, a single MVS image, and a sysplex.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NONE, CICS, MVSIMAGE, SYSPLEX</div>
+</div>
+</dd>
+<dt>sotuning</dt><dd><p>The SOTUNING system initialization parameter specifies whether performance tuning for HTTP connections will occur to protect CICS from unconstrained resource demand.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: YES, 520</div>
+</div>
+</dd>
+<dt>spctr</dt><dd><p>The SPCTR system initialization parameter specifies the level of special tracing required for CICS as a whole.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>spctrxx</dt><dd><p>The SPCTRxx system initialization parameter specifies the level of special tracing for a particular CICS component used by a transaction, terminal, or both.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+</dd>
+<dt>spool</dt><dd><p>The SPOOL system initialization parameter specifies whether the system spooling interface is required.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>srbsvc</dt><dd><p>The SRBSVC system initialization parameter specifies the number that you have assigned to the CICS type 6 SVC.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>srt</dt><dd><p>The SRT system initialization parameter specifies the system recovery table suffix.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>srvercp</dt><dd><p>The SRVERCP system initialization parameter specifies the default server code page to be used by the DFHCNV data conversion table but only if the SRVERCP parameter in the DFHCNV macro is set to SYSDEF.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>sslcache</dt><dd><p>The SSLCACHE system initialization parameter specifies whether session IDs for SSL sessions are to be cached locally or at sysplex level for reuse by the CICS® region. The SSL cache allows CICS to perform abbreviated handshakes with clients that it has previously authenticated.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: CICS, SYSPLEX</div>
+</div>
+</dd>
+<dt>ssldelay</dt><dd><p>The SSLDELAY system initialization parameter specifies the length of time in seconds for which CICS retains session ids for secure socket connections.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>start</dt><dd><p>The START system initialization parameter specifies the type of start for the system initialization program.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: AUTO, INITIAL, COLD, STANDBY, (INITIAL, ALL), (AUTO, ALL), (COLD, ALL), (STANDBY, ALL)</div>
+</div>
+</dd>
+<dt>starter</dt><dd><p>The STARTER system initialization parameter specifies whether the generation of starter system modules (with $ and</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: YES, NO</div>
+</div>
+</dd>
+<dt>stateod</dt><dd><p>The STATEOD system initialization parameter specifies the end-of-day time in the format hhmmss.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>statint</dt><dd><p>The STATINT system initialization parameter specifies the recording interval for system statistics in the format hhmmss.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>statrcd</dt><dd><p>The STATRCD system initialization parameter specifies the interval statistics recording status at CICS initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: OFF, ON</div>
+</div>
+</dd>
+<dt>stgprot</dt><dd><p>The STGPROT system initialization parameter specifies whether you want storage protection to operate in the CICS region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: YES, NO</div>
+</div>
+</dd>
+<dt>stgrcvy</dt><dd><p>The STGRCVY system initialization parameter specifies whether CICS should try to recover from a storage violation.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>stntr</dt><dd><p>The STNTR system initialization parameter specifies the level of standard tracing required for CICS as a whole.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>stntrxx</dt><dd><p>The STNTRxx system initialization parameter specifies the level of standard tracing you require for a particular CICS component. Specify the final two characters as the dictionary key</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+</dd>
+<dt>subtsks</dt><dd><p>The SUBTSKS system initialization parameter specifies the number of task control blocks (TCBs) you want CICS to use for running tasks in concurrent mode.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+<div class="line"><strong>choices</strong>: 0, 1</div>
+</div>
+</dd>
+<dt>suffix</dt><dd><p>The SUFFIX system initialization parameter specifies the last two characters of the name of this system initialization table.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>sydumax</dt><dd><p>The SYDUMAX system initialization parameter specifies the limit on the number of system dumps that can be taken per dump table entry.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>sysidnt</dt><dd><p>The SYSIDNT system initialization parameter specifies a 1- to 4-character name that is known only to your CICS region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>systr</dt><dd><p>The SYSTR system initialization parameter specifies the setting of the main system trace flag.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: ON, OFF</div>
+</div>
+</dd>
+<dt>takeovr</dt><dd><p>The TAKEOVR system initialization parameter specifies the action to be taken by the alternate CICS region, following the apparent loss of the surveillance signal in the active CICS region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: MANUAL, AUTO, COMMAND</div>
+</div>
+</dd>
+<dt>tbexits</dt><dd><p>The TBEXITS system initialization parameter specifies the names of your backout exit programs for use during emergency restart backout processing.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>tcp</dt><dd><p>The TCP system initialization parameter specifies whether the pregenerated non-z/OS Communications Server terminal control program, DFHTCP, is to be included.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>tcpip</dt><dd><p>The TCPIP system initialization parameter specifies whether CICS TCP/IP services are to be activated at CICS startup.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: YES, NO</div>
+</div>
+</dd>
+<dt>tcsactn</dt><dd><p>The TCSACTN system initialization parameter specifies the required action that CICS terminal control should take if the terminal control shutdown wait threshold expires.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NONE, UNBIND, FORCE</div>
+</div>
+</dd>
+<dt>tcswait</dt><dd><p>The TCSWAIT system initialization parameter specifies the required CICS terminal control shutdown wait threshold.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>tct</dt><dd><p>The TCT system initialization parameter specifies which terminal control table, if any, is to be loaded.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>tctuakey</dt><dd><p>The TCTUAKEY system initialization parameter specifies the storage key for the terminal control table user areas (TCTUAs) if you are operating CICS with storage protection (STGPROT=YES).</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: USER, CICS</div>
+</div>
+</dd>
+<dt>tctualoc</dt><dd><p>The TCTUALOC system initialization parameter specifies where terminal user areas (TCTUAs) are to be stored.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: BELOW, ANY</div>
+</div>
+</dd>
+<dt>td</dt><dd><p>The TD system initialization parameter specifies the number of VSAM buffers and strings to be used for intrapartition transient data (TD).</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>tdintra</dt><dd><p>The TDINTRA system initialization parameter specifies whether CICS is to initialize with empty intrapartition TD queues.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NOEMPTY, EMPTY</div>
+</div>
+</dd>
+<dt>traniso</dt><dd><p>The TRANISO system initialization parameter specifies, together with the STGPROT system initialization parameter, whether you want transaction isolation in the CICS region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>trap</dt><dd><p>The TRAP system initialization parameter specifies whether the FE global trap exit is to be activated at system initialization.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: OFF, ON</div>
+</div>
+</dd>
+<dt>trdumax</dt><dd><p>The TRDUMAX system initialization parameter specifies the limit on the number of transaction dumps that may be taken per Dump Table entry.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>trtabsz</dt><dd><p>The TRTABSZ system initialization parameter specifies the size, in kilobytes, of the internal trace table.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>trtransz</dt><dd><p>The TRTRANSZ system initialization parameter specifies the size, in kilobytes, of the transaction dump trace table.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>trtranty</dt><dd><p>The TRTRANTY system initialization parameter specifies which trace entries should be copied from the internal trace table to the transaction dump trace table.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: TRAN, ALL</div>
+</div>
+</dd>
+<dt>ts</dt><dd><p>The TS system initialization parameter specifies whether you want to perform a cold start for temporary storage, as well as the number of VSAM buffers and strings to be used for auxiliary temporary storage.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>tsmainlimit</dt><dd><p>The TSMAINLIMIT system initialization parameter specifies a limit for the storage that is available for main temporary storage queues to use. You can specify an amount of storage in the range 1 - 32768 MB (32 GB), but this amount must not be greater than 25% of the value of the z/OS parameter MEMLIMIT. The default is 64 MB.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>tst</dt><dd><p>The TST system initialization parameter specifies the temporary storage table suffix.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>udsasze</dt><dd><p>The UDSASZE system initialization parameter specifies the size of the UDSA.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>uownetql</dt><dd><p>The UOWNETQL system initialization parameter specifies a qualifier for the NETUOWID for units of work initiated on the local CICS region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>usertr</dt><dd><p>The USERTR system initialization parameter specifies whether the main user trace flag is to be set on or off.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: ON, OFF</div>
+</div>
+</dd>
+<dt>usrdelay</dt><dd><p>The USRDELAY system initialization parameter specifies the maximum time, in the range 0 - 10080 minutes (up to seven days), that an eligible user ID and its associated attributes are cached in the CICS region after use. A user ID that is retained in the user table can be reused.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>ussconfig</dt><dd><p>The USSCONFIG system initialization parameter specifies the name and path of the root directory for configuration files on z/OS UNIX.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>usshome</dt><dd><p>The USSHOME system initialization parameter specifies the name and path of the root directory for files on z/OS UNIX.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>vtam</dt><dd><p>The VTAM system initialization parameter specifies whether the z/OS Communications Server access method is to be used.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: YES, NO</div>
+</div>
+</dd>
+<dt>vtprefix</dt><dd><p>The VTPREFIX system initialization parameter specifies the first character to be used for the terminal identifiers (termids) of autoinstalled virtual terminals.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>webdelay</dt><dd><p>The WEBDELAY system initialization parameter specifies two Web delay periods.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>wlmhealth</dt><dd><p>The WLMHEALTH system initialization parameter specifies the time interval and the health adjustment value to be used by CICS® on z/OS® Workload Manager Health API (IWM4HLTH) calls, which CICS makes to inform z/OS WLM about the health state of a CICS region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>wrkarea</dt><dd><p>The WRKAREA system initialization parameter specifies the number of bytes to be allocated to the common work area (CWA).</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>xappc</dt><dd><p>The XAPPC system initialization parameter specifies whether RACF session security can be used when establishing APPC sessions.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>xcfgroup</dt><dd><p>The XCFGROUP system initialization parameter specifies the name of the cross-system coupling facility (XCF) group to be joined by this region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>xcmd</dt><dd><p>The XCMD system initialization parameter specifies whether you want CICS to perform command security checking, and optionally the RACF resource class name in which you have defined the command security profiles.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>xdb2</dt><dd><p>The XDB2 system initialization parameter specifies whether you want CICS to perform DB2ENTRY security checking.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>xdct</dt><dd><p>The XDCT system initialization parameter specifies whether you want CICS to perform resource security checking for transient data queues.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>xfct</dt><dd><p>The XFCT system initialization parameter specifies whether you want CICS to perform file resource security checking, and optionally specifies the RACF resource class name in which you have defined the file resource security profiles.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>xhfs</dt><dd><p>The XHFS system initialization parameter specifies whether CICS is to check the transaction user’s ability to access files in the z/OS UNIX System Services file system.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: YES, NO</div>
+</div>
+</dd>
+<dt>xjct</dt><dd><p>The XJCT system initialization parameter specifies whether you want CICS to perform journal resource security checking.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>xlt</dt><dd><p>The XLT system initialization parameter specifies a suffix for the transaction list table.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>xpct</dt><dd><p>The XPCT system initialization parameter specifies whether you want CICS to perform started transaction resource security checking, and optionally specifies the name of the RACF resource class name in which you have defined the started task security profiles.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>xppt</dt><dd><p>The XPPT system initialization parameter specifies that CICS is to perform application program resource security checks and optionally specifies the RACF resource class name in which you have defined the program resource security profiles.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>xpsb</dt><dd><p>The XPSB system initialization parameter specifies whether you want CICS to perform program specification block (PSB) security checking and optionally specifies the RACF resource class name in which you have defined the PSB security profiles.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>xptkt</dt><dd><p>The XPTKT system initialization parameter specifies whether CICS checks if a user can generate a PassTicket for the user’s userid using the EXEC CICS REQUEST PASSTICKET command, the EXEC CICS REQUEST ENCRYPTPTKT command, or the EXEC FEPI REQUEST PASSTICKET command.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: YES, NO</div>
+</div>
+</dd>
+<dt>xres</dt><dd><p>The XRES system initialization parameter specifies whether you want CICS to perform resource security checking for particular CICS resources and optionally specifies the general resource class name in which you have defined the resource security profiles.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>xrf</dt><dd><p>The XRF system initialization parameter specifies whether XRF support is to be included in the CICS region.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: NO, YES</div>
+</div>
+</dd>
+<dt>xtran</dt><dd><p>The XTRAN system initialization parameter specifies whether you want CICS to perform transaction security checking and optionally specifies the RACF resource class name in which you have defined the transaction security profiles.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>xtst</dt><dd><p>The XTST system initialization parameter specifies whether you want CICS to perform security checking for temporary storage queues and optionally specifies the RACF resource class name in which you have defined the temporary storage security profiles.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>xuser</dt><dd><p>The XUSER system initialization parameter specifies whether CICS is to perform surrogate user checks.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: str</div>
+<div class="line"><strong>choices</strong>: YES, NO</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>steplib</dt><dd><p>Any locations of additional <code class="docutils literal notranslate"><span class="pre">STEPLIB</span></code> libraries to add, that are not <code class="docutils literal notranslate"><span class="pre">SDFHAUTH</span></code>, <code class="docutils literal notranslate"><span class="pre">SDFHLIC</span></code>, <code class="docutils literal notranslate"><span class="pre">SCEERUN</span></code>, or <code class="docutils literal notranslate"><span class="pre">SCEERUN2</span></code>.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: dict</div>
+</div>
+<dl>
+<dt>libraries</dt><dd><p>The <code class="docutils literal notranslate"><span class="pre">STEPLIB</span></code> libraries to be appended to the bottom of the library list.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: list</div>
+</div>
+</dd>
+<dt>top_libraries</dt><dd><p>The <code class="docutils literal notranslate"><span class="pre">STEPLIB</span></code> libraries to be appended to the very top of the statement.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: list</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>submit_jcl</dt><dd><p>Specify whether or not you want the CICS startup job to be submitted.</p>
+<div class="line-block">
+<div class="line"><strong>required</strong>: False</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+</dl>
+</section>
+<section id="examples">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Start CICS</span>
+<span class="w">  </span><span class="nt">ibm.ibm_zos_cics.start_cics</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">submit_jcl</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">    </span><span class="nt">applid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ABC9ABC1</span>
+<span class="w">    </span><span class="nt">cics_data_sets</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;CICSTS61.CICS.&lt;&lt;</span><span class="nv"> </span><span class="s">lib_name</span><span class="nv"> </span><span class="s">&gt;&gt;&#39;</span>
+<span class="w">    </span><span class="nt">le_data_sets</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;LANG.ENVIORNMENT.&lt;&lt;</span><span class="nv"> </span><span class="s">lib_name</span><span class="nv"> </span><span class="s">&gt;&gt;&#39;</span>
+<span class="w">    </span><span class="nt">region_data_sets</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;REGIONS.ABC9ABC1.&lt;&lt;</span><span class="nv"> </span><span class="s">data_set_name</span><span class="nv"> </span><span class="s">&gt;&gt;&#39;</span>
+<span class="w">    </span><span class="nt">sit_parameters</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">start</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">COLD</span>
+<span class="w">      </span><span class="nt">sit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6$</span>
+<span class="w">      </span><span class="nt">aicons</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AUTO</span>
+<span class="w">      </span><span class="nt">auxtr</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ON&#39;</span>
+<span class="w">      </span><span class="nt">auxtrsw</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ALL</span>
+<span class="w">      </span><span class="nt">cicssvc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">217</span>
+<span class="w">      </span><span class="nt">csdrecov</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">BACKOUTONLY</span>
+<span class="w">      </span><span class="nt">edsalim</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500M</span>
+<span class="w">      </span><span class="nt">grplist</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">(DFHLIST,DFHTERML)</span>
+<span class="w">      </span><span class="nt">gmtext</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ABC9ABC1.</span><span class="nv"> </span><span class="s">CICS</span><span class="nv"> </span><span class="s">Region&#39;</span>
+<span class="w">      </span><span class="nt">icvr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20000</span>
+<span class="w">      </span><span class="nt">isc</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;YES&#39;</span>
+<span class="w">      </span><span class="nt">ircstrt</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;YES&#39;</span>
+<span class="w">      </span><span class="nt">mxt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500</span>
+<span class="w">      </span><span class="nt">pgaipgm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACTIVE</span>
+<span class="w">      </span><span class="nt">sec</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;YES&#39;</span>
+<span class="w">      </span><span class="nt">spool</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;YES&#39;</span>
+<span class="w">      </span><span class="nt">srbsvc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">218</span>
+<span class="w">      </span><span class="nt">tcpip</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;NO&#39;</span>
+<span class="w">      </span><span class="nt">usshome</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/usshome/directory</span>
+<span class="w">      </span><span class="nt">wlmhealth</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;OFF&quot;</span>
+<span class="w">      </span><span class="nt">wrkarea</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2048</span>
+<span class="w">      </span><span class="nt">sysidnt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ZPY1</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Start CICS with more customization</span>
+<span class="w">  </span><span class="nt">ibm.ibm_zos_cics.start_cics</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">submit_jcl</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">    </span><span class="nt">applid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ABC9ABC1</span>
+<span class="w">    </span><span class="nt">job_parameters</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">A</span>
+<span class="w">    </span><span class="nt">cics_data_sets</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;CICSTS61.CICS.&lt;&lt;</span><span class="nv"> </span><span class="s">lib_name</span><span class="nv"> </span><span class="s">&gt;&gt;&#39;</span>
+<span class="w">      </span><span class="nt">sdfhauth</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;CICSTS61.OVERRDE.TEMPLT.SDFHAUTH&#39;</span>
+<span class="w">    </span><span class="nt">le_data_sets</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;LANG.ENVIORNMENT.&lt;&lt;</span><span class="nv"> </span><span class="s">lib_name</span><span class="nv"> </span><span class="s">&gt;&gt;&#39;</span>
+<span class="w">    </span><span class="nt">region_data_sets</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;REGIONS.ABC9ABC1.&lt;&lt;</span><span class="nv"> </span><span class="s">data_set_name</span><span class="nv"> </span><span class="s">&gt;&gt;&#39;</span>
+<span class="w">    </span><span class="nt">output_data_sets</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">default_sysout_class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">B</span>
+<span class="w">      </span><span class="nt">ceemsg</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">sysout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">A</span>
+<span class="w">      </span><span class="nt">sysprint</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">omit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">    </span><span class="nt">steplib</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">top_libraries</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TOP.LIBRARY.ONE</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TOP.LIBRARY.TWO</span>
+<span class="w">      </span><span class="nt">libraries</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">BOTTOM.LIBRARY.ONE</span>
+<span class="w">    </span><span class="nt">sit_parameters</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">start</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">COLD</span>
+<span class="w">      </span><span class="nt">sit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6$</span>
+<span class="w">      </span><span class="nt">aicons</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AUTO</span>
+<span class="w">      </span><span class="nt">auxtr</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ON&#39;</span>
+<span class="w">      </span><span class="nt">auxtrsw</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ALL</span>
+<span class="w">      </span><span class="nt">cicssvc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">217</span>
+<span class="w">      </span><span class="nt">csdrecov</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">BACKOUTONLY</span>
+<span class="w">      </span><span class="nt">edsalim</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500M</span>
+<span class="w">      </span><span class="nt">grplist</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">(DFHLIST,DFHTERML)</span>
+<span class="w">      </span><span class="nt">gmtext</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ABC9ABC1.</span><span class="nv"> </span><span class="s">CICS</span><span class="nv"> </span><span class="s">Region&#39;</span>
+<span class="w">      </span><span class="nt">icvr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20000</span>
+<span class="w">      </span><span class="nt">isc</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;YES&#39;</span>
+<span class="w">      </span><span class="nt">ircstrt</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;YES&#39;</span>
+<span class="w">      </span><span class="nt">mxt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500</span>
+<span class="w">      </span><span class="nt">pgaipgm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACTIVE</span>
+<span class="w">      </span><span class="nt">stntrxx</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">ab</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ALL</span>
+<span class="w">      </span><span class="nt">skrxxxx</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">PA21</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;COMMAND&#39;</span>
+<span class="w">      </span><span class="nt">sec</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;YES&#39;</span>
+<span class="w">      </span><span class="nt">spool</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;YES&#39;</span>
+<span class="w">      </span><span class="nt">srbsvc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">218</span>
+<span class="w">      </span><span class="nt">tcpip</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;NO&#39;</span>
+<span class="w">      </span><span class="nt">usshome</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/usshome/directory</span>
+<span class="w">      </span><span class="nt">wlmhealth</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;OFF&quot;</span>
+<span class="w">      </span><span class="nt">wrkarea</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2048</span>
+<span class="w">      </span><span class="nt">sysidnt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ZPY1</span>
+</pre></div>
+</div>
+</section>
+<section id="see-also">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">See Also</a><a class="headerlink" href="#see-also" title="Permalink to this heading"></a></h2>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="stop_cics.html#stop-cics-module"><span class="std std-ref">stop_cics – Stop a CICS Region</span></a></p></li>
+</ul>
+</div>
+</section>
+<section id="return-values">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Return Values</a><a class="headerlink" href="#return-values" title="Permalink to this heading"></a></h2>
+<blockquote>
+<div><dl>
+<dt>changed</dt><dd><div class="line-block">
+<div class="line">True if the CICS startup JCL was submitted, otherwise False.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: always</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+<dt>failed</dt><dd><div class="line-block">
+<div class="line">True if the query job failed, otherwise False.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: always</div>
+<div class="line"><strong>type</strong>: bool</div>
+</div>
+</dd>
+<dt>jcl</dt><dd><div class="line-block">
+<div class="line">The CICS startup JCL that is built during module execution.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: always</div>
+<div class="line"><strong>type</strong>: list</div>
+</div>
+</dd>
+<dt>job_id</dt><dd><div class="line-block">
+<div class="line">The job ID of the CICS startup job.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: If the CICS startup JCL has been submitted.</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>err</dt><dd><div class="line-block">
+<div class="line">The error message returned when building the JCL.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: always</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>executions</dt><dd><div class="line-block">
+<div class="line">A list of program executions performed during the Ansible task.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: always</div>
+<div class="line"><strong>type</strong>: list</div>
+</div>
+<dl>
+<dt>name</dt><dd><div class="line-block">
+<div class="line">A human-readable name for the program execution.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: always</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>rc</dt><dd><div class="line-block">
+<div class="line">The return code for the program execution.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: always</div>
+<div class="line"><strong>type</strong>: int</div>
+</div>
+</dd>
+<dt>stdout</dt><dd><div class="line-block">
+<div class="line">The standard out stream returned by the program execution.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: always</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+<dt>stderr</dt><dd><div class="line-block">
+<div class="line">The standard error stream returned from the program execution.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>returned</strong>: always</div>
+<div class="line"><strong>type</strong>: str</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="local_request_queue.html" class="btn btn-neutral float-left" title="local_request_queue – Create and remove the CICS local request queue" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="stop_cics.html" class="btn btn-neutral float-right" title="stop_cics – Stop a CICS Region" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright IBM Corp. 2020, 2024.</p>
+  </div>
+
+  
+   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+  <a href="https://sphinx-ansible-theme.rtfd.io">Sphinx Ansible Theme</a>
+  that is based on the
+  <a href="https://github.com/readthedocs/sphinx_rtd_theme">Read the Docs theme</a>
+  and is maintained by the <a href="https://docs.ansible.com/ansible/4/community/">Ansible Community</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>
