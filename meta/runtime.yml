@@ -7,3 +7,13 @@ action_groups:
     - cmci_delete
     - cmci_get
     - cmci_update
+  region_group:
+    - auxiliary_temp
+    - csd
+    - global_catalog
+    - intrapartition
+    - local_catalog
+    - local_request_queue
+    - trace
+    - transaction_dump
+    - start_cics
