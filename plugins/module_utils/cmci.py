@@ -232,29 +232,7 @@ class AnsibleCMCIModule(object):
         request_params = self.init_request_params()
 
         if request_params:
-            if version_info.major <= 2:
-                # This is a workaround for python 2, where we can't specify the
-                # encoding as a parameter in urlencode. Store the quote_plus
-                # setting, then override it with quote, so that spaces will be
-                # encoded as %20 instead of +. Then set the quote_plus value
-                # back so we haven't changed the behaviour long term
-                default_quote_plus = urllib.quote_plus
-                urllib.quote_plus = urllib.quote
-                self._url = self._url + \
-                    "?" + \
-                    urllib.urlencode(
-                        requests.utils.to_key_val_list(request_params)
-                    )
-                urllib.quote_plus = default_quote_plus
-            else:
-                # If running at python 3 and above
-                self._url = self._url + \
-                    "?" + \
-                    urllib.parse.urlencode(
-                        requests.utils.to_key_val_list(request_params),
-                        quote_via=urllib.parse.quote
-                    )
-
+            self._url = _url_encode_params(self._url, requests.utils.to_key_val_list(request_params))
         result_request = {
             'url': self._url,
             'method': self._method,
@@ -345,16 +323,16 @@ class AnsibleCMCIModule(object):
 
         self.validate(
             CONTEXT,
-            '^([A-Za-z0-9]{1,8})$',
+            '^([A-Za-z0-9$@#]{1,8})$',
             'a CPSM context name.  CPSM context names are max 8 characters. '
-            'Valid characters are A-Z a-z 0-9.'
+            'Valid characters are A-Z a-z 0-9 $ @ #.'
         )
 
         self.validate(
             SCOPE,
-            '^([A-Za-z0-9]{1,8})$',
+            '^([A-Za-z0-9$@#]{1,8})$',
             'a CPSM scope name. CPSM scope names are max 8 characters. '
-            'Valid characters are A-Z a-z 0-9.'
+            'Valid characters are A-Z a-z 0-9 $ @ #.'
         )
 
         self.validate(
@@ -453,9 +431,9 @@ class AnsibleCMCIModule(object):
             '/CICSSystemManagement/' + \
             t + \
             '/' + \
-            self._p.get(CONTEXT) + '/'
+            _url_encode_string(self._p.get(CONTEXT)) + '/'
         if self._p.get(SCOPE):
-            url = url + self._p.get(SCOPE)
+            url = url + _url_encode_string(self._p.get(SCOPE))
 
         return url
 
@@ -777,3 +755,36 @@ def _append_filter_string(existing, to_append, joiner=' AND '):
         return existing + '(' + to_append + ')'
     else:
         return existing + joiner + '(' + to_append + ')'
+
+
+def _url_encode_params(url, params):
+    if version_info.major <= 2:
+        # This is a workaround for python 2, where we can't specify the
+        # encoding as a parameter in urlencode. Store the quote_plus
+        # setting, then override it with quote, so that spaces will be
+        # encoded as %20 instead of +. Then set the quote_plus value
+        # back so we haven't changed the behaviour long term
+        default_quote_plus = urllib.quote_plus
+        urllib.quote_plus = urllib.quote
+        url = url + \
+            "?" + \
+            urllib.urlencode(
+                params
+            )
+        urllib.quote_plus = default_quote_plus
+    else:
+        # If running at python 3 and above
+        url = url + \
+            "?" + \
+            urllib.parse.urlencode(
+                params,
+                quote_via=urllib.parse.quote
+            )
+    return url
+
+
+def _url_encode_string(url):
+    if version_info.major <= 2:
+        return urllib.quote_plus(url)
+    else:
+        return urllib.parse.quote_plus(url)

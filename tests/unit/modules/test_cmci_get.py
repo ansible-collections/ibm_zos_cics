@@ -172,7 +172,7 @@ def test_invalid_port_high(cmci_module):  # type: (CMCITestHelper) -> None
 def test_invalid_context(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
         'msg': 'Parameter "context" with value "^&iyk3z0r9" was not valid. Expected a CPSM context name.  CPSM '
-               'context names are max 8 characters. Valid characters are A-Z a-z 0-9.',
+               'context names are max 8 characters. Valid characters are A-Z a-z 0-9 $ @ #.',
         'changed': False,
         'failed': True
     })
@@ -189,7 +189,7 @@ def test_invalid_context(cmci_module):  # type: (CMCITestHelper) -> None
 def test_invalid_scope(cmci_module):  # type: (CMCITestHelper) -> None
     cmci_module.expect({
         'msg': 'Parameter "scope" with value "&^iyk3z0r8" was not valid. Expected a CPSM scope name. CPSM scope '
-               'names are max 8 characters. Valid characters are A-Z a-z 0-9.',
+               'names are max 8 characters. Valid characters are A-Z a-z 0-9 $ @ #.',
         'changed': False,
         'failed': True
     })
@@ -199,6 +199,27 @@ def test_invalid_scope(cmci_module):  # type: (CMCITestHelper) -> None
         'cmci_port': '10080',
         'context': 'iyk3z0r9',
         'scope': '&^iyk3z0r8',
+        'type': 'cicslocalfile'
+    })
+
+
+def test_valid_context_with_special_chars(cmci_module):  # type: (CMCITestHelper) -> None
+    records = [
+        {'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'},
+        {'name': 'bing', 'dsname': 'STEWF.BAT.BAZ'}
+    ]
+    cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE, context='C%40%23%24EX61')
+
+    cmci_module.expect(result(
+        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicslocalfile/C%40%23%24EX61/IYCWEMW2',
+        records=records
+    ))
+
+    cmci_module.run(cmci_get, {
+        'cmci_host': HOST,
+        'cmci_port': '26040',
+        'context': 'C@#$EX61',
+        'scope': SCOPE,
         'type': 'cicslocalfile'
     })
 
