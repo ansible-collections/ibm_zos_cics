@@ -106,6 +106,84 @@ def test_get_idcams_cmd_cylinders():
     )
 
 
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
+def test_get_idcams_cmd_volumes():
+    catalog = dict(
+        name="ANSI.CYLS.DFHGCD",
+        sdfhload="CICSTS.IN56.SDFHLOAD",
+        state="initial",
+        autostart_override="",
+        nextstart="",
+        exists=False,
+        data_set_organization="NONE",
+        unit=CYLINDERS,
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT,
+        volumes=["vserv1"]
+    )
+    idcams_cmd_gcd = data_set_utils._build_idcams_define_cmd(
+        global_catalog._get_idcams_cmd_gcd(catalog)
+    )
+    assert (
+        idcams_cmd_gcd
+        == """
+    DEFINE CLUSTER (NAME(ANSI.CYLS.DFHGCD) -
+    CYLINDERS(5 1) -
+    RECORDSIZE(4089 32760) -
+    INDEXED -
+    KEYS(52 0) -
+    FREESPACE(10 10) -
+    SHAREOPTIONS(2) -
+    REUSE -
+    VOLUMES(vserv1)) -
+    DATA (NAME(ANSI.CYLS.DFHGCD.DATA) -
+    CONTROLINTERVALSIZE(32768)) -
+    INDEX (NAME(ANSI.CYLS.DFHGCD.INDEX))
+    """
+    )
+
+
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
+def test_get_idcams_cmd_multiple_volumes():
+    catalog = dict(
+        name="ANSI.CYLS.DFHGCD",
+        sdfhload="CICSTS.IN56.SDFHLOAD",
+        state="initial",
+        autostart_override="",
+        nextstart="",
+        exists=False,
+        data_set_organization="NONE",
+        unit=CYLINDERS,
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT,
+        volumes=["vserv1", "vserv2"]
+    )
+    idcams_cmd_gcd = data_set_utils._build_idcams_define_cmd(
+        global_catalog._get_idcams_cmd_gcd(catalog)
+    )
+    assert (
+        idcams_cmd_gcd
+        == """
+    DEFINE CLUSTER (NAME(ANSI.CYLS.DFHGCD) -
+    CYLINDERS(5 1) -
+    RECORDSIZE(4089 32760) -
+    INDEXED -
+    KEYS(52 0) -
+    FREESPACE(10 10) -
+    SHAREOPTIONS(2) -
+    REUSE -
+    VOLUMES(vserv1 vserv2)) -
+    DATA (NAME(ANSI.CYLS.DFHGCD.DATA) -
+    CONTROLINTERVALSIZE(32768)) -
+    INDEX (NAME(ANSI.CYLS.DFHGCD.INDEX))
+    """
+    )
+
+
 def test_global_catalog_get_records_autoinit_unknown():
     stdout = RMUTL_stdout("AUTOINIT", "UNKNOWN")
     resp = global_catalog._get_catalog_records(stdout=stdout)

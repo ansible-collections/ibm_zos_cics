@@ -72,3 +72,65 @@ def test_get_idcams_cmd_cylinders():
     DATA (NAME(ANSI.CYLS.DFHINTRA.DATA))
     """
     )
+
+
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
+def test_get_idcams_cmd_volumes():
+    dataset = dict(
+        name="ANSI.CYLS.DFHINTRA",
+        state="initial",
+        exists=False,
+        data_set_organization="NONE",
+        unit=MEGABYTES,
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT,
+        volumes=["vserv1"]
+    )
+    idcams_cmd_intra = data_set_utils._build_idcams_define_cmd(
+        intrapartition._get_idcams_cmd_intra(dataset)
+    )
+    assert (
+        idcams_cmd_intra
+        == """
+    DEFINE CLUSTER (NAME(ANSI.CYLS.DFHINTRA) -
+    MEGABYTES(100 10) -
+    RECORDSIZE(1529 1529) -
+    NONINDEXED -
+    CONTROLINTERVALSIZE(1536) -
+    VOLUMES(vserv1)) -
+    DATA (NAME(ANSI.CYLS.DFHINTRA.DATA))
+    """
+    )
+
+
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
+def test_get_idcams_cmd_multiple_volumes():
+    dataset = dict(
+        name="ANSI.CYLS.DFHINTRA",
+        state="initial",
+        exists=False,
+        data_set_organization="NONE",
+        unit=MEGABYTES,
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT,
+        volumes=["vserv1", "vserv2"]
+    )
+    idcams_cmd_intra = data_set_utils._build_idcams_define_cmd(
+        intrapartition._get_idcams_cmd_intra(dataset)
+    )
+    assert (
+        idcams_cmd_intra
+        == """
+    DEFINE CLUSTER (NAME(ANSI.CYLS.DFHINTRA) -
+    MEGABYTES(100 10) -
+    RECORDSIZE(1529 1529) -
+    NONINDEXED -
+    CONTROLINTERVALSIZE(1536) -
+    VOLUMES(vserv1 vserv2)) -
+    DATA (NAME(ANSI.CYLS.DFHINTRA.DATA))
+    """
+    )

@@ -472,3 +472,10 @@ def test__run_iefbr14():
         "stdout": stdout,
         "stderr": stderr,
     }
+
+
+@pytest.mark.skipif(sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE)
+def test__build_idcams_volumes():
+    volumes = ["vserv1", "vserv2", "vserv3"]
+
+    assert data_set_utils._build_idcams_volumes(volumes) == " -\n    VOLUMES(vserv1 vserv2 vserv3)"
