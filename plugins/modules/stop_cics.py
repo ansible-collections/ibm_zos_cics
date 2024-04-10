@@ -36,6 +36,18 @@ options:
       - normal
       - immediate
       - cancel
+  sdtran:
+    description:
+      - The 4-character identifier of the shutdown assist transaction.
+      - The default shutdown transaction, if neither SDTRAN nor NOSDTRAN are specified, is CESD.
+    type: str
+    required: false
+  no_sdtran:
+    description:
+      - No shutdown assist transaction is to be run at CICS shutdown.
+    type: bool
+    default: false
+    required: false
 '''
 
 
@@ -141,9 +153,6 @@ RETURN = r'''
             description: The resulting text from the command submitted.
             returned: on success of shutdown command submission.
             type: list
-
-
-
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -153,17 +162,42 @@ IMMEDIATE = 'immediate'
 JOB_ID = 'job_id'
 MODE = 'mode'
 NORMAL = 'normal'
+NO_SDTRAN = 'no_sdtran'
+SDTRAN = 'sdtran'
 
 
 class AnsibleStopCICSModule(object):
 
     def __init__(self):
         self._module = AnsibleModule(
-            argument_spec=self.init_argument_spec()
+            argument_spec=self.init_argument_spec(), mutually_exclusive=[('sdtran', 'no_sdtran')],
         )
+        self.changed = False
+        self.failed = False
+        self.executions = []
 
     def main(self):
+        if self._module.params.get(SDTRAN):
+            self._validate_sdtran(self._module.params[SDTRAN])
         self._module.exit_json()
+
+    def _validate_sdtran(self, program):  # type: (str) -> None
+        if len(program) > 4:
+            self._fail("Value: {0}, is invalid. SDTRAN value must be  1-4 characters.".format(program))
+
+    def _fail(self, msg):  # type: (str) -> None
+        self.failed = True
+        self.message = msg
+        self.result = self.get_result()
+        self._module.fail_json(msg=msg, **self.result)
+
+    def get_result(self):  # type: () -> dict
+        return {
+            "changed": self.changed,
+            "failed": self.failed,
+            "executions": self.executions,
+            "message": self.message
+        }
 
     def init_argument_spec(self):
         return {
@@ -177,6 +211,15 @@ class AnsibleStopCICSModule(object):
                 'default': NORMAL,
                 'choices': [NORMAL, IMMEDIATE, CANCEL]
             },
+            SDTRAN: {
+                'type': 'str',
+                'required': False
+            },
+            NO_SDTRAN: {
+                'type': 'bool',
+                'required': False,
+                'default': False,
+            }
         }
 
 

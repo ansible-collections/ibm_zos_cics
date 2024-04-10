@@ -52,6 +52,26 @@ mode
   | **choices**: normal, immediate, cancel
 
 
+     
+no_sdtran
+  No shutdown assist transaction is to be run at CICS shutdown.
+
+
+  | **required**: False
+  | **type**: bool
+
+
+     
+sdtran
+  The 4-character identifier of the shutdown assist transaction.
+
+  The default shutdown transaction, if neither SDTRAN nor NOSDTRAN are specified, is CESD.
+
+
+  | **required**: False
+  | **type**: str
+
+
 
 
 Examples

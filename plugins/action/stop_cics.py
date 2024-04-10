@@ -5,7 +5,7 @@ import time
 import logging
 from ansible.plugins.action import ActionBase
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.stop_cics import (
-    JOB_ID, MODE, IMMEDIATE, CANCEL)
+    JOB_ID, MODE, IMMEDIATE, CANCEL, SDTRAN, NO_SDTRAN)
 from ansible.errors import AnsibleActionFail
 
 ACTIVE_AND_WAITING = 'CICS is still active... waiting for successful shutdown.'
@@ -13,9 +13,9 @@ CANCEL_REGION = 'CANCEL {0}'
 CICS_NOT_ACTIVE = 'CICS region is not active.'
 CHECK_CICS_STATUS = 'z/OS Job Query - Checking status of job {0}'
 EXECUTIONS = 'executions'
-DEFAULT_SHUTDOWN = 'MODIFY {},CEMT PERFORM SHUTDOWN'
+DEFAULT_SHUTDOWN = 'MODIFY {0},CEMT PERFORM SHUTDOWN'
 FAILED = 'failed'
-IMMEDIATE_SHUTDOWN = 'MODIFY {},CEMT PERFORM SHUTDOWN IMMEDIATE'
+IMMEDIATE_SHUTDOWN = 'MODIFY {0},CEMT PERFORM SHUTDOWN IMMEDIATE'
 JOB_NAME = 'job_name'
 JOB_QUERY_FAILED = 'Job query failed.'
 MODULE_NAME = 'ibm.ibm_zos_cics.stop_cics'
@@ -26,6 +26,8 @@ RUNNING_ATTEMPTING_TO_STOP = 'CICS is running, attempting to stop CICS.'
 SHUTDOWN_FAILED = 'Shutdown Failed'
 SHUTDOWN_REGION = 'Shutdown CICS'
 SHUTDOWN_SUCCESS = 'CICS has been shutdown.'
+SDTRAN_COMMAND = '{0} SDTRAN({1})'
+NO_SDTRAN_COMMAND = '{0} NOSDTRAN'
 
 
 class ActionModule(ActionBase):
@@ -85,12 +87,21 @@ class ActionModule(ActionBase):
     def get_shutdown_command(self):  # type: () -> str
         job_name = self.jobs['jobs'][0][JOB_NAME]
 
-        if self.module_args.get(MODE) == IMMEDIATE:
-            return IMMEDIATE_SHUTDOWN.format(job_name)
-        elif self.module_args.get(MODE) == CANCEL:
+        if self.module_args.get(MODE) == CANCEL:
             return CANCEL_REGION.format(job_name)
-        else:
-            return DEFAULT_SHUTDOWN.format(job_name)
+
+        shutdown_command = DEFAULT_SHUTDOWN.format(job_name)
+        if self.module_args.get(MODE) == IMMEDIATE:
+            shutdown_command = IMMEDIATE_SHUTDOWN.format(job_name)
+        return self._get_shutdown_assistant_command(shutdown_command)
+
+    def _get_shutdown_assistant_command(self, base_command):  # type: (str) -> str
+        if self.module_args.get(SDTRAN):
+            program = self.module_args[SDTRAN]
+            return SDTRAN_COMMAND.format(base_command, program.upper())
+        if self.module_args.get(NO_SDTRAN):
+            return NO_SDTRAN_COMMAND.format(base_command)
+        return base_command
 
     def run_shutdown_command(self, cmd):  # type: (str) -> dict
         shutdown_result = self._execute_module(
