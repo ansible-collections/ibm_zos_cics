@@ -32,10 +32,9 @@ def set_module_args(args):
     basic._ANSIBLE_ARGS = to_bytes(args)
 
 
-def setup_and_update_parms(key=None, value=None):
+def setup_and_update_parms(args):
     parms = default_arg_parms
-    if key is not None:
-        parms[key] = value
+    parms.update(args)
     set_module_args(parms)
     dfhsip = StartCICSModule()
     dfhsip._remove_none_values_from_dict(dfhsip.module_args)
@@ -48,41 +47,41 @@ def prepare_for_fail():
 
 
 def test_populate_job_card_dict_with_job_name():
-    module = setup_and_update_parms(
-        "job_parameters", {"job_name": "STRTCICS"})
+    module = setup_and_update_parms({
+        "job_parameters": {"job_name": "STRTCICS"}})
     module._populate_job_card_dict()
     assert module.jcl_helper.job_data['job_card'] == {"job_name": "STRTCICS"}
 
 
 def test_populate_job_card_dict_without_job_name():
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     module._populate_job_card_dict()
     assert module.jcl_helper.job_data['job_card'] == {"job_name": "IYK2ZPY2"}
 
 
 def test_populate_job_card_dict_without_job_name_but_with_region():
-    module = setup_and_update_parms(
-        "job_parameters", {"region": "0M"})
+    module = setup_and_update_parms({
+        "job_parameters": {"region": "0M"}})
     module._populate_job_card_dict()
     assert module.jcl_helper.job_data['job_card'] == {"job_name": "IYK2ZPY2", "region": "0M"}
 
 
 def test_add_exec_parameters():
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     module._add_exec_parameters({NAME: "", PGM: DFHSIP, DDS: {}})
     print(module.jcl_helper.job_data['execs'])
     assert module.jcl_helper.job_data['execs'] == [{'name': '', 'pgm': DFHSIP, 'dds': {}}]
 
 
 def test_add_exec_parameters_with_sit_parameters():
-    module = setup_and_update_parms("sit_parameters", {"start": "COLD"})
+    module = setup_and_update_parms({"sit_parameters": {"start": "COLD"}})
     module._add_exec_parameters({NAME: "", PGM: DFHSIP, DDS: {}})
     print(module.jcl_helper.job_data['execs'])
     assert module.jcl_helper.job_data['execs'] == [{'name': '', 'pgm': DFHSIP, 'dds': {}, 'PARM': 'SI'}]
 
 
 def test_add_block_of_libraries_empty_libraries():
-    module = setup_and_update_parms("steplib", {"top_libraries": [], "libraries": []})
+    module = setup_and_update_parms({"steplib": {"top_libraries": [], "libraries": []}})
     module._add_block_of_libraries("steplib")
     assert module.dds == []
 
@@ -95,7 +94,7 @@ def test_add_libraries_with_none_passed():
 
 
 def test_add_block_of_libraries_empty_top_libraries():
-    module = setup_and_update_parms("steplib", {"top_libraries": [], "libraries": ["LIB.ONE"]})
+    module = setup_and_update_parms({"steplib": {"top_libraries": [], "libraries": ["LIB.ONE"]}})
     module._add_block_of_libraries("steplib")
     assert module.dds == [{"steplib": [{DISP: SHR, DSN: "LIB.ONE"}]}]
 
@@ -240,8 +239,8 @@ def test_check_for_existing_dlm_within_content_falce():
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_add_output_data_sets_with_global_default():
-    module = setup_and_update_parms(
-        "output_data_sets", {"default_sysout_class": "A"})
+    module = setup_and_update_parms({
+        "output_data_sets": {"default_sysout_class": "A"}})
     module._add_output_data_sets()
     assert module.dds == [{"ceemsg": [{"sysout": "A"}]}, {"ceeout": [{"sysout": "A"}]}, {"msgusr": [{"sysout": "A"}]},
                           {"sysprint": [{"sysout": "A"}]}, {"sysudump": [{"sysout": "A"}]},
@@ -251,7 +250,7 @@ def test_add_output_data_sets_with_global_default():
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_add_output_data_sets_without_global_default():
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     module._add_output_data_sets()
     assert module.dds == [{"ceemsg": [{"sysout": "*"}]}, {"ceeout": [{"sysout": "*"}]}, {"msgusr": [{"sysout": "*"}]},
                           {"sysprint": [{"sysout": "*"}]}, {"sysudump": [{"sysout": "*"}]},
@@ -261,8 +260,10 @@ def test_add_output_data_sets_without_global_default():
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_add_output_data_sets_with_overrides_and_global_default():
-    module = setup_and_update_parms("output_data_sets", {"default_sysout_class": "A", "ceemsg": {"sysout": "B"},
-                                                         "logusr": {"sysout": "*"}})
+    module = setup_and_update_parms({"output_data_sets": {
+        "default_sysout_class": "A", "ceemsg": {"sysout": "B"},
+        "logusr": {"sysout": "*"}
+    }})
     module._add_output_data_sets()
     assert module.dds == [{"ceemsg": [{"sysout": "B"}]}, {"logusr": [{"sysout": "*"}]}, {"ceeout": [{"sysout": "A"}]},
                           {"msgusr": [{"sysout": "A"}]}, {"sysprint": [{"sysout": "A"}]},
@@ -272,8 +273,10 @@ def test_add_output_data_sets_with_overrides_and_global_default():
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_add_output_data_sets_with_overrides_and_omit():
-    module = setup_and_update_parms("output_data_sets", {"default_sysout_class": "A", "ceemsg": {"sysout": "B"},
-                                                         "logusr": {"omit": True}})
+    module = setup_and_update_parms({"output_data_sets": {
+        "default_sysout_class": "A", "ceemsg": {"sysout": "B"},
+        "logusr": {"omit": True}
+    }})
     module._add_output_data_sets()
     assert module.dds == [{"ceemsg": [{"sysout": "B"}]}, {"ceeout": [{"sysout": "A"}]},
                           {"msgusr": [{"sysout": "A"}]}, {"sysprint": [{"sysout": "A"}]},
@@ -283,7 +286,7 @@ def test_add_output_data_sets_with_overrides_and_omit():
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_add_output_data_sets_without_global_default_and_with_override():
-    module = setup_and_update_parms("output_data_sets", {"ceemsg": {"sysout": "B"}, "logusr": {"omit": True}})
+    module = setup_and_update_parms({"output_data_sets": {"ceemsg": {"sysout": "B"}, "logusr": {"omit": True}}})
     module._add_output_data_sets()
     assert module.dds == [{"ceemsg": [{"sysout": "B"}]}, {"ceeout": [{"sysout": "*"}]}, {"msgusr": [{"sysout": "*"}]},
                           {"sysprint": [{"sysout": "*"}]}, {"sysudump": [{"sysout": "*"}]},
@@ -292,7 +295,7 @@ def test_add_output_data_sets_without_global_default_and_with_override():
 
 
 def test_remove_omited_data_set():
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     data_set = "ceeout"
     user_data_sets = {data_set: {"omit": True}}
     module._remove_omitted_data_set(data_set, user_data_sets)
@@ -300,7 +303,7 @@ def test_remove_omited_data_set():
 
 
 def test_remove_omited_data_set_with_omit_false():
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     data_set = "ceeout"
     user_data_sets = {data_set: {"omit": False}}
     module._remove_omitted_data_set(data_set, user_data_sets)
@@ -309,14 +312,14 @@ def test_remove_omited_data_set_with_omit_false():
 
 def test_remove_omited_data_set_not_present():
     data_set = "ceemsg"
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     user_data_sets = {"ceeout": {"omit": True}}
     module._remove_omitted_data_set(data_set, user_data_sets)
     assert user_data_sets == {"ceeout": {"omit": True}}
 
 
 def test_set_sysout_class_for_data_set_no_override():
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     data_set = "ceemsg"
     default_class = "A"
     user_data_sets = {'ceeout': {'sysout': 'B'}}
@@ -327,7 +330,7 @@ def test_set_sysout_class_for_data_set_no_override():
 
 
 def test_set_sysout_class_for_data_set_with_override():
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     data_set = "ceemsg"
     default_class = "A"
     user_data_sets = {"ceemsg": {"sysout": "B"}}
@@ -337,15 +340,15 @@ def test_set_sysout_class_for_data_set_with_override():
 
 
 def test_add_per_region_data_sets():
-    module = setup_and_update_parms("region_data_sets", {"dfhcsd": {"dsn": "TEST.DATA.DFHCSD"},
-                                    "dfhtemp": {"dsn": "TEST.DATA.DFHTEMP"}})
+    module = setup_and_update_parms({"region_data_sets": {"dfhcsd": {"dsn": "TEST.DATA.DFHCSD"},
+                                    "dfhtemp": {"dsn": "TEST.DATA.DFHTEMP"}}})
     module._add_per_region_data_sets()
     assert module.dds == [{"dfhcsd": [{"dsn": "TEST.DATA.DFHCSD", "disp": "SHR"}]},
                           {"dfhtemp": [{"dsn": "TEST.DATA.DFHTEMP", "disp": "SHR"}]}]
 
 
 def test_add_libraries():
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     dsn_dict = module._add_libraries(["LIB.ONE", "LIB.TWO", "LIB.THREE"])
     assert dsn_dict == [{"dsn": "LIB.ONE", "disp": "SHR"},
                         {"dsn": "LIB.TWO", "disp": "SHR"},
@@ -353,21 +356,21 @@ def test_add_libraries():
 
 
 def test_add_libraries_with_none_value():
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     dsn_dict = module._add_libraries(["LIB.ONE", None, "LIB.THREE"])
     assert dsn_dict == [{"dsn": "LIB.ONE", "disp": "SHR"},
                         {"dsn": "LIB.THREE", "disp": "SHR"}]
 
 
 def test_add_libraries_with_none_passed():
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     dsn_dict = module._add_libraries([])
     assert dsn_dict == []
 
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_add_sit_parameters():
-    module = setup_and_update_parms("sit_parameters", {})
+    module = setup_and_update_parms({"sit_parameters": {}})
     # All sit parms have been added automatically and set as None.
     module.module_args["sit_parameters"]["AICONS"] = "AUTO"
     module._add_sit_parameters()
@@ -376,7 +379,7 @@ def test_add_sit_parameters():
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
 def test_add_sit_parameters_with_dictionaries_in_sit_parms():
-    module = setup_and_update_parms("sit_parameters", {})
+    module = setup_and_update_parms({"sit_parameters": {}})
     # All sit parms have been added automatically and set as None.
     module.module_args["sit_parameters"]["AICONS"] = "AUTO"
     module.module_args["sit_parameters"]["strnxx"] = {
@@ -389,7 +392,7 @@ def test_add_sit_parameters_with_dictionaries_in_sit_parms():
 
 
 def test_add_sit_parameters_when_none():
-    module = setup_and_update_parms("sit_parameters", None)
+    module = setup_and_update_parms({"sit_parameters": None})
     # All sit parms have been added automatically and set as None.
     module.dds = []
     module._add_sit_parameters()
@@ -399,7 +402,7 @@ def test_add_sit_parameters_when_none():
 def test_manage_dictionaries_in_sit_parameters():
     dictionary_of_values = {"Param1": "value1",
                             "paramxxx": {"VAL": "TRUE", "NUM": "TWO"}}
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     module._manage_dictionaries_in_sit_parameters(dictionary_of_values)
     assert dictionary_of_values == {
         "Param1": "value1", "paramVAL": "TRUE", "paramNUM": "TWO"}
@@ -408,7 +411,7 @@ def test_manage_dictionaries_in_sit_parameters():
 def test_validate_dictionary_value_within_sit_parms():
     string_with_trailing_x = "paramxx"
     value = "ap"
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     module._validate_dictionary_value_within_sit_parms(
         string_with_trailing_x, value)
     assert module.result["failed"] is False
@@ -417,7 +420,7 @@ def test_validate_dictionary_value_within_sit_parms():
 def test_validate_dictionary_value_within_sit_parms_skr_4_letters():
     string_with_trailing_x = "SKRXXXX"
     value = "PA24"
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     module._validate_dictionary_value_within_sit_parms(
         string_with_trailing_x, value)
     assert module.result["failed"] is False
@@ -426,7 +429,7 @@ def test_validate_dictionary_value_within_sit_parms_skr_4_letters():
 def test_validate_dictionary_value_within_sit_parms_skr_3_letters():
     string_with_trailing_x = "SKRXXXX"
     value = "PA1"
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     module._validate_dictionary_value_within_sit_parms(
         string_with_trailing_x, value)
     assert module.result["failed"] is False
@@ -436,7 +439,7 @@ def test_validate_dictionary_value_within_sit_parms_skr_5_letters():
     string_with_trailing_x = "SKRXXXX"
     value = "PA015"
     prepare_for_fail()
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     with pytest.raises(AnsibleFailJson) as exec_info:
         module._validate_dictionary_value_within_sit_parms(
             string_with_trailing_x, value)
@@ -449,7 +452,7 @@ def test_validate_dictionary_value_within_sit_parms_value_length_doesnt_match_tr
     string_with_trailing_x = "STRNRXXX"
     value = "VAL2"
     prepare_for_fail()
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     with pytest.raises(AnsibleFailJson) as exec_info:
         module._validate_dictionary_value_within_sit_parms(
             string_with_trailing_x, value)
@@ -459,7 +462,7 @@ def test_validate_dictionary_value_within_sit_parms_value_length_doesnt_match_tr
 
 
 def test_remove_none_values_from_dict():
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     # All sit parms have been added automatically and set as None.
     # Assert they've been added.
     arg_spec = {"sit_parameters": {"one": 1, "two": 2},
@@ -470,18 +473,18 @@ def test_remove_none_values_from_dict():
 
 
 def test_check_parameter_is_provided():
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     assert module._check_parameter_is_provided("applid") is True
 
 
 def test_check_parameter_is_provided_when_its_absent():
-    dfhsip = setup_and_update_parms()
+    dfhsip = setup_and_update_parms({})
     assert dfhsip._check_parameter_is_provided("dfhcsd") is False
 
 
 def test_fail():
     prepare_for_fail()
-    module = setup_and_update_parms()
+    module = setup_and_update_parms({})
     assert module.result["failed"] is False
     expected_message = "Module failed for test"
     with pytest.raises(AnsibleFailJson) as message:
@@ -493,39 +496,100 @@ def test_fail():
 def test_concat_libraries_both_provided():
     libraries = ["FIRST_LIB", "SECOND_LIB"]
     top_libraries = ["FIRST_TOP_LIB", "SECOND_TOP_LIB"]
-    module = setup_and_update_parms(
-        "steplib", {"libraries": libraries, "top_libraries": top_libraries})
+    module = setup_and_update_parms({
+        "steplib": {"libraries": libraries, "top_libraries": top_libraries}})
     concat_libs = module._concat_libraries("steplib")
     assert concat_libs == top_libraries + libraries
 
 
 def test_concat_libraries_only_first_provided():
     top_libraries = ["FIRST_TOP_LIB", "SECOND_TOP_LIB"]
-    module = setup_and_update_parms(
-        "steplib", {"libraries": None, "top_libraries": top_libraries})
+    module = setup_and_update_parms({
+        "steplib": {"libraries": None, "top_libraries": top_libraries}})
     concat_libs = module._concat_libraries("steplib")
     assert concat_libs == top_libraries
 
 
 def test_concat_libraries_only_second_provided():
     libraries = ["FIRST_LIB", "SECOND_LIB"]
-    module = setup_and_update_parms(
-        "steplib", {"libraries": libraries, "top_libraries": None})
+    module = setup_and_update_parms({
+        "steplib": {"libraries": libraries, "top_libraries": None}})
     concat_libs = module._concat_libraries("steplib")
     assert concat_libs == libraries
 
 
 def test_concat_libraries_none_provided():
-    module = setup_and_update_parms(
-        "steplib", {"libraries": None, "top_libraries": None})
+    module = setup_and_update_parms({
+        "steplib": {"libraries": None, "top_libraries": None}})
     concat_libs = module._concat_libraries("steplib")
     assert concat_libs == []
+
+
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+def test_copy_libraries_to_steplib_and_dfhrpl():
+    module = setup_and_update_parms({
+        "region_data_sets": {
+            'dfhauxt': {DSN: "TEST.CICSPY1.RDEV.DFHAUXT"},
+            'dfhbuxt': {DSN: "TEST.CICSPY1.RDEV.DFHBUXT"},
+            'dfhcsd': {DSN: "TEST.CICSPY1.RDEV.DFHCSD"},
+            'dfhgcd': {DSN: "TEST.CICSPY1.RDEV.DFHGCD"},
+            'dfhintra': {DSN: "TEST.CICSPY1.RDEV.DFHINTRA"},
+            'dfhlcd': {DSN: "TEST.CICSPY1.RDEV.DFHLCD"},
+            'dfhlrq': {DSN: "TEST.CICSPY1.RDEV.DFHLRQ"},
+            'dfhtemp': {DSN: "TEST.CICSPY1.RDEV.DFHTEMP"},
+            'dfhdmpa': {DSN: "TEST.CICSPY1.RDEV.DFHDMPA"},
+            'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DFHDMPB"}
+        },
+        "cics_data_sets": {
+            "sdfhload": "TEST.CICS.SDFHLOAD",
+            "sdfhauth": "TEST.CICS.SDFHAUTH",
+            "sdfhlic": "TEST.CICS.SDFHLIC",
+            "template": "TEST.CICS.<< lib_name >>"
+        },
+        "le_data_sets": {
+            "sceecics": "TEST.LE.SCEECICS",
+            "sceerun": "TEST.LE.SCEERUN",
+            "sceerun2": "TEST.LE.SCEERUN2",
+            "template": "TEST.LE.<< lib_name >>"
+        },
+        "cpsm_data_sets": {
+            "seyuauth": "TEST.CPSM.SEYUAUTH",
+            "seyuload": "TEST.CPSM.SEYULOAD",
+            "template": "TEST.CPSM.<< lib_name >>"
+        },
+        "steplib": {
+            "top_libraries": []
+        },
+        "dfhrpl": {
+            "top_libraries": []
+        }
+    })
+    module._copy_libraries_to_steplib_and_dfhrpl()
+
+    assert module.module_args["steplib"] == {
+        "top_libraries": [
+            "TEST.CICS.SDFHAUTH",
+            "TEST.CICS.SDFHLIC",
+            "TEST.CPSM.SEYUAUTH",
+            "TEST.LE.SCEERUN",
+            "TEST.LE.SCEERUN2"
+        ]
+    }
+    assert module.module_args["dfhrpl"] == {
+        "top_libraries": [
+            "TEST.CICS.SDFHLOAD",
+            "TEST.CPSM.SEYULOAD",
+            "TEST.LE.SCEECICS",
+            "TEST.LE.SCEERUN",
+            "TEST.LE.SCEERUN2"
+        ]
+    }
 
 
 def test_validate_parameters_job_name_too_long():
     prepare_for_fail()
     job_name = "TOOOOLONGGGJOB"
-    module = setup_and_update_parms("job_parameters", {"job_name": job_name})
+    module = setup_and_update_parms({"job_parameters": {"job_name": job_name}})
     with pytest.raises(AnsibleFailJson) as exec_info:
         module.validate_parameters()
     assert exec_info.value.args[0]['msg'] == 'Invalid argument "{0}" for type "qualifier".'.format(job_name)
@@ -534,7 +598,7 @@ def test_validate_parameters_job_name_too_long():
 
 def test_validate_parameters_job_name():
     job_name = "STRTJOB"
-    module = setup_and_update_parms("job_parameters", {"job_name": job_name})
+    module = setup_and_update_parms({"job_parameters": {"job_name": job_name}})
     module.validate_parameters()
     assert not module.result["failed"]
 
@@ -542,7 +606,7 @@ def test_validate_parameters_job_name():
 def test_validate_parameters_ds_too_long():
     prepare_for_fail()
     data_set_name = "TOOOOLONGG.DATA"
-    module = setup_and_update_parms("cics_data_sets", {"sdfhauth": data_set_name})
+    module = setup_and_update_parms({"cics_data_sets": {"sdfhauth": data_set_name}})
     with pytest.raises(AnsibleFailJson) as exec_info:
         module.validate_parameters()
     assert exec_info.value.args[0]['msg'] == 'Invalid argument "{0}" for type "data_set_base".'.format(data_set_name)
@@ -551,7 +615,7 @@ def test_validate_parameters_ds_too_long():
 
 def test_validate_parameters_ds():
     data_set_name = "DATASET.DATA"
-    module = setup_and_update_parms("cics_data_sets", {"sdfhauth": data_set_name})
+    module = setup_and_update_parms({"cics_data_sets": {"sdfhauth": data_set_name}})
     module.validate_parameters()
     assert not module.result["failed"]
 
@@ -559,7 +623,7 @@ def test_validate_parameters_ds():
 def test_validate_parameters_applid_too_long():
     prepare_for_fail()
     applid = "APPLIDTOOLONG"
-    module = setup_and_update_parms("applid", applid)
+    module = setup_and_update_parms({"applid": applid})
     with pytest.raises(AnsibleFailJson) as exec_info:
         module.validate_parameters()
     assert exec_info.value.args[0]['msg'] == 'Invalid argument "{0}" for type "qualifier".'.format(applid)
@@ -569,7 +633,7 @@ def test_validate_parameters_applid_too_long():
 def test_validate_parameters_steplib_library_too_long():
     prepare_for_fail()
     steplib = "LIB.TOOO.LONGQUALIFIER"
-    module = setup_and_update_parms("steplib", {"top_libraries": [steplib]})
+    module = setup_and_update_parms({"steplib": {"top_libraries": [steplib]}})
     with pytest.raises(AnsibleFailJson) as exec_info:
         module.validate_parameters()
     assert exec_info.value.args[0]['msg'] == 'Invalid argument "{0}" for type "data_set_base".'.format(steplib)
@@ -579,7 +643,7 @@ def test_validate_parameters_steplib_library_too_long():
 def test_validate_parameters_region_ds_too_long():
     prepare_for_fail()
     region_ds = "LIB.TOOO.LONGQUALIFIER"
-    module = setup_and_update_parms("region_data_sets", {"dfhcsd": {"dsn": region_ds}})
+    module = setup_and_update_parms({"region_data_sets": {"dfhcsd": {"dsn": region_ds}}})
     with pytest.raises(AnsibleFailJson) as exec_info:
         module.validate_parameters()
     assert exec_info.value.args[0]['msg'] == 'Invalid argument "{0}" for type "data_set_base".'.format(region_ds)

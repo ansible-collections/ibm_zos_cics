@@ -11,6 +11,8 @@
       template: "{{ le_path }}.<< lib_name >>"
     region_data_sets:
       template: "{{ region_data_set_path }}.<< data_set_name >>"
+    cpsm_data_sets:
+      template: "{{ cpsm_data_set_path }}.<< lib_name >>"
     sit_parameters:
       start: INITIAL
       sit: 6$

@@ -162,6 +162,30 @@ def test_data_set_with_le_data_sets_arg():
     }
 
 
+def test_data_set_with_cpsm_data_sets_arg():
+    args_with_template = {
+        "region_data_sets": {"template": "data.set.template.<< data_set_name >>"},
+        "cpsm_data_sets": {"template": "cpsm.data.set.template.<< lib_name >>"},
+        "space_primary": 1,
+        "space_type": "M",
+        "state": "initial"
+    }
+    templar = get_templar(args_with_template)
+    task_vars = args_with_template
+
+    _process_module_args(args_with_template, templar, "dfhlrq", task_vars, False)
+
+    assert args_with_template == {
+        "region_data_sets": {
+            "dfhlrq": {"dsn": "data.set.template.DFHLRQ"},
+            "template": "data.set.template.<< data_set_name >>",
+        },
+        "space_primary": 1,
+        "space_type": "M",
+        "state": "initial"
+    }
+
+
 def test_data_set_with_required_cics_data_sets_templated():
     args_with_template = {
         "region_data_sets": {"template": "data.set.template.<< data_set_name >>"},

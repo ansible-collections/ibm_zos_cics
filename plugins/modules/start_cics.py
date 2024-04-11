@@ -169,6 +169,7 @@ APPLID = 'applid'
 CICS_DATA_SETS = 'cics_data_sets'
 CEEMSG = 'ceemsg'
 CEEOUT = 'ceeout'
+CPSM_DATA_SETS = 'cpsm_data_sets'
 DD_DATA = 'DD DATA'
 DD_NAME = 'dd_name'
 DEFAULT_SYSOUT_CLASS = 'default_sysout_class'
@@ -249,8 +250,8 @@ class AnsibleStartCICSModule(object):
         return self.dds
 
     def _copy_libraries_to_steplib_and_dfhrpl(self):
-        steplib_args = {"cics_data_sets": ["sdfhauth", "sdfhlic"], "le_data_sets": ["sceerun", "sceerun2"]}
-        dfhrpl_args = {"cics_data_sets": ["sdfhload"], "le_data_sets": ["sceecics", "sceerun", "sceerun2"]}
+        steplib_args = {"cics_data_sets": ["sdfhauth", "sdfhlic"], "cpsm_data_sets": ["seyuauth"], "le_data_sets": ["sceerun", "sceerun2"]}
+        dfhrpl_args = {"cics_data_sets": ["sdfhload"], "cpsm_data_sets": ["seyuload"], "le_data_sets": ["sceecics", "sceerun", "sceerun2"]}
         self._copy_libraries(steplib_args, "steplib")
         self._copy_libraries(dfhrpl_args, "dfhrpl")
 
@@ -462,6 +463,7 @@ class AnsibleStartCICSModule(object):
         self.batch_update_arg_defs_for_ds(defs, REGION_DATA_SETS, region_data_sets_list, True)
         self.batch_update_arg_defs_for_ds(defs, CICS_DATA_SETS, ["sdfhauth", "sdfhlic", "sdfhload"])
         self.batch_update_arg_defs_for_ds(defs, LE_DATA_SETS, ["sceecics", "sceerun", "sceerun2"])
+        self.batch_update_arg_defs_for_ds(defs, CPSM_DATA_SETS, ["seyuload", "seyuauth"])
         defs[STEPLIB]["options"][TOP_LIBRARIES].update({"elements": "data_set_base"})
         defs[STEPLIB]["options"][LIBRARIES].update({"elements": "data_set_base"})
         defs[DFHRPL]["options"][TOP_LIBRARIES].update({"elements": "data_set_base"})
@@ -660,6 +662,24 @@ class AnsibleStartCICSModule(object):
                         'required': False
                     },
                     'sceerun2': {
+                        'type': 'str',
+                        'required': False
+                    }
+                }
+            },
+            CPSM_DATA_SETS: {
+                'type': 'dict',
+                'required': False,
+                'options': {
+                    TEMPLATE: {
+                        'type': 'str',
+                        'required': False
+                    },
+                    'seyuauth': {
+                        'type': 'str',
+                        'required': False
+                    },
+                    'seyuload': {
                         'type': 'str',
                         'required': False
                     }
