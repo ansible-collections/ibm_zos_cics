@@ -112,17 +112,17 @@ options:
                 output.
             type: int
             choices:
-              - 0
-              - 1
-              - 2
+              - "0"
+              - "1"
+              - "2"
             required: false
           messages:
             description:
               - Indicates which messages the system is to print in the system messages portion of the JCL output.
             type: int
             choices:
-              - 0
-              - 1
+              - "0"
+              - "1"
             required: false
       msgclass:
         description:
@@ -1484,8 +1484,8 @@ options:
         required: false
         type: int
         choices:
-          - 1
-          - 0
+          - "1"
+          - "0"
       mxt:
         description:
           - The MXT system initialization parameter specifies the maximum number, in the range 10 through 2000, of
@@ -2060,8 +2060,8 @@ options:
         required: false
         type: int
         choices:
-          - 0
-          - 1
+          - "0"
+          - "1"
       suffix:
         description:
           - The SUFFIX system initialization parameter specifies the last two characters of the name of this system

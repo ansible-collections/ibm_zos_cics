@@ -1,8 +1,17 @@
+.. ...............................................................................
+.. © Copyright IBM Corporation 2020,2023                                         .
+.. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
+.. ...............................................................................
+
+:github_url: https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/start_cics.py
+
 .. _start_cics_module:
 
 
 start_cics -- Start a CICS region
 =================================
+
+
 
 .. contents::
    :local:
@@ -11,9 +20,7 @@ start_cics -- Start a CICS region
 
 Synopsis
 --------
-
-Start a CICS® region by providing CICS system data sets and system initialization parameters for CICS startup using the \ :literal:`DFHSIP`\  program.
-
+- Start a CICS® region by providing CICS system data sets and system initialization parameters for CICS startup using the \ :literal:`DFHSIP`\  program.
 
 
 
@@ -22,1440 +29,3407 @@ Start a CICS® region by providing CICS system data sets and system initializati
 Parameters
 ----------
 
-  job_parameters (False, dict, None)
-    Specifies various parameters to be applied to the startup job.
 
+     
+applid
+  The name of your z/OS Communications Server application identifier for this CICS region.
 
-    accounting_information (False, dict, None)
-      Allows jobs to be grouped into a class.
 
+  | **required**: True
+  | **type**: str
 
-      pano (False, str, None)
-        Specifies the programmer's accounting number. Pano is 1 through 4 alphanumeric characters.
 
+     
+cics_data_sets
+  The data set names of the \ :literal:`SDFHAUTH`\ , \ :literal:`SDFHLOAD`\  and \ :literal:`SDFHLIC`\  libraries, for example, \ :literal:`CICSTS61.CICS.SDFHAUTH`\  and \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
 
-      room (False, str, None)
-        Specifies the programmer's room number. Room is 1 through 4 alphanumeric characters.
 
+  | **required**: True
+  | **type**: dict
 
-      time (False, int, None)
-        Specifies the estimated execution time in minutes. Time is 1 through 4 decimal numbers. For example, code 30 for 30 minutes. If you omit a time subparameter and a TIME parameter on the JES2 /\*JOBPARM statement, JES2 uses an installation default specified at initialization. If job execution exceeds the time, JES2 sends a message to the operator.
 
+     
+  sdfhauth
+    The location of the \ :literal:`SDFHAUTH`\  librarty to override the template.
 
-      lines (False, int, None)
-        Specifies the estimated line count, in thousands of lines, from this job's sysout data sets. Lines is 1 through 4 decimal numbers. For example, code 5 for 5000 lines. If you omit lines, JES2 uses an installation default specified at initialization.
 
+    | **required**: False
+    | **type**: str
 
-      cards (False, int, None)
-        Specifies the estimated number of cards JES2 is to punch from this job's sysout data sets. Cards is 1 through 4 decimal numbers. If you omit cards, JES2 uses an installation default specified at initialization.
 
+     
+  sdfhlic
+    The location of the \ :literal:`SDFHLIC`\  library to override the template.
 
-      forms (False, str, None)
-        Specifies the forms that JES2 is to use for printing this job's sysout data sets. Forms is 1 through 4 alphanumeric characters. For example, code 5 for 5-part forms. If you omit forms, JES2 uses an installation default specified at initialization.
 
+    | **required**: False
+    | **type**: str
 
-      copies (False, int, None)
-        Specifies the number of times JES2 is to print and/or punch this job's sysout data sets. Copies is 1 through 3 decimal numbers not exceeding an installation-specified limit. The maximum is 255. For example, code 2 for two copies. If you omit copies, JES2 assumes one copy.
 
+     
+  sdfhload
+    The location of the \ :literal:`SDFHLOAD`\  library to override the template.
 
-      log (False, str, None)
-        Specifies whether or not JES2 is to print the job log. Code N to request no job log. If you code any other character or omit this subparameter, JES2 prints the job log. If your installation specified NOLOG for this job's class during JES2 initialization, JES2 will not print a job log.
 
+    | **required**: False
+    | **type**: str
 
-      linect (False, int, None)
-        Specifies the number of lines JES2 is to print per page for this job's sysout data sets. Linect is 1 through 3 decimal numbers. If you omit linect, JES2 uses an installation default specified at initialization. If you code a zero, JES2 does not eject to a new page when the number of lines exceeds the installation default.
 
+     
+  template
+    The templated location of the libraries.
 
 
-    class (False, str, None)
-      Allows jobs to be grouped into a class.
+    | **required**: False
+    | **type**: str
 
 
-    job_name (False, str, None)
-      The name of the CICS startup job. The default value is \ :literal:`APPLID`\ .
 
+     
+dfhrpl
+  Any locations of additional DFHRPL libraries to add, that are not \ :literal:`SDFHLOAD`\ , \ :literal:`SCEECICS`\ , \ :literal:`SCEERUN`\ , or \ :literal:`SCEERUN2`\ .
 
-    memlimit (False, str, None)
-      Use the MEMLIMIT parameter to specify the limit on the total size of usable 64-bit z/OS storage in a single address space.
 
+  | **required**: False
+  | **type**: dict
 
-    msglevel (False, dict, None)
-      Use the MSGLEVEL parameter to control the listing of the JCL output for the job.
 
+     
+  libraries
+    The DFHRPL libraries to be appended to the bottom of the list.
 
-      statements (False, int, None)
-        Indicates which job control statements the system is to print in the statement images portion of the JCL output.
 
+    | **required**: False
+    | **type**: list
 
-      messages (False, int, None)
-        Indicates which messages the system is to print in the system messages portion of the JCL output.
 
+     
+  top_libraries
+    The DFHRPL libraries to be appended to the very top of the statement.
 
 
-    msgclass (False, str, None)
-      Use the MSGCLASS parameter to assign the job log to an output class. The job log is a record of job-related information for the programmer.
+    | **required**: False
+    | **type**: list
 
 
-    programmer_name (False, str, None)
-      Use the programmer's name parameter to identify the person or group responsible for a job.
 
+     
+job_parameters
+  Specifies various parameters to be applied to the startup job.
 
-    region (False, str, None)
-      Use the REGION parameter to specify the amount of central or virtual storage that the job requires. The system applies the value that you code on REGION to each step of the job.
 
+  | **required**: False
+  | **type**: dict
 
-    user (False, str, None)
-      Code the USER parameter to identify to the system the person submitting the job. The user ID is used by RACF®, the system resources manager (SRM), and other system components.
 
+     
+  accounting_information
+    Allows jobs to be grouped into a class.
 
 
-  applid (True, str, None)
-    The name of your z/OS Communications Server application identifier for this CICS region.
+    | **required**: False
+    | **type**: dict
 
 
-  submit_jcl (False, bool, False)
-    Specify whether or not you want the CICS startup job to be submitted.
+     
+    cards
+      Specifies the estimated number of cards JES2 is to punch from this job's sysout data sets. Cards is 1 through 4 decimal numbers. If you omit cards, JES2 uses an installation default specified at initialization.
 
 
-  cics_data_sets (True, dict, None)
-    The data set names of the \ :literal:`SDFHAUTH`\ , \ :literal:`SDFHLOAD`\  and \ :literal:`SDFHLIC`\  libraries, for example, \ :literal:`CICSTS61.CICS.SDFHAUTH`\  and \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
+      | **required**: False
+      | **type**: int
 
 
-    template (False, str, None)
-      The templated location of the libraries.
+     
+    copies
+      Specifies the number of times JES2 is to print and/or punch this job's sysout data sets. Copies is 1 through 3 decimal numbers not exceeding an installation-specified limit. The maximum is 255. For example, code 2 for two copies. If you omit copies, JES2 assumes one copy.
 
 
-    sdfhauth (False, str, None)
-      The location of the \ :literal:`SDFHAUTH`\  librarty to override the template.
+      | **required**: False
+      | **type**: int
 
 
-    sdfhload (False, str, None)
-      The location of the \ :literal:`SDFHLOAD`\  library to override the template.
+     
+    forms
+      Specifies the forms that JES2 is to use for printing this job's sysout data sets. Forms is 1 through 4 alphanumeric characters. For example, code 5 for 5-part forms. If you omit forms, JES2 uses an installation default specified at initialization.
 
 
-    sdfhlic (False, str, None)
-      The location of the \ :literal:`SDFHLIC`\  library to override the template.
+      | **required**: False
+      | **type**: str
 
 
+     
+    linect
+      Specifies the number of lines JES2 is to print per page for this job's sysout data sets. Linect is 1 through 3 decimal numbers. If you omit linect, JES2 uses an installation default specified at initialization. If you code a zero, JES2 does not eject to a new page when the number of lines exceeds the installation default.
 
-  le_data_sets (True, dict, None)
-    The data set names of the \ :literal:`SCEECICS`\ , \ :literal:`SCEERUN`\  and \ :literal:`SCEERUN2`\  libraries, for example, \ :literal:`SCEERUN`\ .
 
+      | **required**: False
+      | **type**: int
 
-    template (False, str, None)
-      The templated location of the Language Enviornment runtime libraries.
 
+     
+    lines
+      Specifies the estimated line count, in thousands of lines, from this job's sysout data sets. Lines is 1 through 4 decimal numbers. For example, code 5 for 5000 lines. If you omit lines, JES2 uses an installation default specified at initialization.
 
-    sceecics (False, str, None)
-      The location of the \ :literal:`SCEECICS`\  library to override the template.
 
+      | **required**: False
+      | **type**: int
 
-    sceerun (False, str, None)
-      The location of the \ :literal:`SCEERUN`\  library to override the template.
 
+     
+    log
+      Specifies whether or not JES2 is to print the job log. Code N to request no job log. If you code any other character or omit this subparameter, JES2 prints the job log. If your installation specified NOLOG for this job's class during JES2 initialization, JES2 will not print a job log.
 
-    sceerun2 (False, str, None)
-      The location of the \ :literal:`SCEERUN2`\  library to override the template.
 
+      | **required**: False
+      | **type**: str
 
 
-  steplib (False, dict, None)
-    Any locations of additional \ :literal:`STEPLIB`\  libraries to add, that are not \ :literal:`SDFHAUTH`\ , \ :literal:`SDFHLIC`\ , \ :literal:`SCEERUN`\ , or \ :literal:`SCEERUN2`\ .
+     
+    pano
+      Specifies the programmer's accounting number. Pano is 1 through 4 alphanumeric characters.
 
 
-    top_libraries (False, list, None)
-      The \ :literal:`STEPLIB`\  libraries to be appended to the very top of the statement.
+      | **required**: False
+      | **type**: str
 
 
-    libraries (False, list, None)
-      The \ :literal:`STEPLIB`\  libraries to be appended to the bottom of the library list.
+     
+    room
+      Specifies the programmer's room number. Room is 1 through 4 alphanumeric characters.
 
 
+      | **required**: False
+      | **type**: str
 
-  dfhrpl (False, dict, None)
-    Any locations of additional DFHRPL libraries to add, that are not \ :literal:`SDFHLOAD`\ , \ :literal:`SCEECICS`\ , \ :literal:`SCEERUN`\ , or \ :literal:`SCEERUN2`\ .
 
+     
+    time
+      Specifies the estimated execution time in minutes. Time is 1 through 4 decimal numbers. For example, code 30 for 30 minutes. If you omit a time subparameter and a TIME parameter on the JES2 /\*JOBPARM statement, JES2 uses an installation default specified at initialization. If job execution exceeds the time, JES2 sends a message to the operator.
 
-    top_libraries (False, list, None)
-      The DFHRPL libraries to be appended to the very top of the statement.
 
+      | **required**: False
+      | **type**: int
 
-    libraries (False, list, None)
-      The DFHRPL libraries to be appended to the bottom of the list.
 
 
+     
+  class
+    Allows jobs to be grouped into a class.
 
-  region_data_sets (True, dict, None)
-    The location of the region data sets, e.g \ :literal:`REGIONS.ABCD01.DFHAUXT`\ , \ :literal:`REGIONS.ABCD01.DFHCSD`\  and \ :literal:`REGIONS.ABCD01.DFHGCD`\ .
 
+    | **required**: False
+    | **type**: str
 
-    template (False, str, None)
-      The base location of the region data sets to be created using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ . Not required if you provide the data set name (dsn) of all the data sets individually.
 
+     
+  job_name
+    The name of the CICS startup job. The default value is \ :literal:`APPLID`\ .
 
-    dfhauxt (False, dict, None)
-      Overrides the templated location for the auxiliary trace A data set.
 
+    | **required**: False
+    | **type**: str
 
-      dsn (False, str, None)
-        The name of the auxiliary trace A data set to override the template.
 
+     
+  memlimit
+    Use the MEMLIMIT parameter to specify the limit on the total size of usable 64-bit z/OS storage in a single address space.
 
 
-    dfhbuxt (False, dict, None)
-      Overrides the templated location for the auxiliary trace B data set.
+    | **required**: False
+    | **type**: str
 
 
-      dsn (False, str, None)
-        The name of the auxiliary trace B data set to override the template.
+     
+  msgclass
+    Use the MSGCLASS parameter to assign the job log to an output class. The job log is a record of job-related information for the programmer.
 
 
+    | **required**: False
+    | **type**: str
 
-    dfhcsd (False, dict, None)
-      Overrides the templated location for the CSD.
 
+     
+  msglevel
+    Use the MSGLEVEL parameter to control the listing of the JCL output for the job.
 
-      dsn (False, str, None)
-        The name of the CSD to override the template.
 
+    | **required**: False
+    | **type**: dict
 
 
-    dfhdmpa (False, dict, None)
-      Overrides the templated location for the dump A data set.
+     
+    messages
+      Indicates which messages the system is to print in the system messages portion of the JCL output.
 
 
-      dsn (False, str, None)
-        The name of the dump A data set to override the template.
+      | **required**: False
+      | **type**: int
+      | **choices**: 0, 1
 
 
+     
+    statements
+      Indicates which job control statements the system is to print in the statement images portion of the JCL output.
 
-    dfhdmpb (False, dict, None)
-      Overrides the templated location for the dump B data set.
 
+      | **required**: False
+      | **type**: int
+      | **choices**: 0, 1, 2
 
-      dsn (False, str, None)
-        The name of the dump B data set to override the template.
 
 
+     
+  programmer_name
+    Use the programmer's name parameter to identify the person or group responsible for a job.
 
-    dfhlrq (False, dict, None)
-      Overrides the templated location for the local request queue data set.
 
+    | **required**: False
+    | **type**: str
 
-      dsn (False, str, None)
-        The data set name of the local request queue to override the template.
 
+     
+  region
+    Use the REGION parameter to specify the amount of central or virtual storage that the job requires. The system applies the value that you code on REGION to each step of the job.
 
 
-    dfhgcd (False, dict, None)
-      Overrides the templated location for the global catalog data set.
+    | **required**: False
+    | **type**: str
 
 
-      dsn (False, str, None)
-        The data set name of the global catalog to override the template.
+     
+  user
+    Code the USER parameter to identify to the system the person submitting the job. The user ID is used by RACF®, the system resources manager (SRM), and other system components.
 
 
+    | **required**: False
+    | **type**: str
 
-    dfhlcd (False, dict, None)
-      Overrides the templated location for the local catalog data set.
 
 
-      dsn (False, str, None)
-        The data set name of the local catalog to override the template.
+     
+le_data_sets
+  The data set names of the \ :literal:`SCEECICS`\ , \ :literal:`SCEERUN`\  and \ :literal:`SCEERUN2`\  libraries, for example, \ :literal:`SCEERUN`\ .
 
 
+  | **required**: True
+  | **type**: dict
 
-    dfhintra (False, dict, None)
-      Overrides the templated location for the intrapartition data set.
 
+     
+  sceecics
+    The location of the \ :literal:`SCEECICS`\  library to override the template.
 
-      dsn (False, str, None)
-        The name of the intrapartition data set to override the template.
 
+    | **required**: False
+    | **type**: str
 
 
-    dfhtemp (False, dict, None)
-      Overrides the templated location for the temporary storage data set.
+     
+  sceerun
+    The location of the \ :literal:`SCEERUN`\  library to override the template.
 
 
-      dsn (False, str, None)
-        The data set name of the temporary storage to override the template.
+    | **required**: False
+    | **type**: str
 
 
+     
+  sceerun2
+    The location of the \ :literal:`SCEERUN2`\  library to override the template.
 
 
-  output_data_sets (False, dict, None)
-    The system output data sets such as \ :literal:`CEEMSG`\  and \ :literal:`SYSPRINT`\ , as well as the destination class of the output.
+    | **required**: False
+    | **type**: str
 
 
-    default_sysout_class (False, str, None)
-      The class to be applied as the default for all of the output data sets. If it isn't provided and if no overrides are specified for an individual output data set, \* will be applied.
+     
+  template
+    The templated location of the Language Enviornment runtime libraries.
 
 
-    ceemsg (False, dict, None)
-      Overrides the default class to use a custom class for the \ :literal:`CEEMSG`\  data set. Alternatively, omit the \ :literal:`CEEMSG`\  data set from being added to the job.
+    | **required**: False
+    | **type**: str
 
 
-      sysout (False, str, None)
-        Specify the output class to assign the \ :literal:`CEEMSG`\  data set to.
 
+     
+output_data_sets
+  The system output data sets such as \ :literal:`CEEMSG`\  and \ :literal:`SYSPRINT`\ , as well as the destination class of the output.
 
-      omit (False, bool, None)
-        Specifies whether \ :literal:`CEEMSG`\  should be excluded from being added to the list of sysout data sets.
 
+  | **required**: False
+  | **type**: dict
 
 
-    ceeout (False, dict, None)
-      Overrides the default class to use a custom class for the \ :literal:`CEEOUT`\  data set. Alternatively, omit the \ :literal:`CEEOUT`\  data set from being added to the job.
+     
+  ceemsg
+    Overrides the default class to use a custom class for the \ :literal:`CEEMSG`\  data set. Alternatively, omit the \ :literal:`CEEMSG`\  data set from being added to the job.
 
 
-      sysout (False, str, None)
-        Specify the output class to assign the \ :literal:`CEEOUT`\  data set to.
+    | **required**: False
+    | **type**: dict
 
 
-      omit (False, bool, None)
-        Specifies whether \ :literal:`CEEOUT`\  should be excluded from being added to the list of sysout data sets.
+     
+    omit
+      Specifies whether \ :literal:`CEEMSG`\  should be excluded from being added to the list of sysout data sets.
 
 
+      | **required**: False
+      | **type**: bool
 
-    msgusr (False, dict, None)
-      Overrides the default class to use a custom class for the \ :literal:`MSGUSR`\  data set. Alternatively, omit the \ :literal:`MSGUSR`\  data set from being added to the job.
 
+     
+    sysout
+      Specify the output class to assign the \ :literal:`CEEMSG`\  data set to.
 
-      sysout (False, str, None)
-        Specify the output class to assign the \ :literal:`MSGUSR`\  data set to.
 
+      | **required**: False
+      | **type**: str
 
-      omit (False, bool, None)
-        Specifies whether \ :literal:`MSGUSR`\  should be excluded from being added to the list of sysout data sets.
 
 
+     
+  ceeout
+    Overrides the default class to use a custom class for the \ :literal:`CEEOUT`\  data set. Alternatively, omit the \ :literal:`CEEOUT`\  data set from being added to the job.
 
-    sysprint (False, dict, None)
-      Overrides the default class to use a custom class for the \ :literal:`SYSPRINT`\  data set. Alternatively, omit the \ :literal:`SYSPRINT`\  data set from being added to the job.
 
+    | **required**: False
+    | **type**: dict
 
-      sysout (False, str, None)
-        Specify the output class to assign the \ :literal:`SYSPRINT`\  data set to.
 
+     
+    omit
+      Specifies whether \ :literal:`CEEOUT`\  should be excluded from being added to the list of sysout data sets.
 
-      omit (False, bool, None)
-        Specifies whether \ :literal:`SYSPRINT`\  should be excluded from being added to the list of sysout data sets.
 
+      | **required**: False
+      | **type**: bool
 
 
-    sysudump (False, dict, None)
-      Overrides the default class to use a custom class for the \ :literal:`SYSUDUMP`\  data set. Alternatively, omit the \ :literal:`SYSUDUMP`\  data set from being added to the job.
+     
+    sysout
+      Specify the output class to assign the \ :literal:`CEEOUT`\  data set to.
 
 
-      sysout (False, str, None)
-        Specify the output class to assign the \ :literal:`SYSUDUMP`\  data set to.
+      | **required**: False
+      | **type**: str
 
 
-      omit (False, bool, None)
-        Specifies whether \ :literal:`SYSUDUMP`\  should be excluded from being added to the list of sysout data sets.
 
+     
+  default_sysout_class
+    The class to be applied as the default for all of the output data sets. If it isn't provided and if no overrides are specified for an individual output data set, \* will be applied.
 
 
-    sysabend (False, dict, None)
-      Overrides the default class to use a custom class for the \ :literal:`SYSABEND`\  data set. Alternatively, omit the \ :literal:`SYSABEND`\  data set from being added to the job.
+    | **required**: False
+    | **type**: str
 
 
-      sysout (False, str, None)
-        Specify the output class to assign the \ :literal:`SYSABEND`\  data set to.
+     
+  dfhcxrf
+    Overrides the default class to use a custom class for the \ :literal:`DFHCXRF`\  data set. Alternatively, omit the \ :literal:`DFHCXRF`\  data set from being added to the job.
 
 
-      omit (False, bool, None)
-        Specifies whether \ :literal:`SYSABEND`\  should be excluded from being added to the list of sysout data sets.
+    | **required**: False
+    | **type**: dict
 
 
+     
+    omit
+      Specifies whether \ :literal:`DFHCXRF`\  should be excluded from being added to the list of sysout data sets.
 
-    sysout (False, dict, None)
-      Overrides the default class to use a custom class for the \ :literal:`SYSOUT`\  data set. Alternatively, omit the \ :literal:`SYSOUT`\  data set from being added to the job.
 
+      | **required**: False
+      | **type**: bool
 
-      sysout (False, str, None)
-        Specify the output class to assign the \ :literal:`SYSOUT`\  data set to.
 
+     
+    sysout
+      Specify the output class to assign the \ :literal:`DFHCXRF`\  data set to.
 
-      omit (False, bool, None)
-        Specifies whether \ :literal:`SYSOUT`\  should be excluded from being added to the list of sysout data sets.
 
+      | **required**: False
+      | **type**: str
 
 
-    dfhcxrf (False, dict, None)
-      Overrides the default class to use a custom class for the \ :literal:`DFHCXRF`\  data set. Alternatively, omit the \ :literal:`DFHCXRF`\  data set from being added to the job.
 
+     
+  logusr
+    Overrides the default class to use a custom class for the \ :literal:`LOGUSR`\  data set. Alternatively, omit the \ :literal:`LOGUSR`\  data set from being added to the job.
 
-      sysout (False, str, None)
-        Specify the output class to assign the \ :literal:`DFHCXRF`\  data set to.
 
+    | **required**: False
+    | **type**: dict
 
-      omit (False, bool, None)
-        Specifies whether \ :literal:`DFHCXRF`\  should be excluded from being added to the list of sysout data sets.
 
+     
+    omit
+      Specifies whether \ :literal:`LOGUSR`\  should be excluded from being added to the list of sysout data sets.
 
 
-    logusr (False, dict, None)
-      Overrides the default class to use a custom class for the \ :literal:`LOGUSR`\  data set. Alternatively, omit the \ :literal:`LOGUSR`\  data set from being added to the job.
+      | **required**: False
+      | **type**: bool
 
 
-      sysout (False, str, None)
-        Specify the output class to assign the \ :literal:`LOGUSR`\  data set to.
+     
+    sysout
+      Specify the output class to assign the \ :literal:`LOGUSR`\  data set to.
 
 
-      omit (False, bool, None)
-        Specifies whether \ :literal:`LOGUSR`\  should be excluded from being added to the list of sysout data sets.
+      | **required**: False
+      | **type**: str
 
 
 
+     
+  msgusr
+    Overrides the default class to use a custom class for the \ :literal:`MSGUSR`\  data set. Alternatively, omit the \ :literal:`MSGUSR`\  data set from being added to the job.
 
-  sit_parameters (False, dict, None)
-    Define the system initalization parameters for the CICS region.
 
+    | **required**: False
+    | **type**: dict
 
-    adi (False, int, None)
-      The ADI parameter specifies the alternate delay interval in seconds for an alternate CICS® region when you are running CICS with XRF.
 
+     
+    omit
+      Specifies whether \ :literal:`MSGUSR`\  should be excluded from being added to the list of sysout data sets.
 
-    aibridge (False, str, None)
-      The AIBRIDGE parameter specifies whether the autoinstall user replaceable module (URM) is to be called when creating bridge facilities (virtual terminals) used by the 3270 bridge mechanism.
 
-      Specify this parameter only in the bridge router region.
+      | **required**: False
+      | **type**: bool
 
 
-    aicons (False, str, None)
-      The AICONS parameter specifies whether you want autoinstall support for consoles.
+     
+    sysout
+      Specify the output class to assign the \ :literal:`MSGUSR`\  data set to.
 
 
-    aiexit (False, str, None)
-      The AIEXIT parameter specifies the name of the autoinstall user-replaceable program that you want CICS® to use when autoinstalling local z/OS® Communications Server terminals, APPC connections, virtual terminals, and shipped terminals and connections.
+      | **required**: False
+      | **type**: str
 
 
-    aildelay (False, int, None)
-      The AILDELAY parameter specifies the delay period that elapses after all sessions between CICS® and an autoinstalled terminal, APPC device, or APPC system are ended, before the terminal or connection entry is deleted.
 
+     
+  sysabend
+    Overrides the default class to use a custom class for the \ :literal:`SYSABEND`\  data set. Alternatively, omit the \ :literal:`SYSABEND`\  data set from being added to the job.
 
-    aiqmax (False, int, None)
-      The AIQMAX parameter specifies the maximum number of z/OS® Communications Server terminals and APPC connections that can be queued concurrently for autoinstall, the limit is the sum of installs and deletes.
 
+    | **required**: False
+    | **type**: dict
 
-    airdelay (False, int, None)
-      The AIRDELAY parameter specifies the delay period that elapses after an emergency restart before autoinstalled terminal and APPC connection entries that are not in session are deleted.
 
+     
+    omit
+      Specifies whether \ :literal:`SYSABEND`\  should be excluded from being added to the list of sysout data sets.
 
-    akpfreq (False, int, None)
-      The AKPFREQ parameter specifies the number of write requests to the CICS® system log stream output buffer required before CICS writes an activity keypoint.
 
+      | **required**: False
+      | **type**: bool
 
-    autconn (False, int, None)
-      The AUTCONN parameter specifies that the reconnection of terminals after an XRF takeover is to be delayed, to allow time for manual switching.
 
+     
+    sysout
+      Specify the output class to assign the \ :literal:`SYSABEND`\  data set to.
 
-    autodst (False, str, None)
-      The AUTODST parameter specifies whether CICS is to activate automatic dynamic storage tuning for application programs.
 
+      | **required**: False
+      | **type**: str
 
-    autoresettime (False, str, None)
-      The AUTORESETTIME parameter specifies the action CICS  takes for automatic time changes.
 
 
-    auxtr (False, str, None)
-      The AUXTR parameter specifies whether the auxiliary trace destination is to be activated at system initialization.
+     
+  sysout
+    Overrides the default class to use a custom class for the \ :literal:`SYSOUT`\  data set. Alternatively, omit the \ :literal:`SYSOUT`\  data set from being added to the job.
 
 
-    auxtrsw (False, str, None)
-      The AUXTRSW parameter specifies whether you want the auxiliary trace autoswitch facility.
+    | **required**: False
+    | **type**: dict
 
 
-    bms (False, str, None)
-      The BMS system initialization parameter specifies which version of basic mapping support you require in CICS.
+     
+    omit
+      Specifies whether \ :literal:`SYSOUT`\  should be excluded from being added to the list of sysout data sets.
 
 
-    brmaxkeeptime (False, int, None)
-      The BRMAXKEEPTIME parameter specifies the maximum time (in seconds) that bridge facilities (virtual terminals used by the 3270 bridge) are kept if they are not used.
+      | **required**: False
+      | **type**: bool
 
 
-    cdsasze (False, int, None)
-      The CDSASZE system initialization parameter specifies the size of the CDSA.
+     
+    sysout
+      Specify the output class to assign the \ :literal:`SYSOUT`\  data set to.
 
 
-    chkstrm (False, str, None)
-      The CHKSTRM parameter specifies that terminal storage-violation checking is to be activated or deactivated.
+      | **required**: False
+      | **type**: str
 
 
-    chkstsk (False, str, None)
-      The CHKSTSK parameter specifies that task storage-violation checking at startup is to be activated or deactivated.
 
+     
+  sysprint
+    Overrides the default class to use a custom class for the \ :literal:`SYSPRINT`\  data set. Alternatively, omit the \ :literal:`SYSPRINT`\  data set from being added to the job.
 
-    cicssvc (False, int, None)
-      The CICSSVC parameter  specifies the number that you have assigned to the CICS type 3 SVC.
 
+    | **required**: False
+    | **type**: dict
 
-    cilock (False, str, None)
-      The CILOCK parameter specifies whether or not the control interval lock of a non-RLS VSAM file is to be kept after a successful read-for-update request.
 
+     
+    omit
+      Specifies whether \ :literal:`SYSPRINT`\  should be excluded from being added to the list of sysout data sets.
 
-    clintcp (False, str, None)
-      The CLINTCP parameter specifies the default client code page to be used by the DFHCNV data conversion table, but only if the CLINTCP parameter in the DFHCNV macro is set to SYSDEF.
 
+      | **required**: False
+      | **type**: bool
 
-    clsdstp (False, str, None)
-      The CLSDSTP system initialization parameter specifies the notification required for an EXEC CICS ISSUE PASS command.
 
+     
+    sysout
+      Specify the output class to assign the \ :literal:`SYSPRINT`\  data set to.
 
-    clt (False, str, None)
-      The CLT parameter specifies the suffix for the command list table (CLT), if this SIT is used by an alternate XRF system.
 
+      | **required**: False
+      | **type**: str
 
-    cmdprot (False, str, None)
-      The CMDPROT parameter specifies whether to allow or inhibit CICS validation of start addresses of storage referenced as output parameters on EXEC CICS commands.
 
 
-    cmdsec (False, str, None)
-      The CMDSEC parameter specifies whether or not you want CICS to honor the CMDSEC option specified on a transaction's resource definition.
+     
+  sysudump
+    Overrides the default class to use a custom class for the \ :literal:`SYSUDUMP`\  data set. Alternatively, omit the \ :literal:`SYSUDUMP`\  data set from being added to the job.
 
 
-    confdata (False, str, None)
-      The CONFDATA parameter specifies whether CICS is to redact sensitive data that might otherwise appear in CICS trace entries or in dumps.
+    | **required**: False
+    | **type**: dict
 
 
-    conftxt (False, str, None)
-      The CONFTXT system initialization parameter specifies whether CICS is to prevent z/OS Communications Server from tracing user data.
+     
+    omit
+      Specifies whether \ :literal:`SYSUDUMP`\  should be excluded from being added to the list of sysout data sets.
 
 
-    cpsmconn (False, str, None)
-      The CPSMCONN parameter specifies whether you want CICS to invoke the specified  component during initialization of the region.
+      | **required**: False
+      | **type**: bool
 
 
-    crlprofile (False, str, None)
-      The CRLPROFILE parameter specifies the name of the profile that is used to authorize CICS to access the certification revocation lists (CRLs) that are stored in an LDAP server.
+     
+    sysout
+      Specify the output class to assign the \ :literal:`SYSUDUMP`\  data set to.
 
 
-    csdacc (False, str, None)
-      The CSDACC parameter specifies the type of access to the CSD to be permitted to this CICS region.
+      | **required**: False
+      | **type**: str
 
 
-    csdbkup (False, str, None)
-      The CSDBKUP parameter specifies whether or not the CSD is eligible for BWO.
 
 
-    csdbufnd (False, int, None)
-      The CSDBUFND parameter specifies the number of buffers to be used for CSD data.
+     
+region_data_sets
+  The location of the region data sets, e.g \ :literal:`REGIONS.ABCD01.DFHAUXT`\ , \ :literal:`REGIONS.ABCD01.DFHCSD`\  and \ :literal:`REGIONS.ABCD01.DFHGCD`\ .
 
 
-    csdbufni (False, int, None)
-      The CSDBUFNI parameter specifies the number of buffers to be used for the CSD index.
+  | **required**: True
+  | **type**: dict
 
 
-    csddisp (False, str, None)
-      The CSDDISP parameter specifies the disposition of the data set to be allocated to the CSD.
+     
+  dfhauxt
+    Overrides the templated location for the auxiliary trace A data set.
 
 
-    csddsn (False, str, None)
-      The CSDDSN parameter specifies the 1-44 character JCL data set name (DSNAME) to be used for the CSD.
+    | **required**: False
+    | **type**: dict
 
 
-    csdfrlog (False, int, None)
-      The CSDFRLOG parameter specifies a number that corresponds to the journal name that CICS uses to identify the forward recovery log stream for the CSD.
+     
+    dsn
+      The name of the auxiliary trace A data set to override the template.
 
 
-    csdinteg (False, str, None)
-      The CSDINTEG parameter specifies the level of read integrity for the CSD if it is accessed in RLS mode.
+      | **required**: False
+      | **type**: str
 
 
-    csdjid (False, str, None)
-      The CSDJID parameter specifies the journal identifier of the journal that you want CICS to use for automatic journaling of file requests against the CSD.
 
+     
+  dfhbuxt
+    Overrides the templated location for the auxiliary trace B data set.
 
-    csdlsrno (False, str, None)
-      The CSDLSRNO system initialization parameter specifies whether the CSD is to be associated with a local shared resource (LSR) pool.
 
+    | **required**: False
+    | **type**: dict
 
-    csdrecov (False, str, None)
-      The CSDRECOVsystem initialization parameter specifies whether the CSD is a recoverable file.
 
+     
+    dsn
+      The name of the auxiliary trace B data set to override the template.
 
-    csdrls (False, str, None)
-      The CSDRLS system initialization parameter specifies whether CICS is to access the CSD in RLS mode.
 
+      | **required**: False
+      | **type**: str
 
-    csdstrno (False, int, None)
-      The CSDSTRNO system initialization parameter specifies the number of concurrent requests that can be processed against the CSD.
 
 
-    cwakey (False, str, None)
-      The CWAKEY system initialization parameter specifies the storage key for the common work area (CWA) if you are operating CICS with storage protection (STGPROT=YES).
+     
+  dfhcsd
+    Overrides the templated location for the CSD.
 
 
-    dae (False, str, None)
-      The DAE system initialization parameter specifies the default DAE action when new system dump table entries are created.
+    | **required**: False
+    | **type**: dict
 
 
-    datform (False, str, None)
-      The DATFORM system initialization parameter specifies the external date display standard that you want to use for CICS date displays.
+     
+    dsn
+      The name of the CSD to override the template.
 
 
-    db2conn (False, str, None)
-      The DB2CONN system initialization parameter specifies whether you want CICS to start the  connection automatically during initialization.
+      | **required**: False
+      | **type**: str
 
 
-    dbctlcon (False, str, None)
-      The DBCTLCON system initialization parameter specifies whether you want CICS to start the DBCTL connection automatically during initialization.
 
+     
+  dfhdmpa
+    Overrides the templated location for the dump A data set.
 
-    debugtool (False, str, None)
-      The DEBUGTOOL system initialization parameter specifies whether you want to use debugging profiles to select the programs that will run under the control of a debugging tool.
 
+    | **required**: False
+    | **type**: dict
 
-    dfltuser (False, str, None)
-      The DFLTUSER system initialization parameter specifies the RACF userid of the default user; that is, the user whose security attributes are used to protect CICS resources in the absence of other, more specific, user identification.
 
+     
+    dsn
+      The name of the dump A data set to override the template.
 
-    dip (False, str, None)
-      The DIP system initialization parameter specifies whether the batch data interchange program, DFHDIP, is to be included.
 
+      | **required**: False
+      | **type**: str
 
-    dismacp (False, str, None)
-      The DISMACP system initialization parameter specifies whether CICS is to disable any transaction that terminates abnormally with an ASRD or ASRE abend.
 
 
-    doccodepage (False, str, None)
-      The DOCCODEPAGE system initialization parameter specifies the default host code page to be used by the document domain.
+     
+  dfhdmpb
+    Overrides the templated location for the dump B data set.
 
 
-    dsalim (False, str, None)
-      The DSALIM system initialization parameter specifies the upper limit of the total amount of storage within which CICS® can allocate the individual dynamic storage areas (DSAs) that reside in 24-bit storage.
+    | **required**: False
+    | **type**: dict
 
 
-    dshipidl (False, int, None)
-      The DSHIPIDL system initialization parameter specifies the minimum time, in hours, minutes, and seconds, that an inactive shipped terminal definition must remain installed in this region.
+     
+    dsn
+      The name of the dump B data set to override the template.
 
 
-    dshipint (False, int, None)
-      The DSHIPINT system initialization parameter specifies the interval between invocations of the timeout delete mechanism.
+      | **required**: False
+      | **type**: str
 
 
-    dsrtpgm (False, str, None)
-      The DSRTPGM system initialization parameter specifies the name of a distributed routing program. The distributed routing program must be specified in the DSRTPGM parameter for all routing and potential target regions.
 
+     
+  dfhgcd
+    Overrides the templated location for the global catalog data set.
 
-    dtrpgm (False, str, None)
-      The DTRPGM system initialization parameter specifies the name of a dynamic routing program.
 
+    | **required**: False
+    | **type**: dict
 
-    dtrtran (False, str, None)
-      The DTRTRAN system initialization parameter specifies the name of the transaction definition that you want CICS to use for dynamic transaction routing.
 
+     
+    dsn
+      The data set name of the global catalog to override the template.
 
-    dump (False, str, None)
-      The DUMP system initialization parameter specifies whether the CICS dump domain is to take SDUMPs.
 
+      | **required**: False
+      | **type**: str
 
-    dumpds (False, str, None)
-      The DUMPDS system initialization parameter specifies the transaction dump data set that is to be opened during CICS initialization.
 
 
-    dumpsw (False, str, None)
-      The DUMPSW system initialization parameter specifies whether you want CICS to switch automatically to the next dump data set when the first is full.
+     
+  dfhintra
+    Overrides the templated location for the intrapartition data set.
 
 
-    duretry (False, int, None)
-      The DURETRY system initialization parameter specifies, in seconds, the total time that CICS is to continue trying to obtain a system dump using the SDUMP macro.
+    | **required**: False
+    | **type**: dict
 
 
-    ecdsasze (False, str, None)
-      The ECDSASZE system initialization parameter specifies the size of the ECDSA.
+     
+    dsn
+      The name of the intrapartition data set to override the template.
 
 
-    edsalim (False, str, None)
-      The EDSALIM system initialization parameter specifies the upper limit of the total amount of storage within which CICS® can allocate the individual extended dynamic storage areas (ExxDSAs) that reside in 31-bit (above-the-line) storage; that is, above 16 MB but below 2 GB.
+      | **required**: False
+      | **type**: str
 
 
-    eodi (False, str, None)
-      The EODI system initialization parameter specifies the end-of-data indicator for input from sequential devices.
 
+     
+  dfhlcd
+    Overrides the templated location for the local catalog data set.
 
-    erdsasze (False, str, None)
-      The ERDSASZE system initialization parameter specifies the size of the ERDSA.
 
+    | **required**: False
+    | **type**: dict
 
-    esdsasze (False, str, None)
-      The ESDSASZE system initialization parameter specifies the size of the ESDSA.
 
+     
+    dsn
+      The data set name of the local catalog to override the template.
 
-    esmexits (False, str, None)
-      The ESMEXITS system initialization parameter specifies whether installation data is to be passed through the RACROUTE interface to the external security manager (ESM) for use in exits written for the ESM.
 
+      | **required**: False
+      | **type**: str
 
-    eudsasze (False, str, None)
-      The EUDSASZE system initialization parameter specifies the size of the EUDSA.
 
 
-    fcqronly (False, str, None)
-      The FCQRONLY system initialization parameter specifies whether you want CICS to force all file control requests to run under the CICS QR TCB. This parameter applies to file control requests that access VSAM RLS files and local VSAM LSR files.
+     
+  dfhlrq
+    Overrides the templated location for the local request queue data set.
 
 
-    fct (False, str, None)
-      The FCT system initialization parameter specifies the suffix of the file control table to be used.
+    | **required**: False
+    | **type**: dict
 
 
-    fepi (False, str, None)
-      The FEPI system initialization parameter specifies whether or not you want to use the Front End Programming Interface feature (FEPI).
+     
+    dsn
+      The data set name of the local request queue to override the template.
 
 
-    fldsep (False, str, None)
-      The FLDSEP system initialization parameter specifies 'ON'e through four field-separator characters, each of which indicates end of field in the terminal input data.
+      | **required**: False
+      | **type**: str
 
 
-    fldstrt (False, str, None)
-      The FLDSTRT system initialization parameter specifies a single character to be the field-name-start character for free-form input for built-in functions.
 
+     
+  dfhtemp
+    Overrides the templated location for the temporary storage data set.
 
-    forceqr (False, str, None)
-      The FORCEQR system initialization parameter specifies whether you want CICS to force all CICS API user application programs that are specified as threadsafe to run under the CICS QR TCB, as if they were specified as quasi-reentrant programs.
 
+    | **required**: False
+    | **type**: dict
 
-    fsstaff (False, str, None)
-      The FSSTAFF system initialization parameter prevents transactions initiated by function-shipped EXEC CICS START requests being started against incorrect terminals.
 
+     
+    dsn
+      The data set name of the temporary storage to override the template.
 
-    ftimeout (False, int, None)
-      The FTIMEOUT system initialization parameter specifies a timeout interval for requests made on files that are opened in RLS mode.
 
+      | **required**: False
+      | **type**: str
 
-    gmtext (False, str, None)
-      The GMTEXT system initialization parameter specifies whether the default logon message text (WELCOME TO CICS) or your own message text is to be displayed on the screen.
 
 
-    gmtran (False, str, None)
-      The GMTRAN system initialization parameter specifies the ID of a transaction.
+     
+  template
+    The base location of the region data sets to be created using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ . Not required if you provide the data set name (dsn) of all the data sets individually.
 
 
-    gntran (False, str, None)
-      The GNTRAN system initialization parameter specifies the transaction that you want CICS to invoke when a user's terminal-timeout period expires, and instructs CICS whether to keep a pseudo-conversation in use at a terminal that is the subject of a timeout sign-off.
+    | **required**: False
+    | **type**: str
 
 
-    grname (False, str, None)
-      The GRNAME system initialization parameter specifies the z/OS Communications Server generic resource name, as 1 through 8 characters, under which a group of CICS terminal-owning regions in a CICSplex register to z/OS Communications Server.
 
+     
+sit_parameters
+  Define the system initalization parameters for the CICS region.
 
-    grplist (False, str, None)
-      The GRPLIST system initialization parameter specifies the names of up to four lists of resource definition groups on the CICS system definition file (CSD). The resource definitions in all the groups in the specified lists are loaded during initialization when CICS performs a cold start. If a warm or emergency start is performed, the resource definitions are derived from the global catalog, and the GRPLIST parameter is ignored.
 
+  | **required**: False
+  | **type**: dict
 
-    gtftr (False, str, None)
-      The GTFTR system initialization parameter specifies whether CICS can use the MVS generalized trace facility (GTF) as a destination for trace data.
 
+     
+  adi
+    The ADI parameter specifies the alternate delay interval in seconds for an alternate CICS® region when you are running CICS with XRF.
 
-    hpo (False, str, None)
-      The HPO system initialization parameter specifies whether you want to use the z/OS Communications Server authorized path feature of the high performance option (HPO).
 
+    | **required**: False
+    | **type**: int
 
-    httpserverhdr (False, str, None)
-      The HTTPSERVERHDR system initialization parameter specifies the value (up to 64 characters) that CICS sets in the server header of HTTP responses.
 
+     
+  aibridge
+    The AIBRIDGE parameter specifies whether the autoinstall user replaceable module (URM) is to be called when creating bridge facilities (virtual terminals) used by the 3270 bridge mechanism.
 
-    httpusragenthdr (False, str, None)
-      The HTTPUSRAGENTHDR system initialization parameter specifies the value (up to 64 characters) that CICS sets in the user-agent header of HTTP requests.
+    Specify this parameter only in the bridge router region.
 
 
-    icp (False, str, None)
-      The ICP system initialization parameter specifies that you want to perform a cold start for interval control program.
+    | **required**: False
+    | **type**: str
+    | **choices**: AUTO, YES
 
 
-    icv (False, int, None)
-      The ICV system initialization parameter specifies the region exit time interval in milliseconds.
+     
+  aicons
+    The AICONS parameter specifies whether you want autoinstall support for consoles.
 
 
-    icvr (False, int, None)
-      The ICVR system initialization parameter specifies the default runaway task time interval in milliseconds as a decimal number.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, AUTO, YES
 
 
-    icvtsd (False, int, None)
-      The ICVTSD system initialization parameter specifies the terminal scan delay value.
+     
+  aiexit
+    The AIEXIT parameter specifies the name of the autoinstall user-replaceable program that you want CICS® to use when autoinstalling local z/OS® Communications Server terminals, APPC connections, virtual terminals, and shipped terminals and connections.
 
 
-    infocenter (False, str, None)
-      The INFOCENTER system initialization parameter specifies the location of the online . If you add this parameter to the Web User Interface (WUI) CICS startup JCL, a link labeled Information Center is displayed on WUI views and menus. If you do not code this parameter, CICS does not construct links to IBM Documentation. .
+    | **required**: False
+    | **type**: str
 
 
-    initparm (False, str, None)
-      The INITPARM system initialization parameter specifies parameters that are to be passed to application programs that use the ASSIGN INITPARM command.
+     
+  aildelay
+    The AILDELAY parameter specifies the delay period that elapses after all sessions between CICS® and an autoinstalled terminal, APPC device, or APPC system are ended, before the terminal or connection entry is deleted.
 
 
-    inttr (False, str, None)
-      The INTTR system initialization parameter specifies whether the internal CICS trace destination is to be activated at system initialization.
+    | **required**: False
+    | **type**: int
 
 
-    ircstrt (False, str, None)
-      The IRCSTRT system initialization parameter specifies whether IRC is to be started up at system initialization.
+     
+  aiqmax
+    The AIQMAX parameter specifies the maximum number of z/OS® Communications Server terminals and APPC connections that can be queued concurrently for autoinstall, the limit is the sum of installs and deletes.
 
 
-    isc (False, str, None)
-      The ISC system initialization parameter specifies whether the CICS programs required for multiregion operation (MRO) and  are to be included.
+    | **required**: False
+    | **type**: int
 
 
-    jesdi (False, int, None)
-      The JESDI system initialization parameter specifies, in a SIT for an alternate XRF system, the JES delay interval.
+     
+  airdelay
+    The AIRDELAY parameter specifies the delay period that elapses after an emergency restart before autoinstalled terminal and APPC connection entries that are not in session are deleted.
 
 
-    jvmprofiledir (False, str, None)
-      The JVMPROFILEDIR system initialization parameter specifies the name (up to 240 characters long) of a z/OS UNIX directory that contains the JVM profiles for CICS. CICS searches this directory for the profiles it needs to configure JVMs.
+    | **required**: False
+    | **type**: int
 
 
-    kerberosuser (False, str, None)
-      The KERBEROSUSER system initialization parameter specifies the user ID that is associated with the Kerberos service principal for the CICS region.
+     
+  akpfreq
+    The AKPFREQ parameter specifies the number of write requests to the CICS® system log stream output buffer required before CICS writes an activity keypoint.
 
 
-    keyring (False, str, None)
-      The KEYRING system initialization parameter specifies the fully qualified name of the key ring, within the RACF database, that contains the keys and X.509 certificates used by CICS support for the Secure Sockets Layer (SSL) and for web services security. The region user ID that will use the key ring must either own the key ring or have the authority to use the key ring if it is owned by a different region user ID. You can create an initial key ring with the DFH$RING exec in .CICS.SDFHSAMP.
+    | **required**: False
+    | **type**: int
 
 
-    lgdfint (False, int, None)
-      The LGDFINT system initialization parameter specifies the log defer interval to be used by CICS® log manager when determining how long to delay a forced journal write request before invoking the MVS™ system logger.
+     
+  autconn
+    The AUTCONN parameter specifies that the reconnection of terminals after an XRF takeover is to be delayed, to allow time for manual switching.
 
 
-    lgnmsg (False, str, None)
-      The LGNMSG system initialization parameter specifies whether z/OS Communications Server logon data is to be made available to an application program.
+    | **required**: False
+    | **type**: int
 
 
-    llacopy (False, str, None)
-      The LLACOPY system initialization parameter specifies the situations where CICS uses either the LLACOPY macro or the BLDL macro when locating modules in the DFHRPL or dynamic LIBRARY concatenation.
+     
+  autodst
+    The AUTODST parameter specifies whether CICS is to activate automatic dynamic storage tuning for application programs.
 
 
-    localccsid (False, int, None)
-      The LOCALCCSID system initialization parameter specifies the default CCSID for the local region.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
 
 
-    lpa (False, str, None)
-      The LPA system initialization parameter specifies whether CICS and user modules can be used from the link pack areas.
+     
+  autoresettime
+    The AUTORESETTIME parameter specifies the action CICS  takes for automatic time changes.
 
 
-    maxopentcbs (False, int, None)
-      The MAXOPENTCBS system initialization parameter specifies the maximum number, in the range 32 through 4032, of open task control blocks (open TCBs) CICS® can create in the pool of L8 and L9 mode TCBs.
+    | **required**: False
+    | **type**: str
+    | **choices**: IMMEDIATE, NO, YES
 
 
-    maxsockets (False, int, None)
-      The MAXSOCKETS system initialization parameter specifies the maximum number of IP sockets that can be managed by the CICS sockets domain.
+     
+  auxtr
+    The AUXTR parameter specifies whether the auxiliary trace destination is to be activated at system initialization.
 
 
-    maxssltcbs (False, int, None)
-      The MAXSSLTCBS system initialization parameter specifies the maximum number of S8 TCBs that can run in the SSL pool.
+    | **required**: False
+    | **type**: str
+    | **choices**: OFF, ON
 
 
-    maxxptcbs (False, int, None)
-      The MAXXPTCBS system initialization parameter specifies the maximum number, in the range 1 through 2000, of open X8 and X9 TCBs that can exist concurrently in the CICS region.
+     
+  auxtrsw
+    The AUXTRSW parameter specifies whether you want the auxiliary trace autoswitch facility.
 
 
-    mct (False, str, None)
-      The MCT system initialization parameter specifies the monitoring control table suffix.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, NEXT, ALL
 
 
-    mintlslevel (False, str, None)
-      The MINTLSLEVEL system initialization parameter specifies the minimum TLS protocol that CICS uses for secure TCP/IP connections.
+     
+  bms
+    The BMS system initialization parameter specifies which version of basic mapping support you require in CICS.
 
 
-    mn (False, str, None)
-      The MN system initialization parameter specifies whether monitoring is to be switched 'ON' or 'OFF' at initialization.
+    | **required**: False
+    | **type**: str
 
 
-    mnconv (False, str, None)
-      The MNCONV system initialization parameter specifies whether conversational tasks have separate performance class records produced for each pair of terminal control I/O requests.
+     
+  brmaxkeeptime
+    The BRMAXKEEPTIME parameter specifies the maximum time (in seconds) that bridge facilities (virtual terminals used by the 3270 bridge) are kept if they are not used.
 
 
-    mnexc (False, str, None)
-      The MNEXC system initialization parameter specifies whether the monitoring exception class is to be made active during initialization.
+    | **required**: False
+    | **type**: int
 
 
-    mnfreq (False, int, None)
-      The MNFREQ system initialization parameter specifies the interval for which CICS automatically produces a transaction performance class record for any long-running transaction.
+     
+  cdsasze
+    The CDSASZE system initialization parameter specifies the size of the CDSA.
 
 
-    mnidn (False, str, None)
-      The MNIDN system initialization parameter specifies whether the monitoring identity class is to be made active during CICS initialization.
+    | **required**: False
+    | **type**: int
 
 
-    mnper (False, str, None)
-      The MNPER system initialization parameter specifies whether the monitoring performance class is to be made active during CICS initialization.
+     
+  chkstrm
+    The CHKSTRM parameter specifies that terminal storage-violation checking is to be activated or deactivated.
 
 
-    mnres (False, str, None)
-      The MNRES system initialization parameter specifies whether transaction resource monitoring is to be made active during CICS initialization.
+    | **required**: False
+    | **type**: str
+    | **choices**: CURRENT, NONE
 
 
-    mnsync (False, str, None)
-      The MNSYNC system initialization parameter specifies whether you want CICS to produce a transaction performance class record when a transaction takes an implicit or explicit syncpoint (unit-of-work).
+     
+  chkstsk
+    The CHKSTSK parameter specifies that task storage-violation checking at startup is to be activated or deactivated.
 
 
-    mntime (False, str, None)
-      The MNTIME system initialization parameter specifies whether you want the time stamp fields in the performance class monitoring data to be returned to an application using the EXEC CICS COLLECT STATISTICS MONITOR(taskno) command in either GMT or local time.
+    | **required**: False
+    | **type**: str
+    | **choices**: CURRENT, NONE
 
 
-    mqconn (False, str, None)
-      The MQCONN system initialization parameter specifies whether you want CICS to start a connection to automatically during initialization.
+     
+  cicssvc
+    The CICSSVC parameter  specifies the number that you have assigned to the CICS type 3 SVC.
 
 
-    mrobtch (False, int, None)
-      The MROBTCH system initialization parameter specifies the number of events that must occur before CICS is posted for dispatch because of the batching mechanism.
+    | **required**: False
+    | **type**: int
 
 
-    mrofse (False, str, None)
-      The MROFSE system initialization parameter specifies whether you want to extend the lifetime of the long-running mirror to keep it allocated until the end of the task rather than after a user syncpoint for function shipping applications.
+     
+  cilock
+    The CILOCK parameter specifies whether or not the control interval lock of a non-RLS VSAM file is to be kept after a successful read-for-update request.
 
 
-    mrolrm (False, str, None)
-      The MROLRM system initialization parameter specifies whether you want to establish an MRO long-running mirror task.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
 
 
-    msgcase (False, str, None)
-      The MSGCASE system initialization parameter specifies how you want the message domains to display mixed case messages.
+     
+  clintcp
+    The CLINTCP parameter specifies the default client code page to be used by the DFHCNV data conversion table, but only if the CLINTCP parameter in the DFHCNV macro is set to SYSDEF.
 
 
-    msglvl (False, int, None)
-      The MSGLVL system initialization parameter specifies the message level that controls the generation of messages to the console and JES message log.
+    | **required**: False
+    | **type**: str
 
 
-    mxt (False, int, None)
-      The MXT system initialization parameter specifies the maximum number, in the range 10 through 2000, of user tasks that can exist in a CICS system at the same time. The MXT value does not include CICS system tasks.
+     
+  clsdstp
+    The CLSDSTP system initialization parameter specifies the notification required for an EXEC CICS ISSUE PASS command.
 
 
-    natlang (False, str, None)
-      The NATLANG system initialization parameter specifies the single-character code for the language to be supported in this CICS run.
+    | **required**: False
+    | **type**: str
+    | **choices**: NOTIFY, NONOTIFY
 
 
-    ncpldft (False, str, None)
-      The NCPLDFT system initialization parameter specifies the name of the default named counter pool to be used by the CICS region 'ON' calls it makes to a named counter server.
+     
+  clt
+    The CLT parameter specifies the suffix for the command list table (CLT), if this SIT is used by an alternate XRF system.
 
 
-    newsit (False, str, None)
-      The NEWSIT system initialization parameter specifies whether CICS is to load the specified SIT, and enforce the use of all system initialization parameters, modified by any system initialization parameters provided by PARM, SYSIN, or the system console, even in a warm start.
+    | **required**: False
+    | **type**: str
 
 
-    nistsp800131a (False, str, None)
-      The NISTSP800131A system initialization parameter specifies whether the CICS region is to check for conformance to the NIST SP800-131A standard.
+     
+  cmdprot
+    The CMDPROT parameter specifies whether to allow or inhibit CICS validation of start addresses of storage referenced as output parameters on EXEC CICS commands.
 
 
-    nonrlsrecov (False, str, None)
-      The NONRLSRECOV system initialization parameter specifies whether VSAM catalog recovery options should override those specified on the CICS FILE resource definition for all non-RLS files. Default behavior, with NONRLSRECOV=VSAMCAT, will take recovery attributes from the catalog if they are present, and from the file definition otherwise. RLS files must always specify recovery options on the catalog.
+    | **required**: False
+    | **type**: str
+    | **choices**: YES, NO
 
 
-    nqrnl (False, str, None)
-      The NQRNL system initialization parameter controls resource name list (RNL) processing by z/OS global resource serialization, which can cause the scope value of a resource to change. CICS uses z/OS global resource serialization to provide sysplex-wide protection of application resources.
+     
+  cmdsec
+    The CMDSEC parameter specifies whether or not you want CICS to honor the CMDSEC option specified on a transaction's resource definition.
 
 
-    offsite (False, str, None)
-      The 'OFF'SITE system initialization parameter specifies whether CICS is to restart in 'OFF'-site recovery mode; that is, a restart is taking place at a remote site.
+    | **required**: False
+    | **type**: str
+    | **choices**: ASIS, ALWAYS
 
 
-    opertim (False, int, None)
-      The OPERTIM system initialization parameter specifies the write-to-operator timeout value, in the range 0 through 86400 seconds (24 hours).
+     
+  confdata
+    The CONFDATA parameter specifies whether CICS is to redact sensitive data that might otherwise appear in CICS trace entries or in dumps.
 
 
-    opndlim (False, int, None)
-      The OPNDLIM system initialization parameter specifies the destination and close destination request limit.
+    | **required**: False
+    | **type**: str
+    | **choices**: HIDE, SHOW
 
 
-    parmerr (False, str, None)
-      The PARMERR system initialization parameter specifies what action you want to follow if CICS detects incorrect system initialization parameter overrides during initialization.
+     
+  conftxt
+    The CONFTXT system initialization parameter specifies whether CICS is to prevent z/OS Communications Server from tracing user data.
 
 
-    pdi (False, int, None)
-      The PDI system initialization parameter specifies the XRF primary delay interval, in seconds, in a SIT for an active CICS region.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
 
 
-    pdir (False, str, None)
-      The PDIR system initialization parameter specifies a suffix for the PDIR list.
+     
+  cpsmconn
+    The CPSMCONN parameter specifies whether you want CICS to invoke the specified  component during initialization of the region.
 
 
-    pgaictlg (False, str, None)
-      The PGAICTLG system initialization parameter specifies whether autoinstalled program definitions should be cataloged.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, CMAS, LMAS, SMSSJ, WUI
 
 
-    pgaiexit (False, str, None)
-      The PGAIEXIT system initialization parameter specifies the name of the program autoinstall exit program.
+     
+  crlprofile
+    The CRLPROFILE parameter specifies the name of the profile that is used to authorize CICS to access the certification revocation lists (CRLs) that are stored in an LDAP server.
 
 
-    pgaipgm (False, str, None)
-      The PGAIPGM system initialization parameter specifies the state of the program autoinstall function at initialization.
+    | **required**: False
+    | **type**: str
 
 
-    pgchain (False, str, None)
-      The PGCHAIN system initialization parameter specifies the character string that is identified by terminal control as a BMS terminal page-chaining command.
+     
+  csdacc
+    The CSDACC parameter specifies the type of access to the CSD to be permitted to this CICS region.
 
 
-    pgcopy (False, str, None)
-      The PGCOPY system initialization parameter specifies the character string that is identified by terminal control as a BMS command to copy output from one terminal to another.
+    | **required**: False
+    | **type**: str
+    | **choices**: READWRITE, READONLY
 
 
-    pgpurge (False, str, None)
-      The PGPURGE system initialization parameter specifies the character string that is identified by terminal control as a BMS terminal page-purge command.
+     
+  csdbkup
+    The CSDBKUP parameter specifies whether or not the CSD is eligible for BWO.
 
 
-    pgret (False, str, None)
-      The PGRET system initialization parameter specifies the character string that is recognized by terminal control as a BMS terminal page-retrieval command.
+    | **required**: False
+    | **type**: str
+    | **choices**: STATIC, DYNAMIC
 
 
-    pltpi (False, str, None)
-      The PLTPI system initialization parameter specifies the suffix for, or the full name of, a program list table that contains a list of programs to be run in the final stages of system initialization.
+     
+  csdbufnd
+    The CSDBUFND parameter specifies the number of buffers to be used for CSD data.
 
 
-    pltpisec (False, str, None)
-      The PLTPISEC system initialization parameter specifies whether you want CICS to perform command security or resource security checking for PLT programs during CICS initialization.
+    | **required**: False
+    | **type**: int
 
 
-    pltpiusr (False, str, None)
-      The PLTPIUSR system initialization parameter specifies the user ID that CICS uses for security checking for PLT programs that run during CICS initialization.
+     
+  csdbufni
+    The CSDBUFNI parameter specifies the number of buffers to be used for the CSD index.
 
 
-    pltsd (False, str, None)
-      The PLTSD system initialization parameter specifies the suffix for, or full name of, a program list table that contains a list of programs to be run during system termination.
+    | **required**: False
+    | **type**: int
 
 
-    prgdlay (False, int, None)
-      The PRGDLAY system initialization parameter specifies the BMS purge delay time interval that is added t the specified delivery time to determine when a message is to be considered undeliverable and therefore purged.
+     
+  csddisp
+    The CSDDISP parameter specifies the disposition of the data set to be allocated to the CSD.
 
 
-    print (False, str, None)
-      The PRINT system initialization parameter specifies the method of requesting printout of the contents of a 3270 screen.
+    | **required**: False
+    | **type**: str
+    | **choices**: OLD, SHR
 
 
-    prtyage (False, int, None)
-      The PRTYAGE system initialization parameter specifies the number of milliseconds to be used in the priority aging algorithm that is used to increment the priority of a task.
+     
+  csddsn
+    The CSDDSN parameter specifies the 1-44 character JCL data set name (DSNAME) to be used for the CSD.
 
 
-    prvmod (False, str, None)
-      The PRVMOD system initialization parameter specifies the names of those modules that are not to be used from the LPA.
+    | **required**: False
+    | **type**: str
 
 
-    psbchk (False, str, None)
-      The PSBCHK system initialization parameter specifies whether CICS is to perform PSB authorization checks for remote terminal users who use transaction routing to initiate a transaction in this CICS region to access an attached IMS system.
+     
+  csdfrlog
+    The CSDFRLOG parameter specifies a number that corresponds to the journal name that CICS uses to identify the forward recovery log stream for the CSD.
 
 
-    psdint (False, int, None)
-      The PSDINT system initialization parameter specifies the persistent session delay interval, which states if, and for how long, z/OS CommunicationsServer holds sessions in a recovery-pending state.
+    | **required**: False
+    | **type**: int
 
 
-    pstype (False, str, None)
-      The PSTYPE system initialization parameter specifies whether CICS uses z/OS Communications Server single-node persistent sessions (SNPS), multinode persistent sessions (MNPS), or does not use z/OS Communications Server persistent sessions support (NOPS).
+     
+  csdinteg
+    The CSDINTEG parameter specifies the level of read integrity for the CSD if it is accessed in RLS mode.
 
 
-    pvdelay (False, int, None)
-      The PVDELAY system initialization parameter specifies the persistent verification delay as a value in the range 0 through 10080 minutes (up to 7 days).
+    | **required**: False
+    | **type**: str
+    | **choices**: UNCOMMITTED, CONSISTENT, REPEATABLE
 
 
-    quiestim (False, int, None)
-      The QUIESTIM system initialization parameter specifies a timeout value for data set quiesce requests.
+     
+  csdjid
+    The CSDJID parameter specifies the journal identifier of the journal that you want CICS to use for automatic journaling of file requests against the CSD.
 
 
-    racfsync (False, str, None)
-      The RACFSYNC system initialization parameter specifies whether CICS listens for type 71 ENF events and refreshes user security.
+    | **required**: False
+    | **type**: str
 
 
-    ramax (False, int, None)
-      The RAMAX system initialization parameter specifies the size in bytes of the I/O area allocated for each RECEIVE ANY issued by CICS, in the range 0 through 32767 bytes.
+     
+  csdlsrno
+    The CSDLSRNO system initialization parameter specifies whether the CSD is to be associated with a local shared resource (LSR) pool.
 
 
-    rapool (False, str, None)
-      The RAPOOL system initialization parameter specifies the number of concurrent receive-any requests that CICS is to process from the z/OS Communications Server for SNA.
+    | **required**: False
+    | **type**: str
 
 
-    rdsasze (False, str, None)
-      The RDSASZE system initialization parameter specifies the size of the RDSA.
+     
+  csdrecov
+    The CSDRECOVsystem initialization parameter specifies whether the CSD is a recoverable file.
 
 
-    rentpgm (False, str, None)
-      The RENTPGM system initialization parameter specifies whether you want CICS to allocate the read-only DSAs from read-only key-0 protected storage.
+    | **required**: False
+    | **type**: str
+    | **choices**: NONE, ALL, BACKOUTONLY
 
 
-    resoverrides (False, str, None)
-      The RESOVERRIDES system initialization parameter specifies the 1-64 character name of the resource overrides file. For more information, see .
+     
+  csdrls
+    The CSDRLS system initialization parameter specifies whether CICS is to access the CSD in RLS mode.
 
 
-    resp (False, str, None)
-      The RESP system initialization parameter specifies the type of request that CICS terminal control receives from logical units.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
 
 
-    ressec (False, str, None)
-      The RESSEC system initialization parameter specifies whether you want CICS to honor the RESSEC option specified on a transaction's resource definition.
+     
+  csdstrno
+    The CSDSTRNO system initialization parameter specifies the number of concurrent requests that can be processed against the CSD.
 
 
-    rls (False, str, None)
-      The RLS system initialization parameter specifies whether CICS is to support VSAM record-level sharing (RLS).
+    | **required**: False
+    | **type**: int
 
 
-    rlstolsr (False, str, None)
-      The RLSTOLSR system initialization parameter specifies whether CICS is to include files that are to be opened in RLS mode when calculating the number of buffers, strings, and other resources for an LSR pool.
+     
+  cwakey
+    The CWAKEY system initialization parameter specifies the storage key for the common work area (CWA) if you are operating CICS with storage protection (STGPROT=YES).
 
 
-    rmtran (False, str, None)
-      The RMTRAN system initialization parameter specifies the name of the transaction that you want an alternate CICS to initiate when logged-on class 1 terminals, which are defined with the attribute RECOVNOTIFY(TRANSACTION) specified, are switched following a takeover.
+    | **required**: False
+    | **type**: str
+    | **choices**: USER, CICS
 
 
-    rrms (False, str, None)
-      The RRMS system initialization parameter specifies whether CICS is to register as a resource manager with recoverable resource management services (RRMS).
+     
+  dae
+    The DAE system initialization parameter specifies the default DAE action when new system dump table entries are created.
 
 
-    rst (False, str, None)
-      The RST system initialization parameter specifies a recoverable service table suffix.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
 
 
-    rstsignoff (False, str, None)
-      The RSTSIGNOFF system initialization parameter specifies whether all users signed-on to the active CICS region are to remain signed-on following a persistent sessions restart or an XRF takeover.
+     
+  datform
+    The DATFORM system initialization parameter specifies the external date display standard that you want to use for CICS date displays.
 
 
-    rstsigntime (False, int, None)
-      The RSTSIGNTIME parameter specifies the timeout delay interval for signon retention during a persistent sessions restart or an XRF takeover.
+    | **required**: False
+    | **type**: str
+    | **choices**: MMDDYY, DDMMYY, YYMMDD
 
 
-    ruwapool (False, str, None)
-      The RUWAPOOL parameter specifies the option for allocating a storage pool the first time a program invoked by Language Environment runs in a task.
+     
+  db2conn
+    The DB2CONN system initialization parameter specifies whether you want CICS to start the  connection automatically during initialization.
 
 
-    sdsasze (False, str, None)
-      The SDSASZE system initialization parameter specifies the size of the SDSA.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
 
 
-    sdtran (False, str, None)
-      The SDTRAN system initialization parameter specifies the name of the shutdown transaction to be started at the beginning of normal and immediate shutdown.
+     
+  dbctlcon
+    The DBCTLCON system initialization parameter specifies whether you want CICS to start the DBCTL connection automatically during initialization.
 
 
-    sec (False, str, None)
-      The SEC system initialization parameter specifies what level of external security you want CICS to use.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
 
 
-    secprfx (False, str, None)
-      The SECPRFX system initialization parameter specifies whether CICS prefixes the resource names in any authorization requests to RACF.
+     
+  debugtool
+    The DEBUGTOOL system initialization parameter specifies whether you want to use debugging profiles to select the programs that will run under the control of a debugging tool.
 
 
-    sit (False, str, None)
-      The SIT system initialization parameter specifies the suffix, if any, of the system initialization table that you want CICS to load at the start of initialization.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
 
 
-    skrxxxx (False, dict, None)
-      The SKRxxxx system initialization parameter specifies that a single-keystroke-retrieval operation is required.
+     
+  dfltuser
+    The DFLTUSER system initialization parameter specifies the RACF userid of the default user; that is, the user whose security attributes are used to protect CICS resources in the absence of other, more specific, user identification.
 
 
-    snpreset (False, str, None)
-      The SNPRESET system initialization parameter specifies whether preset userid terminals share a single access control environment element (ACEE) that is associated with the userid, or a unique ACEE for every terminal.
+    | **required**: False
+    | **type**: str
 
 
-    snscope (False, str, None)
-      The SNSCOPE system initialization parameter specifies whether a userid can be signed on to CICS more than once, within the scope of a single CICS region, a single MVS image, and a sysplex.
+     
+  dip
+    The DIP system initialization parameter specifies whether the batch data interchange program, DFHDIP, is to be included.
 
 
-    sotuning (False, str, None)
-      The SOTUNING system initialization parameter specifies whether performance tuning for HTTP connections will occur to protect CICS from unconstrained resource demand.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
 
 
-    spctr (False, str, None)
-      The SPCTR system initialization parameter specifies the level of special tracing required for CICS as a whole.
+     
+  dismacp
+    The DISMACP system initialization parameter specifies whether CICS is to disable any transaction that terminates abnormally with an ASRD or ASRE abend.
 
 
-    spctrxx (False, dict, None)
-      The SPCTRxx system initialization parameter specifies the level of special tracing for a particular CICS component used by a transaction, terminal, or both.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
 
 
-    spool (False, str, None)
-      The SPOOL system initialization parameter specifies whether the system spooling interface is required.
+     
+  doccodepage
+    The DOCCODEPAGE system initialization parameter specifies the default host code page to be used by the document domain.
 
 
-    srbsvc (False, int, None)
-      The SRBSVC system initialization parameter specifies the number that you have assigned to the CICS type 6 SVC.
+    | **required**: False
+    | **type**: str
 
 
-    srt (False, str, None)
-      The SRT system initialization parameter specifies the system recovery table suffix.
+     
+  dsalim
+    The DSALIM system initialization parameter specifies the upper limit of the total amount of storage within which CICS® can allocate the individual dynamic storage areas (DSAs) that reside in 24-bit storage.
 
 
-    srvercp (False, str, None)
-      The SRVERCP system initialization parameter specifies the default server code page to be used by the DFHCNV data conversion table but only if the SRVERCP parameter in the DFHCNV macro is set to SYSDEF.
+    | **required**: False
+    | **type**: str
 
 
-    sslcache (False, str, None)
-      The SSLCACHE system initialization parameter specifies whether session IDs for SSL sessions are to be cached locally or at sysplex level for reuse by the CICS® region. The SSL cache allows CICS to perform abbreviated handshakes with clients that it has previously authenticated.
+     
+  dshipidl
+    The DSHIPIDL system initialization parameter specifies the minimum time, in hours, minutes, and seconds, that an inactive shipped terminal definition must remain installed in this region.
 
 
-    ssldelay (False, int, None)
-      The SSLDELAY system initialization parameter specifies the length of time in seconds for which CICS retains session ids for secure socket connections.
+    | **required**: False
+    | **type**: int
 
 
-    start (False, str, None)
-      The START system initialization parameter specifies the type of start for the system initialization program.
+     
+  dshipint
+    The DSHIPINT system initialization parameter specifies the interval between invocations of the timeout delete mechanism.
 
 
-    starter (False, str, None)
-      The STARTER system initialization parameter specifies whether the generation of starter system modules (with $ and
+    | **required**: False
+    | **type**: int
 
 
-    stateod (False, int, None)
-      The STATEOD system initialization parameter specifies the end-of-day time in the format hhmmss.
+     
+  dsrtpgm
+    The DSRTPGM system initialization parameter specifies the name of a distributed routing program. The distributed routing program must be specified in the DSRTPGM parameter for all routing and potential target regions.
 
 
-    statint (False, int, None)
-      The STATINT system initialization parameter specifies the recording interval for system statistics in the format hhmmss.
+    | **required**: False
+    | **type**: str
 
 
-    statrcd (False, str, None)
-      The STATRCD system initialization parameter specifies the interval statistics recording status at CICS initialization.
+     
+  dtrpgm
+    The DTRPGM system initialization parameter specifies the name of a dynamic routing program.
 
 
-    stgprot (False, str, None)
-      The STGPROT system initialization parameter specifies whether you want storage protection to operate in the CICS region.
+    | **required**: False
+    | **type**: str
 
 
-    stgrcvy (False, str, None)
-      The STGRCVY system initialization parameter specifies whether CICS should try to recover from a storage violation.
+     
+  dtrtran
+    The DTRTRAN system initialization parameter specifies the name of the transaction definition that you want CICS to use for dynamic transaction routing.
 
 
-    stntr (False, str, None)
-      The STNTR system initialization parameter specifies the level of standard tracing required for CICS as a whole.
+    | **required**: False
+    | **type**: str
 
 
-    stntrxx (False, dict, None)
-      The STNTRxx system initialization parameter specifies the level of standard tracing you require for a particular CICS component. Specify the final two characters as the dictionary key
+     
+  dump
+    The DUMP system initialization parameter specifies whether the CICS dump domain is to take SDUMPs.
 
 
-    subtsks (False, int, None)
-      The SUBTSKS system initialization parameter specifies the number of task control blocks (TCBs) you want CICS to use for running tasks in concurrent mode.
+    | **required**: False
+    | **type**: str
+    | **choices**: YES, NO, TABLEONLY
 
 
-    suffix (False, str, None)
-      The SUFFIX system initialization parameter specifies the last two characters of the name of this system initialization table.
+     
+  dumpds
+    The DUMPDS system initialization parameter specifies the transaction dump data set that is to be opened during CICS initialization.
 
 
-    sysidnt (False, str, None)
-      The SYSIDNT system initialization parameter specifies a 1- to 4-character name that is known only to your CICS region.
+    | **required**: False
+    | **type**: str
+    | **choices**: AUTO, A, B
 
 
-    systr (False, str, None)
-      The SYSTR system initialization parameter specifies the setting of the main system trace flag.
+     
+  dumpsw
+    The DUMPSW system initialization parameter specifies whether you want CICS to switch automatically to the next dump data set when the first is full.
 
 
-    sydumax (False, int, None)
-      The SYDUMAX system initialization parameter specifies the limit on the number of system dumps that can be taken per dump table entry.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, NEXT, ALL
 
 
-    takeovr (False, str, None)
-      The TAKEOVR system initialization parameter specifies the action to be taken by the alternate CICS region, following the apparent loss of the surveillance signal in the active CICS region.
+     
+  duretry
+    The DURETRY system initialization parameter specifies, in seconds, the total time that CICS is to continue trying to obtain a system dump using the SDUMP macro.
 
 
-    tbexits (False, str, None)
-      The TBEXITS system initialization parameter specifies the names of your backout exit programs for use during emergency restart backout processing.
+    | **required**: False
+    | **type**: int
 
 
-    tcp (False, str, None)
-      The TCP system initialization parameter specifies whether the pregenerated non-z/OS Communications Server terminal control program, DFHTCP, is to be included.
+     
+  ecdsasze
+    The ECDSASZE system initialization parameter specifies the size of the ECDSA.
 
 
-    tcpip (False, str, None)
-      The TCPIP system initialization parameter specifies whether CICS TCP/IP services are to be activated at CICS startup.
+    | **required**: False
+    | **type**: str
 
 
-    tcsactn (False, str, None)
-      The TCSACTN system initialization parameter specifies the required action that CICS terminal control should take if the terminal control shutdown wait threshold expires.
+     
+  edsalim
+    The EDSALIM system initialization parameter specifies the upper limit of the total amount of storage within which CICS® can allocate the individual extended dynamic storage areas (ExxDSAs) that reside in 31-bit (above-the-line) storage; that is, above 16 MB but below 2 GB.
 
 
-    tcswait (False, str, None)
-      The TCSWAIT system initialization parameter specifies the required CICS terminal control shutdown wait threshold.
+    | **required**: False
+    | **type**: str
 
 
-    tct (False, str, None)
-      The TCT system initialization parameter specifies which terminal control table, if any, is to be loaded.
+     
+  eodi
+    The EODI system initialization parameter specifies the end-of-data indicator for input from sequential devices.
 
 
-    tctuakey (False, str, None)
-      The TCTUAKEY system initialization parameter specifies the storage key for the terminal control table user areas (TCTUAs) if you are operating CICS with storage protection (STGPROT=YES).
+    | **required**: False
+    | **type**: str
 
 
-    tctualoc (False, str, None)
-      The TCTUALOC system initialization parameter specifies where terminal user areas (TCTUAs) are to be stored.
+     
+  epcdsasze
+    The EPCDSASZE parameter specifies the size of the EPCDSA dynamic storage area. Message DFHSM0136I at initialization shows the value that is set.
 
 
-    td (False, str, None)
-      The TD system initialization parameter specifies the number of VSAM buffers and strings to be used for intrapartition transient data (TD).
+    | **required**: False
+    | **type**: str
 
 
-    tdintra (False, str, None)
-      The TDINTRA system initialization parameter specifies whether CICS is to initialize with empty intrapartition TD queues.
+     
+  epudsasze
+    The EPUDSASZE parameter specifies the size of the EPUDSA dynamic storage area. Message DFHSM0136I at initialization shows the value that is set.
 
 
-    traniso (False, str, None)
-      The TRANISO system initialization parameter specifies, together with the STGPROT system initialization parameter, whether you want transaction isolation in the CICS region.
+    | **required**: False
+    | **type**: str
 
 
-    trap (False, str, None)
-      The TRAP system initialization parameter specifies whether the FE global trap exit is to be activated at system initialization.
+     
+  erdsasze
+    The ERDSASZE system initialization parameter specifies the size of the ERDSA.
 
 
-    trdumax (False, int, None)
-      The TRDUMAX system initialization parameter specifies the limit on the number of transaction dumps that may be taken per Dump Table entry.
+    | **required**: False
+    | **type**: str
 
 
-    trtabsz (False, int, None)
-      The TRTABSZ system initialization parameter specifies the size, in kilobytes, of the internal trace table.
+     
+  esdsasze
+    The ESDSASZE system initialization parameter specifies the size of the ESDSA.
 
 
-    trtransz (False, int, None)
-      The TRTRANSZ system initialization parameter specifies the size, in kilobytes, of the transaction dump trace table.
+    | **required**: False
+    | **type**: str
 
 
-    trtranty (False, str, None)
-      The TRTRANTY system initialization parameter specifies which trace entries should be copied from the internal trace table to the transaction dump trace table.
+     
+  esmexits
+    The ESMEXITS system initialization parameter specifies whether installation data is to be passed through the RACROUTE interface to the external security manager (ESM) for use in exits written for the ESM.
 
 
-    ts (False, str, None)
-      The TS system initialization parameter specifies whether you want to perform a cold start for temporary storage, as well as the number of VSAM buffers and strings to be used for auxiliary temporary storage.
+    | **required**: False
+    | **type**: str
+    | **choices**: NOINSTLN, INSTLN
 
 
-    tsmainlimit (False, str, None)
-      The TSMAINLIMIT system initialization parameter specifies a limit for the storage that is available for main temporary storage queues to use. You can specify an amount of storage in the range 1 - 32768 MB (32 GB), but this amount must not be greater than 25% of the value of the z/OS parameter MEMLIMIT. The default is 64 MB.
+     
+  eudsasze
+    The EUDSASZE system initialization parameter specifies the size of the EUDSA.
 
 
-    tst (False, str, None)
-      The TST system initialization parameter specifies the temporary storage table suffix.
+    | **required**: False
+    | **type**: str
 
 
-    udsasze (False, str, None)
-      The UDSASZE system initialization parameter specifies the size of the UDSA.
+     
+  fcqronly
+    The FCQRONLY system initialization parameter specifies whether you want CICS to force all file control requests to run under the CICS QR TCB. This parameter applies to file control requests that access VSAM RLS files and local VSAM LSR files.
 
 
-    uownetql (False, str, None)
-      The UOWNETQL system initialization parameter specifies a qualifier for the NETUOWID for units of work initiated on the local CICS region.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
 
 
-    usertr (False, str, None)
-      The USERTR system initialization parameter specifies whether the main user trace flag is to be set on or off.
+     
+  fct
+    The FCT system initialization parameter specifies the suffix of the file control table to be used.
 
 
-    usrdelay (False, int, None)
-      The USRDELAY system initialization parameter specifies the maximum time, in the range 0 - 10080 minutes (up to seven days), that an eligible user ID and its associated attributes are cached in the CICS region after use. A user ID that is retained in the user table can be reused.
+    | **required**: False
+    | **type**: str
 
 
-    ussconfig (False, str, None)
-      The USSCONFIG system initialization parameter specifies the name and path of the root directory for configuration files on z/OS UNIX.
+     
+  fepi
+    The FEPI system initialization parameter specifies whether or not you want to use the Front End Programming Interface feature (FEPI).
 
 
-    usshome (False, str, None)
-      The USSHOME system initialization parameter specifies the name and path of the root directory for files on z/OS UNIX.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
 
 
-    vtam (False, str, None)
-      The VTAM system initialization parameter specifies whether the z/OS Communications Server access method is to be used.
+     
+  fldsep
+    The FLDSEP system initialization parameter specifies 'ON'e through four field-separator characters, each of which indicates end of field in the terminal input data.
 
 
-    vtprefix (False, str, None)
-      The VTPREFIX system initialization parameter specifies the first character to be used for the terminal identifiers (termids) of autoinstalled virtual terminals.
+    | **required**: False
+    | **type**: str
 
 
-    webdelay (False, str, None)
-      The WEBDELAY system initialization parameter specifies two Web delay periods.
+     
+  fldstrt
+    The FLDSTRT system initialization parameter specifies a single character to be the field-name-start character for free-form input for built-in functions.
 
 
-    wlmhealth (False, str, None)
-      The WLMHEALTH system initialization parameter specifies the time interval and the health adjustment value to be used by CICS® on z/OS® Workload Manager Health API (IWM4HLTH) calls, which CICS makes to inform z/OS WLM about the health state of a CICS region.
+    | **required**: False
+    | **type**: str
 
 
-    wrkarea (False, int, None)
-      The WRKAREA system initialization parameter specifies the number of bytes to be allocated to the common work area (CWA).
+     
+  forceqr
+    The FORCEQR system initialization parameter specifies whether you want CICS to force all CICS API user application programs that are specified as threadsafe to run under the CICS QR TCB, as if they were specified as quasi-reentrant programs.
 
 
-    xappc (False, str, None)
-      The XAPPC system initialization parameter specifies whether RACF session security can be used when establishing APPC sessions.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
 
 
-    xcfgroup (False, str, None)
-      The XCFGROUP system initialization parameter specifies the name of the cross-system coupling facility (XCF) group to be joined by this region.
+     
+  fsstaff
+    The FSSTAFF system initialization parameter prevents transactions initiated by function-shipped EXEC CICS START requests being started against incorrect terminals.
 
 
-    xcmd (False, str, None)
-      The XCMD system initialization parameter specifies whether you want CICS to perform command security checking, and optionally the RACF resource class name in which you have defined the command security profiles.
+    | **required**: False
+    | **type**: str
+    | **choices**: YES, NO
 
 
-    xdb2 (False, str, None)
-      The XDB2 system initialization parameter specifies whether you want CICS to perform DB2ENTRY security checking.
+     
+  ftimeout
+    The FTIMEOUT system initialization parameter specifies a timeout interval for requests made on files that are opened in RLS mode.
 
 
-    xdct (False, str, None)
-      The XDCT system initialization parameter specifies whether you want CICS to perform resource security checking for transient data queues.
+    | **required**: False
+    | **type**: int
 
 
-    xfct (False, str, None)
-      The XFCT system initialization parameter specifies whether you want CICS to perform file resource security checking, and optionally specifies the RACF resource class name in which you have defined the file resource security profiles.
+     
+  gmtext
+    The GMTEXT system initialization parameter specifies whether the default logon message text (WELCOME TO CICS) or your own message text is to be displayed on the screen.
 
 
-    xhfs (False, str, None)
-      The XHFS system initialization parameter specifies whether CICS is to check the transaction user's ability to access files in the z/OS UNIX System Services file system.
+    | **required**: False
+    | **type**: str
 
 
-    xjct (False, str, None)
-      The XJCT system initialization parameter specifies whether you want CICS to perform journal resource security checking.
+     
+  gmtran
+    The GMTRAN system initialization parameter specifies the ID of a transaction.
 
 
-    xlt (False, str, None)
-      The XLT system initialization parameter specifies a suffix for the transaction list table.
+    | **required**: False
+    | **type**: str
 
 
-    xpct (False, str, None)
-      The XPCT system initialization parameter specifies whether you want CICS to perform started transaction resource security checking, and optionally specifies the name of the RACF resource class name in which you have defined the started task security profiles.
+     
+  gntran
+    The GNTRAN system initialization parameter specifies the transaction that you want CICS to invoke when a user's terminal-timeout period expires, and instructs CICS whether to keep a pseudo-conversation in use at a terminal that is the subject of a timeout sign-off.
 
 
-    xppt (False, str, None)
-      The XPPT system initialization parameter specifies that CICS is to perform application program resource security checks and optionally specifies the RACF resource class name in which you have defined the program resource security profiles.
+    | **required**: False
+    | **type**: str
 
 
-    xpsb (False, str, None)
-      The XPSB system initialization parameter specifies whether you want CICS to perform program specification block (PSB) security checking and optionally specifies the RACF resource class name in which you have defined the PSB security profiles.
+     
+  grname
+    The GRNAME system initialization parameter specifies the z/OS Communications Server generic resource name, as 1 through 8 characters, under which a group of CICS terminal-owning regions in a CICSplex register to z/OS Communications Server.
 
 
-    xptkt (False, str, None)
-      The XPTKT system initialization parameter specifies whether CICS checks if a user can generate a PassTicket for the user's userid using the EXEC CICS REQUEST PASSTICKET command, the EXEC CICS REQUEST ENCRYPTPTKT command, or the EXEC FEPI REQUEST PASSTICKET command.
+    | **required**: False
+    | **type**: str
 
 
-    xres (False, str, None)
-      The XRES system initialization parameter specifies whether you want CICS to perform resource security checking for particular CICS resources and optionally specifies the general resource class name in which you have defined the resource security profiles.
+     
+  grplist
+    The GRPLIST system initialization parameter specifies the names of up to four lists of resource definition groups on the CICS system definition file (CSD). The resource definitions in all the groups in the specified lists are loaded during initialization when CICS performs a cold start. If a warm or emergency start is performed, the resource definitions are derived from the global catalog, and the GRPLIST parameter is ignored.
 
 
-    xrf (False, str, None)
-      The XRF system initialization parameter specifies whether XRF support is to be included in the CICS region.
+    | **required**: False
+    | **type**: str
 
 
-    xtran (False, str, None)
-      The XTRAN system initialization parameter specifies whether you want CICS to perform transaction security checking and optionally specifies the RACF resource class name in which you have defined the transaction security profiles.
+     
+  gtftr
+    The GTFTR system initialization parameter specifies whether CICS can use the MVS generalized trace facility (GTF) as a destination for trace data.
 
 
-    xtst (False, str, None)
-      The XTST system initialization parameter specifies whether you want CICS to perform security checking for temporary storage queues and optionally specifies the RACF resource class name in which you have defined the temporary storage security profiles.
+    | **required**: False
+    | **type**: str
+    | **choices**: OFF, ON
 
 
-    xuser (False, str, None)
-      The XUSER system initialization parameter specifies whether CICS is to perform surrogate user checks.
+     
+  hpo
+    The HPO system initialization parameter specifies whether you want to use the z/OS Communications Server authorized path feature of the high performance option (HPO).
 
 
-    epcdsasze (False, str, None)
-      The EPCDSASZE parameter specifies the size of the EPCDSA dynamic storage area. Message DFHSM0136I at initialization shows the value that is set.
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
 
 
-    epudsasze (False, str, None)
-      The EPUDSASZE parameter specifies the size of the EPUDSA dynamic storage area. Message DFHSM0136I at initialization shows the value that is set.
+     
+  httpserverhdr
+    The HTTPSERVERHDR system initialization parameter specifies the value (up to 64 characters) that CICS sets in the server header of HTTP responses.
 
 
-    maxtlslevel (False, str, None)
-      The MAXTLSLEVEL system initialization parameter specifies the maximum TLS protocol that CICS uses for secure TCP/IP connections.
+    | **required**: False
+    | **type**: str
 
 
-    pcdsasze (False, int, None)
-      The PCDSASZE parameter specifies the size of the PCDSA dynamic storage area. Message DFHSM0136I at initialization shows the value that is set.
+     
+  httpusragenthdr
+    The HTTPUSRAGENTHDR system initialization parameter specifies the value (up to 64 characters) that CICS sets in the user-agent header of HTTP requests.
 
 
-    pudsasze (False, str, None)
-      The PUDSASZE parameter specifies the size of the PUDSA dynamic storage area. Message DFHSM0136I at initialization shows the value that is set.
+    | **required**: False
+    | **type**: str
 
 
-    sdtmemlimit (False, str, None)
-      The SDTMEMLIMIT system initialization parameter specifies a limit to the amount of storage above the bar that is available for shared data tables to use for control information (entry descriptors, backout elements, and index nodes). The default is 4 GB. When you set this parameter, check your current setting for the z/OS MEMLIMIT parameter.
+     
+  icp
+    The ICP system initialization parameter specifies that you want to perform a cold start for interval control program.
 
 
+    | **required**: False
+    | **type**: str
+    | **choices**: COLD
+
+
+     
+  icv
+    The ICV system initialization parameter specifies the region exit time interval in milliseconds.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  icvr
+    The ICVR system initialization parameter specifies the default runaway task time interval in milliseconds as a decimal number.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  icvtsd
+    The ICVTSD system initialization parameter specifies the terminal scan delay value.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  infocenter
+    The INFOCENTER system initialization parameter specifies the location of the online . If you add this parameter to the Web User Interface (WUI) CICS startup JCL, a link labeled Information Center is displayed on WUI views and menus. If you do not code this parameter, CICS does not construct links to IBM Documentation. .
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  initparm
+    The INITPARM system initialization parameter specifies parameters that are to be passed to application programs that use the ASSIGN INITPARM command.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  inttr
+    The INTTR system initialization parameter specifies whether the internal CICS trace destination is to be activated at system initialization.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: ON, OFF
+
+
+     
+  ircstrt
+    The IRCSTRT system initialization parameter specifies whether IRC is to be started up at system initialization.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  isc
+    The ISC system initialization parameter specifies whether the CICS programs required for multiregion operation (MRO) and  are to be included.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  jesdi
+    The JESDI system initialization parameter specifies, in a SIT for an alternate XRF system, the JES delay interval.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  jvmprofiledir
+    The JVMPROFILEDIR system initialization parameter specifies the name (up to 240 characters long) of a z/OS UNIX directory that contains the JVM profiles for CICS. CICS searches this directory for the profiles it needs to configure JVMs.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  kerberosuser
+    The KERBEROSUSER system initialization parameter specifies the user ID that is associated with the Kerberos service principal for the CICS region.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  keyring
+    The KEYRING system initialization parameter specifies the fully qualified name of the key ring, within the RACF database, that contains the keys and X.509 certificates used by CICS support for the Secure Sockets Layer (SSL) and for web services security. The region user ID that will use the key ring must either own the key ring or have the authority to use the key ring if it is owned by a different region user ID. You can create an initial key ring with the DFH$RING exec in .CICS.SDFHSAMP.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  lgdfint
+    The LGDFINT system initialization parameter specifies the log defer interval to be used by CICS® log manager when determining how long to delay a forced journal write request before invoking the MVS™ system logger.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  lgnmsg
+    The LGNMSG system initialization parameter specifies whether z/OS Communications Server logon data is to be made available to an application program.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  llacopy
+    The LLACOPY system initialization parameter specifies the situations where CICS uses either the LLACOPY macro or the BLDL macro when locating modules in the DFHRPL or dynamic LIBRARY concatenation.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: YES, NO, NEWCOPY
+
+
+     
+  localccsid
+    The LOCALCCSID system initialization parameter specifies the default CCSID for the local region.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  lpa
+    The LPA system initialization parameter specifies whether CICS and user modules can be used from the link pack areas.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  maxopentcbs
+    The MAXOPENTCBS system initialization parameter specifies the maximum number, in the range 32 through 4032, of open task control blocks (open TCBs) CICS® can create in the pool of L8 and L9 mode TCBs.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  maxsockets
+    The MAXSOCKETS system initialization parameter specifies the maximum number of IP sockets that can be managed by the CICS sockets domain.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  maxssltcbs
+    The MAXSSLTCBS system initialization parameter specifies the maximum number of S8 TCBs that can run in the SSL pool.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  maxtlslevel
+    The MAXTLSLEVEL system initialization parameter specifies the maximum TLS protocol that CICS uses for secure TCP/IP connections.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: TLS11, TLS12, TLS13
+
+
+     
+  maxxptcbs
+    The MAXXPTCBS system initialization parameter specifies the maximum number, in the range 1 through 2000, of open X8 and X9 TCBs that can exist concurrently in the CICS region.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  mct
+    The MCT system initialization parameter specifies the monitoring control table suffix.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  mintlslevel
+    The MINTLSLEVEL system initialization parameter specifies the minimum TLS protocol that CICS uses for secure TCP/IP connections.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: TLS11, TLS12, TLS13
+
+
+     
+  mn
+    The MN system initialization parameter specifies whether monitoring is to be switched 'ON' or 'OFF' at initialization.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: OFF, ON
+
+
+     
+  mnconv
+    The MNCONV system initialization parameter specifies whether conversational tasks have separate performance class records produced for each pair of terminal control I/O requests.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  mnexc
+    The MNEXC system initialization parameter specifies whether the monitoring exception class is to be made active during initialization.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: OFF, ON
+
+
+     
+  mnfreq
+    The MNFREQ system initialization parameter specifies the interval for which CICS automatically produces a transaction performance class record for any long-running transaction.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  mnidn
+    The MNIDN system initialization parameter specifies whether the monitoring identity class is to be made active during CICS initialization.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: OFF, ON
+
+
+     
+  mnper
+    The MNPER system initialization parameter specifies whether the monitoring performance class is to be made active during CICS initialization.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: OFF, ON
+
+
+     
+  mnres
+    The MNRES system initialization parameter specifies whether transaction resource monitoring is to be made active during CICS initialization.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: OFF, ON
+
+
+     
+  mnsync
+    The MNSYNC system initialization parameter specifies whether you want CICS to produce a transaction performance class record when a transaction takes an implicit or explicit syncpoint (unit-of-work).
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  mntime
+    The MNTIME system initialization parameter specifies whether you want the time stamp fields in the performance class monitoring data to be returned to an application using the EXEC CICS COLLECT STATISTICS MONITOR(taskno) command in either GMT or local time.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: GMT, LOCAL
+
+
+     
+  mqconn
+    The MQCONN system initialization parameter specifies whether you want CICS to start a connection to automatically during initialization.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  mrobtch
+    The MROBTCH system initialization parameter specifies the number of events that must occur before CICS is posted for dispatch because of the batching mechanism.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  mrofse
+    The MROFSE system initialization parameter specifies whether you want to extend the lifetime of the long-running mirror to keep it allocated until the end of the task rather than after a user syncpoint for function shipping applications.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  mrolrm
+    The MROLRM system initialization parameter specifies whether you want to establish an MRO long-running mirror task.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  msgcase
+    The MSGCASE system initialization parameter specifies how you want the message domains to display mixed case messages.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: MIXED, UPPER
+
+
+     
+  msglvl
+    The MSGLVL system initialization parameter specifies the message level that controls the generation of messages to the console and JES message log.
+
+
+    | **required**: False
+    | **type**: int
+    | **choices**: 1, 0
+
+
+     
+  mxt
+    The MXT system initialization parameter specifies the maximum number, in the range 10 through 2000, of user tasks that can exist in a CICS system at the same time. The MXT value does not include CICS system tasks.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  natlang
+    The NATLANG system initialization parameter specifies the single-character code for the language to be supported in this CICS run.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: E, C, K
+
+
+     
+  ncpldft
+    The NCPLDFT system initialization parameter specifies the name of the default named counter pool to be used by the CICS region 'ON' calls it makes to a named counter server.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  newsit
+    The NEWSIT system initialization parameter specifies whether CICS is to load the specified SIT, and enforce the use of all system initialization parameters, modified by any system initialization parameters provided by PARM, SYSIN, or the system console, even in a warm start.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  nistsp800131a
+    The NISTSP800131A system initialization parameter specifies whether the CICS region is to check for conformance to the NIST SP800-131A standard.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NOCHECK, CHECK
+
+
+     
+  nonrlsrecov
+    The NONRLSRECOV system initialization parameter specifies whether VSAM catalog recovery options should override those specified on the CICS FILE resource definition for all non-RLS files. Default behavior, with NONRLSRECOV=VSAMCAT, will take recovery attributes from the catalog if they are present, and from the file definition otherwise. RLS files must always specify recovery options on the catalog.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: VSAMCAT, FILEDEF
+
+
+     
+  nqrnl
+    The NQRNL system initialization parameter controls resource name list (RNL) processing by z/OS global resource serialization, which can cause the scope value of a resource to change. CICS uses z/OS global resource serialization to provide sysplex-wide protection of application resources.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  offsite
+    The 'OFF'SITE system initialization parameter specifies whether CICS is to restart in 'OFF'-site recovery mode; that is, a restart is taking place at a remote site.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  opertim
+    The OPERTIM system initialization parameter specifies the write-to-operator timeout value, in the range 0 through 86400 seconds (24 hours).
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  opndlim
+    The OPNDLIM system initialization parameter specifies the destination and close destination request limit.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  parmerr
+    The PARMERR system initialization parameter specifies what action you want to follow if CICS detects incorrect system initialization parameter overrides during initialization.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: INTERACT, IGNORE, ABEND
+
+
+     
+  pcdsasze
+    The PCDSASZE parameter specifies the size of the PCDSA dynamic storage area. Message DFHSM0136I at initialization shows the value that is set.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  pdi
+    The PDI system initialization parameter specifies the XRF primary delay interval, in seconds, in a SIT for an active CICS region.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  pdir
+    The PDIR system initialization parameter specifies a suffix for the PDIR list.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  pgaictlg
+    The PGAICTLG system initialization parameter specifies whether autoinstalled program definitions should be cataloged.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: MODIFY, NONE, ALL
+
+
+     
+  pgaiexit
+    The PGAIEXIT system initialization parameter specifies the name of the program autoinstall exit program.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  pgaipgm
+    The PGAIPGM system initialization parameter specifies the state of the program autoinstall function at initialization.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: INACTIVE, ACTIVE
+
+
+     
+  pgchain
+    The PGCHAIN system initialization parameter specifies the character string that is identified by terminal control as a BMS terminal page-chaining command.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  pgcopy
+    The PGCOPY system initialization parameter specifies the character string that is identified by terminal control as a BMS command to copy output from one terminal to another.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  pgpurge
+    The PGPURGE system initialization parameter specifies the character string that is identified by terminal control as a BMS terminal page-purge command.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  pgret
+    The PGRET system initialization parameter specifies the character string that is recognized by terminal control as a BMS terminal page-retrieval command.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  pltpi
+    The PLTPI system initialization parameter specifies the suffix for, or the full name of, a program list table that contains a list of programs to be run in the final stages of system initialization.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  pltpisec
+    The PLTPISEC system initialization parameter specifies whether you want CICS to perform command security or resource security checking for PLT programs during CICS initialization.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NONE, CMDSEC, RESSEC, ALL
+
+
+     
+  pltpiusr
+    The PLTPIUSR system initialization parameter specifies the user ID that CICS uses for security checking for PLT programs that run during CICS initialization.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  pltsd
+    The PLTSD system initialization parameter specifies the suffix for, or full name of, a program list table that contains a list of programs to be run during system termination.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  prgdlay
+    The PRGDLAY system initialization parameter specifies the BMS purge delay time interval that is added t the specified delivery time to determine when a message is to be considered undeliverable and therefore purged.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  print
+    The PRINT system initialization parameter specifies the method of requesting printout of the contents of a 3270 screen.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES, PA1, PA2, PA3
+
+
+     
+  prtyage
+    The PRTYAGE system initialization parameter specifies the number of milliseconds to be used in the priority aging algorithm that is used to increment the priority of a task.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  prvmod
+    The PRVMOD system initialization parameter specifies the names of those modules that are not to be used from the LPA.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  psbchk
+    The PSBCHK system initialization parameter specifies whether CICS is to perform PSB authorization checks for remote terminal users who use transaction routing to initiate a transaction in this CICS region to access an attached IMS system.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  psdint
+    The PSDINT system initialization parameter specifies the persistent session delay interval, which states if, and for how long, z/OS CommunicationsServer holds sessions in a recovery-pending state.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  pstype
+    The PSTYPE system initialization parameter specifies whether CICS uses z/OS Communications Server single-node persistent sessions (SNPS), multinode persistent sessions (MNPS), or does not use z/OS Communications Server persistent sessions support (NOPS).
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: SNPS, MNPS, NOPS
+
+
+     
+  pudsasze
+    The PUDSASZE parameter specifies the size of the PUDSA dynamic storage area. Message DFHSM0136I at initialization shows the value that is set.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  pvdelay
+    The PVDELAY system initialization parameter specifies the persistent verification delay as a value in the range 0 through 10080 minutes (up to 7 days).
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  quiestim
+    The QUIESTIM system initialization parameter specifies a timeout value for data set quiesce requests.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  racfsync
+    The RACFSYNC system initialization parameter specifies whether CICS listens for type 71 ENF events and refreshes user security.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: YES, NO
+
+
+     
+  ramax
+    The RAMAX system initialization parameter specifies the size in bytes of the I/O area allocated for each RECEIVE ANY issued by CICS, in the range 0 through 32767 bytes.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  rapool
+    The RAPOOL system initialization parameter specifies the number of concurrent receive-any requests that CICS is to process from the z/OS Communications Server for SNA.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  rdsasze
+    The RDSASZE system initialization parameter specifies the size of the RDSA.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  rentpgm
+    The RENTPGM system initialization parameter specifies whether you want CICS to allocate the read-only DSAs from read-only key-0 protected storage.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: PROTECT, NOPROTECT
+
+
+     
+  resoverrides
+    The RESOVERRIDES system initialization parameter specifies the 1-64 character name of the resource overrides file. For more information, see .
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  resp
+    The RESP system initialization parameter specifies the type of request that CICS terminal control receives from logical units.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: FME, RRN
+
+
+     
+  ressec
+    The RESSEC system initialization parameter specifies whether you want CICS to honor the RESSEC option specified on a transaction's resource definition.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: ASIS, ALWAYS
+
+
+     
+  rls
+    The RLS system initialization parameter specifies whether CICS is to support VSAM record-level sharing (RLS).
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  rlstolsr
+    The RLSTOLSR system initialization parameter specifies whether CICS is to include files that are to be opened in RLS mode when calculating the number of buffers, strings, and other resources for an LSR pool.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  rmtran
+    The RMTRAN system initialization parameter specifies the name of the transaction that you want an alternate CICS to initiate when logged-on class 1 terminals, which are defined with the attribute RECOVNOTIFY(TRANSACTION) specified, are switched following a takeover.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  rrms
+    The RRMS system initialization parameter specifies whether CICS is to register as a resource manager with recoverable resource management services (RRMS).
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  rst
+    The RST system initialization parameter specifies a recoverable service table suffix.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  rstsignoff
+    The RSTSIGNOFF system initialization parameter specifies whether all users signed-on to the active CICS region are to remain signed-on following a persistent sessions restart or an XRF takeover.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NOFORCE, FORCE
+
+
+     
+  rstsigntime
+    The RSTSIGNTIME parameter specifies the timeout delay interval for signon retention during a persistent sessions restart or an XRF takeover.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  ruwapool
+    The RUWAPOOL parameter specifies the option for allocating a storage pool the first time a program invoked by Language Environment runs in a task.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  sdsasze
+    The SDSASZE system initialization parameter specifies the size of the SDSA.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  sdtmemlimit
+    The SDTMEMLIMIT system initialization parameter specifies a limit to the amount of storage above the bar that is available for shared data tables to use for control information (entry descriptors, backout elements, and index nodes). The default is 4 GB. When you set this parameter, check your current setting for the z/OS MEMLIMIT parameter.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  sdtran
+    The SDTRAN system initialization parameter specifies the name of the shutdown transaction to be started at the beginning of normal and immediate shutdown.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  sec
+    The SEC system initialization parameter specifies what level of external security you want CICS to use.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: YES, NO
+
+
+     
+  secprfx
+    The SECPRFX system initialization parameter specifies whether CICS prefixes the resource names in any authorization requests to RACF.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  sit
+    The SIT system initialization parameter specifies the suffix, if any, of the system initialization table that you want CICS to load at the start of initialization.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  skrxxxx
+    The SKRxxxx system initialization parameter specifies that a single-keystroke-retrieval operation is required.
+
+
+    | **required**: False
+    | **type**: dict
+
+
+     
+  snpreset
+    The SNPRESET system initialization parameter specifies whether preset userid terminals share a single access control environment element (ACEE) that is associated with the userid, or a unique ACEE for every terminal.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: UNIQUE, SHARED
+
+
+     
+  snscope
+    The SNSCOPE system initialization parameter specifies whether a userid can be signed on to CICS more than once, within the scope of a single CICS region, a single MVS image, and a sysplex.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NONE, CICS, MVSIMAGE, SYSPLEX
+
+
+     
+  sotuning
+    The SOTUNING system initialization parameter specifies whether performance tuning for HTTP connections will occur to protect CICS from unconstrained resource demand.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: YES, 520
+
+
+     
+  spctr
+    The SPCTR system initialization parameter specifies the level of special tracing required for CICS as a whole.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  spctrxx
+    The SPCTRxx system initialization parameter specifies the level of special tracing for a particular CICS component used by a transaction, terminal, or both.
+
+
+    | **required**: False
+    | **type**: dict
+
+
+     
+  spool
+    The SPOOL system initialization parameter specifies whether the system spooling interface is required.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  srbsvc
+    The SRBSVC system initialization parameter specifies the number that you have assigned to the CICS type 6 SVC.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  srt
+    The SRT system initialization parameter specifies the system recovery table suffix.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  srvercp
+    The SRVERCP system initialization parameter specifies the default server code page to be used by the DFHCNV data conversion table but only if the SRVERCP parameter in the DFHCNV macro is set to SYSDEF.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  sslcache
+    The SSLCACHE system initialization parameter specifies whether session IDs for SSL sessions are to be cached locally or at sysplex level for reuse by the CICS® region. The SSL cache allows CICS to perform abbreviated handshakes with clients that it has previously authenticated.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: CICS, SYSPLEX
+
+
+     
+  ssldelay
+    The SSLDELAY system initialization parameter specifies the length of time in seconds for which CICS retains session ids for secure socket connections.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  start
+    The START system initialization parameter specifies the type of start for the system initialization program.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: AUTO, INITIAL, COLD, STANDBY, (INITIAL, ALL), (AUTO, ALL), (COLD, ALL), (STANDBY, ALL)
+
+
+     
+  starter
+    The STARTER system initialization parameter specifies whether the generation of starter system modules (with $ and
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: YES, NO
+
+
+     
+  stateod
+    The STATEOD system initialization parameter specifies the end-of-day time in the format hhmmss.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  statint
+    The STATINT system initialization parameter specifies the recording interval for system statistics in the format hhmmss.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  statrcd
+    The STATRCD system initialization parameter specifies the interval statistics recording status at CICS initialization.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: OFF, ON
+
+
+     
+  stgprot
+    The STGPROT system initialization parameter specifies whether you want storage protection to operate in the CICS region.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: YES, NO
+
+
+     
+  stgrcvy
+    The STGRCVY system initialization parameter specifies whether CICS should try to recover from a storage violation.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  stntr
+    The STNTR system initialization parameter specifies the level of standard tracing required for CICS as a whole.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  stntrxx
+    The STNTRxx system initialization parameter specifies the level of standard tracing you require for a particular CICS component. Specify the final two characters as the dictionary key
+
+
+    | **required**: False
+    | **type**: dict
+
+
+     
+  subtsks
+    The SUBTSKS system initialization parameter specifies the number of task control blocks (TCBs) you want CICS to use for running tasks in concurrent mode.
+
+
+    | **required**: False
+    | **type**: int
+    | **choices**: 0, 1
+
+
+     
+  suffix
+    The SUFFIX system initialization parameter specifies the last two characters of the name of this system initialization table.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  sydumax
+    The SYDUMAX system initialization parameter specifies the limit on the number of system dumps that can be taken per dump table entry.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  sysidnt
+    The SYSIDNT system initialization parameter specifies a 1- to 4-character name that is known only to your CICS region.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  systr
+    The SYSTR system initialization parameter specifies the setting of the main system trace flag.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: ON, OFF
+
+
+     
+  takeovr
+    The TAKEOVR system initialization parameter specifies the action to be taken by the alternate CICS region, following the apparent loss of the surveillance signal in the active CICS region.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: MANUAL, AUTO, COMMAND
+
+
+     
+  tbexits
+    The TBEXITS system initialization parameter specifies the names of your backout exit programs for use during emergency restart backout processing.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  tcp
+    The TCP system initialization parameter specifies whether the pregenerated non-z/OS Communications Server terminal control program, DFHTCP, is to be included.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  tcpip
+    The TCPIP system initialization parameter specifies whether CICS TCP/IP services are to be activated at CICS startup.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: YES, NO
+
+
+     
+  tcsactn
+    The TCSACTN system initialization parameter specifies the required action that CICS terminal control should take if the terminal control shutdown wait threshold expires.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NONE, UNBIND, FORCE
+
+
+     
+  tcswait
+    The TCSWAIT system initialization parameter specifies the required CICS terminal control shutdown wait threshold.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  tct
+    The TCT system initialization parameter specifies which terminal control table, if any, is to be loaded.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  tctuakey
+    The TCTUAKEY system initialization parameter specifies the storage key for the terminal control table user areas (TCTUAs) if you are operating CICS with storage protection (STGPROT=YES).
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: USER, CICS
+
+
+     
+  tctualoc
+    The TCTUALOC system initialization parameter specifies where terminal user areas (TCTUAs) are to be stored.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: BELOW, ANY
+
+
+     
+  td
+    The TD system initialization parameter specifies the number of VSAM buffers and strings to be used for intrapartition transient data (TD).
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  tdintra
+    The TDINTRA system initialization parameter specifies whether CICS is to initialize with empty intrapartition TD queues.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NOEMPTY, EMPTY
+
+
+     
+  traniso
+    The TRANISO system initialization parameter specifies, together with the STGPROT system initialization parameter, whether you want transaction isolation in the CICS region.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  trap
+    The TRAP system initialization parameter specifies whether the FE global trap exit is to be activated at system initialization.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: OFF, ON
+
+
+     
+  trdumax
+    The TRDUMAX system initialization parameter specifies the limit on the number of transaction dumps that may be taken per Dump Table entry.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  trtabsz
+    The TRTABSZ system initialization parameter specifies the size, in kilobytes, of the internal trace table.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  trtransz
+    The TRTRANSZ system initialization parameter specifies the size, in kilobytes, of the transaction dump trace table.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  trtranty
+    The TRTRANTY system initialization parameter specifies which trace entries should be copied from the internal trace table to the transaction dump trace table.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: TRAN, ALL
+
+
+     
+  ts
+    The TS system initialization parameter specifies whether you want to perform a cold start for temporary storage, as well as the number of VSAM buffers and strings to be used for auxiliary temporary storage.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  tsmainlimit
+    The TSMAINLIMIT system initialization parameter specifies a limit for the storage that is available for main temporary storage queues to use. You can specify an amount of storage in the range 1 - 32768 MB (32 GB), but this amount must not be greater than 25% of the value of the z/OS parameter MEMLIMIT. The default is 64 MB.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  tst
+    The TST system initialization parameter specifies the temporary storage table suffix.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  udsasze
+    The UDSASZE system initialization parameter specifies the size of the UDSA.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  uownetql
+    The UOWNETQL system initialization parameter specifies a qualifier for the NETUOWID for units of work initiated on the local CICS region.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  usertr
+    The USERTR system initialization parameter specifies whether the main user trace flag is to be set on or off.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: ON, OFF
+
+
+     
+  usrdelay
+    The USRDELAY system initialization parameter specifies the maximum time, in the range 0 - 10080 minutes (up to seven days), that an eligible user ID and its associated attributes are cached in the CICS region after use. A user ID that is retained in the user table can be reused.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  ussconfig
+    The USSCONFIG system initialization parameter specifies the name and path of the root directory for configuration files on z/OS UNIX.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  usshome
+    The USSHOME system initialization parameter specifies the name and path of the root directory for files on z/OS UNIX.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  vtam
+    The VTAM system initialization parameter specifies whether the z/OS Communications Server access method is to be used.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: YES, NO
+
+
+     
+  vtprefix
+    The VTPREFIX system initialization parameter specifies the first character to be used for the terminal identifiers (termids) of autoinstalled virtual terminals.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  webdelay
+    The WEBDELAY system initialization parameter specifies two Web delay periods.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  wlmhealth
+    The WLMHEALTH system initialization parameter specifies the time interval and the health adjustment value to be used by CICS® on z/OS® Workload Manager Health API (IWM4HLTH) calls, which CICS makes to inform z/OS WLM about the health state of a CICS region.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  wrkarea
+    The WRKAREA system initialization parameter specifies the number of bytes to be allocated to the common work area (CWA).
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  xappc
+    The XAPPC system initialization parameter specifies whether RACF session security can be used when establishing APPC sessions.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  xcfgroup
+    The XCFGROUP system initialization parameter specifies the name of the cross-system coupling facility (XCF) group to be joined by this region.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  xcmd
+    The XCMD system initialization parameter specifies whether you want CICS to perform command security checking, and optionally the RACF resource class name in which you have defined the command security profiles.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  xdb2
+    The XDB2 system initialization parameter specifies whether you want CICS to perform DB2ENTRY security checking.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  xdct
+    The XDCT system initialization parameter specifies whether you want CICS to perform resource security checking for transient data queues.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  xfct
+    The XFCT system initialization parameter specifies whether you want CICS to perform file resource security checking, and optionally specifies the RACF resource class name in which you have defined the file resource security profiles.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  xhfs
+    The XHFS system initialization parameter specifies whether CICS is to check the transaction user's ability to access files in the z/OS UNIX System Services file system.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: YES, NO
+
+
+     
+  xjct
+    The XJCT system initialization parameter specifies whether you want CICS to perform journal resource security checking.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  xlt
+    The XLT system initialization parameter specifies a suffix for the transaction list table.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  xpct
+    The XPCT system initialization parameter specifies whether you want CICS to perform started transaction resource security checking, and optionally specifies the name of the RACF resource class name in which you have defined the started task security profiles.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  xppt
+    The XPPT system initialization parameter specifies that CICS is to perform application program resource security checks and optionally specifies the RACF resource class name in which you have defined the program resource security profiles.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  xpsb
+    The XPSB system initialization parameter specifies whether you want CICS to perform program specification block (PSB) security checking and optionally specifies the RACF resource class name in which you have defined the PSB security profiles.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  xptkt
+    The XPTKT system initialization parameter specifies whether CICS checks if a user can generate a PassTicket for the user's userid using the EXEC CICS REQUEST PASSTICKET command, the EXEC CICS REQUEST ENCRYPTPTKT command, or the EXEC FEPI REQUEST PASSTICKET command.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: YES, NO
+
+
+     
+  xres
+    The XRES system initialization parameter specifies whether you want CICS to perform resource security checking for particular CICS resources and optionally specifies the general resource class name in which you have defined the resource security profiles.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  xrf
+    The XRF system initialization parameter specifies whether XRF support is to be included in the CICS region.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
+  xtran
+    The XTRAN system initialization parameter specifies whether you want CICS to perform transaction security checking and optionally specifies the RACF resource class name in which you have defined the transaction security profiles.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  xtst
+    The XTST system initialization parameter specifies whether you want CICS to perform security checking for temporary storage queues and optionally specifies the RACF resource class name in which you have defined the temporary storage security profiles.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  xuser
+    The XUSER system initialization parameter specifies whether CICS is to perform surrogate user checks.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: YES, NO
+
+
+
+     
+steplib
+  Any locations of additional \ :literal:`STEPLIB`\  libraries to add, that are not \ :literal:`SDFHAUTH`\ , \ :literal:`SDFHLIC`\ , \ :literal:`SCEERUN`\ , or \ :literal:`SCEERUN2`\ .
+
+
+  | **required**: False
+  | **type**: dict
+
+
+     
+  libraries
+    The \ :literal:`STEPLIB`\  libraries to be appended to the bottom of the library list.
+
+
+    | **required**: False
+    | **type**: list
+
+
+     
+  top_libraries
+    The \ :literal:`STEPLIB`\  libraries to be appended to the very top of the statement.
+
+
+    | **required**: False
+    | **type**: list
+
+
+
+     
+submit_jcl
+  Specify whether or not you want the CICS startup job to be submitted.
+
+
+  | **required**: False
+  | **type**: bool
+
+
+
+
+Examples
+--------
+
+.. code-block:: yaml+jinja
+
+   
+   - name: Start CICS
+     ibm.ibm_zos_cics.start_cics:
+       submit_jcl: True
+       applid: ABC9ABC1
+       cics_data_sets:
+         template: 'CICSTS61.CICS.<< lib_name >>'
+       le_data_sets:
+         template: 'LANG.ENVIORNMENT.<< lib_name >>'
+       region_data_sets:
+         template: 'REGIONS.ABC9ABC1.<< data_set_name >>'
+       sit_parameters:
+         start: COLD
+         sit: 6$
+         aicons: AUTO
+         auxtr: 'ON'
+         auxtrsw: ALL
+         cicssvc: 217
+         csdrecov: BACKOUTONLY
+         edsalim: 500M
+         grplist: (DFHLIST,DFHTERML)
+         gmtext: 'ABC9ABC1. CICS Region'
+         icvr: 20000
+         isc: 'YES'
+         ircstrt: 'YES'
+         mxt: 500
+         pgaipgm: ACTIVE
+         sec: 'YES'
+         spool: 'YES'
+         srbsvc: 218
+         tcpip: 'NO'
+         usshome: /usshome/directory
+         wlmhealth: "OFF"
+         wrkarea: 2048
+         sysidnt: ZPY1
+   - name: Start CICS with more customization
+     ibm.ibm_zos_cics.start_cics:
+       submit_jcl: True
+       applid: ABC9ABC1
+       job_parameters:
+         class: A
+       cics_data_sets:
+         template: 'CICSTS61.CICS.<< lib_name >>'
+         sdfhauth: 'CICSTS61.OVERRDE.TEMPLT.SDFHAUTH'
+       le_data_sets:
+         template: 'LANG.ENVIORNMENT.<< lib_name >>'
+       region_data_sets:
+         template: 'REGIONS.ABC9ABC1.<< data_set_name >>'
+       output_data_sets:
+         default_sysout_class: B
+         ceemsg:
+           sysout: A
+         sysprint:
+           omit: True
+       steplib:
+         top_libraries:
+           - TOP.LIBRARY.ONE
+           - TOP.LIBRARY.TWO
+         libraries:
+           - BOTTOM.LIBRARY.ONE
+       sit_parameters:
+         start: COLD
+         sit: 6$
+         aicons: AUTO
+         auxtr: 'ON'
+         auxtrsw: ALL
+         cicssvc: 217
+         csdrecov: BACKOUTONLY
+         edsalim: 500M
+         grplist: (DFHLIST,DFHTERML)
+         gmtext: 'ABC9ABC1. CICS Region'
+         icvr: 20000
+         isc: 'YES'
+         ircstrt: 'YES'
+         mxt: 500
+         pgaipgm: ACTIVE
+         stntrxx:
+           ab: ALL
+         skrxxxx:
+           PA21: 'COMMAND'
+         sec: 'YES'
+         spool: 'YES'
+         srbsvc: 218
+         tcpip: 'NO'
+         usshome: /usshome/directory
+         wlmhealth: "OFF"
+         wrkarea: 2048
+         sysidnt: ZPY1
 
 
 
@@ -1467,162 +3441,94 @@ See Also
 
 .. seealso::
 
-   :ref:`stop_cics_module`
-      The official documentation on the **stop_cics** module.
-
-
-Examples
---------
-
-.. code-block:: yaml+jinja
-
-    
-    - name: Start CICS
-      ibm.ibm_zos_cics.start_cics:
-        submit_jcl: True
-        applid: ABC9ABC1
-        cics_data_sets:
-          template: 'CICSTS61.CICS.<< lib_name >>'
-        le_data_sets:
-          template: 'LANG.ENVIORNMENT.<< lib_name >>'
-        region_data_sets:
-          template: 'REGIONS.ABC9ABC1.<< data_set_name >>'
-        sit_parameters:
-          start: COLD
-          sit: 6$
-          aicons: AUTO
-          auxtr: 'ON'
-          auxtrsw: ALL
-          cicssvc: 217
-          csdrecov: BACKOUTONLY
-          edsalim: 500M
-          grplist: (DFHLIST,DFHTERML)
-          gmtext: 'ABC9ABC1. CICS Region'
-          icvr: 20000
-          isc: 'YES'
-          ircstrt: 'YES'
-          mxt: 500
-          pgaipgm: ACTIVE
-          sec: 'YES'
-          spool: 'YES'
-          srbsvc: 218
-          tcpip: 'NO'
-          usshome: /usshome/directory
-          wlmhealth: "OFF"
-          wrkarea: 2048
-          sysidnt: ZPY1
-    - name: Start CICS with more customization
-      ibm.ibm_zos_cics.start_cics:
-        submit_jcl: True
-        applid: ABC9ABC1
-        job_parameters:
-          class: A
-        cics_data_sets:
-          template: 'CICSTS61.CICS.<< lib_name >>'
-          sdfhauth: 'CICSTS61.OVERRDE.TEMPLT.SDFHAUTH'
-        le_data_sets:
-          template: 'LANG.ENVIORNMENT.<< lib_name >>'
-        region_data_sets:
-          template: 'REGIONS.ABC9ABC1.<< data_set_name >>'
-        output_data_sets:
-          default_sysout_class: B
-          ceemsg:
-            sysout: A
-          sysprint:
-            omit: True
-        steplib:
-          top_libraries:
-            - TOP.LIBRARY.ONE
-            - TOP.LIBRARY.TWO
-          libraries:
-            - BOTTOM.LIBRARY.ONE
-        sit_parameters:
-          start: COLD
-          sit: 6$
-          aicons: AUTO
-          auxtr: 'ON'
-          auxtrsw: ALL
-          cicssvc: 217
-          csdrecov: BACKOUTONLY
-          edsalim: 500M
-          grplist: (DFHLIST,DFHTERML)
-          gmtext: 'ABC9ABC1. CICS Region'
-          icvr: 20000
-          isc: 'YES'
-          ircstrt: 'YES'
-          mxt: 500
-          pgaipgm: ACTIVE
-          stntrxx:
-            ab: ALL
-          skrxxxx:
-            PA21: 'COMMAND'
-          sec: 'YES'
-          spool: 'YES'
-          srbsvc: 218
-          tcpip: 'NO'
-          usshome: /usshome/directory
-          wlmhealth: "OFF"
-          wrkarea: 2048
-          sysidnt: ZPY1
+   - :ref:`stop_cics_module`
 
 
 
 Return Values
 -------------
 
-changed (always, bool, )
-  True if the CICS startup JCL was submitted, otherwise False.
 
-
-failed (always, bool, )
-  True if the query job failed, otherwise False.
-
-
-jcl (always, list, )
-  The CICS startup JCL that is built during module execution.
-
-
-job_id (If the CICS startup JCL has been submitted., str, )
-  The job ID of the CICS startup job.
-
-
-err (always, str, )
-  The error message returned when building the JCL.
-
-
-executions (always, list, )
-  A list of program executions performed during the Ansible task.
-
-
-  name (always, str, )
-    A human-readable name for the program execution.
-
-
-  rc (always, int, )
-    The return code for the program execution.
-
-
-  stdout (always, str, )
-    The standard out stream returned by the program execution.
-
-
-  stderr (always, str, )
-    The standard error stream returned from the program execution.
-
-
-
-
-
-
-Status
-------
-
-
-
-
-
-Authors
-~~~~~~~
-
-- Kiera Bennett (@KieraBennett)
-
+   
+                              
+       changed
+        | True if the CICS startup JCL was submitted, otherwise False.
+      
+        | **returned**: always
+        | **type**: bool
+      
+      
+                              
+       failed
+        | True if the query job failed, otherwise False.
+      
+        | **returned**: always
+        | **type**: bool
+      
+      
+                              
+       jcl
+        | The CICS startup JCL that is built during module execution.
+      
+        | **returned**: always
+        | **type**: list
+      
+      
+                              
+       job_id
+        | The job ID of the CICS startup job.
+      
+        | **returned**: If the CICS startup JCL has been submitted.
+        | **type**: str
+      
+      
+                              
+       err
+        | The error message returned when building the JCL.
+      
+        | **returned**: always
+        | **type**: str
+      
+      
+                              
+       executions
+        | A list of program executions performed during the Ansible task.
+      
+        | **returned**: always
+        | **type**: list
+              
+   
+                              
+        name
+          | A human-readable name for the program execution.
+      
+          | **returned**: always
+          | **type**: str
+      
+      
+                              
+        rc
+          | The return code for the program execution.
+      
+          | **returned**: always
+          | **type**: int
+      
+      
+                              
+        stdout
+          | The standard out stream returned by the program execution.
+      
+          | **returned**: always
+          | **type**: str
+      
+      
+                              
+        stderr
+          | The standard error stream returned from the program execution.
+      
+          | **returned**: always
+          | **type**: str
+      
+        
+      
+        
