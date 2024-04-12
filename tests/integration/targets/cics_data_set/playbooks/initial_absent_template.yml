@@ -1,0 +1,173 @@
+# (c) Copyright IBM Corp. 2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Test Initial and Absent states for MODULE_NAME module
+
+  hosts: "all"
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+  vars:
+    data_set_path: "{{ region_data_set_path }}.{{ data_set_name }}"
+    # Default values for template, can be overridden by command line args
+    vsam: false
+    start: false
+    recreate: false
+
+  module_defaults:
+    ibm.ibm_zos_cics.MODULE_NAME:
+      cics_data_sets:
+        template: "{{ cics_install_path }}.<< lib_name >>"
+      region_data_sets:
+        template: "{{ region_data_set_path }}.<< data_set_name >>"
+
+  tasks:
+    # #############################################################################
+    # ############################## Initial Cleanup ##############################
+    # #############################################################################
+
+    - name: Delete {{ data_set_name }}
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ data_set_path }}"
+        state: absent
+      register: result
+      retries: 3
+      until: result is not failed
+
+    # #############################################################################
+    # ####################### Module Testing - Initial ############################
+    # #############################################################################
+
+    - name: Wrap test in block so cleanup always runs
+      block:
+      - name: Run MODULE_NAME module with initial state
+        ibm.ibm_zos_cics.MODULE_NAME:
+          state: "initial"
+        register: result
+      - name: Debug
+        ansible.builtin.debug:
+          msg: "{{ result }}"
+
+      - name: Assert {{ data_set_name }} created (changed is true)
+        ansible.builtin.assert:
+          that:
+            - result.failed == false
+            - result.changed == true
+            - result.start_state.exists == false
+            - result.end_state.exists == true
+
+      # Only relevant for VSAM data sets
+      - name: Assert {{ data_set_name }} VSAM state
+        when: vsam
+        ansible.builtin.assert:
+          that:
+            - result.start_state.data_set_organization == "NONE"
+            - result.end_state.data_set_organization == "VSAM"
+
+      # Only relevant for data sets that specify a start type
+      - name: Assert {{ data_set_name }} start state
+        when: start
+        ansible.builtin.assert:
+          that:
+            - result.start_state.autostart_override == ''
+            - result.start_state.next_start == ''
+            - result.end_state.autostart_override == 'AUTOINIT'
+            - result.end_state.next_start == 'UNKNOWN'
+
+      # #############################################################################
+
+      - name: Run MODULE_NAME module with initial state again
+        ibm.ibm_zos_cics.MODULE_NAME:
+          state: "initial"
+        register: result
+      - name: Debug
+        ansible.builtin.debug:
+          msg: "{{ result }}"
+
+      # Some data sets will do nothing if initial is run a second time
+      - name: Assert {{ data_set_name }} not created again (changed is false)
+        when: not recreate
+        ansible.builtin.assert:
+          that:
+            - result.failed == false
+            - result.changed == false
+            - result.start_state.exists == true
+            - result.end_state.exists == true
+
+      # Some data sets will delete all records if initial is run a second time.
+      - name: Assert {{ data_set_name }} created again (changed is true)
+        when: recreate
+        ansible.builtin.assert:
+          that:
+            - result.failed == false
+            - result.changed == true
+            - result.start_state.exists == true
+            - result.end_state.exists == true
+
+      # #############################################################################
+      # ####################### Module Testing - Absent #############################
+      # #############################################################################
+
+      - name: Run MODULE_NAME module with absent state
+        ibm.ibm_zos_cics.MODULE_NAME:
+          state: "absent"
+        register: result
+      - name: Debug
+        ansible.builtin.debug:
+          msg: "{{ result }}"
+
+      - name: Assert {{ data_set_name }} deleted (changed is true)
+        ansible.builtin.assert:
+          that:
+            - result.failed == false
+            - result.changed == true
+            - result.start_state.exists == true
+            - result.end_state.exists == false
+
+      # Only relevant for VSAM data sets
+      - name: Assert {{ data_set_name }} VSAM state
+        when: vsam
+        ansible.builtin.assert:
+          that:
+            - result.start_state.data_set_organization == "VSAM"
+            - result.end_state.data_set_organization == "NONE"
+
+      # Only relevant for data sets that specify a start type
+      - name: Assert {{ data_set_name }} start state
+        when: start
+        ansible.builtin.assert:
+          that:
+            - result.start_state.autostart_override == 'AUTOINIT'
+            - result.start_state.next_start == 'UNKNOWN'
+            - result.end_state.autostart_override == ''
+            - result.end_state.next_start == ''
+
+      # #############################################################################
+
+      - name: Run MODULE_NAME module with absent state again
+        ibm.ibm_zos_cics.MODULE_NAME:
+          state: "absent"
+        register: result
+      - name: Debug
+        ansible.builtin.debug:
+          msg: "{{ result }}"
+
+      - name: Assert {{ data_set_name }} not deleted again (changed is false)
+        ansible.builtin.assert:
+          that:
+            - result.failed == false
+            - result.changed == false
+            - result.start_state.exists == false
+            - result.end_state.exists == false
+
+      # #############################################################################
+      # ################################## Cleanup ##################################
+      # #############################################################################
+
+      always:
+      - name: Delete {{ data_set_name }}
+        ibm.ibm_zos_core.zos_data_set:
+          name: "{{ data_set_path }}"
+          state: absent
+        register: result
+        retries: 3
+        until: result is not failed

@@ -11,7 +11,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     PYTHON_LANGUAGE_FEATURES_MESSAGE,
     CSDUP_name,
     CSDUP_stderr,
-    CSDUP_stdout,
+    CSDUP_initialize_stdout,
     ICETOOL_name,
     ICETOOL_stderr,
     ICETOOL_stdout,
@@ -24,6 +24,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     set_module_args
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import csd
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdinDefinition
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
 import pytest
 import sys
@@ -42,6 +43,7 @@ NAME = "TEST.REGIONS.CSD"
 
 default_arg_parms = {
     "space_primary": 5,
+    "space_secondary": 3,
     "space_type": "M",
     "region_data_sets": {
         "dfhcsd": {
@@ -53,6 +55,10 @@ default_arg_parms = {
     },
     "state": "initial",
 }
+
+
+def setUp():
+    StdinDefinition.__init__ = MagicMock(return_value=None)
 
 
 def initialise_module(**kwargs):
@@ -70,19 +76,22 @@ def initialise_module(**kwargs):
     sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_create_an_intial_csd():
+    setUp()
     csd_module = initialise_module()
 
-    data_set_utils.idcams = MagicMock(
-        return_value=(0, NAME, "")
+    data_set_utils._execute_idcams = MagicMock(
+        return_value=MVSCmdResponse(0, NAME, "")
     )
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
-            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
         ]
     )
     csd_utils._execute_dfhcsdup = MagicMock(
-        return_value=MVSCmdResponse(rc=0, stdout=CSDUP_stdout(NAME), stderr=CSDUP_stderr(NAME))
+        side_effect=[
+            MVSCmdResponse(rc=0, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME))
+        ]
     )
 
     csd_module.main()
@@ -103,7 +112,7 @@ def test_create_an_intial_csd():
             _execution(
                 name=CSDUP_name(),
                 rc=0,
-                stdout=CSDUP_stdout(NAME),
+                stdout=CSDUP_initialize_stdout(NAME),
                 stderr=CSDUP_stderr(NAME)
             ),
             _execution(
@@ -131,15 +140,16 @@ def test_create_an_intial_csd():
     sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_delete_an_existing_csd():
+    setUp()
     csd_module = initialise_module(state="absent")
 
-    data_set_utils.idcams = MagicMock(
-        return_value=(0, IDCAMS_delete_vsam(NAME), "")
+    data_set_utils._execute_idcams = MagicMock(
+        return_value=MVSCmdResponse(0, IDCAMS_delete_vsam(NAME), "")
     )
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (0, LISTDS_data_set(NAME, "VSAM"), ""),
-            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), ""),
         ]
     )
 
@@ -183,9 +193,15 @@ def test_delete_an_existing_csd():
     sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_do_nothing_to_an_existing_csd():
+    setUp()
     csd_module = initialise_module()
 
-    data_set_utils.ikjeft01 = MagicMock(side_effect=[(0, LISTDS_data_set(NAME, "VSAM"), ""), (0, LISTDS_data_set(NAME, "VSAM"), "")])
+    data_set_utils._execute_listds = MagicMock(
+        side_effect=[
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), "")
+        ]
+    )
     icetool._execute_icetool = MagicMock(
         return_value=MVSCmdResponse(
             rc=0,
@@ -194,7 +210,9 @@ def test_do_nothing_to_an_existing_csd():
         )
     )
     csd_utils._execute_dfhcsdup = MagicMock(
-        return_value=MVSCmdResponse(rc=0, stdout=CSDUP_stdout(NAME), stderr=CSDUP_stderr(NAME))
+        side_effect=[
+            MVSCmdResponse(rc=0, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME))
+        ]
     )
 
     csd_module.main()
@@ -215,7 +233,7 @@ def test_do_nothing_to_an_existing_csd():
             _execution(
                 name=CSDUP_name(),
                 rc=0,
-                stdout=CSDUP_stdout(NAME),
+                stdout=CSDUP_initialize_stdout(NAME),
                 stderr=CSDUP_stderr(NAME)
             ),
             _execution(
@@ -243,10 +261,11 @@ def test_do_nothing_to_an_existing_csd():
     sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_remove_non_existent_csd():
+    setUp()
     csd_module = initialise_module(state="absent")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(8, LISTDS_data_set_doesnt_exist(NAME), "")
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), "")
     )
 
     csd_module.main()
@@ -283,10 +302,11 @@ def test_remove_non_existent_csd():
     sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_warm_start_a_existing_csd():
+    setUp()
     csd_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(
             0,
             LISTDS_data_set(NAME, "VSAM"),
             ""
@@ -338,10 +358,11 @@ def test_warm_start_a_existing_csd():
     sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
 def test_error_warm_start_a_unused_csd():
+    setUp()
     csd_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(
             0,
             LISTDS_data_set(NAME, "VSAM"),
             ""
@@ -390,9 +411,10 @@ def test_error_warm_start_a_unused_csd():
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE)
 def test_error_warm_start_a_non_existent_csd():
+    setUp()
     csd_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(return_value=(
+    data_set_utils._execute_listds = MagicMock(return_value=MVSCmdResponse(
         8, LISTDS_data_set_doesnt_exist(NAME), ""))
 
     csd_module.main()
@@ -425,19 +447,20 @@ def test_error_warm_start_a_non_existent_csd():
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE)
 def test_bad_response_from_csdup():
+    setUp()
     csd_module = initialise_module()
 
-    data_set_utils.idcams = MagicMock(
-        return_value=(0, NAME, "")
+    data_set_utils._execute_idcams = MagicMock(
+        return_value=MVSCmdResponse(0, NAME, "")
     )
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
-            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
         ]
     )
     csd_utils._execute_dfhcsdup = MagicMock(
-        return_value=MVSCmdResponse(rc=99, stdout=CSDUP_stdout(NAME), stderr=CSDUP_stderr(NAME))
+        return_value=MVSCmdResponse(rc=99, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME))
     )
 
     csd_module.main()
@@ -458,7 +481,7 @@ def test_bad_response_from_csdup():
             _execution(
                 name=CSDUP_name(),
                 rc=99,
-                stdout=CSDUP_stdout(NAME),
+                stdout=CSDUP_initialize_stdout(NAME),
                 stderr=CSDUP_stderr(NAME)
             ),
             _execution(

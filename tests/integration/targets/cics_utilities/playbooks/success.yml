@@ -4,13 +4,13 @@
 - name: CICS Version Success Case
   hosts: "all"
   gather_facts: false
+  environment: "{{ environment_vars }}"
 
   tasks:
     ############################################################################
     # Get CICS version for dev version 
     ############################################################################
     - name: Retrieve CICS version information (Dev)
-      environment: "{{ environment_vars }}"
       cics_version:
         CICS_HLQ: 'ANTZ.CICS.TS.DEV.INTEGRAT'
       register: result
@@ -27,7 +27,6 @@
     # Get CICS version for 6.1
     ############################################################################
     - name: Retrieve CICS version information (6.1)
-      environment: "{{ environment_vars }}"
       cics_version:
         CICS_HLQ: 'CTS610.CICS740'
       register: result
@@ -44,7 +43,6 @@
     # Get CICS version for 5.6
     ############################################################################
     - name: Retrieve CICS version information (5.6)
-      environment: "{{ environment_vars }}"
       cics_version:
         CICS_HLQ: 'CTS560.CICS730'
       register: result
@@ -61,7 +59,6 @@
     # Get CICS version for 5.4
     ############################################################################
     - name: Retrieve CICS version information (5.4)
-      environment: "{{ environment_vars }}"
       cics_version:
         CICS_HLQ: 'CTS540.CICS710'
       register: result

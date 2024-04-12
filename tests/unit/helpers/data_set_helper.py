@@ -319,10 +319,10 @@ def CCUTL_stderr(data_set_name):
 
 
 def CSDUP_name():
-    return "DFHCSDUP - Initialise CSD"
+    return "Run DFHCSDUP"
 
 
-def CSDUP_stdout(data_set_name):
+def CSDUP_initialize_stdout(data_set_name):
     return """
         ***************************************************************************
         **  CICS RDO OFF-LINE UTILITY PROGRAM DFHCSDUP RELEASE:0750 PTF:I0602193.**
@@ -359,4 +359,24 @@ def CSDUP_stderr(data_set_name):
         BGYSC0356I Console free succeeded for SYSUDUMP
         BGYSC0356I Console free succeeded for SYSPRINT
         BGYSC0338I Dataset free succeeded for DFHCSD={0}
+    """.format(data_set_name)
+
+
+def CSDUP_add_group_stdout(data_set_name):
+    return """
+        ***************************************************************************
+        **  CICS RDO OFF-LINE UTILITY PROGRAM DFHCSDUP RELEASE:0750 PTF:I1302193.**
+        ***************************************************************************
+
+        ADD GROUP(DFHTERMC) LIST(DFHLIST1)
+
+        DFH5120 I PRIMARY CSD OPENED;  DDNAME: DFHCSD   - DSNAME: {0}
+        DFH5131 I LIST DFHLIST1 CREATED.
+        DFH5135 I GROUP DFHTERMC ADDED TO LIST DFHLIST1
+        DFH5101 I ADD COMMAND EXECUTED SUCCESSFULLY.
+        DFH5123 I PRIMARY CSD CLOSED;  DDNAME: DFHCSD   - DSNAME: {0}
+
+        DFH5107 I COMMANDS EXECUTED SUCCESSFULLY: 1     COMMANDS GIVING WARNING(S): 0     COMMANDS IN ERROR: 0
+        DFH5108 I COMMANDS NOT EXECUTED AFTER ERROR(S): 0
+        DFH5109 I END OF DFHCSDUP UTILITY JOB. HIGHEST RETURN CODE WAS: 0
     """.format(data_set_name)

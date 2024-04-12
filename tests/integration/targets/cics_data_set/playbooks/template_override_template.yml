@@ -1,0 +1,110 @@
+# (c) Copyright IBM Corp. 2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Test templating and overriding data set names for MODULE_NAME module
+
+  hosts: "all"
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+  vars:
+    data_set_path: "{{ region_data_set_path }}.{{ data_set_name }}"
+
+  tasks:
+    # #############################################################################
+    # ############################## Initial Cleanup ##############################
+    # #############################################################################
+
+    - name: Delete {{ data_set_name }}
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ data_set_path }}"
+        state: absent
+      register: result
+      retries: 3
+      until: result is not failed
+
+    # #############################################################################
+    # ############################## Module Testing ###############################
+    # #############################################################################
+
+    - name: Wrap test in block so cleanup always runs
+      block:
+      - name: Run MODULE_NAME module with template
+        ibm.ibm_zos_cics.MODULE_NAME:
+          cics_data_sets:
+            template: "{{ cics_install_path }}.<< lib_name >>"
+          region_data_sets:
+            template: "{{ region_data_set_path }}.<< data_set_name >>"
+          state: "initial"
+        register: result
+      - name: Debug
+        ansible.builtin.debug:
+          msg: "{{ result }}"
+
+      - name: Delete {{ data_set_name }}
+        ibm.ibm_zos_core.zos_data_set:
+          name: "{{ data_set_path }}"
+          state: absent
+        register: result
+        retries: 3
+        until: result is changed
+
+      # #############################################################################
+
+      - name: Run MODULE_NAME module with override
+        ibm.ibm_zos_cics.MODULE_NAME:
+          cics_data_sets:
+            sdfhload: "{{ cics_install_path }}.SDFHLOAD"
+          region_data_sets:
+            DATA_SET_NAME_LOWER:
+              dsn: "{{ data_set_path }}"
+          state: "initial"
+        register: result
+      - name: Debug
+        ansible.builtin.debug:
+          msg: "{{ result }}"
+
+      - name: Delete {{ data_set_name }}
+        ibm.ibm_zos_core.zos_data_set:
+          name: "{{ data_set_path }}"
+          state: absent
+        register: result
+        retries: 3
+        until: result is changed
+
+      # #############################################################################
+
+      - name: Run MODULE_NAME module with both template and override (override takes precedence)
+        ibm.ibm_zos_cics.MODULE_NAME:
+          cics_data_sets:
+            template: "This value should be ignored, and would cause an error if used"
+            sdfhload: "{{ cics_install_path }}.SDFHLOAD"
+          region_data_sets:
+            template: "This value should be ignored, and would cause an error if used"
+            DATA_SET_NAME_LOWER:
+              dsn: "{{ data_set_path }}"
+          state: "initial"
+        register: result
+      - name: Debug
+        ansible.builtin.debug:
+          msg: "{{ result }}"
+            
+      - name: Delete {{ data_set_name }}
+        ibm.ibm_zos_core.zos_data_set:
+          name: "{{ data_set_path }}"
+          state: absent
+        register: result
+        retries: 3
+        until: result is changed
+
+      # #############################################################################
+      # ################################## Cleanup ##################################
+      # #############################################################################
+
+      always:
+      - name: Delete {{ data_set_name }}
+        ibm.ibm_zos_core.zos_data_set:
+          name: "{{ data_set_path }}"
+          state: absent
+        register: result
+        retries: 3
+        until: result is not failed

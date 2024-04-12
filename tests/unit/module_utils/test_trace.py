@@ -36,7 +36,8 @@ def test_trace_definition_megabytes():
         disposition="NEW",
         normal_disposition="CATALOG",
         conditional_disposition="DELETE",
-        primary=20,
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT,
         primary_unit="M",
         type="SEQ"
     )

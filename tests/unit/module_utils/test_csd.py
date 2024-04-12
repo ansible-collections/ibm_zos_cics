@@ -4,9 +4,16 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdinDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import CYLINDERS, MEGABYTES
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException, _execution
-from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE, CSDUP_name, CSDUP_stderr, CSDUP_stdout
+from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
+    PYTHON_LANGUAGE_FEATURES_MESSAGE,
+    CSDUP_name,
+    CSDUP_stderr,
+    CSDUP_initialize_stdout
+)
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.csd import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
@@ -24,6 +31,10 @@ except ImportError:
 
 
 NAME = "ANSI.TEST.DFHCSD"
+
+
+def setUp():
+    StdinDefinition.__init__ = MagicMock(return_value=None)
 
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE)
@@ -83,6 +94,7 @@ def test_get_idcams_cmd_cylinders():
 
 
 def test_csdup_response():
+    setUp()
     csd_input = {
         "exists": False,
         "name": NAME,
@@ -95,16 +107,17 @@ def test_csdup_response():
     }
 
     expected_executions = [
-        _execution(name=CSDUP_name(), rc=0, stdout=CSDUP_stdout(NAME), stderr=CSDUP_stderr(NAME)),
+        _execution(name=CSDUP_name(), rc=0, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)),
     ]
 
-    csd._execute_dfhcsdup = MagicMock(return_value=MVSCmdResponse(rc=0, stdout=CSDUP_stdout(NAME), stderr=CSDUP_stderr(NAME)))
-    executions = csd._run_dfhcsdup(csd_input)
+    csd._execute_dfhcsdup = MagicMock(return_value=MVSCmdResponse(rc=0, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)))
+    executions = csd._run_dfhcsdup(csd_input, csd._get_csdup_initilize_cmd())
 
     assert executions == expected_executions
 
 
 def test_bad_csdup_response():
+    setUp()
     csd_input = {
         "exists": False,
         "name": NAME,
@@ -117,16 +130,91 @@ def test_bad_csdup_response():
     }
 
     expected_executions = [
-        _execution(name=CSDUP_name(), rc=99, stdout=CSDUP_stdout(NAME), stderr=CSDUP_stderr(NAME)),
+        _execution(name=CSDUP_name(), rc=99, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)),
     ]
 
-    csd._execute_dfhcsdup = MagicMock(return_value=MVSCmdResponse(rc=99, stdout=CSDUP_stdout(NAME), stderr=CSDUP_stderr(NAME)))
+    csd._execute_dfhcsdup = MagicMock(return_value=MVSCmdResponse(rc=99, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)))
 
     try:
-        csd._run_dfhcsdup(csd_input)
+        csd._run_dfhcsdup(csd_input, csd._get_csdup_initilize_cmd())
     except MVSExecutionException as e:
         error_message = e.message
         executions = e.executions
 
         assert error_message == "DFHCSDUP failed with RC 99"
+        assert executions == expected_executions
+
+
+def test_warning_csdup_response():
+    setUp()
+    csd_input = {
+        "exists": False,
+        "name": NAME,
+        "primary": 5,
+        "secondary": 1,
+        "unit": "M",
+        "state": "initial",
+        "vsam": False,
+        "sdfhload": "CICSTS.IN56.SDFHLOAD",
+    }
+
+    expected_executions = [
+        _execution(name=CSDUP_name(), rc=4, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)),
+    ]
+
+    csd._execute_dfhcsdup = MagicMock(return_value=MVSCmdResponse(rc=4, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)))
+
+    executions = csd._run_dfhcsdup(csd_input, csd._get_csdup_initilize_cmd())
+    assert executions == expected_executions
+
+
+def test_rc_7_csdup_response():
+    setUp()
+    csd_input = {
+        "exists": False,
+        "name": NAME,
+        "primary": 5,
+        "secondary": 1,
+        "unit": "M",
+        "state": "initial",
+        "vsam": False,
+        "sdfhload": "CICSTS.IN56.SDFHLOAD",
+    }
+
+    expected_executions = [
+        _execution(name=CSDUP_name(), rc=7, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)),
+    ]
+
+    csd._execute_dfhcsdup = MagicMock(return_value=MVSCmdResponse(rc=7, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)))
+
+    executions = csd._run_dfhcsdup(csd_input, csd._get_csdup_initilize_cmd())
+    assert executions == expected_executions
+
+
+def test_rc_8_csdup_response():
+    setUp()
+    csd_input = {
+        "exists": False,
+        "name": NAME,
+        "primary": 5,
+        "secondary": 1,
+        "unit": "M",
+        "state": "initial",
+        "vsam": False,
+        "sdfhload": "CICSTS.IN56.SDFHLOAD",
+    }
+
+    expected_executions = [
+        _execution(name=CSDUP_name(), rc=8, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)),
+    ]
+
+    csd._execute_dfhcsdup = MagicMock(return_value=MVSCmdResponse(rc=8, stdout=CSDUP_initialize_stdout(NAME), stderr=CSDUP_stderr(NAME)))
+
+    try:
+        csd._run_dfhcsdup(csd_input, csd._get_csdup_initilize_cmd())
+    except MVSExecutionException as e:
+        error_message = e.message
+        executions = e.executions
+
+        assert error_message == "DFHCSDUP failed with RC 8"
         assert executions == expected_executions

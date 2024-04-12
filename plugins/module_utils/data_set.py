@@ -20,10 +20,10 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import M
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
 
-LOCATION = "location"
 SDFHLOAD = "sdfhload"
 STATE = "state"
 SPACE_PRIMARY = "space_primary"
+SPACE_SECONDARY = "space_secondary"
 SPACE_TYPE = "space_type"
 KILOBYTES = "K"
 MEGABYTES = "M"
@@ -112,8 +112,14 @@ class DataSet():
         self._module.exit_json(**self.result)
 
     def _get_arg_spec(self):  # type: () -> dict
+        """
+        Get the arg spec, which is the set of arguments that can be passed into the Ansible module
+        """
         return {
             SPACE_PRIMARY: {
+                "type": "int",
+            },
+            SPACE_SECONDARY: {
                 "type": "int",
             },
             SPACE_TYPE: {
@@ -124,20 +130,6 @@ class DataSet():
                 "type": "str",
                 "required": True,
                 "choices": STATE_OPTIONS
-            },
-            CICS_DATA_SETS: {
-                "type": "dict",
-                "required": False,
-                "options": {
-                    "template": {
-                        "type": "str",
-                        "required": False,
-                    },
-                    "sdfhload": {
-                        "type": "str",
-                        "required": False,
-                    },
-                },
             },
             REGION_DATA_SETS: {
                 "type": "dict",
@@ -152,17 +144,32 @@ class DataSet():
         }
 
     def get_arg_defs(self):  # type: () -> dict
+        """
+        Get the arg defs, which is a copy of the arg spec, but with certain types changed to the ones used by BetterArgParser
+        """
         defs = self._get_arg_spec()
-        defs[CICS_DATA_SETS]["options"]["sdfhload"].update({
-            "arg_type": "data_set_base"
-        })
-        defs[CICS_DATA_SETS]["options"]["sdfhload"].pop("type")
+        if defs.get(CICS_DATA_SETS):
+            defs[CICS_DATA_SETS]["options"]["sdfhload"].update({
+                "arg_type": "data_set_base"
+            })
+            defs[CICS_DATA_SETS]["options"]["sdfhload"].pop("type")
         return defs
 
-    def validate_parameters(self):  # type: () -> None
+    def validate_parameters(self):  # type: () -> dict
+        """
+        Use BetterArgParser to parse the parameters passed in, which also does some validation
+        """
         params = BetterArgParser(self.get_arg_defs()).parse_args(self._module.params)
+        self.assign_parameters(params)
+
+    def assign_parameters(self, params):  # type: (dict) -> None
+        """
+        Assign parameters to the relevant fields
+        """
+        # Mandatory parameters
         self.target_state = params[STATE]
         self.primary = params[SPACE_PRIMARY]
+        self.secondary = params[SPACE_SECONDARY]
         self.region_param = params[REGION_DATA_SETS]
 
         # Optional parameters

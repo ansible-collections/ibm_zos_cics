@@ -40,6 +40,7 @@ NAME = "TEST.REGIONS.LCD"
 
 default_arg_parms = {
     "space_primary": 5,
+    "space_secondary": 3,
     "space_type": "M",
     "region_data_sets": {
         "dfhlcd": {
@@ -70,13 +71,13 @@ def initialise_module(**kwargs):
 def test_create_an_intial_local_catalog():
     lcd_module = initialise_module()
 
-    data_set_utils.idcams = MagicMock(
-        return_value=(0, NAME, "")
+    data_set_utils._execute_idcams = MagicMock(
+        return_value=MVSCmdResponse(0, NAME, "")
     )
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
-            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
         ]
     )
     local_catalog_utils._execute_dfhccutl = MagicMock(
@@ -131,10 +132,10 @@ def test_create_an_intial_local_catalog():
 def test_delete_an_existing_local_catalog():
     lcd_module = initialise_module(state="absent")
 
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (0, LISTDS_data_set(NAME, "VSAM"), ""),
-            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), ""),
         ]
     )
     icetool._execute_icetool = MagicMock(
@@ -144,8 +145,8 @@ def test_delete_an_existing_local_catalog():
             stderr=ICETOOL_stderr()
         )
     )
-    data_set_utils.idcams = MagicMock(
-        return_value=(0, IDCAMS_delete_vsam(NAME), ""),
+    data_set_utils._execute_idcams = MagicMock(
+        return_value=MVSCmdResponse(0, IDCAMS_delete_vsam(NAME), ""),
     )
 
     lcd_module.main()
@@ -190,17 +191,17 @@ def test_delete_an_existing_local_catalog():
 def test_delete_an_existing_local_catalog_and_replace():
     lcd_module = initialise_module()
 
-    data_set_utils.idcams = MagicMock(
+    data_set_utils._execute_idcams = MagicMock(
         side_effect=[
-            (0, IDCAMS_delete_vsam(NAME), ""),
-            (0, NAME, ""),
+            MVSCmdResponse(0, IDCAMS_delete_vsam(NAME), ""),
+            MVSCmdResponse(0, NAME, ""),
         ]
     )
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (0, LISTDS_data_set(NAME, "VSAM"), ""),
-            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
-            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
         ]
     )
     icetool._execute_icetool = MagicMock(
@@ -282,8 +283,8 @@ def test_delete_an_existing_local_catalog_and_replace():
 def test_remove_non_existent_local_catalog():
     lcd_module = initialise_module(state="absent")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(8, LISTDS_data_set_doesnt_exist(NAME), "")
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), "")
     )
 
     lcd_module.main()
@@ -322,8 +323,8 @@ def test_remove_non_existent_local_catalog():
 def test_warm_start_a_local_catalog():
     lcd_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(
             0,
             LISTDS_data_set(NAME, "VSAM"),
             ""
@@ -377,8 +378,8 @@ def test_warm_start_a_local_catalog():
 def test_error_warm_start_a_unused_local_catalog():
     lcd_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(
             0,
             LISTDS_data_set(NAME, "VSAM"),
             ""
@@ -434,7 +435,7 @@ def test_error_warm_start_a_unused_local_catalog():
 def test_error_warm_start_a_non_existent_local_catalog():
     lcd_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(return_value=(
+    data_set_utils._execute_listds = MagicMock(return_value=MVSCmdResponse(
         8, LISTDS_data_set_doesnt_exist(NAME), ""))
 
     lcd_module.main()
@@ -473,13 +474,13 @@ def test_error_warm_start_a_non_existent_local_catalog():
 def test_bad_response_from_ccutl():
     lcd_module = initialise_module()
 
-    data_set_utils.idcams = MagicMock(
-        return_value=(0, NAME, "")
+    data_set_utils._execute_idcams = MagicMock(
+        return_value=MVSCmdResponse(0, NAME, "")
     )
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
-            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
         ]
     )
     local_catalog_utils._execute_dfhccutl = MagicMock(

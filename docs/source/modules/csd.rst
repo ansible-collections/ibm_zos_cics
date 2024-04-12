@@ -99,17 +99,59 @@ region_data_sets
 
 
      
+script_location
+  The type of location to load the DFHCSDUP script from.
+
+  \ :literal:`DATA\_SET`\  will load from a data set a PDS, PDSE, or sequential data set.
+
+  \ :literal:`USS`\  will load from a file on UNIX System Services (USS).
+
+  \ :literal:`LOCAL`\  will load from a file local to the ansible control node. NOT SUPPORTED IN THIS BETA.
+
+
+  | **required**: False
+  | **type**: str
+  | **default**: DATA_SET
+  | **choices**: DATA_SET, USS, LOCAL
+
+
+     
+script_src
+  The path to the source file containing the DFHCSDUP script to submit.
+
+  It could be a data set.(e.g "MY.HLQ.SOME.DEFS","MY.HLQ.SOME(DEFS)").
+
+  Or a USS file (e.g "/u/tester/demo/sample.csdup").
+
+  Or a LOCAL file (e.g "/User/tester/ansible-playbook/script.csdup"). NOT SUPPORTED IN THIS BETA.
+
+
+  | **required**: False
+  | **type**: str
+
+
+     
 space_primary
   The size of the primary space allocated to the CSD. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
 
   This option takes effect only when the CSD is being created. If the CSD already exists, the option has no effect.
 
-  The size value of the secondary space allocation for the CSD is 1; the unit is specified with \ :literal:`space\_type`\ .
-
 
   | **required**: False
   | **type**: int
   | **default**: 4
+
+
+     
+space_secondary
+  The size of the secondary space allocated to the CSD. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+
+  This option takes effect only when the CSD is being created. If the CSD already exists, the option has no effect.
+
+
+  | **required**: False
+  | **type**: int
+  | **default**: 1
 
 
      
@@ -137,10 +179,12 @@ state
 
   \ :literal:`warm`\  will retain an existing CSD in its current state.
 
+  \ :literal:`script`\  will run a DFHCSDUP script to update an existing CSD.
+
 
   | **required**: True
   | **type**: str
-  | **choices**: initial, absent, warm
+  | **choices**: initial, absent, warm, script
 
 
 
@@ -184,6 +228,24 @@ Examples
        cics_data_sets:
          template: "CICSTS61.CICS.<< lib_name >>"
        state: "warm"
+
+   - name: Run a DFHCSDUP script from a data set
+     ibm.ibm_zos_cics.csd:
+       region_data_sets:
+         template: "REGIONS.ABCD0001.<< data_set_name >>"
+       cics_data_sets:
+         template: "CICSTS61.CICS.<< lib_name >>"
+       state: "script"
+       script_src: "MY.HLQ.SOME.DEFS"
+
+   - name: Run a DFHCSDUP script from a USS file
+     ibm.ibm_zos_cics.csd:
+       region_data_sets:
+         template: "REGIONS.ABCD0001.<< data_set_name >>"
+       cics_data_sets:
+         template: "CICSTS61.CICS.<< lib_name >>"
+       script_src: "/path/to/my/defs.csdup"
+       script_location: "USS"
 
 
 

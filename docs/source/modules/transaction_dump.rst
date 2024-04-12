@@ -31,34 +31,6 @@ Parameters
 
 
      
-cics_data_sets
-  The name of the \ :literal:`SDFHLOAD`\  library of the CICS installation, for example, \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
-
-
-  | **required**: False
-  | **type**: dict
-
-
-     
-  sdfhload
-    The location of the \ :literal:`SDFHLOAD`\  library to override the template.
-
-
-    | **required**: False
-    | **type**: str
-
-
-     
-  template
-    The templated location of the \ :literal:`SDFHLOAD`\  library.
-
-
-    | **required**: False
-    | **type**: str
-
-
-
-     
 destination
   The transaction dump data set to create. If the value is left blank, A is implied, but you can specify A or B.
 
@@ -136,12 +108,22 @@ space_primary
 
   This option takes effect only when the transaction dump data set is being created. If the data set already exists, the option has no effect.
 
-  The size value of the secondary space allocation for the transaction dump data set is 10; the unit is specified with \ :literal:`space\_type`\ .
-
 
   | **required**: False
   | **type**: int
   | **default**: 20
+
+
+     
+space_secondary
+  The size of the secondary space allocated to the transaction dump data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+
+  This option takes effect only when the transaction dump data set is being created. If the data set already exists, the option has no effect.
+
+
+  | **required**: False
+  | **type**: int
+  | **default**: 4
 
 
      

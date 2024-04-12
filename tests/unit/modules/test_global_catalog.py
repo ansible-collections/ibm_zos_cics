@@ -43,6 +43,7 @@ NAME = "TEST.REGIONS.GCD"
 
 default_arg_parms = {
     "space_primary": 5,
+    "space_secondary": 3,
     "space_type": "M",
     "region_data_sets": {
         "dfhgcd": {
@@ -73,13 +74,13 @@ def initialise_module(**kwargs):
 def test_create_an_intial_global_catalog():
     gcd_module = initialise_module()
 
-    data_set_utils.idcams = MagicMock(
-        return_value=(0, IDCAMS_create_stdout(NAME), "")
+    data_set_utils._execute_idcams = MagicMock(
+        return_value=MVSCmdResponse(0, IDCAMS_create_stdout(NAME), "")
     )
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
-            (0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
         ]
     )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
@@ -144,14 +145,14 @@ def test_create_an_intial_global_catalog():
 def test_delete_an_existing_global_catalog():
     gcd_module = initialise_module(state="absent")
 
-    data_set_utils.idcams = MagicMock(
-        return_value=(0, IDCAMS_delete_vsam(NAME), ""),
+    data_set_utils._execute_idcams = MagicMock(
+        return_value=MVSCmdResponse(0, IDCAMS_delete_vsam(NAME), ""),
     )
 
-    data_set_utils.ikjeft01 = MagicMock(
+    data_set_utils._execute_listds = MagicMock(
         side_effect=[
-            (0, LISTDS_data_set(NAME, "VSAM"), ""),
-            (8, LISTDS_data_set_doesnt_exist(NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), ""),
         ]
     )
     icetool._execute_icetool = MagicMock(
@@ -217,8 +218,8 @@ def test_delete_an_existing_global_catalog():
 def test_remove_non_existent_global_catalog():
     gcd_module = initialise_module(state="absent")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(8, LISTDS_data_set_doesnt_exist(NAME), "")
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), "")
     )
     gcd_module.main()
     expected_result = dict(
@@ -260,8 +261,8 @@ def test_remove_non_existent_global_catalog():
 def test_warm_start_a_global_catalog():
     gcd_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(
             0,
             LISTDS_data_set(NAME, "VSAM"),
             ""
@@ -340,8 +341,8 @@ def test_warm_start_a_global_catalog():
 def test_error_warm_start_a_unused_global_catalog():
     gcd_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(
             0,
             LISTDS_data_set(NAME, "VSAM"),
             ""
@@ -421,8 +422,8 @@ def test_error_warm_start_a_unused_global_catalog():
 def test_error_warm_start_a_non_existent_global_catalog():
     gcd_module = initialise_module(state="warm")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(8, LISTDS_data_set_doesnt_exist(NAME), "")
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), "")
     )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
         return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
@@ -474,8 +475,8 @@ def test_error_warm_start_a_non_existent_global_catalog():
 def tests_cold_start_non_existent_catalog():
     gcd_module = initialise_module(state="cold")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(8, LISTDS_data_set_doesnt_exist(NAME), "")
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), "")
     )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
         return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOCOLD", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
@@ -527,8 +528,8 @@ def tests_cold_start_non_existent_catalog():
 def test_cold_start_unused_catalog():
     gcd_module = initialise_module(state="cold")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(0, LISTDS_data_set(NAME, "VSAM"), "")
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), "")
     )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
         return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
@@ -592,8 +593,8 @@ def test_cold_start_unused_catalog():
 def test_cold_start_global_catalog():
     gcd_module = initialise_module(state="cold")
 
-    data_set_utils.ikjeft01 = MagicMock(
-        return_value=(0, LISTDS_data_set(NAME, "VSAM"), "")
+    data_set_utils._execute_listds = MagicMock(
+        return_value=MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), "")
     )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
         return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOCOLD", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
