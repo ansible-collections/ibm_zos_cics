@@ -121,7 +121,7 @@ options:
 
 
 EXAMPLES = r"""
-- name: Initialize a local catalog
+- name: Initialize a local catalog data set
   ibm.ibm_zos_cics.local_catalog:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -129,7 +129,7 @@ EXAMPLES = r"""
       template: "CICSTS61.CICS.<< lib_name >>"
     state: "initial"
 
-- name: Initialize a large catalog
+- name: Initialize a large catalog data set
   ibm.ibm_zos_cics.local_catalog:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -139,7 +139,7 @@ EXAMPLES = r"""
     space_type: "REC"
     state: "initial"
 
-- name: Delete local catalog
+- name: Delete a local catalog data set
   ibm.ibm_zos_cics.local_catalog:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -155,12 +155,12 @@ changed:
   returned: always
   type: bool
 failed:
-  description: True if the query job failed, otherwise False.
+  description: True if the Ansible task failed, otherwise False.
   returned: always
   type: bool
 start_state:
   description:
-    - The state of the local catalog before the Ansible task runs.
+    - The state of the local catalog data set before the Ansible task runs.
   returned: always
   type: dict
   contains:
@@ -174,7 +174,7 @@ start_state:
       type: bool
       returned: always
 end_state:
-  description: The state of the local catalog at the end of the Ansible task.
+  description: The state of the local catalog data set at the end of the Ansible task.
   returned: always
   type: dict
   contains:

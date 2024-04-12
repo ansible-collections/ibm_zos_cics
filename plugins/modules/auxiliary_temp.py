@@ -128,12 +128,12 @@ changed:
   returned: always
   type: bool
 failed:
-  description: True if the query job failed, otherwise False.
+  description: True if the Ansible task failed, otherwise False.
   returned: always
   type: bool
 start_state:
   description:
-    - The state of the auxiliary temporary storage before the Ansible task runs.
+    - The state of the auxiliary temporary storage data set before the Ansible task runs.
   returned: always
   type: dict
   contains:
@@ -147,7 +147,7 @@ start_state:
       type: bool
       returned: always
 end_state:
-  description: The state of the auxiliary temporary storage at the end of the Ansible task.
+  description: The state of the auxiliary temporary storage data set at the end of the Ansible task.
   returned: always
   type: dict
   contains:

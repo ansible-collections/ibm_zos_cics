@@ -149,12 +149,12 @@ changed:
   returned: always
   type: bool
 failed:
-  description: True if the query job failed, otherwise False.
+  description: True if the Ansible task failed, otherwise False.
   returned: always
   type: bool
 start_state:
   description:
-    - The state of the local request queue before the Ansible task runs.
+    - The state of the auxiliary trace data set before the Ansible task runs.
   returned: always
   type: dict
   contains:
@@ -164,11 +164,11 @@ start_state:
       type: str
       sample: "Sequential"
     exists:
-      description: True if the local request queue data set exists.
+      description: True if the auxiliary trace data set exists.
       type: bool
       returned: always
 end_state:
-  description: The state of the local request queue at the end of the Ansible task.
+  description: The state of the auxiliary trace data set at the end of the Ansible task.
   returned: always
   type: dict
   contains:
@@ -178,7 +178,7 @@ end_state:
       type: str
       sample: "Sequential"
     exists:
-      description: True if the local request queue data set exists.
+      description: True if the auxiliary trace data set exists.
       type: bool
       returned: always
 executions:

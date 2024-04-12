@@ -178,7 +178,7 @@ changed:
   returned: always
   type: bool
 failed:
-  description: True if the query job failed, otherwise False.
+  description: True if the Ansible task failed, otherwise False.
   returned: always
   type: bool
 start_state:

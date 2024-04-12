@@ -100,13 +100,13 @@ options:
 
 
 EXAMPLES = r"""
-- name: Initialize a transient data intrapartition
+- name: Initialize a transient data intrapartition data set
   ibm.ibm_zos_cics.intrapartition:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: "initial"
 
-- name: Initialize a large transient data intrapartition
+- name: Initialize a large transient data intrapartition data set
   ibm.ibm_zos_cics.intrapartition:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -114,7 +114,7 @@ EXAMPLES = r"""
     space_type: "M"
     state: "initial"
 
-- name: Delete transient data intrapartition
+- name: Delete a transient data intrapartition data set
   ibm.ibm_zos_cics.intrapartition:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -128,7 +128,7 @@ changed:
   returned: always
   type: bool
 failed:
-  description: True if the query job failed, otherwise False.
+  description: True if the Ansible task failed, otherwise False.
   returned: always
   type: bool
 start_state:
