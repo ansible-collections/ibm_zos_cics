@@ -42,11 +42,11 @@ and ansible-doc to automate tasks in CICS.
 
 ## Contributing
 
-We welcome contributions! Find out how in our [contribution guide](CONTRIBUTING.md).
+We welcome contributions! Find out how in our [contribution guide](https://github.com/ansible-collections/ibm_zos_cics/blob/main/CONTRIBUTING.md).
 
 ## Copyright 
 
-© Copyright IBM Corporation 2021, 2023.
+© Copyright IBM Corporation 2021, 2024.
 
 ## License
 
