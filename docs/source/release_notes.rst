@@ -20,8 +20,8 @@ What's New
 **Changed modules**
 
 * ``csd`` - A new ``state`` option, ``script`` is introduced so that you can now supply a script that contains ``CSDUP`` commands to update an existing CSD. The script can be either a data set or a z/OS UNIX file.
-* All modules for CICS system data sets - New option ``space_secondary`` is introduced so that you can specify the size of the secondary extent.
-* All modules for CICS system data sets - Return values now use ``data_set_organization`` to indicate the organization of the data set. The ``vsam`` field has been removed from the return structure.
+* All modules for CICS region data sets - New option ``space_secondary`` is introduced so that you can specify the size of the secondary extent.
+* All modules for CICS region data sets - Return values now use ``data_set_organization`` to indicate the organization of the data set. The ``vsam`` field has been removed from the return structure.
 
 
 Version 1.1.0-beta.4
