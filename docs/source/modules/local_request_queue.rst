@@ -135,13 +135,13 @@ Examples
 .. code-block:: yaml+jinja
 
    
-   - name: Initialize a local request queue
+   - name: Initialize a local request queue data set
      ibm.ibm_zos_cics.local_request_queue:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        state: "initial"
 
-   - name: Initialize a large request queue
+   - name: Initialize a large request queue data set
      ibm.ibm_zos_cics.local_request_queue:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -149,7 +149,7 @@ Examples
        space_type: "M"
        state: "initial"
 
-   - name: Delete local request queue
+   - name: Delete a local request queue data set
      ibm.ibm_zos_cics.local_request_queue:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -178,7 +178,7 @@ Return Values
       
                               
        failed
-        | True if the query job failed, otherwise False.
+        | True if the Ansible task failed, otherwise False.
       
         | **returned**: always
         | **type**: bool
@@ -186,7 +186,7 @@ Return Values
       
                               
        start_state
-        | The state of the local request queue before the Ansible task runs.
+        | The state of the local request queue data set before the Ansible task runs.
       
         | **returned**: always
         | **type**: dict
@@ -215,7 +215,7 @@ Return Values
       
                               
        end_state
-        | The state of the local request queue at the end of the Ansible task.
+        | The state of the local request queue data set at the end of the Ansible task.
       
         | **returned**: always
         | **type**: dict
