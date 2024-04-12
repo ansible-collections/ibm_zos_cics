@@ -88,20 +88,40 @@
 <p class="caption" role="heading"><span class="caption-text">Release Notes</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Releases</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#version-1-0-5">Version 1.0.5</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-1-0-beta-5">Version 1.1.0-beta.5</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#what-s-new">What’s New</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#version-1-0-4">Version 1.0.4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-1-0-beta-4">Version 1.1.0-beta.4</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id1">What’s New</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#version-1-0-3">Version 1.0.3</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-1-0-beta-3">Version 1.1.0-beta.3</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id2">What’s New</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#version-1-0-1">Version 1.0.1</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-1-0-beta-2">Version 1.1.0-beta.2</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id3">What’s New</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-1-0-beta-1">Version 1.1.0-beta.1</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">What’s New</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-0-5">Version 1.0.5</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">What’s New</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-0-4">Version 1.0.4</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">What’s New</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-0-3">Version 1.0.3</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">What’s New</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-0-1">Version 1.0.1</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id8">What’s New</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#availability">Availability</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#reference">Reference</a></li>
 </ul>
@@ -143,10 +163,92 @@
              
   <section id="releases">
 <h1>Releases<a class="headerlink" href="#releases" title="Permalink to this heading"></a></h1>
-<section id="version-1-0-5">
-<h2>Version 1.0.5<a class="headerlink" href="#version-1-0-5" title="Permalink to this heading"></a></h2>
+<section id="version-1-1-0-beta-5">
+<h2>Version 1.1.0-beta.5<a class="headerlink" href="#version-1-1-0-beta-5" title="Permalink to this heading"></a></h2>
 <section id="what-s-new">
 <h3>What’s New<a class="headerlink" href="#what-s-new" title="Permalink to this heading"></a></h3>
+<p><strong>New modules</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">start_cics</span></code> - Start a CICS region.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stop_cics</span></code> - Stop a CICS region.</p></li>
+</ul>
+<p><strong>Changed modules</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">csd</span></code> - A new <code class="docutils literal notranslate"><span class="pre">state</span></code> option, <code class="docutils literal notranslate"><span class="pre">script</span></code> is introduced so that you can now supply a script that contains <code class="docutils literal notranslate"><span class="pre">CSDUP</span></code> commands to update an existing CSD. The script can be either a data set or a z/OS UNIX file.</p></li>
+<li><p>All modules for CICS region data sets - New option <code class="docutils literal notranslate"><span class="pre">space_secondary</span></code> is introduced so that you can specify the size of the secondary extent.</p></li>
+<li><p>All modules for CICS region data sets - Return values now use <code class="docutils literal notranslate"><span class="pre">data_set_organization</span></code> to indicate the organization of the data set. The <code class="docutils literal notranslate"><span class="pre">vsam</span></code> field has been removed from the return structure.</p></li>
+</ul>
+</section>
+</section>
+<section id="version-1-1-0-beta-4">
+<h2>Version 1.1.0-beta.4<a class="headerlink" href="#version-1-1-0-beta-4" title="Permalink to this heading"></a></h2>
+<section id="id1">
+<h3>What’s New<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<p><strong>New modules</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">auxiliary_temp</span></code> - Create and remove the CICS auxiliary temporary storage data set.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">csd</span></code> - Create, remove, and manage the CICS system definition data set.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">intrapartition</span></code> - Create and remove the CICS transient data intrapartition data set.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trace</span></code> - Allocate the CICS auxiliary trace data sets.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">transaction_dump</span></code> - Allocate the CICS transaction dump data sets.</p></li>
+</ul>
+<p><strong>Changed modules</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">local_request_queue</span></code> -  New option <code class="docutils literal notranslate"><span class="pre">warm</span></code> added to the <code class="docutils literal notranslate"><span class="pre">state</span></code> input parameter.</p></li>
+</ul>
+<p><strong>Bugfixes</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">local_request_queue</span></code> and <code class="docutils literal notranslate"><span class="pre">local_request_queue</span></code> - The behavior of these modules with <code class="docutils literal notranslate"><span class="pre">state</span></code> set to <code class="docutils literal notranslate"><span class="pre">initial</span></code> is updated to match documentation.</p></li>
+</ul>
+</section>
+</section>
+<section id="version-1-1-0-beta-3">
+<h2>Version 1.1.0-beta.3<a class="headerlink" href="#version-1-1-0-beta-3" title="Permalink to this heading"></a></h2>
+<section id="id2">
+<h3>What’s New<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<p><strong>New modules</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">local_request_queue</span></code> - Create and remove the CICS local request queue data set.</p></li>
+</ul>
+<p><strong>Changed modules</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">global_catalog</span></code> and <code class="docutils literal notranslate"><span class="pre">local_catalog</span></code> - Added support for the <code class="docutils literal notranslate"><span class="pre">region_data_sets</span></code> and <code class="docutils literal notranslate"><span class="pre">cics_data_sets</span></code> defaults groups. This enhancement changes the way you specify the data set location for these modules.</p></li>
+</ul>
+</section>
+</section>
+<section id="version-1-1-0-beta-2">
+<h2>Version 1.1.0-beta.2<a class="headerlink" href="#version-1-1-0-beta-2" title="Permalink to this heading"></a></h2>
+<section id="id3">
+<h3>What’s New<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<p><strong>New modules</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">local_catalog</span></code> - Create, initialize, and manage the CICS local catalog data set.</p></li>
+</ul>
+<p><strong>Changed modules</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">global_catalog</span></code> - Added return values <code class="docutils literal notranslate"><span class="pre">start_state</span></code>, <code class="docutils literal notranslate"><span class="pre">end_state</span></code>, and <code class="docutils literal notranslate"><span class="pre">executions</span></code>.</p></li>
+</ul>
+<p><strong>Bugfixes</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">global_catalog</span></code> - Fixed an issue that when input parameters were lowercase, the module failed. Now these input parameters are not case sensitive.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">global_catalog</span></code> - Fixed an issue that was found in the <code class="docutils literal notranslate"><span class="pre">changed</span></code> flag. Now the <code class="docutils literal notranslate"><span class="pre">changed</span></code> flag corresponds with the actions taken during the <code class="docutils literal notranslate"><span class="pre">global_catalog</span></code> execution.</p></li>
+</ul>
+</section>
+</section>
+<section id="version-1-1-0-beta-1">
+<h2>Version 1.1.0-beta.1<a class="headerlink" href="#version-1-1-0-beta-1" title="Permalink to this heading"></a></h2>
+<section id="id4">
+<h3>What’s New<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<p><strong>New modules</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">global_catalog</span></code> - Create, initialize, and manage the CICS global catalog data set.</p></li>
+</ul>
+</section>
+</section>
+<section id="version-1-0-5">
+<h2>Version 1.0.5<a class="headerlink" href="#version-1-0-5" title="Permalink to this heading"></a></h2>
+<section id="id5">
+<h3>What’s New<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
 <ul class="simple">
 <li><p>Bug fix that includes the <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file in the built collection.</p></li>
 </ul>
@@ -154,8 +256,8 @@
 </section>
 <section id="version-1-0-4">
 <h2>Version 1.0.4<a class="headerlink" href="#version-1-0-4" title="Permalink to this heading"></a></h2>
-<section id="id1">
-<h3>What’s New<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<section id="id6">
+<h3>What’s New<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
 <ul class="simple">
 <li><p>Provide variables for all modules in one go using Ansible’s <a class="reference external" href="https://docs.ansible.com/ansible/2.8/user_guide/playbooks_module_defaults.html#module-defaults-groups">group module defaults</a> support. The group name for the CMCI modules is <code class="docutils literal notranslate"><span class="pre">cmci_group</span></code>.</p></li>
 <li><p>Prevent <code class="docutils literal notranslate"><span class="pre">cmci_get</span></code> from failing if no records are found via the <code class="docutils literal notranslate"><span class="pre">fail_on_nodata</span></code> option. The default value is true if not specified.</p></li>
@@ -164,8 +266,8 @@
 </section>
 <section id="version-1-0-3">
 <h2>Version 1.0.3<a class="headerlink" href="#version-1-0-3" title="Permalink to this heading"></a></h2>
-<section id="id2">
-<h3>What’s New<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<section id="id7">
+<h3>What’s New<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
 <ul class="simple">
 <li><p>Updated timeout support on requests to be configurable via the <code class="docutils literal notranslate"><span class="pre">timeout</span></code> option. The default value is 30 seconds if not specified</p></li>
 <li><p>Improve sanitisation and validation of parameters.</p></li>
@@ -175,31 +277,26 @@
 </section>
 <section id="version-1-0-1">
 <h2>Version 1.0.1<a class="headerlink" href="#version-1-0-1" title="Permalink to this heading"></a></h2>
-<section id="id3">
-<h3>What’s New<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<section id="id8">
+<h3>What’s New<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
 <p>Initial release of the <strong>IBM® z/OS® CICS® collection</strong>, also referred to as <strong>ibm_zos_cics</strong>, which is part of the broader offering <strong>Red Hat® Ansible® Certified Content for IBM Z®</strong>.</p>
 <p>This collection can manage CICS and CICSPlex® SM resources and definitions by calling the <a class="reference external" href="https://www.ibm.com/docs/en/cics-ts/latest?topic=cmci-how-it-works-rest-api">CMCI REST API</a>, which can be configured in a CICSplex or in a stand-alone region.</p>
+<p><strong>Modules</strong></p>
 <ul class="simple">
-<li><p>Modules</p>
-<ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">cmci_create</span></code> - Create definitional CICS and CICSPlex SM resources in CICS regions, by initiating POST requests via the CMCI REST API.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cmci_delete</span></code> - Remove or discard definitional and installed CICS and CICSPlex SM resources from CICS regions, by initiating DELETE requests via the CMCI REST API.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cmci_get</span></code> - Retrieve information about installed and definitional CICS and CICSPlex SM resources from CICS regions, by initiating GET requests via the CMCI REST API.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cmci_action</span></code> - Install CICS and CICSPlex SM resources into CICS regions from definitions, by initiating PUT requests via the CMCI REST API.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cmci_update</span></code> - Make changes to CICS and CICSPlex SM resources in CICS regions, by initiating PUT requests via the CMCI REST API.</p></li>
 </ul>
-</li>
-<li><p>Documentation</p>
-<ul>
+<p><strong>Documentation</strong></p>
+<ul class="simple">
 <li><p>Generic documentation is available at <a class="reference external" href="https://ibm.github.io/z_ansible_collections_doc/ibm_zos_cics/docs/ansible_content.html">the documentation site</a>, covering guidance on installation, modules, and other reference.</p></li>
 <li><p>Documentation related to playbook configuration is provided with sample playbooks at the <a class="reference external" href="https://github.com/IBM/z_ansible_collections_samples/tree/main/zos_subsystems/cics">samples repository</a>. Each playbook contains a README that explains what configurations must be made to run a sample playbook.</p></li>
 </ul>
-</li>
-<li><p>Playbooks</p>
-<ul>
+<p><strong>Playbooks</strong></p>
+<ul class="simple">
 <li><p>Sample playbooks are available at the <a class="reference external" href="https://github.com/IBM/z_ansible_collections_samples/tree/main/zos_subsystems/cics">samples repository</a>. Each playbook contains a README that explains what configurations must be made to run a sample playbook.</p></li>
-</ul>
-</li>
 </ul>
 </section>
 <section id="availability">

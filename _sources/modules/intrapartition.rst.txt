@@ -33,34 +33,6 @@ Parameters
 
 
      
-cics_data_sets
-  The name of the \ :literal:`SDFHLOAD`\  library of the CICS installation, for example, \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
-
-
-  | **required**: False
-  | **type**: dict
-
-
-     
-  sdfhload
-    The location of the \ :literal:`SDFHLOAD`\  library to override the template.
-
-
-    | **required**: False
-    | **type**: str
-
-
-     
-  template
-    The templated location of the \ :literal:`SDFHLOAD`\  library.
-
-
-    | **required**: False
-    | **type**: str
-
-
-
-     
 region_data_sets
   The location of the region data sets to be created using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
 
@@ -106,12 +78,22 @@ space_primary
 
   This option takes effect only when the transient data intrapartition data set is being created. If the data set already exists, the option has no effect.
 
-  The size value of the secondary space allocation for the transient data intrapartition data set is 1; the unit is specified with \ :literal:`space\_type`\ .
-
 
   | **required**: False
   | **type**: int
   | **default**: 100
+
+
+     
+space_secondary
+  The size of the secondary space allocated to the transient data intrapartition data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+
+  This option takes effect only when the transient data intrapartition data set is being created. If the data set already exists, the option has no effect.
+
+
+  | **required**: False
+  | **type**: int
+  | **default**: 10
 
 
      
@@ -211,11 +193,14 @@ Return Values
               
    
                               
-        vsam
-          | True if the data set is a VSAM data set.
+        data_set_organization
+          | The organization of the data set at the start of the Ansible task.
       
           | **returned**: always
-          | **type**: bool
+          | **type**: str
+          | **sample**: VSAM
+
+            
       
       
                               
@@ -237,11 +222,14 @@ Return Values
               
    
                               
-        vsam
-          | True if the data set is a VSAM data set.
+        data_set_organization
+          | The organization of the data set at the end of the Ansible task.
       
           | **returned**: always
-          | **type**: bool
+          | **type**: str
+          | **sample**: VSAM
+
+            
       
       
                               
