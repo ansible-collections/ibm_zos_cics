@@ -101,7 +101,7 @@ options:
         type: str
       sdfhload:
         description:
-          - The location of the C(SDFHLOAD) library to override the template.
+          - The location of the C(SDFHLOAD) library. If O(cics_data_sets.template) is provided, this value will override the template.
         type: str
         required: false
   state:

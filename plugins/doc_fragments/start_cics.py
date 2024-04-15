@@ -179,12 +179,12 @@ options:
         required: false
       sdfhload:
         description:
-          - The location of the C(SDFHLOAD) library to override the template.
+          - The location of the C(SDFHLOAD) library. If O(cics_data_sets.template) is provided, this value will override the template.
         type: str
         required: false
       sdfhlic:
         description:
-          - The location of the C(SDFHLIC) library to override the template.
+          - The location of the C(SDFHLIC) library. If O(cics_data_sets.template) is provided, this value will override the template.
         type: str
         required: false
   le_data_sets:
@@ -200,17 +200,17 @@ options:
         type: str
       sceecics:
         description:
-          - The location of the C(SCEECICS) library to override the template.
+          - The location of the C(SCEECICS) library. If O(le_data_sets.template) is provided, this value will override the template.
         type: str
         required: false
       sceerun:
         description:
-          - The location of the C(SCEERUN) library to override the template.
+          - The location of the C(SCEERUN) library. If O(le_data_sets.template) is provided, this value will override the template.
         type: str
         required: false
       sceerun2:
         description:
-          - The location of the C(SCEERUN2) library to override the template.
+          - The location of the C(SCEERUN2) library. If O(le_data_sets.template) is provided, this value will override the template.
         type: str
         required: false
   cpsm_data_sets:
@@ -226,12 +226,12 @@ options:
         type: str
       seyuauth:
         description:
-          - The location of the C(SEYUAUTH) library to override the template.
+          - The location of the C(SEYUAUTH) library. If O(cpsm_data_sets.template) is provided, this value will override the template.
         required: false
         type: str
       seyuload:
         description:
-          - The location of the C(SEYULOAD) library to override the template.
+          - The location of the C(SEYULOAD) library. If O(cpsm_data_sets.template) is provided, this value will override the template.
         required: false
         type: str
   steplib:
