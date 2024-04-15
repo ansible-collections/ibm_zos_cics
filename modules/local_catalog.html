@@ -259,7 +259,7 @@
 </section>
 <section id="examples">
 <h2><a class="toc-backref" href="#id3" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
-<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Initialize a local catalog</span>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Initialize a local catalog data set</span>
 <span class="w">  </span><span class="nt">ibm.ibm_zos_cics.local_catalog</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">region_data_sets</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;REGIONS.ABCD0001.&lt;&lt;</span><span class="nv"> </span><span class="s">data_set_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
@@ -267,7 +267,7 @@
 <span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CICSTS61.CICS.&lt;&lt;</span><span class="nv"> </span><span class="s">lib_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
 <span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;initial&quot;</span>
 
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Initialize a large catalog</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Initialize a large catalog data set</span>
 <span class="w">  </span><span class="nt">ibm.ibm_zos_cics.local_catalog</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">region_data_sets</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;REGIONS.ABCD0001.&lt;&lt;</span><span class="nv"> </span><span class="s">data_set_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
@@ -277,7 +277,7 @@
 <span class="w">    </span><span class="nt">space_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;REC&quot;</span>
 <span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;initial&quot;</span>
 
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Delete local catalog</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Delete a local catalog data set</span>
 <span class="w">  </span><span class="nt">ibm.ibm_zos_cics.local_catalog</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">region_data_sets</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;REGIONS.ABCD0001.&lt;&lt;</span><span class="nv"> </span><span class="s">data_set_name</span><span class="nv"> </span><span class="s">&gt;&gt;&quot;</span>
@@ -309,7 +309,7 @@
 </div>
 </dd>
 <dt>failed</dt><dd><div class="line-block">
-<div class="line">True if the query job failed, otherwise False.</div>
+<div class="line">True if the Ansible task failed, otherwise False.</div>
 </div>
 <div class="line-block">
 <div class="line"><strong>returned</strong>: always</div>
@@ -317,7 +317,7 @@
 </div>
 </dd>
 <dt>start_state</dt><dd><div class="line-block">
-<div class="line">The state of the local catalog before the Ansible task runs.</div>
+<div class="line">The state of the local catalog data set before the Ansible task runs.</div>
 </div>
 <div class="line-block">
 <div class="line"><strong>returned</strong>: always</div>
@@ -344,7 +344,7 @@
 </dl>
 </dd>
 <dt>end_state</dt><dd><div class="line-block">
-<div class="line">The state of the local catalog at the end of the Ansible task.</div>
+<div class="line">The state of the local catalog data set at the end of the Ansible task.</div>
 </div>
 <div class="line-block">
 <div class="line"><strong>returned</strong>: always</div>

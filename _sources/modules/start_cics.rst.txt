@@ -3377,6 +3377,7 @@ Examples
          wlmhealth: "OFF"
          wrkarea: 2048
          sysidnt: ZPY1
+
    - name: Start CICS with more customization
      ibm.ibm_zos_cics.start_cics:
        submit_jcl: True
@@ -3460,7 +3461,7 @@ Return Values
       
                               
        failed
-        | True if the query job failed, otherwise False.
+        | True if the Ansible task failed, otherwise False.
       
         | **returned**: always
         | **type**: bool
