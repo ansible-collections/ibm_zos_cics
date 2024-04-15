@@ -43,7 +43,7 @@ cics_data_sets
 
      
   sdfhload
-    The location of the \ :literal:`SDFHLOAD`\  library to override the template.
+    The location of the \ :literal:`SDFHLOAD`\  library. If \ :literal:`cics\_data\_sets.template`\  is provided, this value will override the template.
 
 
     | **required**: False
