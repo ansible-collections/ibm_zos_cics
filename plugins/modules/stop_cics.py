@@ -68,7 +68,7 @@ RETURN = r'''
     returned: always
     type: bool
   failed:
-    description: True if the module failed, otherwise False.
+    description: True if the Ansible task failed, otherwise False.
     returned: always
     type: bool
   executions:

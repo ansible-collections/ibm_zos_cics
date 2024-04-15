@@ -213,7 +213,7 @@ Examples
        space_type: "M"
        state: "initial"
 
-   - name: Delete CSD
+   - name: Delete a CSD
      ibm.ibm_zos_cics.csd:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -270,7 +270,7 @@ Return Values
       
                               
        failed
-        | True if the query job failed, otherwise False.
+        | True if the Ansible task failed, otherwise False.
       
         | **returned**: always
         | **type**: bool
