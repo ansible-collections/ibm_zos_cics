@@ -336,3 +336,105 @@ def test_process_args_with_extra_data_set_args():
             "top_libraries": []
         }
     }
+
+
+def test_process_args_with_only_template_and_optional_cpsm_arg():
+    module_args = {
+        "region_data_sets": {"template": "TEST.CICSPY1.RDEV.<< data_set_name >>"},
+        "cics_data_sets": {"template": "TEST.CICS.<< lib_name >>"},
+        "le_data_sets": {"template": "TEST.LE.<< lib_name >>"},
+        "cpsm_data_sets": {"template": "TEST.CPSM.<< lib_name >>"}
+    }
+    templar = get_templar(module_args)
+    task_vars = module_args
+    _process_module_args(module_args, templar, task_vars)
+    assert module_args == {
+        "region_data_sets": {
+            'dfhauxt': {DSN: "TEST.CICSPY1.RDEV.DFHAUXT"},
+            'dfhbuxt': {DSN: "TEST.CICSPY1.RDEV.DFHBUXT"},
+            'dfhcsd': {DSN: "TEST.CICSPY1.RDEV.DFHCSD"},
+            'dfhgcd': {DSN: "TEST.CICSPY1.RDEV.DFHGCD"},
+            'dfhintra': {DSN: "TEST.CICSPY1.RDEV.DFHINTRA"},
+            'dfhlcd': {DSN: "TEST.CICSPY1.RDEV.DFHLCD"},
+            'dfhlrq': {DSN: "TEST.CICSPY1.RDEV.DFHLRQ"},
+            'dfhtemp': {DSN: "TEST.CICSPY1.RDEV.DFHTEMP"},
+            'dfhdmpa': {DSN: "TEST.CICSPY1.RDEV.DFHDMPA"},
+            'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DFHDMPB"}
+        },
+        "cics_data_sets": {
+            "sdfhload": "TEST.CICS.SDFHLOAD",
+            "sdfhauth": "TEST.CICS.SDFHAUTH",
+            "sdfhlic": "TEST.CICS.SDFHLIC",
+            "template": "TEST.CICS.<< lib_name >>"
+        },
+        "le_data_sets": {
+            "sceecics": "TEST.LE.SCEECICS",
+            "sceerun": "TEST.LE.SCEERUN",
+            "sceerun2": "TEST.LE.SCEERUN2",
+            "template": "TEST.LE.<< lib_name >>"
+        },
+        "cpsm_data_sets": {
+            "seyuauth": "TEST.CPSM.SEYUAUTH",
+            "seyuload": "TEST.CPSM.SEYULOAD",
+            "template": "TEST.CPSM.<< lib_name >>"
+        },
+        "steplib": {
+            "top_libraries": []
+        },
+        "dfhrpl": {
+            "top_libraries": []
+        }
+    }
+
+
+def test_process_args_with_optional_cpsm_arg_and_overrides():
+    module_args = {
+        "region_data_sets": {"template": "TEST.CICSPY1.RDEV.<< data_set_name >>"},
+        "cics_data_sets": {"template": "TEST.CICS.<< lib_name >>"},
+        "le_data_sets": {"template": "TEST.LE.<< lib_name >>"},
+        "cpsm_data_sets": {
+            "template": "TEST.CPSM.<< lib_name >>",
+            "seyuauth": "TEST.SEYUAUTH",
+            "seyuload": "TEST.SEYULOAD"
+        }
+    }
+    templar = get_templar(module_args)
+    task_vars = module_args
+    _process_module_args(module_args, templar, task_vars)
+    assert module_args == {
+        "region_data_sets": {
+            'dfhauxt': {DSN: "TEST.CICSPY1.RDEV.DFHAUXT"},
+            'dfhbuxt': {DSN: "TEST.CICSPY1.RDEV.DFHBUXT"},
+            'dfhcsd': {DSN: "TEST.CICSPY1.RDEV.DFHCSD"},
+            'dfhgcd': {DSN: "TEST.CICSPY1.RDEV.DFHGCD"},
+            'dfhintra': {DSN: "TEST.CICSPY1.RDEV.DFHINTRA"},
+            'dfhlcd': {DSN: "TEST.CICSPY1.RDEV.DFHLCD"},
+            'dfhlrq': {DSN: "TEST.CICSPY1.RDEV.DFHLRQ"},
+            'dfhtemp': {DSN: "TEST.CICSPY1.RDEV.DFHTEMP"},
+            'dfhdmpa': {DSN: "TEST.CICSPY1.RDEV.DFHDMPA"},
+            'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DFHDMPB"}
+        },
+        "cics_data_sets": {
+            "sdfhload": "TEST.CICS.SDFHLOAD",
+            "sdfhauth": "TEST.CICS.SDFHAUTH",
+            "sdfhlic": "TEST.CICS.SDFHLIC",
+            "template": "TEST.CICS.<< lib_name >>"
+        },
+        "le_data_sets": {
+            "sceecics": "TEST.LE.SCEECICS",
+            "sceerun": "TEST.LE.SCEERUN",
+            "sceerun2": "TEST.LE.SCEERUN2",
+            "template": "TEST.LE.<< lib_name >>"
+        },
+        "cpsm_data_sets": {
+            "seyuauth": "TEST.SEYUAUTH",
+            "seyuload": "TEST.SEYULOAD",
+            "template": "TEST.CPSM.<< lib_name >>"
+        },
+        "steplib": {
+            "top_libraries": []
+        },
+        "dfhrpl": {
+            "top_libraries": []
+        }
+    }

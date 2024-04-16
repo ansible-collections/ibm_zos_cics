@@ -236,6 +236,7 @@ def test__remove_data_set_args():
         "region_data_sets": {"template": "region.data.set.template.<< data_set_name >>"},
         "cics_data_sets": {"template": "cics.data.set.template.<< lib_name >>"},
         "le_data_sets": {"template": "le.data.set.template.<< lib_name >>"},
+        "cpsm_data_sets": {"template": "cpsm.data.set.template.<< lib_name >>"},
         "space_primary": 2,
         "space_secondary": 1,
         "space_type": "M",
@@ -244,9 +245,10 @@ def test__remove_data_set_args():
 
     _remove_data_set_args(args_with_extra_args_not_applicable_to_start)
 
-    assert len(list(args_with_extra_args_not_applicable_to_start.keys())) == 3
+    assert len(list(args_with_extra_args_not_applicable_to_start.keys())) == 4
     assert args_with_extra_args_not_applicable_to_start == {
         "region_data_sets": {"template": "region.data.set.template.<< data_set_name >>"},
         "cics_data_sets": {"template": "cics.data.set.template.<< lib_name >>"},
         "le_data_sets": {"template": "le.data.set.template.<< lib_name >>"},
+        "cpsm_data_sets": {"template": "cpsm.data.set.template.<< lib_name >>"},
     }

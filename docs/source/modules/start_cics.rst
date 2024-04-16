@@ -59,7 +59,7 @@ cics_data_sets
 
      
   sdfhlic
-    The location of the \ :literal:`SDFHLIC`\  library to override the template.
+    The location of the \ :literal:`SDFHLIC`\  library. If \ :literal:`cics\_data\_sets.template`\  is provided, this value will override the template.
 
 
     | **required**: False
@@ -68,7 +68,7 @@ cics_data_sets
 
      
   sdfhload
-    The location of the \ :literal:`SDFHLOAD`\  library to override the template.
+    The location of the \ :literal:`SDFHLOAD`\  library. If \ :literal:`cics\_data\_sets.template`\  is provided, this value will override the template.
 
 
     | **required**: False
@@ -78,6 +78,43 @@ cics_data_sets
      
   template
     The templated location of the libraries.
+
+
+    | **required**: False
+    | **type**: str
+
+
+
+     
+cpsm_data_sets
+  The data set names of the \ :literal:`SEYUAUTH`\  and \ :literal:`SEYULOAD`\  libraries, for example \ :literal:`CTS610.CPSM610.SEYUAUTH`\ .
+
+
+  | **required**: False
+  | **type**: dict
+
+
+     
+  seyuauth
+    The location of the \ :literal:`SEYUAUTH`\  library. If \ :literal:`cpsm\_data\_sets.template`\  is provided, this value will override the template.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  seyuload
+    The location of the \ :literal:`SEYULOAD`\  library. If \ :literal:`cpsm\_data\_sets.template`\  is provided, this value will override the template.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  template
+    The templated location of the CPSM libraries.
 
 
     | **required**: False
@@ -318,7 +355,7 @@ le_data_sets
 
      
   sceecics
-    The location of the \ :literal:`SCEECICS`\  library to override the template.
+    The location of the \ :literal:`SCEECICS`\  library. If \ :literal:`le\_data\_sets.template`\  is provided, this value will override the template.
 
 
     | **required**: False
@@ -327,7 +364,7 @@ le_data_sets
 
      
   sceerun
-    The location of the \ :literal:`SCEERUN`\  library to override the template.
+    The location of the \ :literal:`SCEERUN`\  library. If \ :literal:`le\_data\_sets.template`\  is provided, this value will override the template.
 
 
     | **required**: False
@@ -336,7 +373,7 @@ le_data_sets
 
      
   sceerun2
-    The location of the \ :literal:`SCEERUN2`\  library to override the template.
+    The location of the \ :literal:`SCEERUN2`\  library. If \ :literal:`le\_data\_sets.template`\  is provided, this value will override the template.
 
 
     | **required**: False

@@ -6,6 +6,7 @@ __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
 from ansible_collections.ibm.ibm_zos_cics.plugins.controller_utils.module_action_plugin import (
+    CPSM_DS_KEYS,
     LE_DS_KEYS,
     REGION_DS_KEYS,
     CICS_DS_KEYS,
@@ -56,6 +57,11 @@ def _process_module_args(module_args, _templar, task_vars):
 
     for le_lib in LE_DS_KEYS:
         _process_libraries_args(module_args, _templar, task_vars, "le_data_sets", le_lib)
+
+    # Optional argument
+    if module_args.get("cpsm_data_sets"):
+        for cpsm_lib in CPSM_DS_KEYS:
+            _process_libraries_args(module_args, _templar, task_vars, "cpsm_data_sets", cpsm_lib)
 
     # Remove extra args
     _remove_data_set_args(module_args)

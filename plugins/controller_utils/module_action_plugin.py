@@ -10,6 +10,7 @@ from ansible.plugins.action import ActionBase
 REGION_DS_KEYS = ["dfhgcd", "dfhlcd", "dfhintra", "dfhlrq", "dfhtemp", "dfhauxt", "dfhbuxt", "dfhdmpa", "dfhdmpb", "dfhcsd"]
 CICS_DS_KEYS = ["sdfhload", "sdfhauth", "sdfhlic"]
 LE_DS_KEYS = ["sceecics", "sceerun", "sceerun2"]
+CPSM_DS_KEYS = ["seyuauth", "seyuload"]
 LIBRARY_KEYS = ["steplib", "dfhrpl"]
 
 
@@ -48,6 +49,9 @@ def _process_module_args(module_args, _templar, ds_name, task_vars, cics_data_se
 
     if module_args.get("le_data_sets"):
         del module_args["le_data_sets"]
+
+    if module_args.get("cpsm_data_sets"):
+        del module_args["cpsm_data_sets"]
 
 
 def _check_region_override(module_args, ds_name):
