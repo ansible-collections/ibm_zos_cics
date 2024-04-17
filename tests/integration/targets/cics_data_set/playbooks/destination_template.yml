@@ -142,7 +142,7 @@
           that:
             - result.failed is true
             - result.changed is false
-            - result.msg == "Argument template and DATA_SET_NAME_LOWER_B undefined"
+            - result.msg == "Argument template or DATA_SET_NAME_LOWER_B undefined"
 
       # #############################################################################
       # ################################## Cleanup ##################################

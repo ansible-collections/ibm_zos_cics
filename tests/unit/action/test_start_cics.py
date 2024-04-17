@@ -192,7 +192,7 @@ def test_process_args_with_missing_overrides_no_template():
     try:
         _process_module_args(module_args, templar, task_vars)
     except KeyError as e:
-        assert e.args[0] == "template and sdfhauth"
+        assert e.args[0] == "template or sdfhauth"
 
 
 def test_process_args_with_one_missing_override_no_template():
@@ -213,7 +213,7 @@ def test_process_args_with_one_missing_override_no_template():
     try:
         _process_module_args(module_args, templar, task_vars)
     except KeyError as e:
-        assert e.args[0] == "template and sceerun"
+        assert e.args[0] == "template or sceerun"
 
 
 def test_process_args_with_missing_region_data_sets():
@@ -288,7 +288,7 @@ def test_process_args_with_missing_dsn_value():
     try:
         _process_module_args(module_args, templar, task_vars)
     except KeyError as e:
-        assert e.args[0] == "template and dfhgcd"
+        assert e.args[0] == "template or dfhgcd"
 
 
 def test_process_args_with_extra_data_set_args():

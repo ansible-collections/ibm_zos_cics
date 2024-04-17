@@ -95,7 +95,7 @@ def test__process_region_data_set_args_without_template_or_override():
     try:
         _process_region_data_set_args(args_with_garbage, templar, "dfhgcd", task_vars)
     except KeyError as e:
-        assert e.args[0] == "template and dfhgcd"
+        assert e.args[0] == "template or dfhgcd"
 
 
 def test__validate_data_set_length():
@@ -187,7 +187,7 @@ def test__process_libraries_args_without_template_or_override():
     try:
         _process_libraries_args(args_with_garbage, templar, task_vars, "cics_data_sets", "sdfhload")
     except KeyError as e:
-        assert e.args[0] == "template and sdfhload"
+        assert e.args[0] == "template or sdfhload"
 
 
 def test__check_template():

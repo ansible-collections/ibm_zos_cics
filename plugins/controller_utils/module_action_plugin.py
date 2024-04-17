@@ -96,7 +96,7 @@ def _process_region_data_set_args(module_args, _templar, ds_name, task_vars):
             }
         })
     else:
-        raise KeyError("template and {0}".format(ds_name))
+        raise KeyError("template or {0}".format(ds_name))
     _validate_data_set_length(module_args["region_data_sets"][ds_name]["dsn"])
 
 
@@ -122,7 +122,7 @@ def _process_libraries_args(module_args, _templar, task_vars, lib_type, lib_ds_n
             template=module_args[lib_type]["template"],
         )
     else:
-        raise KeyError("template and {0}".format(lib_ds_name))
+        raise KeyError("template or {0}".format(lib_ds_name))
     _validate_data_set_length(module_args[lib_type][lib_ds_name])
 
 
