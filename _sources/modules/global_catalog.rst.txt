@@ -238,7 +238,7 @@ Return Values
       
                               
        failed
-        | True if the query job failed, otherwise False.
+        | True if the Ansible task failed, otherwise False.
       
         | **returned**: always
         | **type**: bool

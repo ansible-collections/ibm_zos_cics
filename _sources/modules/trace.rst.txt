@@ -213,7 +213,7 @@ Return Values
       
                               
        failed
-        | True if the query job failed, otherwise False.
+        | True if the Ansible task failed, otherwise False.
       
         | **returned**: always
         | **type**: bool
@@ -221,7 +221,7 @@ Return Values
       
                               
        start_state
-        | The state of the local request queue before the Ansible task runs.
+        | The state of the auxiliary trace data set before the Ansible task runs.
       
         | **returned**: always
         | **type**: dict
@@ -240,7 +240,7 @@ Return Values
       
                               
         exists
-          | True if the local request queue data set exists.
+          | True if the auxiliary trace data set exists.
       
           | **returned**: always
           | **type**: bool
@@ -250,7 +250,7 @@ Return Values
       
                               
        end_state
-        | The state of the local request queue at the end of the Ansible task.
+        | The state of the auxiliary trace data set at the end of the Ansible task.
       
         | **returned**: always
         | **type**: dict
@@ -269,7 +269,7 @@ Return Values
       
                               
         exists
-          | True if the local request queue data set exists.
+          | True if the auxiliary trace data set exists.
       
           | **returned**: always
           | **type**: bool

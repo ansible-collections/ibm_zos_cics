@@ -135,13 +135,13 @@ Examples
 .. code-block:: yaml+jinja
 
    
-   - name: Initialize a transient data intrapartition
+   - name: Initialize a transient data intrapartition data set
      ibm.ibm_zos_cics.intrapartition:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        state: "initial"
 
-   - name: Initialize a large transient data intrapartition
+   - name: Initialize a large transient data intrapartition data set
      ibm.ibm_zos_cics.intrapartition:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -149,7 +149,7 @@ Examples
        space_type: "M"
        state: "initial"
 
-   - name: Delete transient data intrapartition
+   - name: Delete a transient data intrapartition data set
      ibm.ibm_zos_cics.intrapartition:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -178,7 +178,7 @@ Return Values
       
                               
        failed
-        | True if the query job failed, otherwise False.
+        | True if the Ansible task failed, otherwise False.
       
         | **returned**: always
         | **type**: bool

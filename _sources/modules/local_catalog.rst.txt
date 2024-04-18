@@ -165,7 +165,7 @@ Examples
 .. code-block:: yaml+jinja
 
    
-   - name: Initialize a local catalog
+   - name: Initialize a local catalog data set
      ibm.ibm_zos_cics.local_catalog:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -173,7 +173,7 @@ Examples
          template: "CICSTS61.CICS.<< lib_name >>"
        state: "initial"
 
-   - name: Initialize a large catalog
+   - name: Initialize a large catalog data set
      ibm.ibm_zos_cics.local_catalog:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -183,7 +183,7 @@ Examples
        space_type: "REC"
        state: "initial"
 
-   - name: Delete local catalog
+   - name: Delete a local catalog data set
      ibm.ibm_zos_cics.local_catalog:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -220,7 +220,7 @@ Return Values
       
                               
        failed
-        | True if the query job failed, otherwise False.
+        | True if the Ansible task failed, otherwise False.
       
         | **returned**: always
         | **type**: bool
@@ -228,7 +228,7 @@ Return Values
       
                               
        start_state
-        | The state of the local catalog before the Ansible task runs.
+        | The state of the local catalog data set before the Ansible task runs.
       
         | **returned**: always
         | **type**: dict
@@ -257,7 +257,7 @@ Return Values
       
                               
        end_state
-        | The state of the local catalog at the end of the Ansible task.
+        | The state of the local catalog data set at the end of the Ansible task.
       
         | **returned**: always
         | **type**: dict
