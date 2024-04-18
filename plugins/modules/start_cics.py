@@ -360,6 +360,7 @@ class AnsibleStartCICSModule(object):
         data_set_dict = self.module_args.get(REGION_DATA_SETS)
 
         for dd_name, parameters in data_set_dict.items():
+            parameters[DSN] = parameters[DSN].upper()
             parameters[DISP] = SHR
             self.dds.append({dd_name: [parameters]})
 
@@ -367,7 +368,7 @@ class AnsibleStartCICSModule(object):
         dsn_dict = []
         for data_set in data_sets:
             if data_set:
-                dsn_dict.append({DSN: data_set, DISP: SHR})
+                dsn_dict.append({DSN: data_set.upper(), DISP: SHR})
         return dsn_dict
 
     def _add_sit_parameters(self):

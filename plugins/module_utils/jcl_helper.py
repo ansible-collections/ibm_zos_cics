@@ -38,11 +38,11 @@ class JCLHelper:
     def render_jcl(self):
         """Renders the JCL from the JCLHelper.job_data structure. Appends all JCL to the JCL parameter of this class.
 
-                  Returns
-                  -------
-                  str
-                      A string message to indicate failure, otherwise returns True.
-                  """
+        Returns
+        -------
+        str
+            A string message to indicate failure, otherwise returns True.
+        """
 
         self._write_job_statement(self.job_data[JOB_CARD])
         self._write_exec_statements(self.job_data[EXECS])
@@ -57,15 +57,15 @@ class JCLHelper:
     def _write_dds(self, dds):
         """Writes dd statements to the JCL.
 
-                Parameters
-                ----------
-                dds : list
-                    List of dictionaries, containing the dd information.
-                    Example Syntax:
-                    [{"DDNAME1": [{"dsn": DATA.NAME", "disp": "SHR"}],
-                    {"DDNAME2": [{"content": ["INSTREAM DATA", "TO WRITE"]}],
-                    {"DDNAME3" : [{"dsn": "DATA.NAME.1"}, {"dsn" : "DATA.NAME.2"}]}]
-                """
+        Parameters
+        ----------
+        dds : list
+            List of dictionaries, containing the dd information.
+            Example Syntax:
+            [{"DDNAME1": [{"dsn": DATA.NAME", "disp": "SHR"}],
+            {"DDNAME2": [{"content": ["INSTREAM DATA", "TO WRITE"]}],
+            {"DDNAME3" : [{"dsn": "DATA.NAME.1"}, {"dsn" : "DATA.NAME.2"}]}]
+        """
         for dd_card in dds:
             for dd_name, data in dd_card.items():
                 if isinstance(data, dict):
@@ -109,11 +109,11 @@ class JCLHelper:
     def _write_list_of_strings(self, jcl_lines):
         """Writes a list of strings to the JCL List.
 
-               Parameters
-               ----------
-               jcl_lines : list
-                   The lines of JCL you want to append to your JCL string.
-               """
+        Parameters
+        ----------
+        jcl_lines : list
+            The lines of JCL you want to append to your JCL string.
+        """
         if isinstance(jcl_lines, list):
             self.jcl.extend(jcl_lines)
         else:
@@ -122,13 +122,13 @@ class JCLHelper:
     def _write_instream_data(self, dd_name, data):
         """Writes instream data to a DD Card and adds to JCL List.
 
-               Parameters
-               ----------
-               dd_name : str
-                   The name of the DD Card
-               data : dict
-                   The lines of data you want appended to the JCL, and passed into the DD card.
-               """
+        Parameters
+        ----------
+        dd_name : str
+            The name of the DD Card
+        data : dict
+            The lines of data you want appended to the JCL, and passed into the DD card.
+        """
 
         # Write the opening line of an instream data statement
         formatted_dd_name = JCLHelper._format_dd_name(dd_name)
@@ -147,13 +147,13 @@ class JCLHelper:
     def _write_dd_statement(self, dd_name, additional_parameters):
         """Writes and builds a DD statement to the JCL List
 
-               Parameters
-               ----------
-               dd_name : str
-                   The name of the DD Card
-               additional_parameters: dict
-                   A dict of key value pairs, E.g. {'PARM1':'one','PARM2':'two'}
-               """
+        Parameters
+        ----------
+        dd_name : str
+            The name of the DD Card
+        additional_parameters: dict
+            A dict of key value pairs, E.g. {'PARM1':'one','PARM2':'two'}
+        """
 
         dd_statement = self._build_dd_statement(dd_name, additional_parameters)
         if dd_statement:
@@ -163,13 +163,13 @@ class JCLHelper:
     def _write_dd_concatenation(self, dd_name, additional_parameters):
         """Writes multiple data sets to a DD name and adds to JCL List
 
-               Parameters
-               ----------
-               dd_name : str
-                   The name of the DD Card
-               additional_parameters: dict
-                   A dict of key value pairs, E.g. {'PARM1':'one','PARM2':'two'}
-               """
+        Parameters
+        ----------
+        dd_name : str
+            The name of the DD Card
+        additional_parameters: dict
+            A dict of key value pairs, E.g. {'PARM1':'one','PARM2':'two'}
+        """
 
         dd_strings = self._build_dd_concatenation_list(
             dd_name, additional_parameters)
@@ -262,18 +262,18 @@ class JCLHelper:
     def _build_dd_statement(dd_name, additional_parameters=None):
         """Builds a DD Statement string from a DD Card name, and any additional parameters to follow
 
-                   Parameters
-                   ----------
-                   dd_name : str
-                       Name of the DD Card
-                   additional_parameters : dict
-                       A dict of key value pairs, E.g. {'PARM1':'one','PARM2':'two'}
+        Parameters
+        ----------
+        dd_name : str
+            Name of the DD Card
+        additional_parameters : dict
+            A dict of key value pairs, E.g. {'PARM1':'one','PARM2':'two'}
 
-                   Returns
-                   -------
-                   str
-                       The built DD Statement from the name and any parameters.
-                   """
+        Returns
+        -------
+        str
+            The built DD Statement from the name and any parameters.
+        """
         if dd_name is None:
             return None
         dd_name = JCLHelper._format_dd_name(dd_name)
@@ -343,20 +343,20 @@ class JCLHelper:
     def _concatenate_key_value_pairs_into_list(dict_to_unpack):
         """Puts key and value equal to one another
 
-                Parameters
-                ----------
-                dict_to_unpack : dict
-                    A dictionary of key value pairs to put equal to one another inside a list.
-                    If the value in the dictionary is another dictionary, it checks the dictionary length is a
-                    multiple of 2 and puts 2 values equal to one another. If value is blank, key will be stored
-                    on its own.
-                    E.g. {"PARAM1": "ONE", "SINGLE": "" } -> ["PARAM1=1", "SINGLE"]
+        Parameters
+        ----------
+        dict_to_unpack : dict
+            A dictionary of key value pairs to put equal to one another inside a list.
+            If the value in the dictionary is another dictionary, it checks the dictionary length is a
+            multiple of 2 and puts 2 values equal to one another. If value is blank, key will be stored
+            on its own.
+            E.g. {"PARAM1": "ONE", "SINGLE": "" } -> ["PARAM1=1", "SINGLE"]
 
-                Returns
-                -------
-                list
-                    A list of name=values, E.g. ["PARAM1=ONE", "DUMMY", "SINGLE"]
-                """
+        Returns
+        -------
+        list
+            A list of name=values, E.g. ["PARAM1=ONE", "DUMMY", "SINGLE"]
+        """
         list_of_pairs = []
         for k, v in dict_to_unpack.items():
             k = k.upper()
