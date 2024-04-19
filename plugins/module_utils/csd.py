@@ -82,6 +82,11 @@ def _get_idcams_cmd_csd(dataset):  # type: (dict) -> dict
             None
         }
     }
+    if dataset.get("log") is not None:
+        defaults["CLUSTER"]["LOG"] = dataset["log"]
+        if dataset.get("logstreamid") is not None and dataset["log"] == "ALL":
+            defaults["CLUSTER"]["LOGSTREAMID"] = dataset["logstreamid"]
+
     defaults.update(dataset)
     return defaults
 

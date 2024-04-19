@@ -61,6 +61,33 @@ cics_data_sets
 
 
      
+log
+  Specify the recovery attributes for the CSD, overriding the CSD system initialization parameters.
+
+  Specify NONE for a nonrecoverable CSD.
+
+  Specify UNDO for a CSD that is limited to file backout only.
+
+  Specify ALL for a CSD for which you want both forward recovery and file backout. If you specify LOG(ALL), you must also specify LOGSTREAMID to identify the 26-character name of the z/OS™ log stream to be used as the forward recovery log. The CICS collection does not support defining defining forward recovery log streams; you must follow the instructions in \ `Defining forward recovery log streams <https://www.ibm.com/docs/en/cics-ts/latest?topic=journaling-defining-forward-recovery-log-streams>`__\ .
+
+
+  | **required**: False
+  | **type**: str
+  | **choices**: NONE, UNDO, ALL
+
+
+     
+logstreamid
+  The 26-character name of the z/OS™ log stream to be used as the forward recovery log.
+
+  Only required when specifying 'ALL' as the LOG value.
+
+
+  | **required**: False
+  | **type**: str
+
+
+     
 region_data_sets
   The location of the region data sets to be created using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
 

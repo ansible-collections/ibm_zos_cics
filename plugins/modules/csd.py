@@ -136,6 +136,28 @@ options:
       - Or a LOCAL file (e.g "/User/tester/ansible-playbook/script.csdup"). NOT SUPPORTED IN THIS BETA.
     type: str
     required: false
+  log:
+    description:
+      - Specify the recovery attributes for the CSD, overriding the CSD system initialization parameters.
+      - Specify NONE for a nonrecoverable CSD.
+      - Specify UNDO for a CSD that is limited to file backout only.
+      - Specify ALL for a CSD for which you want both forward recovery and file backout. If you specify LOG(ALL), you
+        must also specify LOGSTREAMID to identify the 26-character name of the z/OS™ log stream to be used as the
+        forward recovery log. The CICS collection does not support defining defining forward recovery log streams; you
+        must follow the instructions in L(Defining forward recovery log streams,
+        https://www.ibm.com/docs/en/cics-ts/latest?topic=journaling-defining-forward-recovery-log-streams).
+    choices:
+      - "NONE"
+      - "UNDO"
+      - "ALL"
+    required: false
+    type: str
+  logstreamid:
+    description:
+      - The 26-character name of the z/OS™ log stream to be used as the forward recovery log.
+      - Only required when specifying 'ALL' as the LOG value.
+    type: str
+    required: false
 '''
 
 
@@ -293,6 +315,9 @@ USS = "USS"
 LOCAL = "LOCAL"
 SCRIPT_LOCATION_OPTIONS = [DATA_SET, USS, LOCAL]
 SCRIPT_LOCATION_DEFAULT = DATA_SET
+LOG = "log"
+LOG_OPTIONS = ["NONE", "UNDO", "ALL"]
+LOGSTREAMID = "logstreamid"
 
 
 class AnsibleCSDModule(DataSet):
@@ -300,6 +325,7 @@ class AnsibleCSDModule(DataSet):
         self.script_src = ""
         self.script_location = ""
         super(AnsibleCSDModule, self).__init__(SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT)
+        self._validate_log_args()
         self.name = self.region_param[DSN]["dsn"].upper()
         self.expected_data_set_organization = "VSAM"
 
@@ -354,8 +380,25 @@ class AnsibleCSDModule(DataSet):
                 "default": DATA_SET
             },
         })
-
+        arg_spec.update({
+            LOG: {
+                "type": "str",
+                "choices": LOG_OPTIONS,
+                "required": False
+            },
+        })
+        arg_spec.update({
+            LOGSTREAMID: {
+                "type": "str",
+                "required": False
+            },
+        })
         return arg_spec
+
+    def _validate_log_args(self):
+        if self._module.params.get(LOG):
+            if self._module.params[LOG] == "ALL" and self._module.params.get(LOGSTREAMID) is None:
+                self._fail("LOGSTREAMID must be provided when LOG is set to ALL.")
 
     def get_arg_defs(self):  # type: () -> dict
         defs = super().get_arg_defs()
@@ -388,6 +431,14 @@ class AnsibleCSDModule(DataSet):
             self.csdup_script()
         else:
             self.invalid_target_state()
+
+    def get_data_set(self):
+        data_set = super().get_data_set()
+        data_set.update({
+            LOG: self._module.params.get(LOG),
+            LOGSTREAMID: self._module.params.get(LOGSTREAMID)
+        })
+        return data_set
 
     def create_data_set(self):  # type: () -> None
         create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_csd(self.get_data_set()))
