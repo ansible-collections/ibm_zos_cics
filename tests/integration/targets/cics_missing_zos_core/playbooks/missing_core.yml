@@ -1,0 +1,98 @@
+# (c) Copyright IBM Corp. 2023
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Missing zos core
+
+  hosts: "all"
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+
+  tasks:
+    # #############################################################################
+    # ############################## Module Testing ###############################
+    # #############################################################################
+
+    - name: Create global catalog data set
+      ibm.ibm_zos_cics.global_catalog:
+        state: "initial"
+        region_data_sets:
+          template: "{{ region_data_set_path }}.<< data_set_name >>"
+        cics_data_sets:
+          template: "{{ cics_install_path }}.<< lib_name >>"
+      register: result
+      failed_when: false
+      ignore_errors: true
+
+    - name: Assert global failed
+      ansible.builtin.assert:
+        that:
+          - result.failed is true
+          - "'unable to locate collection ibm.ibm_zos_core' in result.msg"
+
+    - name: Create local catalog data set
+      ibm.ibm_zos_cics.local_catalog:
+        state: "initial"
+        region_data_sets:
+          template: "{{ region_data_set_path }}.<< data_set_name >>"
+        cics_data_sets:
+          template: "{{ cics_install_path }}.<< lib_name >>"
+      register: result
+      failed_when: false
+      ignore_errors: true
+
+    - name: Assert local failed
+      ansible.builtin.assert:
+        that:
+          - result.failed is true
+          - "'unable to locate collection ibm.ibm_zos_core' in result.msg"
+
+    - name: Create lrq data set
+      ibm.ibm_zos_cics.local_request_queue:
+        state: "initial"
+        region_data_sets:
+          template: "{{ region_data_set_path }}.<< data_set_name >>"
+        cics_data_sets:
+          template: "{{ cics_install_path }}.<< lib_name >>"
+      register: result
+      failed_when: false
+      ignore_errors: true
+
+    - name: Assert lrq failed
+      ansible.builtin.assert:
+        that:
+          - result.failed is true
+          - "'unable to locate collection ibm.ibm_zos_core' in result.msg"
+
+    - name: Create Intrapartition data set
+      ibm.ibm_zos_cics.intrapartition:
+        state: "initial"
+        region_data_sets:
+          template: "{{ region_data_set_path }}.<< data_set_name >>"
+        cics_data_sets:
+          template: "{{ cics_install_path }}.<< lib_name >>"
+      register: result
+      failed_when: false
+      ignore_errors: true
+
+    - name: Assert intra failed
+      ansible.builtin.assert:
+        that:
+          - result.failed is true
+          - "'unable to locate collection ibm.ibm_zos_core' in result.msg"
+
+    - name: Create Auxiliary Temp data set
+      ibm.ibm_zos_cics.auxiliary_temp:
+        state: "initial"
+        region_data_sets:
+          template: "{{ region_data_set_path }}.<< data_set_name >>"
+        cics_data_sets:
+          template: "{{ cics_install_path }}.<< lib_name >>"
+      register: result
+      failed_when: false
+      ignore_errors: true
+
+    - name: Assert aux temp failed
+      ansible.builtin.assert:
+        that:
+          - result.failed is true
+          - "'unable to locate collection ibm.ibm_zos_core' in result.msg"
