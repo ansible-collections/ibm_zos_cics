@@ -5,8 +5,6 @@
   hosts: 'all'
   gather_facts: false
   environment: "{{ environment_vars }}"
-  vars:
-    script_uss_path: "{{ uss_path }}/script.csdup"
 
   module_defaults:
     group/ibm.ibm_zos_cics.region_group:

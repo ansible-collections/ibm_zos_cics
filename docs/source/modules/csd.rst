@@ -126,6 +126,15 @@ region_data_sets
 
 
      
+script_content
+  The content of the DFHCSDUP script to submit, if using the \ :literal:`script\_location=INLINE`\  option.
+
+
+  | **required**: False
+  | **type**: str
+
+
+     
 script_location
   The type of location to load the DFHCSDUP script from.
 
@@ -133,24 +142,26 @@ script_location
 
   \ :literal:`USS`\  will load from a file on UNIX System Services (USS).
 
-  \ :literal:`LOCAL`\  will load from a file local to the ansible control node. NOT SUPPORTED IN THIS BETA.
+  \ :literal:`LOCAL`\  will load from a file local to the ansible control node.
+
+  \ :literal:`INLINE`\  will allow a script to be passed directly via the \ :literal:`script\_content`\  parameter.
 
 
   | **required**: False
   | **type**: str
   | **default**: DATA_SET
-  | **choices**: DATA_SET, USS, LOCAL
+  | **choices**: DATA_SET, USS, LOCAL, INLINE
 
 
      
 script_src
   The path to the source file containing the DFHCSDUP script to submit.
 
-  It could be a data set.(e.g "MY.HLQ.SOME.DEFS","MY.HLQ.SOME(DEFS)").
+  It could be a data set.(e.g "TESTER.DEFS.SCRIPT","TESTER.DEFS(SCRIPT)").
 
-  Or a USS file (e.g "/u/tester/demo/sample.csdup").
+  Or a USS file (e.g "/u/tester/defs/script.csdup").
 
-  Or a LOCAL file (e.g "/User/tester/ansible-playbook/script.csdup"). NOT SUPPORTED IN THIS BETA.
+  Or a local file (e.g "/User/tester/defs/script.csdup").
 
 
   | **required**: False
@@ -263,7 +274,8 @@ Examples
        cics_data_sets:
          template: "CICSTS61.CICS.<< lib_name >>"
        state: "script"
-       script_src: "MY.HLQ.SOME.DEFS"
+       script_location: "DATA_SET"
+       script_src: "TESTER.DEFS.SCRIPT"
 
    - name: Run a DFHCSDUP script from a USS file
      ibm.ibm_zos_cics.csd:
@@ -271,8 +283,28 @@ Examples
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        cics_data_sets:
          template: "CICSTS61.CICS.<< lib_name >>"
-       script_src: "/path/to/my/defs.csdup"
        script_location: "USS"
+       script_src: "/u/tester/defs/script.csdup"
+
+   - name: Run a DFHCSDUP script from a local file
+     ibm.ibm_zos_cics.csd:
+       region_data_sets:
+         template: "REGIONS.ABCD0001.<< data_set_name >>"
+       cics_data_sets:
+         template: "CICSTS61.CICS.<< lib_name >>"
+       script_location: "LOCAL"
+       script_src: "/User/tester/defs/script.csdup"
+
+   - name: Run a DFHCSDUP script inline
+     ibm.ibm_zos_cics.csd:
+       region_data_sets:
+         template: "REGIONS.ABCD0001.<< data_set_name >>"
+       cics_data_sets:
+         template: "CICSTS61.CICS.<< lib_name >>"
+       script_location: "INLINE"
+       script_content: |
+         DEFINE PROGRAM(TESTPRG1) GROUP(TESTGRP1)
+         DEFINE PROGRAM(TESTPRG2) GROUP(TESTGRP2)
 
 
 

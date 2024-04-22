@@ -20,7 +20,7 @@ class _DataSetActionPlugin(ActionBase):
         self.module_args = self._task.args.copy()
 
         try:
-            _process_module_args(self.module_args, self._templar, ds_name, task_vars, cics_data_sets_required)
+            self._process_module_args(self.module_args, self._templar, ds_name, task_vars, cics_data_sets_required)
         except KeyError as e:
             message = "Argument {0} undefined".format(e.args[0])
             return {"failed": True, "changed": False, "msg": message, "args": self.module_args}
@@ -34,6 +34,9 @@ class _DataSetActionPlugin(ActionBase):
             task_vars=task_vars,
             tmp=tmp,
         )
+
+    def _process_module_args(self, module_args, _templar, ds_name, task_vars, cics_data_sets_required):
+        _process_module_args(module_args, _templar, ds_name, task_vars, cics_data_sets_required)
 
 
 def _process_module_args(module_args, _templar, ds_name, task_vars, cics_data_sets_required):
