@@ -2634,6 +2634,10 @@ sit_parameters
   skrxxxx
     The SKRxxxx system initialization parameter specifies that a single-keystroke-retrieval operation is required.
 
+    Provide an inner dictionary key to represent the x's on the sit parameter name, which represent a page retrieval command.
+
+    The valid keys you can specify are PA1 through PA3, and PF1 through PF24.
+
 
     | **required**: False
     | **type**: dict
@@ -2681,6 +2685,10 @@ sit_parameters
      
   spctrxx
     The SPCTRxx system initialization parameter specifies the level of special tracing for a particular CICS component used by a transaction, terminal, or both.
+
+    Provide an inner dictionary key to represent the x's on the sit parameter name, which represent a component code, e.g. AP = Application domain
+
+    You code one inner key for each component that you want to define selectively.
 
 
     | **required**: False
@@ -2823,6 +2831,10 @@ sit_parameters
      
   stntrxx
     The STNTRxx system initialization parameter specifies the level of standard tracing you require for a particular CICS component. Specify the final two characters as the dictionary key
+
+    Provide an inner dictionary key to represent the x's on the sit parameter name, which representthe level of standard tracing you require for a particular CICS component code, e.g. AP = Application domain
+
+    You code one inner key for each component that you want to define selectively.
 
 
     | **required**: False
