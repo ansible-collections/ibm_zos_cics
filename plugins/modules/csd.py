@@ -120,20 +120,27 @@ options:
       - The type of location to load the DFHCSDUP script from.
       - V(DATA_SET) will load from a data set a PDS, PDSE, or sequential data set.
       - V(USS) will load from a file on UNIX System Services (USS).
-      - V(LOCAL) will load from a file local to the ansible control node. NOT SUPPORTED IN THIS BETA.
+      - V(LOCAL) will load from a file local to the ansible control node.
+      - V(INLINE) will allow a script to be passed directly via the O(script_content) parameter.
     choices:
       - "DATA_SET"
       - "USS"
       - "LOCAL"
+      - "INLINE"
     type: str
     required: false
     default: "DATA_SET"
   script_src:
     description:
       - The path to the source file containing the DFHCSDUP script to submit.
-      - It could be a data set.(e.g "MY.HLQ.SOME.DEFS","MY.HLQ.SOME(DEFS)").
-      - Or a USS file (e.g "/u/tester/demo/sample.csdup").
-      - Or a LOCAL file (e.g "/User/tester/ansible-playbook/script.csdup"). NOT SUPPORTED IN THIS BETA.
+      - It could be a data set.(e.g "TESTER.DEFS.SCRIPT","TESTER.DEFS(SCRIPT)").
+      - Or a USS file (e.g "/u/tester/defs/script.csdup").
+      - Or a local file (e.g "/User/tester/defs/script.csdup").
+    type: str
+    required: false
+  script_content:
+    description:
+      - The content of the DFHCSDUP script to submit, if using the O(script_location=INLINE) option.
     type: str
     required: false
   log:
@@ -203,7 +210,8 @@ EXAMPLES = r"""
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
     state: "script"
-    script_src: "MY.HLQ.SOME.DEFS"
+    script_location: "DATA_SET"
+    script_src: "TESTER.DEFS.SCRIPT"
 
 - name: Run a DFHCSDUP script from a USS file
   ibm.ibm_zos_cics.csd:
@@ -211,8 +219,28 @@ EXAMPLES = r"""
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
-    script_src: "/path/to/my/defs.csdup"
     script_location: "USS"
+    script_src: "/u/tester/defs/script.csdup"
+
+- name: Run a DFHCSDUP script from a local file
+  ibm.ibm_zos_cics.csd:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    cics_data_sets:
+      template: "CICSTS61.CICS.<< lib_name >>"
+    script_location: "LOCAL"
+    script_src: "/User/tester/defs/script.csdup"
+
+- name: Run a DFHCSDUP script inline
+  ibm.ibm_zos_cics.csd:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    cics_data_sets:
+      template: "CICSTS61.CICS.<< lib_name >>"
+    script_location: "INLINE"
+    script_content: |
+      DEFINE PROGRAM(TESTPRG1) GROUP(TESTGRP1)
+      DEFINE PROGRAM(TESTPRG2) GROUP(TESTGRP2)
 """
 
 
@@ -310,10 +338,12 @@ SCRIPT = "script"
 STATE_OPTIONS = [ABSENT, INITIAL, WARM, SCRIPT]
 SCRIPT_SOURCE = "script_src"
 SCRIPT_LOCATION = "script_location"
+SCRIPT_CONTENT = "script_content"
 DATA_SET = "DATA_SET"
 USS = "USS"
 LOCAL = "LOCAL"
-SCRIPT_LOCATION_OPTIONS = [DATA_SET, USS, LOCAL]
+INLINE = "INLINE"
+SCRIPT_LOCATION_OPTIONS = [DATA_SET, USS, LOCAL, INLINE]
 SCRIPT_LOCATION_DEFAULT = DATA_SET
 LOG = "log"
 LOG_OPTIONS = ["NONE", "UNDO", "ALL"]
@@ -379,6 +409,9 @@ class AnsibleCSDModule(DataSet):
                 "choices": SCRIPT_LOCATION_OPTIONS,
                 "default": DATA_SET
             },
+            SCRIPT_CONTENT: {
+                "type": "str"
+            },
         })
         arg_spec.update({
             LOG: {
@@ -419,6 +452,8 @@ class AnsibleCSDModule(DataSet):
             self.script_src = params[SCRIPT_SOURCE]
         if params.get(SCRIPT_LOCATION):
             self.script_location = params[SCRIPT_LOCATION]
+        if params.get(SCRIPT_CONTENT):
+            self.script_content = params[SCRIPT_CONTENT]
 
     def execute_target_state(self):   # type: () -> None
         if self.target_state == ABSENT:
@@ -458,8 +493,12 @@ class AnsibleCSDModule(DataSet):
         if not self.script_location:
             self._fail("script_location required")
 
-        if not self.script_src:
-            self._fail("script_src required")
+        if self.script_location == INLINE:
+            if not self.script_content:
+                self._fail("script_content required when script_location={0}".format(self.script_location))
+        else:
+            if not self.script_src:
+                self._fail("script_src required when script_location={0}".format(self.script_location))
 
         try:
             csdup_script_executions = []
@@ -468,9 +507,9 @@ class AnsibleCSDModule(DataSet):
             elif self.script_location == USS:
                 file = open(self.script_src)
                 file_content = file.read()
-                csdup_script_executions.append(_run_dfhcsdup(self.get_data_set(), StdinDefinition(content=file_content)))
-            elif self.script_location == LOCAL:
-                self._fail("script_location: LOCAL not supported in this beta.")
+                csdup_script_executions.extend(_run_dfhcsdup(self.get_data_set(), StdinDefinition(content=file_content)))
+            elif self.script_location == LOCAL or self.script_location == INLINE:
+                csdup_script_executions.extend(_run_dfhcsdup(self.get_data_set(), StdinDefinition(content=self.script_content)))
             else:
                 self._fail("script_location: {0} not recognised.".format(self.script_location))
 

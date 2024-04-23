@@ -72,7 +72,7 @@
 
         - name: Create a data set with a script in it
           ibm.ibm_zos_core.zos_copy:
-            content: "VERIFY"
+            content: "DEFINE PROGRAM(TESTPRG1) GROUP(TESTGRP1)"
             dest: "{{ script_data_set_path }}"
             dest_data_set:
               type: "SEQ"
@@ -84,8 +84,8 @@
         - name: Run csd module with a DFHCSDUP script from a data set
           ibm.ibm_zos_cics.csd:
             state: "script"
-            script_src: "{{ script_data_set_path }}"
             script_location: "DATA_SET"
+            script_src: "{{ script_data_set_path }}"
           register: result
         - name: Debug
           ansible.builtin.debug:
@@ -96,21 +96,21 @@
             that:
               - result.failed == false
               - result.changed == true
-              - result.executions|select("search", "VERIFY COMMAND EXECUTED SUCCESSFULLY")
+              - result.executions|select("search", "PROGRAM TESTPRG1 DEFINED IN GROUP TESTGRP1")
 
         # #############################################################################
 
         - name: Create a USS file with a script in it
           ansible.builtin.shell: |
             mkdir -p {{ uss_path }}
-            echo "VERIFY" > {{ script_uss_path }}
+            echo "DEFINE PROGRAM(TESTPRG2) GROUP(TESTGRP2)" > {{ script_uss_path }}
           changed_when: true
 
         - name: Run csd module with a DFHCSDUP script from a USS file
           ibm.ibm_zos_cics.csd:
             state: "script"
-            script_src: "{{ script_uss_path }}"
             script_location: "USS"
+            script_src: "{{ script_uss_path }}"
           register: result
         - name: Debug
           ansible.builtin.debug:
@@ -121,17 +121,16 @@
             that:
               - result.failed == false
               - result.changed == true
-              - result.executions|select("search", "VERIFY COMMAND EXECUTED SUCCESSFULLY")
+              - result.executions|select("search", "PROGRAM TESTPRG2 DEFINED IN GROUP TESTGRP2")
 
         # #############################################################################
 
         - name: Run csd module with a DFHCSDUP script from a local file
           ibm.ibm_zos_cics.csd:
             state: "script"
-            script_src: "{{ script_local_path }}"
             script_location: "LOCAL"
+            script_src: "{{ script_local_path }}"
           register: result
-          ignore_errors: true
         - name: Debug
           ansible.builtin.debug:
             msg: "{{ result }}"
@@ -139,9 +138,52 @@
         - name: Assert script was run
           ansible.builtin.assert:
             that:
-              - result.failed == true
-              - result.changed == false
-              - 'result.msg == "script_location: LOCAL not supported in this beta."'
+              - result.failed == false
+              - result.changed == true
+              - result.executions|select("search", "PROGRAM TESTPRG3 DEFINED IN GROUP TESTGRP3")
+
+        # #############################################################################
+
+        - name: Run csd module with a DFHCSDUP script inline (single line)
+          ibm.ibm_zos_cics.csd:
+            state: "script"
+            script_src: "{{ script_local_path }}"
+            script_location: "INLINE"
+            script_content: "DEFINE PROGRAM(TESTPRG4) GROUP(TESTGRP4)"
+          register: result
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert script was run
+          ansible.builtin.assert:
+            that:
+              - result.failed == false
+              - result.changed == true
+              - result.executions|select("search", "PROGRAM TESTPRG4 DEFINED IN GROUP TESTGRP4")
+
+        # #############################################################################
+
+        - name: Run csd module with a DFHCSDUP script inline (multiple lines)
+          ibm.ibm_zos_cics.csd:
+            state: "script"
+            script_src: "{{ script_local_path }}"
+            script_location: "INLINE"
+            script_content: |
+              DEFINE PROGRAM(TESTPRG5) GROUP(TESTGRP5)
+              DEFINE PROGRAM(TESTPRG6) GROUP(TESTGRP6)
+          register: result
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert script was run
+          ansible.builtin.assert:
+            that:
+              - result.failed == false
+              - result.changed == true
+              - result.executions|select("search", "PROGRAM TESTPRG5 DEFINED IN GROUP TESTGRP5")
+              - result.executions|select("search", "PROGRAM TESTPRG6 DEFINED IN GROUP TESTGRP6")
 
         # #############################################################################
         # ################################## Cleanup ##################################

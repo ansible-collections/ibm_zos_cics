@@ -41,25 +41,12 @@
   retries: 3
   until: result is not failed
 
-- name: Create DFHCSDUP script for DFHTERMC
-  when: data_set_state == "initial"
-  ansible.builtin.shell: |
-    mkdir -p {{ uss_path }}
-    echo "ADD GROUP(DFHTERMC) LIST(DFHLIST1)" > {{ script_uss_path }}
-  changed_when: true
-
 - name: Run DFHCSDUP script
   when: data_set_state == "initial"
   ibm.ibm_zos_cics.csd:
     state: "script"
-    script_src: "{{ script_uss_path }}"
-    script_location: "USS"
-
-- name: Delete {{ script_uss_path }}
-  when: data_set_state == "absent"
-  ansible.builtin.file:
-    path: "{{ script_uss_path }}"
-    state: absent
+    script_location: "INLINE"
+    script_content: "ADD GROUP(DFHTERMC) LIST(DFHLIST1)"
 
 - name: Local request queue data set (DFHLRQ)
   ibm.ibm_zos_cics.local_request_queue:
