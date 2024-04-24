@@ -586,6 +586,89 @@ def test_copy_libraries_to_steplib_and_dfhrpl():
     }
 
 
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Requires python 3 language features")
+def test__populate_dds():
+    module = setup_and_update_parms({
+        "region_data_sets": {
+            'dfhauxt': {DSN: "test.dfhauxt"},
+            'dfhbuxt': {DSN: "test.dfhbuxt"},
+            'dfhcsd': {DSN: "test.dfhcsd"},
+            'dfhgcd': {DSN: "test.dfhgcd"},
+            'dfhintra': {DSN: "test.dfhintra"},
+            'dfhlcd': {DSN: "test.dfhlcd"},
+            'dfhlrq': {DSN: "test.dfhlrq"},
+            'dfhtemp': {DSN: "test.dfhtemp"},
+            'dfhdmpa': {DSN: "test.dfhdmpa"},
+            'dfhdmpb': {DSN: "test.dfhdmpb"}
+        },
+        "cics_data_sets": {
+            "sdfhload": "test.sdfhload",
+            "sdfhauth": "test.sdfhauth",
+            "sdfhlic": "test.sdfhlic",
+        },
+        "le_data_sets": {
+            "sceecics": "test.sceecics",
+            "sceerun": "test.sceerun",
+            "sceerun2": "test.sceerun2",
+        },
+        "cpsm_data_sets": {
+            "seyuauth": "test.seyuauth",
+            "seyuload": "test.seyuload",
+        },
+        "steplib": {
+            "top_libraries": ["some.top.lib"]
+        },
+        "dfhrpl": {
+            "top_libraries": ["another.top.lib"]
+        }
+    })
+    dds = module._populate_dds()
+
+    expected_dds = [
+        {
+            "steplib": [
+                {"disp": "SHR", "dsn": "SOME.TOP.LIB"},
+                {"disp": "SHR", "dsn": "TEST.SDFHAUTH"},
+                {"disp": "SHR", "dsn": "TEST.SDFHLIC"},
+                {"disp": "SHR", "dsn": "TEST.SEYUAUTH"},
+                {"disp": "SHR", "dsn": "TEST.SCEERUN"},
+                {"disp": "SHR", "dsn": "TEST.SCEERUN2"},
+            ]
+        },
+        {
+            "dfhrpl": [
+                {"disp": "SHR", "dsn": "ANOTHER.TOP.LIB"},
+                {"disp": "SHR", "dsn": "TEST.SDFHLOAD"},
+                {"disp": "SHR", "dsn": "TEST.SEYULOAD"},
+                {"disp": "SHR", "dsn": "TEST.SCEECICS"},
+                {"disp": "SHR", "dsn": "TEST.SCEERUN"},
+                {"disp": "SHR", "dsn": "TEST.SCEERUN2"},
+            ]
+        },
+        {"dfhauxt": [{"disp": "SHR", "dsn": "TEST.DFHAUXT"}]},
+        {"dfhbuxt": [{"disp": "SHR", "dsn": "TEST.DFHBUXT"}]},
+        {"dfhcsd": [{"disp": "SHR", "dsn": "TEST.DFHCSD"}]},
+        {"dfhgcd": [{"disp": "SHR", "dsn": "TEST.DFHGCD"}]},
+        {"dfhintra": [{"disp": "SHR", "dsn": "TEST.DFHINTRA"}]},
+        {"dfhlcd": [{"disp": "SHR", "dsn": "TEST.DFHLCD"}]},
+        {"dfhlrq": [{"disp": "SHR", "dsn": "TEST.DFHLRQ"}]},
+        {"dfhtemp": [{"disp": "SHR", "dsn": "TEST.DFHTEMP"}]},
+        {"dfhdmpa": [{"disp": "SHR", "dsn": "TEST.DFHDMPA"}]},
+        {"dfhdmpb": [{"disp": "SHR", "dsn": "TEST.DFHDMPB"}]},
+        {"ceemsg": [{"sysout": "*"}]},
+        {"ceeout": [{"sysout": "*"}]},
+        {"msgusr": [{"sysout": "*"}]},
+        {"sysprint": [{"sysout": "*"}]},
+        {"sysudump": [{"sysout": "*"}]},
+        {"sysabend": [{"sysout": "*"}]},
+        {"sysout": [{"sysout": "*"}]},
+        {"dfhcxrf": [{"sysout": "*"}]},
+        {"logusr": [{"sysout": "*"}]},
+    ]
+
+    assert dds == expected_dds
+
+
 def test_validate_parameters_job_name_too_long():
     prepare_for_fail()
     job_name = "TOOOOLONGGGJOB"
