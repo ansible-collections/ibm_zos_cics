@@ -157,6 +157,15 @@ state
   | **choices**: initial, absent, warm
 
 
+     
+volumes
+  The volume(s) where the data set is created. Use a string to define a singular volume or a list of strings for multiple volumes.
+
+
+  | **required**: False
+  | **type**: raw
+
+
 
 
 Examples

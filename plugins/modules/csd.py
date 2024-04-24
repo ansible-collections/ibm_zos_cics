@@ -60,6 +60,11 @@ options:
       - CYL
       - TRK
     default: M
+  volumes:
+    description:
+      - The volume(s) where the data set is created. Use a string to define a singular volume or a list of strings for multiple volumes.
+    type: raw
+    required: false
   region_data_sets:
     description:
       - The location of the region data sets to be created using a template, for example,

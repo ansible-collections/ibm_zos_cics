@@ -25,6 +25,7 @@ STATE = "state"
 SPACE_PRIMARY = "space_primary"
 SPACE_SECONDARY = "space_secondary"
 SPACE_TYPE = "space_type"
+VOLUMES = "volumes"
 KILOBYTES = "K"
 MEGABYTES = "M"
 RECORDS = "REC"
@@ -52,6 +53,7 @@ class DataSet():
         self.unit = ""
         self.primary = primary
         self.secondary = secondary
+        self.volumes = None
         self.sdfhload = ""
         self.destination = ""
 
@@ -65,6 +67,7 @@ class DataSet():
         self._module = AnsibleModule(
             argument_spec=self._get_arg_spec(),
         )
+        self.process_volume_arg()
         self.validate_parameters()
 
     def get_result(self):  # type: () -> dict
@@ -85,6 +88,7 @@ class DataSet():
             "unit": self.unit,
             "primary": self.primary,
             "secondary": self.secondary,
+            "volumes": self.volumes,
             "sdfhload": self.sdfhload,
         }
 
@@ -126,6 +130,9 @@ class DataSet():
                 "type": "str",
                 "choices": SPACE_OPTIONS,
             },
+            VOLUMES: {
+                "type": "raw"
+            },
             STATE: {
                 "type": "str",
                 "required": True,
@@ -153,7 +160,20 @@ class DataSet():
                 "arg_type": "data_set_base"
             })
             defs[CICS_DATA_SETS]["options"]["sdfhload"].pop("type")
+
+        defs[VOLUMES].pop("type")
+        defs[VOLUMES]["arg_type"] = "list"
+        defs[VOLUMES]["elements"] = "volume"
         return defs
+
+    def process_volume_arg(self):
+        """
+        Ensure Volumes is a string or list of strings
+        """
+        if self._module.params.get(VOLUMES):
+            volumes_param = self._module.params[VOLUMES]
+            if isinstance(volumes_param, str):
+                self._module.params[VOLUMES] = volumes_param.split()
 
     def validate_parameters(self):  # type: () -> dict
         """
@@ -177,6 +197,8 @@ class DataSet():
             self.unit = params[SPACE_TYPE]
         if params.get(CICS_DATA_SETS) and params.get(CICS_DATA_SETS).get("sdfhload"):
             self.sdfhload = params[CICS_DATA_SETS]["sdfhload"].upper()
+        if params.get(VOLUMES):
+            self.volumes = params[VOLUMES]
         if params.get(DESTINATION):
             self.destination = params[DESTINATION]
 

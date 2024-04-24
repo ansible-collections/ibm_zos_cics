@@ -69,3 +69,67 @@ def test_get_idcams_cmd_cylinders():
     CONTROLINTERVALSIZE(2560)) -
     INDEX (NAME(ANSI.CYLS.DFHLRQ.INDEX))
     '''
+
+
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
+def test_get_idcams_cmd_volumes():
+    dataset = dict(
+        name="ANSI.CYLS.DFHLRQ",
+        state="initial",
+        exists=False,
+        data_set_organization="NONE",
+        unit=CYLINDERS,
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT,
+        volumes=["vserv1"]
+    )
+    idcams_cmd_lrq = data_set_utils._build_idcams_define_cmd(local_request_queue._get_idcams_cmd_lrq(dataset))
+    assert idcams_cmd_lrq == '''
+    DEFINE CLUSTER (NAME(ANSI.CYLS.DFHLRQ) -
+    CYLINDERS(4 1) -
+    RECORDSIZE(2232 2400) -
+    INDEXED -
+    KEYS(40 0) -
+    FREESPACE(0 10) -
+    SHAREOPTIONS(2 3) -
+    REUSE -
+    LOG(UNDO) -
+    VOLUMES(vserv1)) -
+    DATA (NAME(ANSI.CYLS.DFHLRQ.DATA) -
+    CONTROLINTERVALSIZE(2560)) -
+    INDEX (NAME(ANSI.CYLS.DFHLRQ.INDEX))
+    '''
+
+
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
+def test_get_idcams_cmd_multiple_volumes():
+    dataset = dict(
+        name="ANSI.CYLS.DFHLRQ",
+        state="initial",
+        exists=False,
+        data_set_organization="NONE",
+        unit=CYLINDERS,
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT,
+        volumes=["vserv1", "vserv2"]
+    )
+    idcams_cmd_lrq = data_set_utils._build_idcams_define_cmd(local_request_queue._get_idcams_cmd_lrq(dataset))
+    assert idcams_cmd_lrq == '''
+    DEFINE CLUSTER (NAME(ANSI.CYLS.DFHLRQ) -
+    CYLINDERS(4 1) -
+    RECORDSIZE(2232 2400) -
+    INDEXED -
+    KEYS(40 0) -
+    FREESPACE(0 10) -
+    SHAREOPTIONS(2 3) -
+    REUSE -
+    LOG(UNDO) -
+    VOLUMES(vserv1 vserv2)) -
+    DATA (NAME(ANSI.CYLS.DFHLRQ.DATA) -
+    CONTROLINTERVALSIZE(2560)) -
+    INDEX (NAME(ANSI.CYLS.DFHLRQ.INDEX))
+    '''

@@ -216,6 +216,70 @@ def test_get_idcams_cmd_nonrecoverable():
     '''
 
 
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
+def test_get_idcams_cmd_volumes():
+    csd_data_set = dict(
+        name=NAME,
+        sdfhload="CICSTS.IN56.SDFHLOAD",
+        state="initial",
+        exists=False,
+        data_set_organization="NONE",
+        unit=MEGABYTES,
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT,
+        volumes=["vserv1"]
+    )
+    idcams_cmd_csd = data_set_utils._build_idcams_define_cmd(csd._get_idcams_cmd_csd(csd_data_set))
+    assert idcams_cmd_csd == '''
+    DEFINE CLUSTER (NAME(ANSI.TEST.DFHCSD) -
+    MEGABYTES(4 1) -
+    RECORDSIZE(200 2000) -
+    INDEXED -
+    KEYS(22 0) -
+    FREESPACE(10 10) -
+    SHAREOPTIONS(2) -
+    REUSE -
+    VOLUMES(vserv1)) -
+    DATA (NAME(ANSI.TEST.DFHCSD.DATA) -
+    CONTROLINTERVALSIZE(8192)) -
+    INDEX (NAME(ANSI.TEST.DFHCSD.INDEX))
+    '''
+
+
+@pytest.mark.skipif(
+    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
+)
+def test_get_idcams_cmd_multiple_volumes():
+    csd_data_set = dict(
+        name=NAME,
+        sdfhload="CICSTS.IN56.SDFHLOAD",
+        state="initial",
+        exists=False,
+        data_set_organization="NONE",
+        unit=MEGABYTES,
+        primary=SPACE_PRIMARY_DEFAULT,
+        secondary=SPACE_SECONDARY_DEFAULT,
+        volumes=["vserv1", "vserv2"]
+    )
+    idcams_cmd_csd = data_set_utils._build_idcams_define_cmd(csd._get_idcams_cmd_csd(csd_data_set))
+    assert idcams_cmd_csd == '''
+    DEFINE CLUSTER (NAME(ANSI.TEST.DFHCSD) -
+    MEGABYTES(4 1) -
+    RECORDSIZE(200 2000) -
+    INDEXED -
+    KEYS(22 0) -
+    FREESPACE(10 10) -
+    SHAREOPTIONS(2) -
+    REUSE -
+    VOLUMES(vserv1 vserv2)) -
+    DATA (NAME(ANSI.TEST.DFHCSD.DATA) -
+    CONTROLINTERVALSIZE(8192)) -
+    INDEX (NAME(ANSI.TEST.DFHCSD.INDEX))
+    '''
+
+
 def test_csdup_response():
     setUp()
     csd_input = {

@@ -109,12 +109,18 @@ def _build_idcams_define_cmd(dataset):  # type: (dict) -> str
 
 
 def _build_idcams_define_cluster_parms(dataset):  # type: (dict) -> str
-    clusterStr = " CLUSTER (NAME({0}) -\n    {1}({2} {3}){4})".format(
+    if dataset.get("volumes"):
+        volumes_cmd = _build_idcams_volumes(dataset["volumes"])
+    else:
+        volumes_cmd = ""
+
+    clusterStr = " CLUSTER (NAME({0}) -\n    {1}({2} {3}){4}{5})".format(
         dataset["name"],
         _get_dataset_size_unit(dataset["unit"]),
         dataset["primary"],
         dataset["secondary"],
-        _build_idcams_define_parms(dataset, "CLUSTER"))
+        _build_idcams_define_parms(dataset, "CLUSTER"),
+        volumes_cmd)
     return clusterStr
 
 
@@ -144,6 +150,16 @@ def _build_idcams_define_parms(dataset, parm):  # type: (dict, str) -> str
             elif key is not None:
                 parmsStr += " -\n    {0}".format(key)
     return parmsStr
+
+
+def _build_idcams_volumes(volumes):  # type: (list[str]) -> str
+    volumes_cmd = ""
+    if len(volumes) > 1:
+        for vol in volumes:
+            volumes_cmd += (vol + " ")
+    else:
+        volumes_cmd = volumes[0]
+    return " -\n    VOLUMES({0})".format(volumes_cmd.rstrip())
 
 
 def _run_listds(location):  # type: (str) -> tuple[list[_execution], bool, str]
