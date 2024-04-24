@@ -221,17 +221,17 @@ options:
     suboptions:
       template:
         description:
-          - The templated location of the CPSM libraries.
+          - The templated location of the CICSPlex SM libraries.
         required: false
         type: str
       seyuauth:
         description:
-          - The location of the C(SEYUAUTH) library. If O(cpsm_data_sets.template) is provided, this value will override the template.
+          - The location of the C(SEYUAUTH) library. If O(cpsm_data_sets.template) is provided, this value overrides the template.
         required: false
         type: str
       seyuload:
         description:
-          - The location of the C(SEYULOAD) library. If O(cpsm_data_sets.template) is provided, this value will override the template.
+          - The location of the C(SEYULOAD) library. If O(cpsm_data_sets.template) is provided, this value overrides the template.
         required: false
         type: str
   steplib:
@@ -281,8 +281,8 @@ options:
     suboptions:
       template:
         description:
-          - The base location of the region data sets to be created using a template, for example,
-            C(REGIONS.ABCD0001.<< data_set_name >>). Not required if you provide the data set
+          - The base location of the region data sets to be created by using a template, for example,
+            C(REGIONS.ABCD0001.<< data_set_name >>). This is not required if you provide the data set
             name (dsn) of all the data sets individually.
         required: false
         type: str
@@ -1915,6 +1915,9 @@ options:
         description:
           - The SKRxxxx system initialization parameter specifies that a single-keystroke-retrieval operation is
             required.
+          - 'Provide a dictionary with the key specifying a key on the 3270 keyboard and the value identifying a page
+            retrieval command that the 3270 key represents. For example, PF20: PGPURGE'
+          - The valid keys you can specify are PA1 through PA3, and PF1 through PF24.
         required: false
         type: dict
       snpreset:
@@ -1955,8 +1958,15 @@ options:
         type: str
       spctrxx:
         description:
-          - The SPCTRxx system initialization parameter specifies the level of special tracing for a particular CICS
-            component used by a transaction, terminal, or both.
+          - The SPCTRxx system initialization parameter specifies the level of special tracing activated for a particular CICS
+            component. When you enable special tracing for a transaction, a terminal, or both, the trace points of this component
+            at the specified trace level are eligible to make trace calls at any given point in the process of a special tracing task.
+          - 'Provide a dictionary with the key specifying a two-letter code that represents a component and the value specifying the
+            trace level. For example: AP=1-2'
+          - You can provide several dictionaries to specify the level of special tracing for several components. Each component
+            is defined by one dictionary.
+          - For information about CICS components and their respetive two-letter code, see
+            L(Component names and abbreviations,https://www.ibm.com/docs/en/cics-ts/6.1?topic=component-names-abbreviations).
         required: false
         type: dict
       spool:
@@ -2070,8 +2080,14 @@ options:
         type: str
       stntrxx:
         description:
-          - The STNTRxx system initialization parameter specifies the level of standard tracing you require for a
-            particular CICS component. Specify the final two characters as the dictionary key
+          - The STNTRxx system initialization parameter specifies the level of standard tracing for a particular CICS component.
+          - 'Provide a dictionary with the key specifying a two-letter code that represents a component and the value specifying the
+            trace level. For example: AP=1-2'
+          - You can provide several dictionaries to specify the level of standard tracing for several components. Each component
+            is defined by one dictionary. For components that are not defined here, their standard tracing levels are determined
+            by STNTR.
+          - For information about CICS components and their respective two-letter code, see
+            L(Component names and abbreviations,https://www.ibm.com/docs/en/cics-ts/6.1?topic=component-names-abbreviations).
         required: false
         type: dict
       subtsks:
@@ -2134,7 +2150,6 @@ options:
         choices:
           - "NO"
           - "YES"
-
       tcpip:
         description:
           - The TCPIP system initialization parameter specifies whether CICS TCP/IP services are to be activated at
