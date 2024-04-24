@@ -4,6 +4,7 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
+import re
 
 ACCOUNTING_INFORMATION = 'accounting_information'
 CONTENT = 'content'
@@ -15,6 +16,7 @@ DLM = 'dlm'
 END_INSTREAM = '/*'
 EXEC = 'EXEC'
 EXECS = 'execs'
+GMTEXT = 'GMTEXT'
 JCL_PREFIX = '//'
 JOB = 'JOB'
 JOB_NAME = 'job_name'
@@ -361,6 +363,18 @@ class JCLHelper:
             if v == "":
                 paired = k
             else:
+                if k == GMTEXT:
+                    v = JCLHelper._add_single_quotes_to_text(v)
                 paired = '{0}={1}'.format(k, v)
             list_of_pairs.append(paired)
         return list_of_pairs
+
+    @staticmethod
+    def _add_single_quotes_to_text(value):
+        if re.match("^\"\'([^']|\'\')*\'\"$", value):
+            return value
+        value = value.strip('"').strip("'")
+        if "'" in value:
+            value = value.replace("'", "''")
+
+        return "'{0}'".format(value)

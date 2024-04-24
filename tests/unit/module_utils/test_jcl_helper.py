@@ -495,3 +495,12 @@ def test_concatenate_key_value_pairs_into_list():
     dictionary_unpacked = JCLHelper._concatenate_key_value_pairs_into_list(
         dictionary)
     assert dictionary_unpacked == ["VAL1=One", "VAL2=Two", "VAL3=Three", "VAL4=Four"]
+
+
+def test_add_single_quotes_to_text():
+    assert JCLHelper._add_single_quotes_to_text("'hello'") == "'hello'"
+    assert JCLHelper._add_single_quotes_to_text("hello") == "'hello'"
+    assert JCLHelper._add_single_quotes_to_text("\"'hello'\"") == "\"'hello'\""
+    assert JCLHelper._add_single_quotes_to_text("\"hel'lo\"") == "'hel''lo'"
+    assert JCLHelper._add_single_quotes_to_text("hel'lo") == "'hel''lo'"
+    assert JCLHelper._add_single_quotes_to_text("h'e'l'l'o") == "'h''e''l''l''o'"

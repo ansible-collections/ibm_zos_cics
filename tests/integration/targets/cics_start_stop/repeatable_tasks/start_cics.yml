@@ -20,7 +20,7 @@
       cicssvc: 217
       edsalim: 500M
       grplist: (DFHLIST*)
-      gmtext: '''Welcome to CICS Integration Tests'''
+      gmtext: 'Welcome to CICS Integration Tests'
       srbsvc: 218
       tcpip: "NO"
       usshome: "{{ usshome }}"
