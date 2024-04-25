@@ -59,7 +59,7 @@ cics_data_sets
 
      
   sdfhlic
-    The location of the \ :literal:`SDFHLIC`\  library. If \ :literal:`cics\_data\_sets.template`\  is provided, this value will override the template.
+    The location of the \ :literal:`SDFHLIC`\  library. If \ :literal:`cics\_data\_sets.template`\  is provided, this value overrides the template.
 
 
     | **required**: False
@@ -68,7 +68,7 @@ cics_data_sets
 
      
   sdfhload
-    The location of the \ :literal:`SDFHLOAD`\  library. If \ :literal:`cics\_data\_sets.template`\  is provided, this value will override the template.
+    The location of the \ :literal:`SDFHLOAD`\  library. If \ :literal:`cics\_data\_sets.template`\  is provided, this value overrides the template.
 
 
     | **required**: False
@@ -87,7 +87,7 @@ cics_data_sets
 
      
 cpsm_data_sets
-  The data set names of the \ :literal:`SEYUAUTH`\  and \ :literal:`SEYULOAD`\  libraries, for example \ :literal:`CTS610.CPSM610.SEYUAUTH`\ .
+  The data set names of the \ :literal:`SEYUAUTH`\  and \ :literal:`SEYULOAD`\  libraries, for example, \ :literal:`CTS610.CPSM610.SEYUAUTH`\ .
 
 
   | **required**: False
@@ -152,7 +152,7 @@ dfhrpl
 
      
 job_parameters
-  Specifies various parameters to be applied to the startup job.
+  Specifies various parameters to be applied to the CICS startup job.
 
 
   | **required**: False
@@ -170,7 +170,7 @@ job_parameters
 
      
     cards
-      Specifies the estimated number of cards JES2 is to punch from this job's sysout data sets. Cards is 1 through 4 decimal numbers. If you omit cards, JES2 uses an installation default specified at initialization.
+      Specifies the estimated number of cards JES2 is to punch from this job's sysout data sets. The value is 1 through 4 decimal numbers. If you omit cards, JES2 uses an installation default specified at initialization.
 
 
       | **required**: False
@@ -179,7 +179,7 @@ job_parameters
 
      
     copies
-      Specifies the number of times JES2 is to print and/or punch this job's sysout data sets. Copies is 1 through 3 decimal numbers not exceeding an installation-specified limit. The maximum is 255. For example, code 2 for two copies. If you omit copies, JES2 assumes one copy.
+      Specifies the number of times JES2 is to print or punch this job's sysout data sets. The value is 1 through 3 decimal numbers and must not exceed an installation-specified limit. The maximum is 255. For example, code 2 for two copies. If you omit copies, JES2 assumes one copy.
 
 
       | **required**: False
@@ -188,7 +188,7 @@ job_parameters
 
      
     forms
-      Specifies the forms that JES2 is to use for printing this job's sysout data sets. Forms is 1 through 4 alphanumeric characters. For example, code 5 for 5-part forms. If you omit forms, JES2 uses an installation default specified at initialization.
+      Specifies the forms that JES2 is to use for printing this job's sysout data sets. The value is 1 through 4 alphanumeric characters. For example, code 5 for 5-part forms. If you omit forms, JES2 uses an installation default specified at initialization.
 
 
       | **required**: False
@@ -197,7 +197,7 @@ job_parameters
 
      
     linect
-      Specifies the number of lines JES2 is to print per page for this job's sysout data sets. Linect is 1 through 3 decimal numbers. If you omit linect, JES2 uses an installation default specified at initialization. If you code a zero, JES2 does not eject to a new page when the number of lines exceeds the installation default.
+      Specifies the number of lines JES2 is to print per page for this job's sysout data sets. The value is 1 through 3 decimal numbers. If you omit linect, JES2 uses an installation default specified at initialization. If you code a zero, JES2 does not eject to a new page when the number of lines exceeds the installation default.
 
 
       | **required**: False
@@ -206,7 +206,7 @@ job_parameters
 
      
     lines
-      Specifies the estimated line count, in thousands of lines, from this job's sysout data sets. Lines is 1 through 4 decimal numbers. For example, code 5 for 5000 lines. If you omit lines, JES2 uses an installation default specified at initialization.
+      Specifies the estimated line count, in thousands of lines, from this job's sysout data sets. The value is 1 through 4 decimal numbers. For example, code 5 for 5000 lines. If you omit lines, JES2 uses an installation default specified at initialization.
 
 
       | **required**: False
@@ -215,7 +215,7 @@ job_parameters
 
      
     log
-      Specifies whether or not JES2 is to print the job log. Code N to request no job log. If you code any other character or omit this subparameter, JES2 prints the job log. If your installation specified NOLOG for this job's class during JES2 initialization, JES2 will not print a job log.
+      Specifies whether JES2 is to print the job log. Code N to surpress printing of the job log. If you code any other character or omit this subparameter, JES2 prints the job log. If your installation specified NOLOG for this job's class during JES2 initialization, JES2 does not print the job log.
 
 
       | **required**: False
@@ -224,7 +224,7 @@ job_parameters
 
      
     pano
-      Specifies the programmer's accounting number. Pano is 1 through 4 alphanumeric characters.
+      Specifies the programmer's accounting number. The value is 1 through 4 alphanumeric characters.
 
 
       | **required**: False
@@ -233,7 +233,7 @@ job_parameters
 
      
     room
-      Specifies the programmer's room number. Room is 1 through 4 alphanumeric characters.
+      Specifies the programmer's room number. The value is 1 through 4 alphanumeric characters.
 
 
       | **required**: False
@@ -242,7 +242,7 @@ job_parameters
 
      
     time
-      Specifies the estimated execution time in minutes. Time is 1 through 4 decimal numbers. For example, code 30 for 30 minutes. If you omit a time subparameter and a TIME parameter on the JES2 /\*JOBPARM statement, JES2 uses an installation default specified at initialization. If job execution exceeds the time, JES2 sends a message to the operator.
+      Specifies the estimated execution time in minutes. The value is 1 through 4 decimal numbers. For example, code 30 for 30 minutes. If you omit a time subparameter and a TIME parameter on the JES2 /\*JOBPARM statement, JES2 uses an installation default specified at initialization. If job execution exceeds the time, JES2 sends a message to the operator.
 
 
       | **required**: False
@@ -346,7 +346,7 @@ job_parameters
 
      
 le_data_sets
-  The data set names of the \ :literal:`SCEECICS`\ , \ :literal:`SCEERUN`\  and \ :literal:`SCEERUN2`\  libraries, for example, \ :literal:`SCEERUN`\ .
+  The data set names of the \ :literal:`SCEECICS`\ , \ :literal:`SCEERUN`\  and \ :literal:`SCEERUN2`\  libraries.
 
 
   | **required**: True
@@ -355,7 +355,7 @@ le_data_sets
 
      
   sceecics
-    The location of the \ :literal:`SCEECICS`\  library. If \ :literal:`le\_data\_sets.template`\  is provided, this value will override the template.
+    The location of the \ :literal:`SCEECICS`\  library. If \ :literal:`le\_data\_sets.template`\  is provided, this value overrides the template.
 
 
     | **required**: False
@@ -364,7 +364,7 @@ le_data_sets
 
      
   sceerun
-    The location of the \ :literal:`SCEERUN`\  library. If \ :literal:`le\_data\_sets.template`\  is provided, this value will override the template.
+    The location of the \ :literal:`SCEERUN`\  library. If \ :literal:`le\_data\_sets.template`\  is provided, this value overrides the template.
 
 
     | **required**: False
@@ -373,7 +373,7 @@ le_data_sets
 
      
   sceerun2
-    The location of the \ :literal:`SCEERUN2`\  library. If \ :literal:`le\_data\_sets.template`\  is provided, this value will override the template.
+    The location of the \ :literal:`SCEERUN2`\  library. If \ :literal:`le\_data\_sets.template`\  is provided, this value overrides the template.
 
 
     | **required**: False
@@ -457,7 +457,7 @@ output_data_sets
 
      
   default_sysout_class
-    The class to be applied as the default for all of the output data sets. If it isn't provided and if no overrides are specified for an individual output data set, \* will be applied.
+    The class to be applied as the default for all of the output data sets. If it isn't provided and if no overrides are specified for an individual output data set, \* is applied.
 
 
     | **required**: False
@@ -663,7 +663,7 @@ output_data_sets
 
      
 region_data_sets
-  The location of the region data sets, e.g \ :literal:`REGIONS.ABCD01.DFHAUXT`\ , \ :literal:`REGIONS.ABCD01.DFHCSD`\  and \ :literal:`REGIONS.ABCD01.DFHGCD`\ .
+  The location of the region data sets, for example, \ :literal:`REGIONS.ABCD01.DFHAUXT`\ , \ :literal:`REGIONS.ABCD01.DFHCSD`\  and \ :literal:`REGIONS.ABCD01.DFHGCD`\ .
 
 
   | **required**: True

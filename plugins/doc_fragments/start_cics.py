@@ -13,7 +13,7 @@ class ModuleDocFragment(object):
 options:
   job_parameters:
     description:
-        - Specifies various parameters to be applied to the startup job.
+        - Specifies various parameters to be applied to the CICS startup job.
     type: dict
     required: false
     suboptions:
@@ -25,17 +25,17 @@ options:
         suboptions:
           pano:
             description:
-              - Specifies the programmer's accounting number. Pano is 1 through 4 alphanumeric characters.
+              - Specifies the programmer's accounting number. The value is 1 through 4 alphanumeric characters.
             type: str
             required: false
           room:
             description:
-              - Specifies the programmer's room number. Room is 1 through 4 alphanumeric characters.
+              - Specifies the programmer's room number. The value is 1 through 4 alphanumeric characters.
             type: str
             required: false
           time:
             description:
-              - Specifies the estimated execution time in minutes. Time is 1 through 4 decimal numbers. For example,
+              - Specifies the estimated execution time in minutes. The value is 1 through 4 decimal numbers. For example,
                 code 30 for 30 minutes. If you omit a time subparameter and a TIME parameter on the JES2 /*JOBPARM
                 statement, JES2 uses an installation default specified at initialization. If job execution exceeds the
                 time, JES2 sends a message to the operator.
@@ -43,42 +43,42 @@ options:
             required: false
           lines:
             description:
-              - Specifies the estimated line count, in thousands of lines, from this job's sysout data sets. Lines is 1
+              - Specifies the estimated line count, in thousands of lines, from this job's sysout data sets. The value is 1
                 through 4 decimal numbers. For example, code 5 for 5000 lines. If you omit lines, JES2 uses an
                 installation default specified at initialization.
             type: int
             required: false
           cards:
             description:
-              - Specifies the estimated number of cards JES2 is to punch from this job's sysout data sets. Cards is 1
+              - Specifies the estimated number of cards JES2 is to punch from this job's sysout data sets. The value is 1
                 through 4 decimal numbers. If you omit cards, JES2 uses an installation default specified at
                 initialization.
             type: int
             required: false
           forms:
             description:
-              - Specifies the forms that JES2 is to use for printing this job's sysout data sets. Forms is 1 through 4
+              - Specifies the forms that JES2 is to use for printing this job's sysout data sets. The value is 1 through 4
                 alphanumeric characters. For example, code 5 for 5-part forms. If you omit forms, JES2 uses an
                 installation default specified at initialization.
             type: str
             required: false
           copies:
             description:
-              - Specifies the number of times JES2 is to print and/or punch this job's sysout data sets. Copies is 1
-                through 3 decimal numbers not exceeding an installation-specified limit. The maximum is 255. For
+              - Specifies the number of times JES2 is to print or punch this job's sysout data sets. The value is 1
+                through 3 decimal numbers and must not exceed an installation-specified limit. The maximum is 255. For
                 example, code 2 for two copies. If you omit copies, JES2 assumes one copy.
             type: int
             required: false
           log:
             description:
-              - Specifies whether or not JES2 is to print the job log. Code N to request no job log. If you code any
+              - Specifies whether JES2 is to print the job log. Code N to surpress printing of the job log. If you code any
                 other character or omit this subparameter, JES2 prints the job log. If your installation specified NOLOG
-                for this job's class during JES2 initialization, JES2 will not print a job log.
+                for this job's class during JES2 initialization, JES2 does not print the job log.
             type: str
             required: false
           linect:
             description:
-              - Specifies the number of lines JES2 is to print per page for this job's sysout data sets. Linect is 1
+              - Specifies the number of lines JES2 is to print per page for this job's sysout data sets. The value is 1
                 through 3 decimal numbers. If you omit linect, JES2 uses an installation default specified at
                 initialization. If you code a zero, JES2 does not eject to a new page when the number of lines exceeds
                 the installation default.
@@ -138,15 +138,13 @@ options:
       region:
         description:
           - Use the REGION parameter to specify the amount of central or virtual storage that the job requires. The
-            system applies the value that you code on REGION
-            to each step of the job.
+            system applies the value that you code on REGION to each step of the job.
         type: str
         required: false
       user:
         description:
           - Code the USER parameter to identify to the system the person submitting the job. The user ID is used by
-            RACF®, the system resources manager (SRM), and
-            other system components.
+            RACF®, the system resources manager (SRM), and other system components.
         type: str
         required: false
   applid:
@@ -179,17 +177,17 @@ options:
         required: false
       sdfhload:
         description:
-          - The location of the C(SDFHLOAD) library. If O(cics_data_sets.template) is provided, this value will override the template.
+          - The location of the C(SDFHLOAD) library. If O(cics_data_sets.template) is provided, this value overrides the template.
         type: str
         required: false
       sdfhlic:
         description:
-          - The location of the C(SDFHLIC) library. If O(cics_data_sets.template) is provided, this value will override the template.
+          - The location of the C(SDFHLIC) library. If O(cics_data_sets.template) is provided, this value overrides the template.
         type: str
         required: false
   le_data_sets:
     description:
-      - The data set names of the C(SCEECICS), C(SCEERUN) and C(SCEERUN2) libraries, for example, C(SCEERUN).
+      - The data set names of the C(SCEECICS), C(SCEERUN) and C(SCEERUN2) libraries.
     type: dict
     required: true
     suboptions:
@@ -200,22 +198,22 @@ options:
         type: str
       sceecics:
         description:
-          - The location of the C(SCEECICS) library. If O(le_data_sets.template) is provided, this value will override the template.
+          - The location of the C(SCEECICS) library. If O(le_data_sets.template) is provided, this value overrides the template.
         type: str
         required: false
       sceerun:
         description:
-          - The location of the C(SCEERUN) library. If O(le_data_sets.template) is provided, this value will override the template.
+          - The location of the C(SCEERUN) library. If O(le_data_sets.template) is provided, this value overrides the template.
         type: str
         required: false
       sceerun2:
         description:
-          - The location of the C(SCEERUN2) library. If O(le_data_sets.template) is provided, this value will override the template.
+          - The location of the C(SCEERUN2) library. If O(le_data_sets.template) is provided, this value overrides the template.
         type: str
         required: false
   cpsm_data_sets:
     description:
-      - The data set names of the C(SEYUAUTH) and C(SEYULOAD) libraries, for example C(CTS610.CPSM610.SEYUAUTH).
+      - The data set names of the C(SEYUAUTH) and C(SEYULOAD) libraries, for example, C(CTS610.CPSM610.SEYUAUTH).
     type: dict
     required: false
     suboptions:
@@ -274,7 +272,7 @@ options:
         elements: str
   region_data_sets:
     description:
-      - The location of the region data sets, e.g C(REGIONS.ABCD01.DFHAUXT), C(REGIONS.ABCD01.DFHCSD) and
+      - The location of the region data sets, for example, C(REGIONS.ABCD01.DFHAUXT), C(REGIONS.ABCD01.DFHCSD) and
         C(REGIONS.ABCD01.DFHGCD).
     type: dict
     required: true
@@ -405,8 +403,7 @@ options:
       default_sysout_class:
         description:
           - The class to be applied as the default for all of the output data sets. If it isn't provided and if no
-            overrides are specified for an individual output
-            data set, * will be applied.
+            overrides are specified for an individual output data set, * is applied.
         type: str
         required: false
       ceemsg:
