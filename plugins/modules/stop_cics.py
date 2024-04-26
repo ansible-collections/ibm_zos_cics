@@ -10,12 +10,18 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: stop_cics
-short_description: Stop a CICS Region
+short_description: Stop a CICS region
 description:
   - Stop a CICS region by using CEMT PERFORM SHUTDOWN. You can choose to perform a NORMAL or IMMEDIATE shutdown.
-    During a NORMAL or IMMEDIATE shutdown, a shutdown assist program should run to enable CICS to shut down in a controlled manner.
+  - During a NORMAL or IMMEDIATE shutdown, a shutdown assist program should run to enable CICS to shut down in a controlled manner.
     By default, the CICS-supplied shutdown assist transaction, CESD is used. You can specify a custom shutdown assist program in the
     SDTRAN system initialization parameter. The task runs until the region has successfully shut down, or until the shutdown fails.
+  - You must have a console installed in the CICS region so that the stop_cics module can communicate with CICS. To define a console,
+    you must install a terminal with the CONSNAME attribute set to your TSO user ID. For detailed instructions, see
+    L(Defining TSO users as console devices,https://www.ibm.com/docs/en/cics-ts/6.1?topic=cics-defining-tso-users-as-console-devices).
+    Add your console definition into one of the resource lists defined on the GRPLIST system initialization parameter so that it gets
+    installed into the CICS region.
+    Alternatively, you can use a DFHCSDUP script to update an existing CSD. This function is provided by the csd module.
 version_added: 1.1.0-beta.5
 author:
   - Kiera Bennett (@KieraBennett)
@@ -23,12 +29,12 @@ options:
   job_id:
     description:
       - Identifies the job ID belonging to the running CICS region.
-      - The Stop CICS module uses this job ID to identify the state of the CICS region and shut it down.
+      - The stop_cics module uses this job ID to identify the state of the CICS region and shut it down.
     type: str
     required: true
   mode:
     description:
-      - Specify the type of shutdown to be executed on the CICS Region.
+      - Specify the type of shutdown to be executed on the CICS region.
     type: str
     required: false
     default: normal
@@ -39,7 +45,7 @@ options:
   sdtran:
     description:
       - The 4-character identifier of the shutdown assist transaction.
-      - The default shutdown transaction, if neither SDTRAN nor NOSDTRAN are specified, is CESD.
+      - The default shutdown transaction, if neither SDTRAN nor NOSDTRAN is specified, is CESD.
     type: str
     required: false
   no_sdtran:
@@ -64,7 +70,7 @@ EXAMPLES = r'''
 
 RETURN = r'''
   changed:
-    description: True if the shutdown command was executed.
+    description: True if the PERFORM SHUTDOWN command was executed.
     returned: always
     type: bool
   failed:
@@ -111,7 +117,7 @@ RETURN = r'''
                 type: str
               ret_code:
                 description:
-                  Return code output collected from job log.
+                  Return code output collected from the job log.
                 type: dict
                 contains:
                   msg:
@@ -121,7 +127,7 @@ RETURN = r'''
                   msg_code:
                     description:
                       Return code extracted from the `msg` so that it can be evaluated.
-                      For example, ABEND(S0C4) would yield "S0C4".
+                      For example, ABEND(S0C4) yields "S0C4".
                     type: str
                   msg_txt:
                     description:
@@ -129,7 +135,7 @@ RETURN = r'''
                     type: str
                   code:
                     description:
-                      Return code converted to integer value (when possible).
+                      Return code converted to an integer value (when possible).
                     type: int
                   steps:
                     description:
@@ -151,7 +157,7 @@ RETURN = r'''
             type: str
           content:
             description: The resulting text from the command submitted.
-            returned: on success of shutdown command submission.
+            returned: on success of PERFORM SHUTDOWN command submission.
             type: list
 '''
 
