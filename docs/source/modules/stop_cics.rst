@@ -22,7 +22,7 @@ Synopsis
 --------
 - Stop a CICS region by using CEMT PERFORM SHUTDOWN. You can choose to perform a NORMAL or IMMEDIATE shutdown.
 - During a NORMAL or IMMEDIATE shutdown, a shutdown assist program should run to enable CICS to shut down in a controlled manner. By default, the CICS-supplied shutdown assist transaction, CESD is used. You can specify a custom shutdown assist program in the SDTRAN system initialization parameter. The task runs until the region has successfully shut down, or until the shutdown fails.
-- You must have a console installed in the CICS region so that the stop\_cics module can communicate with CICS. To define a console, you must install a terminal with the CONSNAME attribute set to your TSO user ID. For detailed instructions, see \ `Defining TSO users as console devices <https://www.ibm.com/docs/en/cics-ts/6.1?topic=cics-defining-tso-users-as-console-devices>`__\ . Add your terminal definition into one of the resource lists defined on the GRPLIST system initialization parameter so that it gets installed into the CICS region.
+- You must have a console installed in the CICS region so that the stop\_cics module can communicate with CICS. To define a console, you must install a terminal with the CONSNAME attribute set to your TSO user ID. For detailed instructions, see \ `Defining TSO users as console devices <https://www.ibm.com/docs/en/cics-ts/6.1?topic=cics-defining-tso-users-as-console-devices>`__\ . Add your console definition into one of the resource lists defined on the GRPLIST system initialization parameter so that it gets installed into the CICS region. Alternatively, you can use a DFHCSDUP script to update an existing CSD. This function is provided by the csd module.
 
 
 

@@ -19,8 +19,9 @@ description:
   - You must have a console installed in the CICS region so that the stop_cics module can communicate with CICS. To define a console,
     you must install a terminal with the CONSNAME attribute set to your TSO user ID. For detailed instructions, see
     L(Defining TSO users as console devices,https://www.ibm.com/docs/en/cics-ts/6.1?topic=cics-defining-tso-users-as-console-devices).
-    Add your terminal definition into one of the resource lists defined on the GRPLIST system initialization parameter so that it gets
+    Add your console definition into one of the resource lists defined on the GRPLIST system initialization parameter so that it gets
     installed into the CICS region.
+    Alternatively, you can use a DFHCSDUP script to update an existing CSD. This function is provided by the csd module.
 version_added: 1.1.0-beta.5
 author:
   - Kiera Bennett (@KieraBennett)
