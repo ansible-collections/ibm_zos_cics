@@ -412,7 +412,7 @@ class AnsibleGlobalCatalogModule(DataSet):
             self._fail(e.message)
 
     def warm_data_set(self):  # type: () -> None
-        super().warm_data_set()
+        super().warm_with_records()
 
         if self.autostart_override == AUTO_START_WARM:
             self._exit()

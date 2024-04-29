@@ -22,15 +22,6 @@ sed -e "s/MODULE_NAME/local_request_queue/g" playbooks/initial_absent_template.y
 sed -e "s/MODULE_NAME/trace/g"               playbooks/initial_absent_template.yml > playbooks/initial_absent_trace.yml
 sed -e "s/MODULE_NAME/transaction_dump/g"    playbooks/initial_absent_template.yml > playbooks/initial_absent_transaction_dump.yml
 
-sed -e "s/MODULE_NAME/auxiliary_temp/g"      playbooks/warm_template.yml > playbooks/warm_auxiliary_temp.yml
-sed -e "s/MODULE_NAME/csd/g"                 playbooks/warm_template.yml > playbooks/warm_csd.yml
-sed -e "s/MODULE_NAME/global_catalog/g"      playbooks/warm_template.yml > playbooks/warm_global_catalog.yml
-sed -e "s/MODULE_NAME/intrapartition/g"      playbooks/warm_template.yml > playbooks/warm_intrapartition.yml
-sed -e "s/MODULE_NAME/local_catalog/g"       playbooks/warm_template.yml > playbooks/warm_local_catalog.yml
-sed -e "s/MODULE_NAME/local_request_queue/g" playbooks/warm_template.yml > playbooks/warm_local_request_queue.yml
-sed -e "s/MODULE_NAME/trace/g"               playbooks/warm_template.yml > playbooks/warm_trace.yml
-sed -e "s/MODULE_NAME/transaction_dump/g"    playbooks/warm_template.yml > playbooks/warm_transaction_dump.yml
-
 sed -e "s/MODULE_NAME/auxiliary_temp/g"      -e "s/DATA_SET_NAME_LOWER/dfhtemp/g"  playbooks/validation_template.yml > playbooks/validation_auxiliary_temp.yml
 sed -e "s/MODULE_NAME/csd/g"                 -e "s/DATA_SET_NAME_LOWER/dfhcsd/g"   playbooks/validation_template.yml > playbooks/validation_csd.yml
 sed -e "s/MODULE_NAME/global_catalog/g"      -e "s/DATA_SET_NAME_LOWER/dfhgcd/g"   playbooks/validation_template.yml > playbooks/validation_global_catalog.yml
@@ -72,15 +63,6 @@ ansible-playbook -i "$INV_PATH" -e "@$VAR_PATH" -e "@$ZOS_ENV" -e "{data_set_nam
 ansible-playbook -i "$INV_PATH" -e "@$VAR_PATH" -e "@$ZOS_ENV" -e "{data_set_name: DFHLRQ, vsam: true}"                 playbooks/initial_absent_local_request_queue.yml
 ansible-playbook -i "$INV_PATH" -e "@$VAR_PATH" -e "@$ZOS_ENV" -e "{data_set_name: DFHAUXT}"                            playbooks/initial_absent_trace.yml
 ansible-playbook -i "$INV_PATH" -e "@$VAR_PATH" -e "@$ZOS_ENV" -e "{data_set_name: DFHDMPA}"                            playbooks/initial_absent_transaction_dump.yml
-
-ansible-playbook -i "$INV_PATH" -e "@$VAR_PATH" -e "@$ZOS_ENV" -e "{data_set_name: DFHTEMP, vsam: true}"                     playbooks/warm_auxiliary_temp.yml
-ansible-playbook -i "$INV_PATH" -e "@$VAR_PATH" -e "@$ZOS_ENV" -e "{data_set_name: DFHCSD, vsam: true, empty_allowed: true}" playbooks/warm_csd.yml
-ansible-playbook -i "$INV_PATH" -e "@$VAR_PATH" -e "@$ZOS_ENV" -e "{data_set_name: DFHGCD, vsam: true}"                      playbooks/warm_global_catalog.yml
-ansible-playbook -i "$INV_PATH" -e "@$VAR_PATH" -e "@$ZOS_ENV" -e "{data_set_name: DFHINTRA, vsam: true}"                    playbooks/warm_intrapartition.yml
-ansible-playbook -i "$INV_PATH" -e "@$VAR_PATH" -e "@$ZOS_ENV" -e "{data_set_name: DFHLCD, vsam: true, empty_allowed: true}" playbooks/warm_local_catalog.yml
-ansible-playbook -i "$INV_PATH" -e "@$VAR_PATH" -e "@$ZOS_ENV" -e "{data_set_name: DFHLRQ, vsam: true}"                      playbooks/warm_local_request_queue.yml
-ansible-playbook -i "$INV_PATH" -e "@$VAR_PATH" -e "@$ZOS_ENV" -e "{data_set_name: DFHAUXT}"                                 playbooks/warm_trace.yml
-ansible-playbook -i "$INV_PATH" -e "@$VAR_PATH" -e "@$ZOS_ENV" -e "{data_set_name: DFHDMPA}"                                 playbooks/warm_transaction_dump.yml
 
 ansible-playbook -i "$INV_PATH" -e "@$VAR_PATH" -e "@$ZOS_ENV" -e "{data_set_name: DFHTEMP}"  playbooks/validation_auxiliary_temp.yml
 ansible-playbook -i "$INV_PATH" -e "@$VAR_PATH" -e "@$ZOS_ENV" -e "{data_set_name: DFHCSD}"   playbooks/validation_csd.yml
