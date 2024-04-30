@@ -15,7 +15,7 @@ description:
   - Allocates the two L(auxiliary trace,https://www.ibm.com/docs/en/cics-ts/6.1?topic=sets-setting-up-auxiliary-trace-data)
     data sets used by a CICS® region. When CICS auxiliary trace is activated, trace entries produced by CICS are written to the auxiliary trace data sets.
     These data sets can hold large amounts of trace data.
-  - They are referred to as auxiliary trace data set A and auxiliary trace data set B.
+  - The two data sets are referred to as auxiliary trace data set A (DFHAUXT) and auxiliary trace data set B (DFHBUXT).
 author: Kye Maloy (@KyeMaloy97)
 version_added: 1.1.0-beta.4
 options:
@@ -110,8 +110,10 @@ options:
   state:
     description:
       - The intended state for the auxiliary trace data set, which the module aims to achieve.
-      - Specify V(absent) to remove the auxiliary trace data set data set entirely, if it already exists.
+      - Specify V(absent) to remove the auxiliary trace data set data set entirely, if it exists.
       - Specify V(initial) to create the auxiliary trace data set if it does not exist.
+        If the specified data set exists but is empty, the module leaves the data set as is.
+        If the specified data set exists and has contents, the module deletes the data set and then creates a new, empty one.
       - Specify V(warm) to retain an existing auxiliary trace data set in its current state.
         The module checks whether the specified data set exists, and if it does, leaves the data set as is.
         If the data set does not exist, the operation fails.

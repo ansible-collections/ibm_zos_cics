@@ -14,7 +14,7 @@ short_description: Allocate transaction dump data sets
 description:
   - Allocates the two L(transaction dump ,https://www.ibm.com/docs/en/cics-ts/6.1?topic=sets-defining-transaction-dump-data)
     data sets used by a CICS® region.
-  - They are referred to as transaction dump data set A and transaction dump data set B.
+  - The two data sets are referred to as transaction dump data set A (DFHDMPA) and transaction dump data set B (DFHDMPB).
 author: Thomas Foyle (@tom-foyle)
 version_added: 1.1.0-beta.4
 options:
@@ -97,8 +97,8 @@ options:
     description:
       - Identifies which one of the transaction dump data sets is the target of the operation.
         If the value is left blank, A is implied, but you can specify A or B.
-      - Specify V(A) to create or delete the A transaction dump data set.
-      - Specify V(B) to create or delete the B transaction dump data set. This MUST be set for the creation of the B data set.
+      - Specify V(A) to create or delete the A data set.
+      - Specify V(B) to create or delete the B data set. This MUST be set for the creation of the B data set.
     choices:
       - "A"
       - "B"
@@ -108,8 +108,10 @@ options:
   state:
     description:
       - The intended state for the transaction dump data set, which the module aims to achieve.
-      - Specify V(absent) to remove the transaction dump data set data set entirely, if it already exists.
+      - Specify V(absent) to remove the transaction dump data set entirely, if it exists.
       - Specify V(initial) to create the transaction dump data set if it does not exist.
+        If the specified data set exists but is empty, the module leaves the data set as is.
+        If the specified data set exists and has contents, the module deletes the data set and then creates a new, empty one.
       - Specify V(warm) to retain an existing transaction dump data set in its current state.
         The module verifies whether the specified data set exists and whether it contains any records.
         If both conditions are met, the module leaves the data set as is.

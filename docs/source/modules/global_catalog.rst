@@ -149,7 +149,7 @@ state
 
   Specify \ :literal:`initial`\  to set the autostart override record to \ :literal:`AUTOINIT`\ . If the specified global catalog data set does not already exist, the module creates the data set.
 
-  Specify \ :literal:`cold`\  to set the autostart override record of an existing global catalog to \ :literal:`AUTOCOLD`\ .
+  Specify \ :literal:`cold`\  to set the autostart override record of an existing global catalog to \ :literal:`AUTOCOLD`\ . If the specified global catalog data set does not already exist, the operation fails.
 
   Specify \ :literal:`warm`\  to set the autostart override record of an existing global catalog to \ :literal:`AUTOASIS`\ , undoing any previous setting of \ :literal:`AUTOINIT`\  or \ :literal:`AUTOCOLD`\ . The module verifies whether the specified data set exists and whether it contains any records. If either condition is not met, the operation fails.
 

@@ -108,8 +108,7 @@ options:
     description:
       - The intended state for the CSD, which the module aims to achieve.
       - Specify V(absent) to remove the CSD entirely, if it already exists.
-      - Specify V(initial) to create the CSD if it does not
-        already exist, and initialize it by using DFHCSDUP.
+      - Specify V(initial) to create the CSD if it does not already exist, and initialize it by using DFHCSDUP.
       - Specify V(warm) to retain an existing CSD in its current state.
         The module verifies whether the specified data set exists and whether it contains any records.
         If both conditions are met, the module leaves the data set as is.
@@ -157,7 +156,7 @@ options:
       - Specify UNDO for a CSD that is limited to file backout only.
       - Specify ALL for a CSD for which you want both forward recovery and file backout. If you specify O(log=ALL), you
         must also specify LOGSTREAMID to identify the 26-character name of the z/OS™ log stream to be used as the
-        forward recovery log. The CICS collection does not support defining defining forward recovery log streams; you
+        forward recovery log. The CICS collection does not support defining forward recovery log streams; you
         must follow the instructions in L(Defining forward recovery log streams,
         https://www.ibm.com/docs/en/cics-ts/latest?topic=journaling-defining-forward-recovery-log-streams).
     choices:

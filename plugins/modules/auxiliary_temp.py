@@ -93,8 +93,9 @@ options:
         achieve.
       - Specify V(absent) to remove the auxiliary temporary storage data set entirely, if it
         already exists.
-      - Specify V(initial) to create the auxiliary temporary storage data set, if it does not
-        already exist.
+      - Specify V(initial) to create the auxiliary temporary storage data set, if it does not exist.
+        If the specified data set exists but is empty, the module leaves the data set as is.
+        If the specified data set exists and has contents, the module deletes the data set and then creates a new, empty data set.
       - Specify V(warm) to retain an existing auxiliary temporary storage data set in its current state.
         The module checks whether the specified data set exists, and if it does, leaves the data set as is.
         If the data set does not exist, the operation fails.

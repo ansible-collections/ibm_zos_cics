@@ -115,9 +115,9 @@ space_type
 state
   The intended state for the transient data intrapartition data set, which the module aims to achieve.
 
-  Specify \ :literal:`absent`\  to remove the transient data intrapartition data set entirely, if it already exists.
+  Specify \ :literal:`absent`\  to remove the transient data intrapartition data set entirely, if it exists.
 
-  Specify \ :literal:`initial`\  to create the transient data intrapartition data set if it does not exist.
+  Specify \ :literal:`initial`\  to create the transient data intrapartition data set if it does not exist. If the specified data set exists but is empty, the module leaves the data set as is. If the specified data set exists and has contents, the module deletes the data set and then creates a new, empty one.
 
   Specify \ :literal:`warm`\  to retain an existing transient data intrapartition data set in its current state. The module verifies whether the specified data set exists and whether it contains any records. If both conditions are met, the module leaves the data set as is. If the data set does not exist or if it is empty, the operation fails.
 

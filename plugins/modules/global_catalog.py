@@ -112,9 +112,10 @@ options:
     description:
       - The intended state for the global catalog data set, which the module aims to achieve.
       - Specify V(absent) to remove the global catalog data set entirely, if it exists.
-      - Specify V(initial) to set the autostart override record to C(AUTOINIT). If the specified global
-        catalog data set does not already exist, the module creates the data set.
+      - Specify V(initial) to set the autostart override record to C(AUTOINIT).
+        If the specified global catalog data set does not already exist, the module creates the data set.
       - Specify V(cold) to set the autostart override record of an existing global catalog to C(AUTOCOLD).
+        If the specified global catalog data set does not already exist, the operation fails.
       - Specify V(warm) to set the autostart override record of an existing global catalog to C(AUTOASIS),
         undoing any previous setting of C(AUTOINIT) or C(AUTOCOLD). The module verifies whether the specified
         data set exists and whether it contains any records. If either condition is not met, the operation fails.

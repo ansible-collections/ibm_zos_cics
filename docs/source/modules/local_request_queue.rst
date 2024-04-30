@@ -115,7 +115,7 @@ space_type
 state
   The intended state for the local request queue, which the module aims to achieve.
 
-  Specify \ :literal:`absent`\  to remove the local request queue data set entirely, if it already exists.
+  Specify \ :literal:`absent`\  to remove the local request queue data set entirely, if it exists.
 
   Specify \ :literal:`initial`\  to create the local request queue data set if it does not exist, or empty this existing local request queue of all records.
 

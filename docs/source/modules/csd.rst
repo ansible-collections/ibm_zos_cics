@@ -68,7 +68,7 @@ log
 
   Specify UNDO for a CSD that is limited to file backout only.
 
-  Specify ALL for a CSD for which you want both forward recovery and file backout. If you specify \ :literal:`log=ALL`\ , you must also specify LOGSTREAMID to identify the 26-character name of the z/OS™ log stream to be used as the forward recovery log. The CICS collection does not support defining defining forward recovery log streams; you must follow the instructions in \ `Defining forward recovery log streams <https://www.ibm.com/docs/en/cics-ts/latest?topic=journaling-defining-forward-recovery-log-streams>`__\ .
+  Specify ALL for a CSD for which you want both forward recovery and file backout. If you specify \ :literal:`log=ALL`\ , you must also specify LOGSTREAMID to identify the 26-character name of the z/OS™ log stream to be used as the forward recovery log. The CICS collection does not support defining forward recovery log streams; you must follow the instructions in \ `Defining forward recovery log streams <https://www.ibm.com/docs/en/cics-ts/latest?topic=journaling-defining-forward-recovery-log-streams>`__\ .
 
 
   | **required**: False

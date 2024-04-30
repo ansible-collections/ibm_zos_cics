@@ -89,7 +89,7 @@ options:
   state:
     description:
       - The intended state for the local request queue, which the module aims to achieve.
-      - Specify V(absent) to remove the local request queue data set entirely, if it already exists.
+      - Specify V(absent) to remove the local request queue data set entirely, if it exists.
       - Specify V(initial) to create the local request queue data set if it does not exist,
         or empty this existing local request queue of all records.
       - Specify V(warm) to retain an existing local request queue data set in its current state.

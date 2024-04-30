@@ -21,7 +21,7 @@ transaction_dump -- Allocate transaction dump data sets
 Synopsis
 --------
 - Allocates the two \ `transaction dump <https://www.ibm.com/docs/en/cics-ts/6.1?topic=sets-defining-transaction-dump-data>`__\  data sets used by a CICS® region.
-- They are referred to as transaction dump data set A and transaction dump data set B.
+- The two data sets are referred to as transaction dump data set A (DFHDMPA) and transaction dump data set B (DFHDMPB).
 
 
 
@@ -35,9 +35,9 @@ Parameters
 destination
   Identifies which one of the transaction dump data sets is the target of the operation. If the value is left blank, A is implied, but you can specify A or B.
 
-  Specify \ :literal:`A`\  to create or delete the A transaction dump data set.
+  Specify \ :literal:`A`\  to create or delete the A data set.
 
-  Specify \ :literal:`B`\  to create or delete the B transaction dump data set. This MUST be set for the creation of the B data set.
+  Specify \ :literal:`B`\  to create or delete the B data set. This MUST be set for the creation of the B data set.
 
 
   | **required**: False
@@ -146,9 +146,9 @@ space_type
 state
   The intended state for the transaction dump data set, which the module aims to achieve.
 
-  Specify \ :literal:`absent`\  to remove the transaction dump data set data set entirely, if it already exists.
+  Specify \ :literal:`absent`\  to remove the transaction dump data set entirely, if it exists.
 
-  Specify \ :literal:`initial`\  to create the transaction dump data set if it does not exist.
+  Specify \ :literal:`initial`\  to create the transaction dump data set if it does not exist. If the specified data set exists but is empty, the module leaves the data set as is. If the specified data set exists and has contents, the module deletes the data set and then creates a new, empty one.
 
   Specify \ :literal:`warm`\  to retain an existing transaction dump data set in its current state. The module verifies whether the specified data set exists and whether it contains any records. If both conditions are met, the module leaves the data set as is. If the data set does not exist or if it is empty, the operation fails.
 
