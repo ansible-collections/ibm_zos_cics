@@ -12,9 +12,10 @@ DOCUMENTATION = r'''
 module: trace
 short_description: Allocate auxiliary trace data sets
 description:
-  - Allocates the two L(auxiliary trace ,https://www.ibm.com/docs/en/cics-ts/6.1?topic=sets-setting-up-auxiliary-trace-data)
+  - Allocates the two L(auxiliary trace,https://www.ibm.com/docs/en/cics-ts/6.1?topic=sets-setting-up-auxiliary-trace-data)
     data sets used by a CICS® region. When CICS auxiliary trace is activated, trace entries produced by CICS are written to the auxiliary trace data sets.
     These data sets can hold large amounts of trace data.
+  - They are referred to as auxiliary trace data set A and auxiliary trace data set B.
 author: Kye Maloy (@KyeMaloy97)
 version_added: 1.1.0-beta.4
 options:
@@ -96,9 +97,10 @@ options:
             required: false
   destination:
     description:
-      - The auxiliary trace data set to create. If the value is left blank, A is implied, but you can specify A or B.
-      - Specify V(A) to create or delete the A auxiliary trace data set.
-      - Specify V(B) to create or delete the B auxiliary trace data set. This MUST be set for the creation of B data set.
+      - Identify which one of the auxiliary trace data sets is the target of the operation.
+        If the value is left blank, A is implied, but you can specify A or B.
+      - Specify V(A) to create or delete the A data set.
+      - Specify V(B) to create or delete the B data set. This MUST be set for the creation of the B data set.
     choices:
       - "A"
       - "B"

@@ -21,6 +21,7 @@ transaction_dump -- Allocate transaction dump data sets
 Synopsis
 --------
 - Allocates the two \ `transaction dump <https://www.ibm.com/docs/en/cics-ts/6.1?topic=sets-defining-transaction-dump-data>`__\  data sets used by a CICS® region.
+- They are referred to as transaction dump data set A and transaction dump data set B.
 
 
 
@@ -32,7 +33,7 @@ Parameters
 
      
 destination
-  The transaction dump data set to create. If the value is left blank, A is implied, but you can specify A or B.
+  Identifies which one of the transaction dump data sets is the target of the operation. If the value is left blank, A is implied, but you can specify A or B.
 
   Specify \ :literal:`A`\  to create or delete the A transaction dump data set.
 
