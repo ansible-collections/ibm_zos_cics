@@ -140,9 +140,9 @@ options:
   script_src:
     description:
       - The path to the source file that contains the DFHCSDUP script to submit.
-      - It can be a data set. For example: "TESTER.DEFS.SCRIPT" or "TESTER.DEFS(SCRIPT)"
-      - It can be a USS file. For example: "/u/tester/defs/script.csdup"
-      - It can be a local file. For example: "/User/tester/defs/script.csdup"
+      - 'It can be a data set. For example: "TESTER.DEFS.SCRIPT" or "TESTER.DEFS(SCRIPT)"'
+      - 'It can be a USS file. For example: "/u/tester/defs/script.csdup"'
+      - 'It can be a local file. For example: "/User/tester/defs/script.csdup"'
     type: str
     required: false
   script_content:
@@ -155,7 +155,7 @@ options:
       - Specify the recovery attribute for the CSD, overriding the CSD system initialization parameters.
       - Specify NONE for a nonrecoverable CSD.
       - Specify UNDO for a CSD that is limited to file backout only.
-      - Specify ALL for a CSD for which you want both forward recovery and file backout. If you specify LOG(ALL), you
+      - Specify ALL for a CSD for which you want both forward recovery and file backout. If you specify O(log=ALL), you
         must also specify LOGSTREAMID to identify the 26-character name of the z/OS™ log stream to be used as the
         forward recovery log. The CICS collection does not support defining defining forward recovery log streams; you
         must follow the instructions in L(Defining forward recovery log streams,
@@ -169,7 +169,7 @@ options:
   logstreamid:
     description:
       - The 26-character name of the z/OS™ log stream to be used as the forward recovery log.
-      - This is required when you use LOG(ALL).
+      - This is required when you use O(log=ALL).
     type: str
     required: false
 '''
