@@ -22,7 +22,7 @@ Synopsis
 --------
 - Create, remove, and manage the \ `CICS system definition data set <https://www.ibm.com/docs/en/cics-ts/6.1?topic=configuring-setting-up-shared-data-sets-csd-sysin>`__\  (CSD) used by a CICS® region.
 - You can use this module when provisioning or de-provisioning a CICS region, or when managing the state of the CSD during upgrades or restarts.
-- Use the \ :literal:`state`\  option to specify the intended state for the CSD. For example, \ :literal:`state=initial`\  will create and initialize a CSD if it doesn't exist, or it will take an existing CSD and empty it of all records.
+- Use the \ :literal:`state`\  option to specify the intended state for the CSD. For example, use \ :literal:`state=initial`\  to create and initialize a CSD if it doesn't exist, or empty an existing CSD of all records.
 
 
 
@@ -43,7 +43,7 @@ cics_data_sets
 
      
   sdfhload
-    The location of the \ :literal:`SDFHLOAD`\  library. If \ :literal:`cics\_data\_sets.template`\  is provided, this value will override the template.
+    The location of the \ :literal:`SDFHLOAD`\  library. If \ :literal:`cics\_data\_sets.template`\  is provided, this value overrides the template.
 
 
     | **required**: False
@@ -62,13 +62,13 @@ cics_data_sets
 
      
 log
-  Specify the recovery attributes for the CSD, overriding the CSD system initialization parameters.
+  Specify the recovery attribute for the CSD, overriding the CSD system initialization parameters.
 
   Specify NONE for a nonrecoverable CSD.
 
   Specify UNDO for a CSD that is limited to file backout only.
 
-  Specify ALL for a CSD for which you want both forward recovery and file backout. If you specify LOG(ALL), you must also specify LOGSTREAMID to identify the 26-character name of the z/OS™ log stream to be used as the forward recovery log. The CICS collection does not support defining defining forward recovery log streams; you must follow the instructions in \ `Defining forward recovery log streams <https://www.ibm.com/docs/en/cics-ts/latest?topic=journaling-defining-forward-recovery-log-streams>`__\ .
+  Specify ALL for a CSD for which you want both forward recovery and file backout. If you specify \ :literal:`log=ALL`\ , you must also specify LOGSTREAMID to identify the 26-character name of the z/OS™ log stream to be used as the forward recovery log. The CICS collection does not support defining forward recovery log streams; you must follow the instructions in \ `Defining forward recovery log streams <https://www.ibm.com/docs/en/cics-ts/latest?topic=journaling-defining-forward-recovery-log-streams>`__\ .
 
 
   | **required**: False
@@ -80,7 +80,7 @@ log
 logstreamid
   The 26-character name of the z/OS™ log stream to be used as the forward recovery log.
 
-  Only required when specifying 'ALL' as the LOG value.
+  This is required when you use \ :literal:`log=ALL`\ .
 
 
   | **required**: False
@@ -89,7 +89,7 @@ logstreamid
 
      
 region_data_sets
-  The location of the region data sets to be created using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
+  The location of the region data sets to be created by using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
 
 
   | **required**: True
@@ -127,7 +127,7 @@ region_data_sets
 
      
 script_content
-  The content of the DFHCSDUP script to submit, if using the \ :literal:`script\_location=INLINE`\  option.
+  The content of the DFHCSDUP script to submit, if you are using the \ :literal:`script\_location=INLINE`\  option.
 
 
   | **required**: False
@@ -136,15 +136,15 @@ script_content
 
      
 script_location
-  The type of location to load the DFHCSDUP script from.
+  The type of location from which to load the DFHCSDUP script.
 
-  \ :literal:`DATA\_SET`\  will load from a data set a PDS, PDSE, or sequential data set.
+  Specify \ :literal:`DATA\_SET`\  to load from a PDS, PDSE, or sequential data set.
 
-  \ :literal:`USS`\  will load from a file on UNIX System Services (USS).
+  Specify \ :literal:`USS`\  to load from a file on UNIX System Services (USS).
 
-  \ :literal:`LOCAL`\  will load from a file local to the ansible control node.
+  Specify \ :literal:`LOCAL`\  to load from a file local to the Ansible control node.
 
-  \ :literal:`INLINE`\  will allow a script to be passed directly via the \ :literal:`script\_content`\  parameter.
+  Specify \ :literal:`INLINE`\  to allow a script to be passed directly through the \ :literal:`script\_content`\  parameter.
 
 
   | **required**: False
@@ -155,13 +155,13 @@ script_location
 
      
 script_src
-  The path to the source file containing the DFHCSDUP script to submit.
+  The path to the source file that contains the DFHCSDUP script to submit.
 
-  It could be a data set.(e.g "TESTER.DEFS.SCRIPT","TESTER.DEFS(SCRIPT)").
+  It can be a data set. For example: "TESTER.DEFS.SCRIPT" or "TESTER.DEFS(SCRIPT)"
 
-  Or a USS file (e.g "/u/tester/defs/script.csdup").
+  It can be a USS file. For example: "/u/tester/defs/script.csdup"
 
-  Or a local file (e.g "/User/tester/defs/script.csdup").
+  It can be a local file. For example: "/User/tester/defs/script.csdup"
 
 
   | **required**: False
@@ -194,7 +194,7 @@ space_secondary
 
      
 space_type
-  The unit portion of the CSD size. Note that this is just the unit; the value is specified with \ :literal:`space\_primary`\ .
+  The unit portion of the CSD size. Note that this is just the unit; the value for the primary space is specified with \ :literal:`space\_primary`\  and the value for the secondary space is specified with \ :literal:`space\_secondary`\ .
 
   This option takes effect only when the CSD is being created. If the CSD already exists, the option has no effect.
 
@@ -209,15 +209,15 @@ space_type
 
      
 state
-  The intended state for the CSD, which the module will aim to achieve.
+  The intended state for the CSD, which the module aims to achieve.
 
-  \ :literal:`absent`\  will remove the CSD entirely, if it already exists.
+  Specify \ :literal:`absent`\  to remove the CSD entirely, if it already exists.
 
-  \ :literal:`initial`\  will create the CSD if it does not already exist, and initialize it by using DFHCSDUP.
+  Specify \ :literal:`initial`\  to create the CSD if it does not already exist, and initialize it by using DFHCSDUP.
 
-  \ :literal:`warm`\  will retain an existing CSD in its current state.
+  Specify \ :literal:`warm`\  to retain an existing CSD in its current state. The module verifies whether the specified data set exists and whether it contains any records. If both conditions are met, the module leaves the data set as is. If the data set does not exist or if it is empty, the operation fails.
 
-  \ :literal:`script`\  will run a DFHCSDUP script to update an existing CSD.
+  Specify \ :literal:`script`\  to run a DFHCSDUP script to update an existing CSD.
 
 
   | **required**: True
@@ -250,7 +250,7 @@ Examples
          template: "CICSTS61.CICS.<< lib_name >>"
        state: "initial"
 
-   - name: Initialize a large CSD data set
+   - name: Initialize a large CSD
      ibm.ibm_zos_cics.csd:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -268,7 +268,7 @@ Examples
          template: "CICSTS61.CICS.<< lib_name >>"
        state: "absent"
 
-   - name: Retain existing state of CSD
+   - name: Retain the existing state of a CSD
      ibm.ibm_zos_cics.csd:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -428,7 +428,7 @@ Return Values
       
                               
         stdout
-          | The standard out stream returned by the program execution.
+          | The standard output stream returned from the program execution.
       
           | **returned**: always
           | **type**: str

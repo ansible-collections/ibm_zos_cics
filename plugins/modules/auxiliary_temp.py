@@ -17,7 +17,7 @@ description:
     data set used by a CICS® region.
   - You can use this module when provisioning or de-provisioning a CICS region.
   - Use the O(state) option to specify the intended state for the auxiliary
-    temporary storage data set. For example, O(state=initial) will create an auxiliary temporary storage
+    temporary storage data set. For example, use O(state=initial) to create an auxiliary temporary storage
     data set if it doesn't exist.
 author: Andrew Twydell (@andrewtwydell)
 version_added: 1.1.0-beta.4
@@ -43,7 +43,8 @@ options:
   space_type:
     description:
       - The unit portion of the auxiliary temporary storage data set size. Note that this is
-        just the unit; the value is specified with O(space_primary).
+        just the unit; the value for the primary space is specified with O(space_primary) and the value
+        for the secondary space is specified with O(space_secondary).
       - This option takes effect only when the auxiliary temporary storage data set is being created.
         If the data set already exists, the option has no effect.
       - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
@@ -64,7 +65,7 @@ options:
     required: false
   region_data_sets:
     description:
-      - The location of the region data sets to be created using a template, for example,
+      - The location of the region data sets to be created by using a template, for example,
         C(REGIONS.ABCD0001.<< data_set_name >>).
       - If you want to use a data set that already exists, ensure that the data set is an auxiliary temporary storage data set.
     type: dict
@@ -88,13 +89,16 @@ options:
             required: false
   state:
     description:
-      - The intended state for the auxiliary temporary storage data set, which the module will aim to
+      - The intended state for the auxiliary temporary storage data set, which the module aims to
         achieve.
-      - V(absent) will remove the auxiliary temporary storage data set entirely, if it
+      - Specify V(absent) to remove the auxiliary temporary storage data set entirely, if it
         already exists.
-      - V(initial) will create the auxiliary temporary storage data set if it does not
-        already exist.
-      - V(warm) will retain an existing auxiliary temporary storage data set in its current state.
+      - Specify V(initial) to create the auxiliary temporary storage data set, if it does not exist.
+        If the specified data set exists but is empty, the module leaves the data set as is.
+        If the specified data set exists and has contents, the module deletes the data set and then creates a new, empty data set.
+      - Specify V(warm) to retain an existing auxiliary temporary storage data set in its current state.
+        The module checks whether the specified data set exists, and if it does, leaves the data set as is.
+        If the data set does not exist, the operation fails.
     choices:
       - "initial"
       - "absent"
@@ -148,7 +152,7 @@ start_state:
       type: str
       sample: "VSAM"
     exists:
-      description: True if the auxiliary temporary storage data set exists.
+      description: True if the specified auxiliary temporary storage data set exists.
       type: bool
       returned: always
 end_state:
@@ -162,7 +166,7 @@ end_state:
       type: str
       sample: "VSAM"
     exists:
-      description: True if the auxiliary temporary storage data set exists.
+      description: True if the specified auxiliary temporary storage data set exists.
       type: bool
       returned: always
 executions:
@@ -180,7 +184,7 @@ executions:
       type: int
       returned: always
     stdout:
-      description: The standard out stream returned by the program execution.
+      description: The standard output stream returned from the program execution.
       type: str
       returned: always
     stderr:

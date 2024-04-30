@@ -15,10 +15,9 @@ description:
   - Create and remove the L(local request queue,https://www.ibm.com/docs/en/cics-ts/latest?topic=sets-local-request-queue-data-set)
     data set used by a CICS® region. The local request queue data set stores pending BTS requests. It ensures that, if CICS fails, no pending requests are lost.
   - You can use this module when provisioning or de-provisioning a CICS region.
-  - Use the O(state) option to specify the intended state for the local
-    request queue. For example, O(state=initial) will create a local
-    request queue data set if it doesn't yet exist, or it will take an existing
-    local request queue and empty it of all records.
+  - Use the O(state) option to specify the intended state for the local request queue.
+    For example, use O(state=initial) to create a local request queue data set if it doesn't yet exist,
+    or empty an existing local request queue of all records.
 author: Drew Hughes (@andrewhughes101)
 version_added: 1.1.0-beta.3
 options:
@@ -43,7 +42,8 @@ options:
   space_type:
     description:
       - The unit portion of the local request queue data set size. Note that this is
-        just the unit; the value is specified with O(space_primary).
+        just the unit; the value for the primary space is specified with O(space_primary) and
+        the value for the secondary space is specified with O(space_secondary).
       - This option takes effect only when the local request queue data set is being created.
         If the data set already exists, the option has no effect.
       - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
@@ -64,7 +64,7 @@ options:
     required: false
   region_data_sets:
     description:
-      - The location of the region data sets to be created using a template, for example,
+      - The location of the region data sets to be created by using a template, for example,
         C(REGIONS.ABCD0001.<< data_set_name >>).
       - If you want to use a data set that already exists, ensure that the data set is a local request queue data set.
     type: dict
@@ -88,13 +88,13 @@ options:
             required: false
   state:
     description:
-      - The intended state for the local request queue, which the module will aim to
-        achieve.
-      - V(absent) will remove the local request queue data set entirely, if it
-        already exists.
-      - V(initial) will create the local request queue data set if it does not
-        already exist, and empty it of all existing records.
-      - V(warm) will retain an existing local request queue data set in its current state.
+      - The intended state for the local request queue, which the module aims to achieve.
+      - Specify V(absent) to remove the local request queue data set entirely, if it exists.
+      - Specify V(initial) to create the local request queue data set if it does not exist,
+        or empty this existing local request queue of all records.
+      - Specify V(warm) to retain an existing local request queue data set in its current state.
+        The module checks whether the specified data set exists, and if it does, leaves the data set as is.
+        If the data set does not exist, the operation fails.
     choices:
       - "initial"
       - "absent"
@@ -148,7 +148,7 @@ start_state:
       type: str
       sample: "VSAM"
     exists:
-      description: True if the local request queue data set exists.
+      description: True if the specified local request queue data set exists.
       type: bool
       returned: always
 end_state:
@@ -162,7 +162,7 @@ end_state:
       type: str
       sample: "VSAM"
     exists:
-      description: True if the local request queue data set exists.
+      description: True if the specified local request queue data set exists.
       type: bool
       returned: always
 executions:
@@ -180,7 +180,7 @@ executions:
       type: int
       returned: always
     stdout:
-      description: The standard out stream returned by the program execution.
+      description: The standard output stream returned from the program execution.
       type: str
       returned: always
     stderr:

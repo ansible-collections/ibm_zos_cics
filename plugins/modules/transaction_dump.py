@@ -14,6 +14,7 @@ short_description: Allocate transaction dump data sets
 description:
   - Allocates the two L(transaction dump ,https://www.ibm.com/docs/en/cics-ts/6.1?topic=sets-defining-transaction-dump-data)
     data sets used by a CICS® region.
+  - The two data sets are referred to as transaction dump data set A (DFHDMPA) and transaction dump data set B (DFHDMPB).
 author: Thomas Foyle (@tom-foyle)
 version_added: 1.1.0-beta.4
 options:
@@ -38,7 +39,8 @@ options:
   space_type:
     description:
       - The unit portion of the transaction dump data set size. Note that this is
-        just the unit; the value is specified with O(space_primary).
+        just the unit; the value for the primary space is specified with O(space_primary) and
+        the value for the secondary space is specified with O(space_secondary).
       - This option takes effect only when the transaction dump data set is being created.
         If the data set already exists, the option has no effect.
       - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
@@ -59,7 +61,7 @@ options:
     required: false
   region_data_sets:
     description:
-      - The location of the region data sets to be created using a template, for example,
+      - The location of the region data sets to be created by using a template, for example,
         C(REGIONS.ABCD0001.<< data_set_name >>).
     type: dict
     required: true
@@ -93,9 +95,10 @@ options:
             required: false
   destination:
     description:
-      - The transaction dump data set to create. If the value is left blank, A is implied, but you can specify A or B.
-      - V(A) will create or delete the A transaction dump data set.
-      - V(B) will create or delete the B transaction dump data set. This MUST be set for the creation of the B data set.
+      - Identifies which one of the transaction dump data sets is the target of the operation.
+        If the value is left blank, A is implied, but you can specify A or B.
+      - Specify V(A) to create or delete the A data set.
+      - Specify V(B) to create or delete the B data set. This MUST be set for the creation of the B data set.
     choices:
       - "A"
       - "B"
@@ -104,11 +107,15 @@ options:
     default: "A"
   state:
     description:
-      - The intended state for the transaction dump data set, which the module will aim to
-        achieve.
-      - V(absent) will remove the transaction dump data set data set entirely, if it already exists.
-      - V(initial) will create the transaction dump data set if it does not already exist.
-      - V(warm) will retain an existing transaction dump data set in its current state.
+      - The intended state for the transaction dump data set, which the module aims to achieve.
+      - Specify V(absent) to remove the transaction dump data set entirely, if it exists.
+      - Specify V(initial) to create the transaction dump data set if it does not exist.
+        If the specified data set exists but is empty, the module leaves the data set as is.
+        If the specified data set exists and has contents, the module deletes the data set and then creates a new, empty one.
+      - Specify V(warm) to retain an existing transaction dump data set in its current state.
+        The module verifies whether the specified data set exists and whether it contains any records.
+        If both conditions are met, the module leaves the data set as is.
+        If the data set does not exist or if it is empty, the operation fails.
     choices:
       - "initial"
       - "absent"
@@ -165,7 +172,7 @@ start_state:
       type: str
       sample: "Sequential"
     exists:
-      description: True if the transaction dump data set exists.
+      description: True if the specified transaction dump data set exists.
       type: bool
       returned: always
 end_state:
@@ -179,7 +186,7 @@ end_state:
       type: str
       sample: "Sequential"
     exists:
-      description: True if the transaction dump data set exists.
+      description: True if the specified transaction dump data set exists.
       type: bool
       returned: always
 executions:
@@ -197,7 +204,7 @@ executions:
       type: int
       returned: always
     stdout:
-      description: The standard out stream returned by the program execution.
+      description: The standard output stream returned from the program execution.
       type: str
       returned: always
     stderr:
