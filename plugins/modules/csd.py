@@ -19,9 +19,8 @@ description:
   - You can use this module when provisioning or de-provisioning a CICS region, or when managing
     the state of the CSD during upgrades or restarts.
   - Use the O(state) option to specify the intended state for the CSD.
-    For example, O(state=initial) will create and initialize a CSD
-    if it doesn't exist, or it will take an existing
-    CSD and empty it of all records.
+    For example, use O(state=initial) to create and initialize a CSD
+    if it doesn't exist, or empty an existing CSD of all records.
 author: Thomas Latham (@Thomas-Latham3)
 version_added: 1.1.0-beta.4
 options:
@@ -46,7 +45,8 @@ options:
   space_type:
     description:
       - The unit portion of the CSD size. Note that this is
-        just the unit; the value is specified with O(space_primary).
+        just the unit; the value for the primary space is specified with O(space_primary)
+        and the value for the secondary space is specified with O(space_secondary).
       - This option takes effect only when the CSD is being created.
         If the CSD already exists, the option has no effect.
       - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
@@ -67,7 +67,7 @@ options:
     required: false
   region_data_sets:
     description:
-      - The location of the region data sets to be created using a template, for example,
+      - The location of the region data sets to be created by using a template, for example,
         C(REGIONS.ABCD0001.<< data_set_name >>).
     type: dict
     required: true
@@ -101,18 +101,20 @@ options:
         type: str
       sdfhload:
         description:
-          - The location of the C(SDFHLOAD) library. If O(cics_data_sets.template) is provided, this value will override the template.
+          - The location of the C(SDFHLOAD) library. If O(cics_data_sets.template) is provided, this value overrides the template.
         type: str
         required: false
   state:
     description:
-      - The intended state for the CSD, which the module will aim to
-        achieve.
-      - V(absent) will remove the CSD entirely, if it already exists.
-      - V(initial) will create the CSD if it does not
+      - The intended state for the CSD, which the module aims to achieve.
+      - Specify V(absent) to remove the CSD entirely, if it already exists.
+      - Specify V(initial) to create the CSD if it does not
         already exist, and initialize it by using DFHCSDUP.
-      - V(warm) will retain an existing CSD in its current state.
-      - V(script) will run a DFHCSDUP script to update an existing CSD.
+      - Specify V(warm) to retain an existing CSD in its current state.
+        The module verifies whether the specified data set exists and whether it contains any records.
+        If both conditions are met, the module leaves the data set as is.
+        If the data set does not exist or if it is empty, the operation fails.
+      - Specify V(script) to run a DFHCSDUP script to update an existing CSD.
     choices:
       - "initial"
       - "absent"
@@ -122,11 +124,11 @@ options:
     type: str
   script_location:
     description:
-      - The type of location to load the DFHCSDUP script from.
-      - V(DATA_SET) will load from a data set a PDS, PDSE, or sequential data set.
-      - V(USS) will load from a file on UNIX System Services (USS).
-      - V(LOCAL) will load from a file local to the ansible control node.
-      - V(INLINE) will allow a script to be passed directly via the O(script_content) parameter.
+      - The type of location from which to load the DFHCSDUP script.
+      - Specify V(DATA_SET) to load from a PDS, PDSE, or sequential data set.
+      - Specify V(USS) to load from a file on UNIX System Services (USS).
+      - Specify V(LOCAL) to load from a file local to the Ansible control node.
+      - Specify V(INLINE) to allow a script to be passed directly through the O(script_content) parameter.
     choices:
       - "DATA_SET"
       - "USS"
@@ -137,20 +139,20 @@ options:
     default: "DATA_SET"
   script_src:
     description:
-      - The path to the source file containing the DFHCSDUP script to submit.
-      - It could be a data set.(e.g "TESTER.DEFS.SCRIPT","TESTER.DEFS(SCRIPT)").
-      - Or a USS file (e.g "/u/tester/defs/script.csdup").
-      - Or a local file (e.g "/User/tester/defs/script.csdup").
+      - The path to the source file that contains the DFHCSDUP script to submit.
+      - It can be a data set. For example: "TESTER.DEFS.SCRIPT" or "TESTER.DEFS(SCRIPT)"
+      - It can be a USS file. For example: "/u/tester/defs/script.csdup"
+      - It can be a local file. For example: "/User/tester/defs/script.csdup"
     type: str
     required: false
   script_content:
     description:
-      - The content of the DFHCSDUP script to submit, if using the O(script_location=INLINE) option.
+      - The content of the DFHCSDUP script to submit, if you are using the O(script_location=INLINE) option.
     type: str
     required: false
   log:
     description:
-      - Specify the recovery attributes for the CSD, overriding the CSD system initialization parameters.
+      - Specify the recovery attribute for the CSD, overriding the CSD system initialization parameters.
       - Specify NONE for a nonrecoverable CSD.
       - Specify UNDO for a CSD that is limited to file backout only.
       - Specify ALL for a CSD for which you want both forward recovery and file backout. If you specify LOG(ALL), you
@@ -167,7 +169,7 @@ options:
   logstreamid:
     description:
       - The 26-character name of the z/OS™ log stream to be used as the forward recovery log.
-      - Only required when specifying 'ALL' as the LOG value.
+      - This is required when you use LOG(ALL).
     type: str
     required: false
 '''
@@ -182,7 +184,7 @@ EXAMPLES = r"""
       template: "CICSTS61.CICS.<< lib_name >>"
     state: "initial"
 
-- name: Initialize a large CSD data set
+- name: Initialize a large CSD
   ibm.ibm_zos_cics.csd:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -200,7 +202,7 @@ EXAMPLES = r"""
       template: "CICSTS61.CICS.<< lib_name >>"
     state: "absent"
 
-- name: Retain existing state of CSD
+- name: Retain the existing state of a CSD
   ibm.ibm_zos_cics.csd:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -302,7 +304,7 @@ executions:
       type: int
       returned: always
     stdout:
-      description: The standard out stream returned by the program execution.
+      description: The standard output stream returned from the program execution.
       type: str
       returned: always
     stderr:

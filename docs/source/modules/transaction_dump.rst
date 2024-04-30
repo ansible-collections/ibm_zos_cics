@@ -34,9 +34,9 @@ Parameters
 destination
   The transaction dump data set to create. If the value is left blank, A is implied, but you can specify A or B.
 
-  \ :literal:`A`\  will create or delete the A transaction dump data set.
+  Specify \ :literal:`A`\  to create or delete the A transaction dump data set.
 
-  \ :literal:`B`\  will create or delete the B transaction dump data set. This MUST be set for the creation of the B data set.
+  Specify \ :literal:`B`\  to create or delete the B transaction dump data set. This MUST be set for the creation of the B data set.
 
 
   | **required**: False
@@ -47,7 +47,7 @@ destination
 
      
 region_data_sets
-  The location of the region data sets to be created using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
+  The location of the region data sets to be created by using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
 
 
   | **required**: True
@@ -128,7 +128,7 @@ space_secondary
 
      
 space_type
-  The unit portion of the transaction dump data set size. Note that this is just the unit; the value is specified with \ :literal:`space\_primary`\ .
+  The unit portion of the transaction dump data set size. Note that this is just the unit; the value for the primary space is specified with \ :literal:`space\_primary`\  and the value for the secondary space is specified with \ :literal:`space\_secondary`\ .
 
   This option takes effect only when the transaction dump data set is being created. If the data set already exists, the option has no effect.
 
@@ -143,13 +143,13 @@ space_type
 
      
 state
-  The intended state for the transaction dump data set, which the module will aim to achieve.
+  The intended state for the transaction dump data set, which the module aims to achieve.
 
-  \ :literal:`absent`\  will remove the transaction dump data set data set entirely, if it already exists.
+  Specify \ :literal:`absent`\  to remove the transaction dump data set data set entirely, if it already exists.
 
-  \ :literal:`initial`\  will create the transaction dump data set if it does not already exist.
+  Specify \ :literal:`initial`\  to create the transaction dump data set if it does not exist.
 
-  \ :literal:`warm`\  will retain an existing transaction dump data set in its current state.
+  Specify \ :literal:`warm`\  to retain an existing transaction dump data set in its current state. The module verifies whether the specified data set exists and whether it contains any records. If both conditions are met, the module leaves the data set as is. If the data set does not exist or if it is empty, the operation fails.
 
 
   | **required**: True
@@ -247,7 +247,7 @@ Return Values
       
                               
         exists
-          | True if the transaction dump data set exists.
+          | True if the specified transaction dump data set exists.
       
           | **returned**: always
           | **type**: bool
@@ -276,7 +276,7 @@ Return Values
       
                               
         exists
-          | True if the transaction dump data set exists.
+          | True if the specified transaction dump data set exists.
       
           | **returned**: always
           | **type**: bool
@@ -310,7 +310,7 @@ Return Values
       
                               
         stdout
-          | The standard out stream returned by the program execution.
+          | The standard output stream returned from the program execution.
       
           | **returned**: always
           | **type**: str

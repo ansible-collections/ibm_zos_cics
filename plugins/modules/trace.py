@@ -39,7 +39,8 @@ options:
   space_type:
     description:
       - The unit portion of the auxiliary trace data set size. Note that this is
-        just the unit; the value is specified with O(space_primary).
+        just the unit; the value for the primary space is specified with O(space_primary) and
+        the value for the secondary space is specified with O(space_secondary).
       - This option takes effect only when the auxiliary trace data set is being created.
         If the data set already exists, the option has no effect.
       - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
@@ -60,7 +61,7 @@ options:
     required: false
   region_data_sets:
     description:
-      - The location of the region data sets to be created using a template, for example,
+      - The location of the region data sets to be created by using a template, for example,
         C(REGIONS.ABCD0001.<< data_set_name >>).
       - If you want to use a data set that already exists, ensure that the data set is an auxiliary trace data set.
     type: dict
@@ -96,8 +97,8 @@ options:
   destination:
     description:
       - The auxiliary trace data set to create. If the value is left blank, A is implied, but you can specify A or B.
-      - V(A) will create or delete the A auxiliary trace data set.
-      - V(B) will create or delete the B auxiliary trace data set. This MUST be set for the creation of B data set.
+      - Specify V(A) to create or delete the A auxiliary trace data set.
+      - Specify V(B) to create or delete the B auxiliary trace data set. This MUST be set for the creation of B data set.
     choices:
       - "A"
       - "B"
@@ -106,13 +107,12 @@ options:
     default: "A"
   state:
     description:
-      - The intended state for the auxiliary trace data set, which the module will aim to
-        achieve.
-      - V(absent) will remove the auxiliary trace data set data set entirely, if it
-        already exists.
-      - V(initial) will create the auxiliary trace data set if it does not
-        already exist.
-      - V(warm) will retain an existing auxiliary trace data set in its current state.
+      - The intended state for the auxiliary trace data set, which the module aims to achieve.
+      - Specify V(absent) to remove the auxiliary trace data set data set entirely, if it already exists.
+      - Specify V(initial) to create the auxiliary trace data set if it does not exist.
+      - Specify V(warm) to retain an existing auxiliary trace data set in its current state.
+        The module checks whether the specified data set exists, and if it does, leaves the data set as is.
+        If the data set does not exist, the operation fails.
     choices:
       - "initial"
       - "absent"
@@ -169,7 +169,7 @@ start_state:
       type: str
       sample: "Sequential"
     exists:
-      description: True if the auxiliary trace data set exists.
+      description: True if the specified auxiliary trace data set exists.
       type: bool
       returned: always
 end_state:
@@ -183,7 +183,7 @@ end_state:
       type: str
       sample: "Sequential"
     exists:
-      description: True if the auxiliary trace data set exists.
+      description: True if the specified auxiliary trace data set exists.
       type: bool
       returned: always
 executions:
@@ -201,7 +201,7 @@ executions:
       type: int
       returned: always
     stdout:
-      description: The standard out stream returned by the program execution.
+      description: The standard output stream returned from the program execution.
       type: str
       returned: always
     stderr:
