@@ -54,8 +54,8 @@
             - result.changed == false
             - result.start_state.exists == false
             - result.end_state.exists == false
-            - "'msg' in result"
-            - "'Data set {{ data_set_path }} does not exist.' in result.msg"
+            - result.msg == "Data set {{ data_set_path }} does not exist."
+            - "'executions' in result"
 
       # #############################################################################
 
@@ -74,6 +74,8 @@
             - result.changed == true
             - result.start_state.exists == false
             - result.end_state.exists == true
+            - result.msg == ""
+            - "'executions' in result"
 
       # #############################################################################
 
@@ -95,6 +97,8 @@
             - result.changed == false
             - result.start_state.exists == true
             - result.end_state.exists == true
+            - result.msg == ""
+            - "'executions' in result"
 
       # Some data sets will fail to warm start when the data set is empty
       - name: Assert {{ data_set_name }} failed to create
@@ -105,10 +109,10 @@
             - result.changed == false
             - result.start_state.exists == true
             - result.end_state.exists == true
-            - "'msg' in result"
-            - ("'Data set {{ data_set_path }} is empty.' in result.msg")
-              or
-              ("'Unused catalog. The catalog must be used by CICS before doing a warm start.' in result.msg'")
+            - (result.msg == "Data set {{ data_set_path }} is empty.")
+              or 
+              (result.msg == "Unused catalog. The catalog must be used by CICS before doing a warm start.")
+            - "'executions' in result"
 
       # #############################################################################
 
@@ -141,6 +145,8 @@
               - result.changed == false
               - result.start_state.exists == true
               - result.end_state.exists == true
+              - result.msg == ""
+              - "'executions' in result"
 
       # #############################################################################
       # ################################## Cleanup ##################################

@@ -121,7 +121,8 @@ def test_create_an_intial_local_catalog():
             data_set_organization="VSAM"
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert lcd_module.get_result() == expected_result
 
@@ -180,7 +181,8 @@ def test_delete_an_existing_local_catalog():
             data_set_organization="NONE"
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert lcd_module.get_result() == expected_result
 
@@ -272,7 +274,8 @@ def test_delete_an_existing_local_catalog_and_replace():
             data_set_organization="VSAM"
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert lcd_module.get_result() == expected_result
 
@@ -312,7 +315,8 @@ def test_remove_non_existent_local_catalog():
             data_set_organization="NONE"
         ),
         changed=False,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert lcd_module.get_result() == expected_result
 
@@ -367,7 +371,8 @@ def test_warm_start_a_local_catalog():
             data_set_organization="VSAM"
         ),
         changed=False,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert lcd_module.get_result() == expected_result
 
@@ -424,7 +429,8 @@ def test_error_warm_start_a_unused_local_catalog():
             data_set_organization="VSAM"
         ),
         changed=False,
-        failed=True
+        failed=True,
+        msg="Data set {0} is empty.".format(NAME),
     )
     assert lcd_module.get_result() == expected_result
 
@@ -463,7 +469,8 @@ def test_error_warm_start_a_non_existent_local_catalog():
             data_set_organization="NONE"
         ),
         failed=True,
-        changed=False
+        changed=False,
+        msg="Data set {0} does not exist.".format(NAME),
     )
     assert lcd_module.get_result() == expected_result
 
@@ -524,6 +531,7 @@ def test_bad_response_from_ccutl():
             data_set_organization="VSAM"
         ),
         changed=True,
-        failed=True
+        failed=True,
+        msg="DFHCCUTL failed with RC 99",
     )
     assert lcd_module.get_result() == expected_result

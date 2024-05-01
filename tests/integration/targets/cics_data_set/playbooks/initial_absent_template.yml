@@ -54,6 +54,8 @@
             - result.changed == true
             - result.start_state.exists == false
             - result.end_state.exists == true
+            - result.msg == ""
+            - "'executions' in result"
 
       # Only relevant for VSAM data sets
       - name: Assert {{ data_set_name }} VSAM state
@@ -92,6 +94,8 @@
             - result.changed == false
             - result.start_state.exists == true
             - result.end_state.exists == true
+            - result.msg == ""
+            - "'executions' in result"
 
       # Some data sets will delete all records if initial is run a second time.
       - name: Assert {{ data_set_name }} created again (changed is true)
@@ -102,6 +106,8 @@
             - result.changed == true
             - result.start_state.exists == true
             - result.end_state.exists == true
+            - result.msg == ""
+            - "'executions' in result"
 
       # #############################################################################
       # ####################### Module Testing - Absent #############################
@@ -122,6 +128,8 @@
             - result.changed == true
             - result.start_state.exists == true
             - result.end_state.exists == false
+            - result.msg == ""
+            - "'executions' in result"
 
       # Only relevant for VSAM data sets
       - name: Assert {{ data_set_name }} VSAM state
@@ -158,6 +166,8 @@
             - result.changed == false
             - result.start_state.exists == false
             - result.end_state.exists == false
+            - result.msg == ""
+            - "'executions' in result"
 
       # #############################################################################
       # ################################## Cleanup ##################################

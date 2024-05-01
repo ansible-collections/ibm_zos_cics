@@ -112,7 +112,8 @@ def test_create_an_intial_transaction_dump():
             data_set_organization="Sequential"
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert transaction_dump_module.get_result() == expected_result
 
@@ -164,7 +165,8 @@ def test_delete_an_existing_transaction_dump():
             data_set_organization="NONE"
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert transaction_dump_module.get_result() == expected_result
 
@@ -204,7 +206,8 @@ def test_remove_non_existent_transaction_dump():
             data_set_organization="NONE"
         ),
         changed=False,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert transaction_dump_module.get_result() == expected_result
 
@@ -257,7 +260,8 @@ def test_create_an_intial_destination_b_transaction_dump():
             data_set_organization="Sequential"
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert transaction_dump_module.get_result() == expected_result
 
@@ -297,7 +301,8 @@ def test_warm_on_non_existent():
             data_set_organization="NONE"
         ),
         failed=True,
-        changed=False
+        changed=False,
+        msg="Data set {0} does not exist.".format(NAMEA),
     )
     assert transaction_dump_module.get_result() == expected_result
 
@@ -352,7 +357,8 @@ def test_warm_on_empty():
             data_set_organization="Sequential"
         ),
         failed=True,
-        changed=False
+        changed=False,
+        msg="Data set {0} is empty.".format(NAMEA),
     )
     assert transaction_dump_module.get_result() == expected_result
 
@@ -407,6 +413,7 @@ def test_warm_success():
             data_set_organization="Sequential"
         ),
         failed=False,
-        changed=False
+        changed=False,
+        msg="",
     )
     assert transaction_dump_module.get_result() == expected_result

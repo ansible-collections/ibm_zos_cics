@@ -131,7 +131,8 @@ def test_create_an_intial_csd():
             data_set_organization="VSAM"
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert csd_module.get_result() == expected_result
 
@@ -184,7 +185,8 @@ def test_delete_an_existing_csd():
             data_set_organization="NONE"
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert csd_module.get_result() == expected_result
 
@@ -252,7 +254,8 @@ def test_do_nothing_to_an_existing_csd():
             data_set_organization="VSAM"
         ),
         changed=False,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert csd_module.get_result() == expected_result
 
@@ -293,7 +296,8 @@ def test_remove_non_existent_csd():
             data_set_organization="NONE"
         ),
         changed=False,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert csd_module.get_result() == expected_result
 
@@ -349,7 +353,8 @@ def test_warm_start_a_existing_csd():
             data_set_organization="VSAM"
         ),
         changed=False,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert csd_module.get_result() == expected_result
 
@@ -404,7 +409,8 @@ def test_error_warm_start_a_unused_csd():
             data_set_organization="VSAM"
         ),
         changed=False,
-        failed=True
+        failed=True,
+        msg="Data set {0} is empty.".format(NAME),
     )
     assert csd_module.get_result() == expected_result
 
@@ -440,7 +446,8 @@ def test_error_warm_start_a_non_existent_csd():
             data_set_organization="NONE"
         ),
         failed=True,
-        changed=False
+        changed=False,
+        msg="Data set {0} does not exist.".format(NAME),
     )
     assert csd_module.get_result() == expected_result
 
@@ -500,6 +507,7 @@ def test_bad_response_from_csdup():
             data_set_organization="VSAM"
         ),
         changed=True,
-        failed=True
+        failed=True,
+        msg="DFHCSDUP failed with RC 99",
     )
     assert csd_module.get_result() == expected_result

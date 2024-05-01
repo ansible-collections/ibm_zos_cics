@@ -192,7 +192,7 @@ def test_process_args_with_missing_overrides_no_template():
     try:
         _process_module_args(module_args, templar, task_vars)
     except KeyError as e:
-        assert e.args[0] == "template or sdfhauth"
+        assert e.args[0] == "No template or library overide found for sdfhauth"
 
 
 def test_process_args_with_one_missing_override_no_template():
@@ -213,7 +213,7 @@ def test_process_args_with_one_missing_override_no_template():
     try:
         _process_module_args(module_args, templar, task_vars)
     except KeyError as e:
-        assert e.args[0] == "template or sceerun"
+        assert e.args[0] == "No template or library overide found for sceerun"
 
 
 def test_process_args_with_missing_region_data_sets():
@@ -230,7 +230,7 @@ def test_process_args_with_missing_region_data_sets():
     try:
         _process_module_args(module_args, templar, task_vars)
     except KeyError as e:
-        assert e.args[0] == "region_data_sets"
+        assert e.args[0] == "Required argument region_data_sets not found"
 
 
 def test_process_args_with_missing_dsn_key():
@@ -259,7 +259,7 @@ def test_process_args_with_missing_dsn_key():
     try:
         _process_module_args(module_args, templar, task_vars)
     except KeyError as e:
-        assert e.args[0] == "dsn"
+        assert e.args[0] == "No template or data set overide found for dfhgcd"
 
 
 def test_process_args_with_missing_dsn_value():
@@ -288,7 +288,7 @@ def test_process_args_with_missing_dsn_value():
     try:
         _process_module_args(module_args, templar, task_vars)
     except KeyError as e:
-        assert e.args[0] == "template or dfhgcd"
+        assert e.args[0] == "No template or data set overide found for dfhgcd"
 
 
 def test_process_args_with_extra_data_set_args():

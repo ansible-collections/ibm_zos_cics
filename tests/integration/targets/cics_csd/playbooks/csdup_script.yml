@@ -67,6 +67,7 @@
               - result.changed == true
               - result.start_state.exists == false
               - result.end_state.exists == true
+              - result.msg == ""
 
         # #############################################################################
 
@@ -97,6 +98,9 @@
               - result.failed == false
               - result.changed == true
               - result.executions|select("search", "PROGRAM TESTPRG1 DEFINED IN GROUP TESTGRP1")
+              - result.msg == ""
+              - result.start_state.exists == true
+              - result.end_state.exists == true
 
         # #############################################################################
 
@@ -122,6 +126,9 @@
               - result.failed == false
               - result.changed == true
               - result.executions|select("search", "PROGRAM TESTPRG2 DEFINED IN GROUP TESTGRP2")
+              - result.msg == ""
+              - result.start_state.exists == true
+              - result.end_state.exists == true
 
         # #############################################################################
 
@@ -141,6 +148,9 @@
               - result.failed == false
               - result.changed == true
               - result.executions|select("search", "PROGRAM TESTPRG3 DEFINED IN GROUP TESTGRP3")
+              - result.msg == ""
+              - result.start_state.exists == true
+              - result.end_state.exists == true
 
         # #############################################################################
 
@@ -161,6 +171,9 @@
               - result.failed == false
               - result.changed == true
               - result.executions|select("search", "PROGRAM TESTPRG4 DEFINED IN GROUP TESTGRP4")
+              - result.msg == ""
+              - result.start_state.exists == true
+              - result.end_state.exists == true
 
         # #############################################################################
 
@@ -184,6 +197,9 @@
               - result.changed == true
               - result.executions|select("search", "PROGRAM TESTPRG5 DEFINED IN GROUP TESTGRP5")
               - result.executions|select("search", "PROGRAM TESTPRG6 DEFINED IN GROUP TESTGRP6")
+              - result.msg == ""
+              - result.start_state.exists == true
+              - result.end_state.exists == true
 
         # #############################################################################
         # ################################## Cleanup ##################################
