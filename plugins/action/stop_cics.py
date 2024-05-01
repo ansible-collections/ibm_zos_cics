@@ -2,6 +2,7 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 import time
+import re
 import logging
 from ansible.plugins.action import ActionBase
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.stop_cics import (
@@ -75,9 +76,26 @@ class ActionModule(ActionBase):
             self.logger.debug(RUNNING_ATTEMPTING_TO_STOP)
             shutdown_result = self.run_shutdown_command(self.get_shutdown_command())
             self.result[EXECUTIONS].append({NAME: SHUTDOWN_REGION, RC: shutdown_result.pop(RC), RETURN: shutdown_result})
+
+            self.get_console_errors(shutdown_result)
+            self.result["changed"] = True
+
             self.wait_for_successful_shutdown()
         else:
             self.logger.debug(CICS_NOT_ACTIVE)
+
+    def get_console_errors(self, shutdown_result):
+        shutdown_stdout = "".join(shutdown_result.get("content", [])).replace(
+            " ", "").replace("\n", "").upper()
+        fail_pattern = r'CICSAUTOINSTALLFORCONSOLE[A-Z]{4}\d{4}HASFAILED'
+        ignore_pattern = r'CONSOLE[A-Z]{4}\d{4}HASNOTBEENDEFINEDTOCICS.INPUTISIGNORED'
+
+        if re.search(fail_pattern, shutdown_stdout):
+            raise AnsibleActionFail(
+                "Shutdown command failed because the auto-install of the console was unsuccessful. See executions for full command output.")
+        if re.search(ignore_pattern, shutdown_stdout):
+            raise AnsibleActionFail(
+                "Shutdown command failed because the console used was not defined. See executions for full command output.")
 
     def wait_for_successful_shutdown(self):  # type: () -> None
         region_running = self.is_job_running()
@@ -127,7 +145,6 @@ class ActionModule(ActionBase):
             module_args={"cmd": cmd},
             task_vars=self.task_vars
         )
-        self.result["changed"] = True
         if shutdown_result.get(FAILED):
             self.result[FAILED] = True
             raise AnsibleActionFail(SHUTDOWN_FAILED)

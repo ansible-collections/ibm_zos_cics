@@ -35,6 +35,7 @@
   until: result is not failed
 
 - name: "CSD data set (DFHCSD) {{ data_set_state }}"
+  when: ignore_csd is not defined or ignore_csd is false
   ibm.ibm_zos_cics.csd:
     state: "{{ data_set_state }}"
   register: result
@@ -42,7 +43,9 @@
   until: result is not failed
 
 - name: Run DFHCSDUP script
-  when: data_set_state == "initial"
+  when:
+    - ignore_csd is not defined or ignore_csd is false
+    - data_set_state == "initial"
   ibm.ibm_zos_cics.csd:
     state: "script"
     script_location: "INLINE"

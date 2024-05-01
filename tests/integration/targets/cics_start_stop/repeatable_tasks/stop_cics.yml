@@ -33,6 +33,7 @@
     msg: "{{ stop_result }}"
 
 - name: Assert CICS stop did not fail
+  when: expect_failure is not defined or expect_failure is false
   ansible.builtin.assert:
     that:
       - stop_result.failed != True
@@ -40,7 +41,8 @@
     fail_msg: "CICS Region did not stop successfully"
 
 - name: Execute a command to delete job
+  when: expect_failure is not defined or expect_failure is false
   ansible.builtin.command:
-    cmd: "tsocmd CANCEL {{ start_region_applid }} PURGE"
+    cmd: "tsocmd CANCEL {{ start_region_applid }}({{ start_result.job_id }}) PURGE"
   register: delete_result
   changed_when: delete_result.rc == 0

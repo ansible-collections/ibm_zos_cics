@@ -1,0 +1,6 @@
+- name: CSD data set (DFHCSD)
+  ibm.ibm_zos_cics.csd:
+    state: "{{ data_set_state }}"
+  register: result
+  retries: 3
+  until: result is not failed
