@@ -20,8 +20,10 @@
         cics_data_sets:
           template: "{{ cics_install_path }}.<< lib_name >>"
       register: result
-      failed_when: false
       ignore_errors: true
+    - name: Debug
+      ansible.builtin.debug:
+        var: result
 
     - name: Assert global failed
       ansible.builtin.assert:
@@ -37,8 +39,10 @@
         cics_data_sets:
           template: "{{ cics_install_path }}.<< lib_name >>"
       register: result
-      failed_when: false
       ignore_errors: true
+    - name: Debug
+      ansible.builtin.debug:
+        var: result
 
     - name: Assert local failed
       ansible.builtin.assert:
@@ -54,8 +58,10 @@
         cics_data_sets:
           template: "{{ cics_install_path }}.<< lib_name >>"
       register: result
-      failed_when: false
       ignore_errors: true
+    - name: Debug
+      ansible.builtin.debug:
+        var: result
 
     - name: Assert lrq failed
       ansible.builtin.assert:
@@ -71,8 +77,10 @@
         cics_data_sets:
           template: "{{ cics_install_path }}.<< lib_name >>"
       register: result
-      failed_when: false
       ignore_errors: true
+    - name: Debug
+      ansible.builtin.debug:
+        var: result
 
     - name: Assert intra failed
       ansible.builtin.assert:
@@ -88,8 +96,10 @@
         cics_data_sets:
           template: "{{ cics_install_path }}.<< lib_name >>"
       register: result
-      failed_when: false
       ignore_errors: true
+    - name: Debug
+      ansible.builtin.debug:
+        var: result
 
     - name: Assert aux temp failed
       ansible.builtin.assert:

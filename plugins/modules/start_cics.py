@@ -155,6 +155,10 @@ RETURN = r"""
         description: The standard error stream returned from the program execution.
         type: str
         returned: always
+  msg:
+    description: A string containing an error message if applicable
+    returned: always
+    type: str
 """
 
 
@@ -409,14 +413,14 @@ class AnsibleStartCICSModule(object):
             # Submit the JCL using ZOAU jsub
             try:
                 jcl = "\n".join(jcl)
-                rc, stdout, stderr = self._module.run_command(["echo", jcl])
-                rc, stdout, stderr = self._module.run_command(["jsub"], data=stdout)
+                rc, stdout, stderr = self._module.run_command(["echo", jcl], handle_exceptions=False)
+                rc, stdout, stderr = self._module.run_command(["jsub"], data=stdout, handle_exceptions=False)
                 self.result["changed"] = True
                 self.result["executions"].append({"name": "z/OS Job Submit - Submit CICS Startup JCL",
                                                   "stdout": stdout, "stderr": stderr, "rc": rc})
                 self.result["job_id"] = stdout.strip('\n')
-            except Exception:
-                self._fail("Failed to submit jcl as job with return code: {0}".format(rc))
+            except Exception as e:
+                self._fail("Failed to submit jcl - {0}".format(str(e)))
 
     def _validate_dictionary_value_within_sit_parms(self, sit_param_key_with_trailing_x, chars_to_replace_trailing_x):
         number_of_x_chars = len(sit_param_key_with_trailing_x) - len(sit_param_key_with_trailing_x.rstrip('x'))

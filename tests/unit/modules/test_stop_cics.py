@@ -60,5 +60,8 @@ def test__validate_sdtran_too_long():
     stop_module._module.params[SDTRAN] = "CESDS"
     stop_module.main()
     assert stop_module.failed
-    assert stop_module.message == "Value: CESDS, is invalid. SDTRAN value must be  1-4 characters."
+    assert (
+        stop_module.msg
+        == "Value: CESDS, is invalid. SDTRAN value must be  1-4 characters."
+    )
     assert stop_module.executions == []

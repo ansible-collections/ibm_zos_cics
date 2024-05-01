@@ -26,18 +26,32 @@ class ActionModule(ActionBase):
         super(ActionModule, self).run(tmp, task_vars)
         self.module_args = self._task.args.copy()
 
+        return_structure = {
+            "failed": False,
+            "changed": False,
+            "msg": "",
+            "executions": [],
+            "jcl": [],
+            "job_id": "",
+        }
+
         try:
             _process_module_args(self.module_args, self._templar, task_vars)
-        except KeyError as e:
-            message = "Argument {0} undefined".format(e.args[0])
-            return {"failed": True, "changed": False, "msg": message, "args": self.module_args}
-
-        return self._execute_module(
-            module_name=MODULE_NAME,
-            module_args=self.module_args,
-            task_vars=task_vars,
-            tmp=tmp
-        )
+        except (KeyError, ValueError) as e:
+            return_structure.update({
+                "failed": True,
+                "msg": e.args[0],
+            })
+        else:
+            return_structure.update(
+                self._execute_module(
+                    module_name=MODULE_NAME,
+                    module_args=self.module_args,
+                    task_vars=task_vars,
+                    tmp=tmp,
+                )
+            )
+        return return_structure
 
 
 def _process_module_args(module_args, _templar, task_vars):

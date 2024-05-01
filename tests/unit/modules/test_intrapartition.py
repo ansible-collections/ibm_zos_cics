@@ -99,7 +99,8 @@ def test_create_an_intial_intrapartition_ds():
             data_set_organization="VSAM"
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert intra_module.get_result() == expected_result
 
@@ -151,7 +152,8 @@ def test_delete_an_existing_intrapartition_ds():
             data_set_organization="NONE"
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert intra_module.get_result() == expected_result
 
@@ -234,7 +236,8 @@ def test_delete_an_existing_intra_and_replace():
             data_set_organization="VSAM"
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert intra_module.get_result() == expected_result
 
@@ -274,7 +277,8 @@ def test_remove_non_existent_intra():
             data_set_organization="NONE"
         ),
         changed=False,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert intra_module.get_result() == expected_result
 
@@ -311,7 +315,8 @@ def test_warm_on_non_existent_intra():
             data_set_organization="NONE"
         ),
         changed=False,
-        failed=True
+        failed=True,
+        msg="Data set {0} does not exist.".format(NAME),
     )
     assert intra_module.get_result() == expected_result
 
@@ -365,7 +370,8 @@ def test_warm_on_empty_intra():
             data_set_organization="VSAM"
         ),
         changed=False,
-        failed=True
+        failed=True,
+        msg="Data set {0} is empty.".format(NAME),
     )
     assert intra_module.get_result() == expected_result
 
@@ -419,6 +425,7 @@ def test_warm_success_intra():
             data_set_organization="VSAM"
         ),
         changed=False,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert intra_module.get_result() == expected_result

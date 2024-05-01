@@ -47,7 +47,10 @@
           that:
             - result.failed == true
             - result.changed == false
-            - result.msg == "Argument region_data_sets undefined"
+            - result.msg == "Required argument region_data_sets not found"
+            - "'executions' in result"
+            - "'start_state' in result"
+            - "'end_state' in result"
 
       # #############################################################################
 
@@ -69,7 +72,10 @@
           that:
             - result.failed == true
             - result.changed == false
-            - result.msg == "Argument template or DATA_SET_NAME_LOWER undefined"
+            - result.msg == "No template or data set overide found for {{ data_set_name | lower }}"
+            - "'executions' in result"
+            - "'start_state' in result"
+            - "'end_state' in result"
 
       # #############################################################################
 
@@ -89,9 +95,10 @@
           that:
             - result.failed == true
             - result.changed == false
-            - result.rc == 1
-            - "'exception' in result"
-            - "'Invalid argument \"{{ region_data_set_path }}...\" for type \"data_set_base\".' in result.exception"
+            - "'Invalid argument \"{{ region_data_set_path }}...\" for type \"data_set_base\".' in result.msg"
+            - "'executions' in result"
+            - "'start_state' in result"
+            - "'end_state' in result"
 
       # #############################################################################
 
@@ -112,6 +119,8 @@
             - result.changed == true
             - result.start_state.exists == false
             - result.end_state.exists == true
+            - result.msg == ""
+            - "'executions' in result"
 
       # #############################################################################
       # ################################## Cleanup ##################################

@@ -112,7 +112,8 @@ def test_create_an_intial_aux_trace():
             data_set_organization="Sequential"
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert trace_module.get_result() == expected_result
 
@@ -164,7 +165,8 @@ def test_delete_an_existing_aux_trace():
             data_set_organization="NONE"
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert trace_module.get_result() == expected_result
 
@@ -204,7 +206,8 @@ def test_remove_non_existent_aux_trace():
             data_set_organization="NONE"
         ),
         changed=False,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert trace_module.get_result() == expected_result
 
@@ -257,7 +260,8 @@ def test_create_an_intial_destination_b_aux_trace():
             data_set_organization="Sequential"
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert trace_module.get_result() == expected_result
 
@@ -297,7 +301,8 @@ def test_warm_on_non_existent_aux():
             data_set_organization="NONE"
         ),
         failed=True,
-        changed=False
+        changed=False,
+        msg="Data set {0} does not exist.".format(NAMEA),
     )
     assert aux_module.get_result() == expected_result
 
@@ -352,7 +357,8 @@ def test_warm_on_empty_aux():
             data_set_organization="Sequential"
         ),
         failed=True,
-        changed=False
+        changed=False,
+        msg="Data set {0} is empty.".format(NAMEA),
     )
     assert aux_module.get_result() == expected_result
 
@@ -407,6 +413,7 @@ def test_warm_success_aux():
             data_set_organization="Sequential"
         ),
         failed=False,
-        changed=False
+        changed=False,
+        msg="",
     )
     assert aux_module.get_result() == expected_result

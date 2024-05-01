@@ -35,13 +35,31 @@ class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         super(ActionModule, self).run(tmp, task_vars)
         self.module_args = self._task.args.copy()
-        module_return = self._execute_module(module_name=MODULE_NAME, module_args=self.module_args, task_vars=task_vars,
-                                             tmp=tmp)
-        if module_return.get(FAILED):
-            return module_return
+
+        self.result = {
+            "failed": False,
+            "changed": False,
+            "msg": "",
+            "executions": [],
+        }
+
+        self.result.update(
+            self._execute_module(
+                module_name=MODULE_NAME,
+                module_args=self.module_args,
+                task_vars=task_vars,
+                tmp=tmp,
+            )
+        )
+        if self.result.get(FAILED):
+            return self.result
 
         self._configure(task_vars)
-        self.shutdown_cics_region()
+
+        try:
+            self.shutdown_cics_region()
+        except (AnsibleActionFail, KeyError) as e:
+            self.result.update({"failed": True, "msg": e.args[0]})
         return self.result
 
     def _configure(self, task_vars):

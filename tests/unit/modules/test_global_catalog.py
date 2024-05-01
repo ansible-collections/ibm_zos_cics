@@ -134,7 +134,8 @@ def test_create_an_intial_global_catalog():
             autostart_override="AUTOINIT"
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert gcd_module.get_result() == expected_result
 
@@ -207,7 +208,8 @@ def test_delete_an_existing_global_catalog():
             autostart_override=""
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert gcd_module.get_result() == expected_result
 
@@ -250,7 +252,8 @@ def test_remove_non_existent_global_catalog():
             autostart_override=""
         ),
         changed=False,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert gcd_module.get_result() == expected_result
 
@@ -330,7 +333,8 @@ def test_warm_start_a_global_catalog():
             autostart_override="AUTOASIS"
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert gcd_module.get_result() == expected_result
 
@@ -411,7 +415,8 @@ def test_error_warm_start_a_unused_global_catalog():
             autostart_override="AUTOINIT"
         ),
         changed=True,
-        failed=True
+        failed=True,
+        msg="Unused catalog. The catalog must be used by CICS before doing a warm start.",
     )
     assert gcd_module.get_result() == expected_result
 
@@ -464,7 +469,8 @@ def test_error_warm_start_a_non_existent_global_catalog():
             autostart_override=""
         ),
         failed=True,
-        changed=True
+        changed=True,
+        msg="Data set {0} does not exist.".format(NAME),
     )
     assert gcd_module.get_result() == expected_result
 
@@ -517,7 +523,8 @@ def tests_cold_start_non_existent_catalog():
             autostart_override=""
         ),
         failed=True,
-        changed=True
+        changed=True,
+        msg="Data set {0} does not exist.".format(NAME),
     )
     assert gcd_module.get_result() == expected_result
 
@@ -582,7 +589,8 @@ def test_cold_start_unused_catalog():
             autostart_override="AUTOINIT"
         ),
         changed=True,
-        failed=True
+        failed=True,
+        msg="Unused catalog. The catalog must be used by CICS before doing a cold start.",
     )
     assert gcd_module.get_result() == expected_result
 
@@ -647,6 +655,7 @@ def test_cold_start_global_catalog():
             autostart_override="AUTOCOLD"
         ),
         changed=True,
-        failed=False
+        failed=False,
+        msg="",
     )
     assert gcd_module.get_result() == expected_result

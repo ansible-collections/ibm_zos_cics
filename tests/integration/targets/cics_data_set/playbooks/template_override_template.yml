@@ -39,6 +39,16 @@
       - name: Debug
         ansible.builtin.debug:
           msg: "{{ result }}"
+      
+      - name: Assert {{ data_set_name }} created (using templated dsn)
+        ansible.builtin.assert:
+          that:
+            - result.failed == false
+            - result.changed == true
+            - result.start_state.exists == false
+            - result.end_state.exists == true
+            - result.msg == ""
+            - result.executions|select("search", "{{ region_data_set_path }}.{{ data_set_name }}")
 
       - name: Delete {{ data_set_name }}
         ibm.ibm_zos_core.zos_data_set:
@@ -62,6 +72,16 @@
       - name: Debug
         ansible.builtin.debug:
           msg: "{{ result }}"
+
+      - name: Assert {{ data_set_name }} created (using dsn override)
+        ansible.builtin.assert:
+          that:
+            - result.failed == false
+            - result.changed == true
+            - result.start_state.exists == false
+            - result.end_state.exists == true
+            - result.msg == ""
+            - result.executions|select("search", "{{ data_set_path }}")
 
       - name: Delete {{ data_set_name }}
         ibm.ibm_zos_core.zos_data_set:
@@ -87,6 +107,16 @@
       - name: Debug
         ansible.builtin.debug:
           msg: "{{ result }}"
+
+      - name: Assert {{ data_set_name }} created (using overridden dsn)
+        ansible.builtin.assert:
+          that:
+            - result.failed == false
+            - result.changed == true
+            - result.start_state.exists == false
+            - result.end_state.exists == true
+            - result.msg == ""
+            - result.executions|select("search", "{{ data_set_path }}")
             
       - name: Delete {{ data_set_name }}
         ibm.ibm_zos_core.zos_data_set:

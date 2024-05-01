@@ -69,96 +69,100 @@ EXAMPLES = r'''
 '''
 
 RETURN = r'''
-  changed:
-    description: True if the PERFORM SHUTDOWN command was executed.
-    returned: always
-    type: bool
-  failed:
-    description: True if the Ansible task failed, otherwise False.
-    returned: always
-    type: bool
-  executions:
-    description: A list of program executions performed during the Ansible task.
-    returned: always
-    type: list
-    elements: dict
-    contains:
-      name:
-        description: A human-readable name for the program execution.
-        type: str
-        returned: always
-      rc:
-        description: The return code for the program execution.
-        type: int
-        returned: on shutdown execution
-      return:
-        description: The standard output returned by the program execution.
-        type: dict
-        returned: always
-        contains:
-          changed:
-           description: True if the state was changed, otherwise False.
-           returned: always
-           type: bool
-          jobs:
-            description: The output information for a list of jobs matching specified criteria.
-            type: list
-            returned: success
-            elements: dict
-            contains:
-              job_id:
-                description: Unique job identifier assigned to the job by JES.
-                type: str
-              job_name:
-                description: The name of the batch job.
-                type: str
-              owner:
-                description: The owner who ran the job.
-                type: str
-              ret_code:
-                description:
-                  Return code output collected from the job log.
-                type: dict
-                contains:
-                  msg:
-                    description:
-                      Return code or abend resulting from the job submission.
-                    type: str
-                  msg_code:
-                    description:
-                      Return code extracted from the `msg` so that it can be evaluated.
-                      For example, ABEND(S0C4) yields "S0C4".
-                    type: str
-                  msg_txt:
-                    description:
-                      Returns additional information related to the job.
-                    type: str
-                  code:
-                    description:
-                      Return code converted to an integer value (when possible).
-                    type: int
-                  steps:
-                    description:
-                      Series of JCL steps that were executed and their return codes.
-                    type: list
-                    elements: dict
-                    contains:
-                      step_name:
-                        description:
-                          Name of the step shown as "was executed" in the DD section.
-                        type: str
-                      step_cc:
-                        description:
-                          The CC returned for this step in the DD section.
-                        type: int
-          message:
-            description: Message returned on failure.
-            returned: failure
-            type: str
-          content:
-            description: The resulting text from the command submitted.
-            returned: on success of PERFORM SHUTDOWN command submission.
-            type: list
+changed:
+  description: True if the PERFORM SHUTDOWN command was executed.
+  returned: always
+  type: bool
+failed:
+  description: True if the Ansible task failed, otherwise False.
+  returned: always
+  type: bool
+executions:
+  description: A list of program executions performed during the Ansible task.
+  returned: always
+  type: list
+  elements: dict
+  contains:
+    name:
+      description: A human-readable name for the program execution.
+      type: str
+      returned: always
+    rc:
+      description: The return code for the program execution.
+      type: int
+      returned: on shutdown execution
+    return:
+      description: The standard output returned by the program execution.
+      type: dict
+      returned: always
+      contains:
+        changed:
+          description: True if the state was changed, otherwise False.
+          returned: always
+          type: bool
+        jobs:
+          description: The output information for a list of jobs matching specified criteria.
+          type: list
+          returned: success
+          elements: dict
+          contains:
+            job_id:
+              description: Unique job identifier assigned to the job by JES.
+              type: str
+            job_name:
+              description: The name of the batch job.
+              type: str
+            owner:
+              description: The owner who ran the job.
+              type: str
+            ret_code:
+              description:
+                Return code output collected from the job log.
+              type: dict
+              contains:
+                msg:
+                  description:
+                    Return code or abend resulting from the job submission.
+                  type: str
+                msg_code:
+                  description:
+                    Return code extracted from the `msg` so that it can be evaluated.
+                    For example, ABEND(S0C4) yields "S0C4".
+                  type: str
+                msg_txt:
+                  description:
+                    Returns additional information related to the job.
+                  type: str
+                code:
+                  description:
+                    Return code converted to an integer value (when possible).
+                  type: int
+                steps:
+                  description:
+                    Series of JCL steps that were executed and their return codes.
+                  type: list
+                  elements: dict
+                  contains:
+                    step_name:
+                      description:
+                        Name of the step shown as "was executed" in the DD section.
+                      type: str
+                    step_cc:
+                      description:
+                        The CC returned for this step in the DD section.
+                      type: int
+        message:
+          description: Message returned on failure.
+          returned: failure
+          type: str
+        content:
+          description: The resulting text from the command submitted.
+          returned: on success of PERFORM SHUTDOWN command submission.
+          type: list
+msg:
+  description: A string containing an error message if applicable
+  returned: always
+  type: str
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -193,16 +197,16 @@ class AnsibleStopCICSModule(object):
 
     def _fail(self, msg):  # type: (str) -> None
         self.failed = True
-        self.message = msg
+        self.msg = msg
         self.result = self.get_result()
-        self._module.fail_json(msg=msg, **self.result)
+        self._module.fail_json(**self.result)
 
     def get_result(self):  # type: () -> dict
         return {
             "changed": self.changed,
             "failed": self.failed,
             "executions": self.executions,
-            "message": self.message
+            "msg": self.msg
         }
 
     def init_argument_spec(self):

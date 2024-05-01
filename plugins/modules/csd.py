@@ -310,6 +310,10 @@ executions:
       description: The standard error stream returned from the program execution.
       type: str
       returned: always
+msg:
+  description: A string containing an error message if applicable
+  returned: always
+  type: str
 """
 
 
@@ -435,9 +439,8 @@ class AnsibleCSDModule(DataSet):
         return arg_spec
 
     def _validate_log_args(self):
-        if self._module.params.get(LOG):
-            if self._module.params[LOG] == "ALL" and self._module.params.get(LOGSTREAMID) is None:
-                self._fail("LOGSTREAMID must be provided when LOG is set to ALL.")
+        if self._module.params.get(LOG, "") == "ALL" and self._module.params.get(LOGSTREAMID) is None:
+            self._fail("LOGSTREAMID must be provided when LOG is set to ALL.")
 
     def get_arg_defs(self):  # type: () -> dict
         defs = super().get_arg_defs()
@@ -514,7 +517,7 @@ class AnsibleCSDModule(DataSet):
                 file = open(self.script_src)
                 file_content = file.read()
                 csdup_script_executions.extend(_run_dfhcsdup(self.get_data_set(), StdinDefinition(content=file_content)))
-            elif self.script_location == LOCAL or self.script_location == INLINE:
+            elif self.script_location in [LOCAL, INLINE]:
                 csdup_script_executions.extend(_run_dfhcsdup(self.get_data_set(), StdinDefinition(content=self.script_content)))
             else:
                 self._fail("script_location: {0} not recognised.".format(self.script_location))
@@ -525,6 +528,10 @@ class AnsibleCSDModule(DataSet):
         except MVSExecutionException as e:
             self.executions.extend(e.executions)
             self._fail(e.message)
+        except (OSError, ValueError) as e:
+            # Handles the 'open' method failures
+            self.executions.extend(csdup_script_executions)
+            self._fail("{0} - {1}".format(type(e).__name__, str(e)))
 
 
 def main():

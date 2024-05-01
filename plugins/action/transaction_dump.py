@@ -11,10 +11,8 @@ class ActionModule(_DataSetActionPlugin):
     def run(self, tmp=None, task_vars=None):
         module_args = self._task.args.copy()
 
-        if (not (module_args.get("destination"))) or (
-                module_args.get("destination") == "A"):
-            ds_name = "dfhdmpa"
-        else:
+        ds_name = "dfhdmpa"
+        if module_args.get("destination", "").upper().strip() == "B":
             ds_name = "dfhdmpb"
 
         return super(ActionModule, self)._run(
