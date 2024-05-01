@@ -187,6 +187,10 @@ executions:
       description: The standard error stream returned from the program execution.
       type: str
       returned: always
+msg:
+  description: A string containing an error message if applicable
+  returned: always
+  type: str
 """
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set_utils import (

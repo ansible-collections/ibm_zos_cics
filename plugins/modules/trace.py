@@ -212,6 +212,10 @@ executions:
       description: The standard error stream returned from the program execution.
       type: str
       returned: always
+msg:
+  description: A string containing an error message if applicable
+  returned: always
+  type: str
 """
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
@@ -240,10 +244,7 @@ class AnsibleAuxiliaryTraceModule(DataSet):
     def __init__(self):  # type: () -> None
         self.ds_destination = ""
         super(AnsibleAuxiliaryTraceModule, self).__init__(SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT)
-        if self.destination == "A":
-            self.ds_destination = DSN_A
-        elif self.destination == "B":
-            self.ds_destination = DSN_B
+        self.ds_destination = DSN_B if self.destination == "B" else DSN_A
         self.name = self.region_param[self.ds_destination]["dsn"].upper()
         self.expected_data_set_organization = "Sequential"
 

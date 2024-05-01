@@ -19,21 +19,40 @@ class _DataSetActionPlugin(ActionBase):
         super(_DataSetActionPlugin, self).run(tmp, task_vars)
         self.module_args = self._task.args.copy()
 
+        return_structure = {
+            "failed": False,
+            "changed": False,
+            "msg": "",
+            "executions": [],
+            "start_state": {"data_set_organization": "NONE", "exists": False},
+            "end_state": {"data_set_organization": "NONE", "exists": False},
+        }
+
         try:
-            self._process_module_args(self.module_args, self._templar, ds_name, task_vars, cics_data_sets_required)
-        except KeyError as e:
-            message = "Argument {0} undefined".format(e.args[0])
-            return {"failed": True, "changed": False, "msg": message, "args": self.module_args}
+            self._process_module_args(
+                self.module_args,
+                self._templar,
+                ds_name,
+                task_vars,
+                cics_data_sets_required,
+            )
+        except (KeyError, ValueError) as e:
+            return_structure.update({
+                "failed": True,
+                "changed": False,
+                "msg": e.args[0],
+            })
+        else:
+            return_structure.update(
+                self._execute_module(
+                    module_name="ibm.ibm_zos_cics.{0}".format(module_name),
+                    module_args=self.module_args,
+                    task_vars=task_vars,
+                    tmp=tmp,
+                )
+            )
 
-        except ValueError as e:
-            return {"failed": True, "changed": False, "msg": e.args[0], "args": self.module_args}
-
-        return self._execute_module(
-            module_name="ibm.ibm_zos_cics.{0}".format(module_name),
-            module_args=self.module_args,
-            task_vars=task_vars,
-            tmp=tmp,
-        )
+        return return_structure
 
     def _process_module_args(self, module_args, _templar, ds_name, task_vars, cics_data_sets_required):
         _process_module_args(module_args, _templar, ds_name, task_vars, cics_data_sets_required)
@@ -58,10 +77,7 @@ def _process_module_args(module_args, _templar, ds_name, task_vars, cics_data_se
 
 
 def _check_region_override(module_args, ds_name):
-    if module_args["region_data_sets"].get(ds_name):
-        if module_args["region_data_sets"][ds_name]["dsn"]:
-            return True
-    return False
+    return module_args["region_data_sets"].get(ds_name, {}).get("dsn") is not None
 
 
 def _check_library_override(module_args, lib_type, lib_ds_name):
@@ -84,23 +100,25 @@ def _remove_cics_data_set_args(module_args, ds_name):
 
 
 def _process_region_data_set_args(module_args, _templar, ds_name, task_vars):
-    if _check_region_override(module_args, ds_name):
-        pass
-    elif _check_template(module_args, "region_data_sets"):
-        module_args["region_data_sets"].update({
-            ds_name: {
-                "dsn": _template_dsn(
-                    _templar=_templar,
-                    task_vars=task_vars,
-                    var_name="data_set_name",
-                    replace_val=ds_name.upper(),
-                    template=module_args["region_data_sets"]["template"]
-                )
-            }
-        })
-    else:
-        raise KeyError("template or {0}".format(ds_name))
-    _validate_data_set_length(module_args["region_data_sets"][ds_name]["dsn"])
+    if not module_args.get("region_data_sets"):
+        raise KeyError("Required argument region_data_sets not found")
+
+    if not _check_region_override(module_args, ds_name):
+        if _check_template(module_args, "region_data_sets"):
+            module_args["region_data_sets"].update({
+                ds_name: {
+                    "dsn": _template_dsn(
+                        _templar=_templar,
+                        task_vars=task_vars,
+                        var_name="data_set_name",
+                        replace_val=ds_name.upper(),
+                        template=module_args["region_data_sets"]["template"],
+                    )
+                }}
+            )
+        else:
+            raise KeyError("No template or data set overide found for {0}".format(ds_name))
+    return _validate_data_set_length(module_args["region_data_sets"][ds_name]["dsn"])
 
 
 def _validate_list_of_data_set_lengths(data_set_list):
@@ -114,19 +132,18 @@ def _validate_data_set_length(data_set):
 
 
 def _process_libraries_args(module_args, _templar, task_vars, lib_type, lib_ds_name):
-    if _check_library_override(module_args, lib_type, lib_ds_name):
-        pass
-    elif _check_template(module_args, lib_type):
-        module_args[lib_type][lib_ds_name] = _template_dsn(
-            _templar=_templar,
-            task_vars=task_vars,
-            var_name="lib_name",
-            replace_val=lib_ds_name.upper(),
-            template=module_args[lib_type]["template"],
-        )
-    else:
-        raise KeyError("template or {0}".format(lib_ds_name))
-    _validate_data_set_length(module_args[lib_type][lib_ds_name])
+    if not _check_library_override(module_args, lib_type, lib_ds_name):
+        if _check_template(module_args, lib_type):
+            module_args[lib_type][lib_ds_name] = _template_dsn(
+                _templar=_templar,
+                task_vars=task_vars,
+                var_name="lib_name",
+                replace_val=lib_ds_name.upper(),
+                template=module_args[lib_type]["template"],
+            )
+        else:
+            raise KeyError("No template or library overide found for {0}".format(lib_ds_name))
+    return _validate_data_set_length(module_args[lib_type][lib_ds_name])
 
 
 def _template_dsn(_templar, task_vars, var_name, replace_val, template):
@@ -140,10 +157,7 @@ def _template_dsn(_templar, task_vars, var_name, replace_val, template):
 
 
 def _check_template(module_args, arg_dict):
-    if module_args[arg_dict].get("template"):
-        return True
-    else:
-        return False
+    return module_args.get(arg_dict, {}).get("template") is not None
 
 
 def _set_top_libraries_key(module_args, dict_key):

@@ -36,18 +36,19 @@ def _get_rmutl_dds(
     ]
 
 
-def _get_reason_code(filtered):  # type: (list[str]) -> str | None
-    if len(filtered) == 0:
+def _get_reason_code(stdout_lines_arr):  # type: (list[str]) -> str | None
+    if len(stdout_lines_arr) == 0:
         return None
 
-    elements2 = list(filtered[0].split(','))
-    filtered2 = list(filter(lambda x: "REASON:X" in x, elements2))
-    if len(filtered2) == 0:
+    stdout_comma_sep = list(stdout_lines_arr[0].split(","))
+    filtered_for_reason_code = list(
+        filter(lambda x: "REASON:X" in x, stdout_comma_sep))
+    if len(filtered_for_reason_code) == 0:
         return None
 
-    elements3 = [element.replace("0", "")
-                 for element in filtered2[0].split("'")]
-    return elements3[1]
+    reason_code = [element.replace("0", "")
+                   for element in filtered_for_reason_code[0].split("'")]
+    return reason_code[1]
 
 
 def _get_catalog_records(stdout):  # type: (str) -> tuple[str | None, str | None]
@@ -88,17 +89,22 @@ def _run_dfhrmutl(
         if dfhrmutl_response.rc == 0:
             break
         if dfhrmutl_response.rc == 16:
-            elements = ["{0}".format(element.replace(" ", "").upper())
-                        for element in dfhrmutl_response.stdout.split("\n")]
-            filtered = list(filter(lambda x: "REASON:X" in x, elements))
+            formatted_stdout_lines = [
+                "{0}".format(element.replace(" ", "").upper())
+                for element in dfhrmutl_response.stdout.split("\n")
+            ]
+            stdout_with_rc = list(filter(lambda x: "REASON:X" in x, formatted_stdout_lines))
 
-            reason_code = _get_reason_code(filtered)
+            reason_code = _get_reason_code(stdout_with_rc)
             if reason_code and reason_code != "A8":
                 raise MVSExecutionException(
-                    "DFHRMUTL failed with RC 16 - {0}".format(filtered[0]), executions)
+                    "DFHRMUTL failed with RC 16 - {0}".format(stdout_with_rc[0]), executions
+                )
             elif reason_code is None:
                 raise MVSExecutionException(
-                    "DFHRMUTL failed with RC 16 but no reason code was found", executions)
+                    "DFHRMUTL failed with RC 16 but no reason code was found",
+                    executions,
+                )
 
         else:
             raise MVSExecutionException(

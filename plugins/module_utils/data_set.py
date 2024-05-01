@@ -63,6 +63,7 @@ class DataSet():
         self.end_state = dict(exists=False, data_set_organization=self.data_set_organization)
         self.executions = list()
         self.region_param = dict()
+        self.msg = ""
 
         self._module = AnsibleModule(
             argument_spec=self._get_arg_spec(),
@@ -77,6 +78,7 @@ class DataSet():
             "executions": self.executions,
             "start_state": self.start_state,
             "end_state": self.end_state,
+            "msg": self.msg,
         }
 
     def get_data_set(self):  # type: () -> dict
@@ -106,9 +108,10 @@ class DataSet():
 
     def _fail(self, msg):  # type: (str) -> None
         self.failed = True
+        self.msg = msg
         self.set_end_state()
         self.result = self.get_result()
-        self._module.fail_json(msg=msg, **self.result)
+        self._module.fail_json(**self.result)
 
     def _exit(self):  # type: () -> None
         self.set_end_state()
@@ -179,7 +182,10 @@ class DataSet():
         """
         Use BetterArgParser to parse the parameters passed in, which also does some validation
         """
-        params = BetterArgParser(self.get_arg_defs()).parse_args(self._module.params)
+        try:
+            params = BetterArgParser(self.get_arg_defs()).parse_args(self._module.params)
+        except ValueError as e:
+            self._fail(str(e))
         self.assign_parameters(params)
 
     def assign_parameters(self, params):  # type: (dict) -> None
@@ -203,7 +209,7 @@ class DataSet():
             self.destination = params[DESTINATION]
 
     def create_data_set(self):  # type: () -> None
-        create_cmd = _build_idcams_define_cmd({})
+        _build_idcams_define_cmd({})
 
     def build_vsam_data_set(self, create_cmd):  # type: (str) -> None
         try:
@@ -250,12 +256,18 @@ class DataSet():
 
     def init_data_set(self):   # type: () -> None
         if self.exists:
-            icetool_executions, record_count = _run_icetool(self.name)
-            self.executions.extend(icetool_executions)
-            if record_count > 0:
-                self.delete_data_set()
-                self.update_data_set_state()
-                self.create_data_set()
+
+            try:
+                icetool_executions, record_count = _run_icetool(self.name)
+                self.executions.extend(icetool_executions)
+                if record_count > 0:
+                    self.delete_data_set()
+                    self.update_data_set_state()
+                    self.create_data_set()
+
+            except MVSExecutionException as e:
+                self.executions.extend(e.executions)
+                self._fail(e.message)
 
         else:
             self.create_data_set()
