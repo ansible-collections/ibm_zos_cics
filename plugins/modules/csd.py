@@ -470,7 +470,7 @@ class AnsibleCSDModule(DataSet):
         elif self.target_state == INITIAL:
             self.init_data_set()
         elif self.target_state == WARM:
-            self.warm_data_set()
+            self.warm_with_records()
         elif self.target_state == SCRIPT:
             self.csdup_script()
         else:

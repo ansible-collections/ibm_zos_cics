@@ -33,6 +33,11 @@
           vars:
             mode: normal
 
+        - name: Warm CICS data sets
+          ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
+          vars:
+            data_set_state: warm
+
         - name: Start CICS
           ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
 

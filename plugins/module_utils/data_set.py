@@ -273,6 +273,10 @@ class DataSet():
             self.create_data_set()
 
     def warm_data_set(self):  # type: () -> None
+        if not self.exists:
+            self._fail("Data set {0} does not exist.".format(self.name))
+
+    def warm_with_records(self):
         if self.exists:
             try:
                 icetool_executions, record_count = _run_icetool(self.name)

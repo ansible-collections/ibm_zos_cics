@@ -232,6 +232,9 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
     SPACE_PRIMARY,
     SPACE_SECONDARY,
     SPACE_TYPE,
+    ABSENT,
+    INITIAL,
+    WARM,
     DataSet
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_catalog import (
@@ -299,6 +302,16 @@ class AnsibleLocalCatalogModule(DataSet):
         })
         defs[REGION_DATA_SETS]["options"][DSN]["options"]["dsn"].pop("type")
         return defs
+
+    def execute_target_state(self):   # type: () -> None
+        if self.target_state == ABSENT:
+            self.delete_data_set()
+        elif self.target_state == INITIAL:
+            self.init_data_set()
+        elif self.target_state == WARM:
+            self.warm_with_records()
+        else:
+            self.invalid_target_state()
 
     def create_data_set(self):  # type: () -> None
         create_cmd = _build_idcams_define_cmd(_get_idcams_cmd_lcd(self.get_data_set()))

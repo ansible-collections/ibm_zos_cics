@@ -7,9 +7,6 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import data_set_u
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import _execution
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
     PYTHON_LANGUAGE_FEATURES_MESSAGE,
-    ICETOOL_name,
-    ICETOOL_stderr,
-    ICETOOL_stdout,
     IDCAMS_delete_run_name,
     IDCAMS_delete_vsam,
     IEFBR14_create_stderr,
@@ -19,7 +16,6 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     set_module_args
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import transaction_dump
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import icetool
 import pytest
 import sys
 
@@ -310,77 +306,12 @@ def test_warm_on_non_existent():
 @pytest.mark.skipif(
     sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
-def test_warm_on_empty():
-    transaction_dump_module = initialise_module(state="warm")
-
-    data_set_utils._execute_listds = MagicMock(
-        return_value=MVSCmdResponse(0, LISTDS_data_set(NAMEA, "PS"), "")
-    )
-    icetool._execute_icetool = MagicMock(
-        return_value=(
-            MVSCmdResponse(
-                rc=0,
-                stdout=ICETOOL_stdout(0),
-                stderr=ICETOOL_stderr()
-            )
-        )
-    )
-
-    transaction_dump_module.main()
-    expected_result = dict(
-        executions=[
-            _execution(
-                name=LISTDS_run_name(1),
-                rc=0,
-                stdout=LISTDS_data_set(NAMEA, "PS"),
-                stderr="",
-            ),
-            _execution(
-                name=ICETOOL_name(1),
-                rc=0,
-                stdout=ICETOOL_stdout(0),
-                stderr=ICETOOL_stderr()
-            ),
-            _execution(
-                name=LISTDS_run_name(1),
-                rc=0,
-                stdout=LISTDS_data_set(NAMEA, "PS"),
-                stderr="",
-            ),
-        ],
-        start_state=dict(
-            exists=True,
-            data_set_organization="Sequential"
-        ),
-        end_state=dict(
-            exists=True,
-            data_set_organization="Sequential"
-        ),
-        failed=True,
-        changed=False,
-        msg="Data set {0} is empty.".format(NAMEA),
-    )
-    assert transaction_dump_module.get_result() == expected_result
-
-
-@pytest.mark.skipif(
-    sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
-)
 def test_warm_success():
     transaction_dump_module = initialise_module(state="warm")
 
     data_set_utils._execute_listds = MagicMock(
         return_value=MVSCmdResponse(0, LISTDS_data_set(NAMEA, "PS"), "")
     )
-    icetool._execute_icetool = MagicMock(
-        return_value=(
-            MVSCmdResponse(
-                rc=0,
-                stdout=ICETOOL_stdout(52),
-                stderr=ICETOOL_stderr()
-            )
-        )
-    )
 
     transaction_dump_module.main()
     expected_result = dict(
@@ -390,12 +321,6 @@ def test_warm_success():
                 rc=0,
                 stdout=LISTDS_data_set(NAMEA, "PS"),
                 stderr="",
-            ),
-            _execution(
-                name=ICETOOL_name(1),
-                rc=0,
-                stdout=ICETOOL_stdout(52),
-                stderr=ICETOOL_stderr()
             ),
             _execution(
                 name=LISTDS_run_name(1),
