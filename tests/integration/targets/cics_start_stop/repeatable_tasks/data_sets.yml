@@ -42,7 +42,9 @@
   until: result is not failed
 
 - name: Run DFHCSDUP script
-  when: data_set_state == "initial"
+  when:
+    - ignore_csd_script is not defined or ignore_csd_script is false
+    - data_set_state == "initial"
   ibm.ibm_zos_cics.csd:
     state: "script"
     script_location: "INLINE"

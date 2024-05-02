@@ -16,7 +16,7 @@
     sit_parameters:
       start: AUTO
       sit: 6$
-      aicons: AUTO
+      aicons: "{{ aicons_val | default('AUTO') }}"
       cicssvc: 217
       edsalim: 500M
       grplist: (DFHLIST*)
