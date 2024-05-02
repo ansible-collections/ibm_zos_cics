@@ -29,7 +29,7 @@
         - name: Start CICS
           ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
           vars:
-            AICONS: "AUTO"
+            aicons_val: "AUTO"
 
         - name: Delay
           ansible.builtin.pause:

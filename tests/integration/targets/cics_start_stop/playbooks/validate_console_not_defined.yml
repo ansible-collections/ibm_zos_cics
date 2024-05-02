@@ -29,8 +29,8 @@
         - name: Start CICS
           ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
           vars:
-            AICONS: "NO"
-        
+            aicons_val: "NO"
+
         - name: Delay
           ansible.builtin.pause:
             seconds: 5
@@ -42,7 +42,7 @@
           vars:
             mode: normal
             expect_failure: true
-        
+
         - name: Assert failure with message
           ansible.builtin.assert:
             that:
