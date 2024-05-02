@@ -1,7 +1,7 @@
 # (c) Copyright IBM Corp. 2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name: Validate console install errors
+- name: Validate console autoinstall failed
   hosts: 'all'
   gather_facts: false
   environment: "{{ environment_vars }}"
@@ -25,7 +25,7 @@
           vars:
             data_set_state: initial
             ignore_csd: true
-        
+
         - name: Create CSD without console
           ansible.builtin.import_tasks: ../repeatable_tasks/csd.yml
           vars:
@@ -34,8 +34,8 @@
         - name: Start CICS
           ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
           vars:
-            AICONS: "NO"
-        
+            AICONS: "AUTO"
+
         - name: Delay
           ansible.builtin.pause:
             seconds: 5
@@ -47,12 +47,12 @@
           vars:
             mode: normal
             expect_failure: true
-        
+
         - name: Assert failure with message
           ansible.builtin.assert:
             that:
               - stop_result.failed is true
-              - stop_result.msg == "Shutdown command failed because the console used was not defined. See executions for full command output."
+              - stop_result.msg == "Shutdown command failed because the auto-install of the console was unsuccessful. See executions for full command output."
               - stop_result.changed is false
               - "'executions' in stop_result"
 

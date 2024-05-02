@@ -1,0 +1,68 @@
+# (c) Copyright IBM Corp. 2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Validate console not defined
+  hosts: 'all'
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+
+  module_defaults:
+    group/ibm.ibm_zos_cics.region_group:
+      cics_data_sets:
+        template: "{{ cics_install_path }}.<< lib_name >>"
+      region_data_sets:
+        template: "{{ region_data_set_path }}.<< data_set_name >>"
+      space_primary: 1
+      space_secondary: 1
+      space_type: "M"
+
+  tasks:
+    - name: Skip whole test if Ansible version too low
+      when: ansible_version.minor > 11
+      block:
+        - name: Create data sets (not CSD)
+          ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
+          vars:
+            data_set_state: initial
+            ignore_csd: true
+
+        - name: Create CSD without console
+          ansible.builtin.import_tasks: ../repeatable_tasks/csd.yml
+          vars:
+            data_set_state: initial
+
+        - name: Start CICS
+          ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
+          vars:
+            AICONS: "NO"
+        
+        - name: Delay
+          ansible.builtin.pause:
+            seconds: 5
+
+        - name: Stop CICS
+          ansible.builtin.import_tasks: ../repeatable_tasks/stop_cics.yml
+          ignore_errors: true
+          register: stop_result
+          vars:
+            mode: normal
+            expect_failure: true
+        
+        - name: Assert failure with message
+          ansible.builtin.assert:
+            that:
+              - stop_result.failed is true
+              - stop_result.msg == "Shutdown command failed because the console used was not defined. See executions for full command output."
+              - stop_result.changed is false
+              - "'executions' in stop_result"
+
+      always:
+        - name: Cancel and Delete job
+          ansible.builtin.command:
+            cmd: "tsocmd CANCEL {{ start_region_applid }}({{ start_result.job_id }}) PURGE"
+          register: delete_result
+          changed_when: delete_result.rc == 0
+        - name: Delete data sets
+          ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
+          vars:
+            data_set_state: absent
