@@ -24,12 +24,7 @@
           ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
           vars:
             data_set_state: initial
-            ignore_csd: true
-
-        - name: Create CSD without console
-          ansible.builtin.import_tasks: ../repeatable_tasks/csd.yml
-          vars:
-            data_set_state: initial
+            ignore_csd_script: true
 
         - name: Start CICS
           ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
