@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
-# (c) Copyright IBM Corp. 2023
+# (c) Copyright IBM Corp. 2023,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException, _execution
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException, _execution
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import ICETOOL_name, ICETOOL_stderr, ICETOOL_stdout
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
 __metaclass__ = type
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import icetool
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _icetool as icetool
 import pytest
 try:
     from unittest.mock import MagicMock

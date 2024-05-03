@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# (c) Copyright IBM Corp. 2023
+# (c) Copyright IBM Corp. 2023,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
@@ -218,7 +218,7 @@ msg:
   type: str
 """
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import (
     DESTINATION,
     DESTINATION_OPTIONS,
     DESTINATION_DEFAULT_VALUE,
@@ -229,7 +229,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
     SPACE_TYPE,
     DataSet
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.trace import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._trace import (
     _build_seq_data_set_definition_trace
 )
 

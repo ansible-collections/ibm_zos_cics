@@ -5,7 +5,7 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
-from ansible_collections.ibm.ibm_zos_cics.plugins.controller_utils.module_action_plugin import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.plugin_utils._module_action_plugin import (
     CPSM_DS_KEYS,
     LE_DS_KEYS,
     REGION_DS_KEYS,

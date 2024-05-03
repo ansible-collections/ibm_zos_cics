@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# (c) Copyright IBM Corp. 2023
+# (c) Copyright IBM Corp. 2023,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
@@ -317,12 +317,12 @@ msg:
 """
 
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition, StdinDefinition
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set_utils import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import (
     _build_idcams_define_cmd
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import (
     CICS_DATA_SETS,
     MEGABYTES,
     REGION_DATA_SETS,
@@ -335,7 +335,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
     WARM,
     DataSet
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.csd import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._csd import (
     _get_csdup_initilize_cmd,
     _get_idcams_cmd_csd,
     _run_dfhcsdup

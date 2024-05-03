@@ -10,7 +10,7 @@ from ansible.module_utils import basic
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.start_cics import (
     AnsibleStartCICSModule as StartCICSModule, DFHSIP, PGM, DISP, DSN, SHR
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.jcl_helper import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._jcl_helper import (
     NAME, DDS
 )
 import pytest

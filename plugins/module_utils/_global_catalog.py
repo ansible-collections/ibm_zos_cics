@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# (c) Copyright IBM Corp. 2023
+# (c) Copyright IBM Corp. 2023,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+
+# FOR INTERNAL USE IN THE COLLECTION ONLY.
 
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
@@ -9,8 +11,8 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd, MVSCmdResponse
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException, _execution
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set_utils import MVS_CMD_RETRY_ATTEMPTS
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException, _execution
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import MVS_CMD_RETRY_ATTEMPTS
 
 
 def _get_value_from_line(line):  # type: (list[str]) -> str | None

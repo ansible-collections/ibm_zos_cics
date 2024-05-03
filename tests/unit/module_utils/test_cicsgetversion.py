@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import cicsgetversion
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _cicsgetversion as cicsgetversion
 try:
     from unittest.mock import MagicMock
 except ImportError:

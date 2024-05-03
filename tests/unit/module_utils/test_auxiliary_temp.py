@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
-# (c) Copyright IBM Corp. 2023
+# (c) Copyright IBM Corp. 2023,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import auxiliary_temp
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import data_set_utils
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import CYLINDERS, MEGABYTES
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _auxiliary_temp as auxiliary_temp
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _data_set_utils as data_set_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import CYLINDERS, MEGABYTES
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.auxiliary_temp import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT
 import pytest

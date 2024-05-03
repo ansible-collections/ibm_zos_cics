@@ -217,7 +217,7 @@ msg:
   type: str
 """
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import (
     DESTINATION,
     DESTINATION_OPTIONS,
     DESTINATION_DEFAULT_VALUE,
@@ -228,7 +228,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
     SPACE_TYPE,
     DataSet
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.transaction_dump import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._transaction_dump import (
     _build_seq_data_set_definition_transaction_dump
 )
 

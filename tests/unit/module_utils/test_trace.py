@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 
-# (c) Copyright IBM Corp. 2023
+# (c) Copyright IBM Corp. 2023,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
 import pytest
 import sys
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import MEGABYTES
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import MEGABYTES
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
 __metaclass__ = type
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.trace import _build_seq_data_set_definition_trace
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._trace import _build_seq_data_set_definition_trace
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.trace import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT
 
 

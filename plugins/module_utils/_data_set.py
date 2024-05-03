@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# (c) Copyright IBM Corp. 2023
+# (c) Copyright IBM Corp. 2023,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+
+# FOR INTERNAL USE IN THE COLLECTION ONLY.
 
 from __future__ import (absolute_import, division, print_function)
 
@@ -9,14 +11,14 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set_utils import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import (
     _build_idcams_define_cmd,
     _run_idcams,
     _run_listds,
     _run_iefbr14
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.icetool import _run_icetool
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import MVSExecutionException
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._icetool import _run_icetool
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
 

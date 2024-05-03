@@ -8,7 +8,7 @@ __metaclass__ = type
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
-from ansible_collections.ibm.ibm_zos_cics.plugins.controller_utils.module_action_plugin import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.plugin_utils._module_action_plugin import (
     _process_module_args
 )
 

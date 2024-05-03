@@ -3,7 +3,7 @@
 # (c) Copyright IBM Corp. 2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.jcl_helper import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._jcl_helper import (
     JCLHelper, JCL_PREFIX, JOB_CARD, EXECS
 )
 import pytest

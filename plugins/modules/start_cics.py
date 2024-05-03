@@ -163,7 +163,7 @@ RETURN = r"""
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.jcl_helper import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._jcl_helper import (
     JCLHelper, DLM, DD_INSTREAM, CONTENT, END_INSTREAM, JOB_CARD, EXECS, JOB_NAME, DDS, NAME
 )
 import string

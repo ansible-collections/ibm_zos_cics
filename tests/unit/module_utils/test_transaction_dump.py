@@ -8,9 +8,9 @@ __metaclass__ = type
 import pytest
 import sys
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import MEGABYTES
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import MEGABYTES
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.transaction_dump import _build_seq_data_set_definition_transaction_dump
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._transaction_dump import _build_seq_data_set_definition_transaction_dump
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.transaction_dump import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT
 
 

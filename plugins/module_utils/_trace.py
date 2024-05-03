@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# (c) Copyright IBM Corp. 2024
+# (c) Copyright IBM Corp. 2023,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+
+# FOR INTERNAL USE IN THE COLLECTION ONLY.
 
 from __future__ import (absolute_import, division, print_function)
 
@@ -9,8 +11,8 @@ from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement impo
 __metaclass__ = type
 
 
-def _build_seq_data_set_definition_transaction_dump(data_set):   # type: (dict) -> DatasetDefinition
-    definition = DatasetDefinition(
+def _build_seq_data_set_definition_trace(data_set):  # type: (dict) -> DatasetDefinition
+    return DatasetDefinition(
         dataset_name=data_set["name"],
         primary=data_set["primary"],
         secondary=data_set["secondary"],
@@ -24,12 +26,11 @@ def _build_seq_data_set_definition_transaction_dump(data_set):   # type: (dict) 
         conditional_disposition=CONDITION_DISP,
         type=TYPE
     )
-    return definition
 
 
 BLOCK_SIZE_DEFAULT = 4096
-RECORD_LENGTH_DEFAULT = 4092
-RECORD_FORMAT = "VB"
+RECORD_LENGTH_DEFAULT = 4096
+RECORD_FORMAT = "FB"
 TYPE = "SEQ"
 DISPOSITION = "NEW"
 NORMAL_DISP = "CATALOG"

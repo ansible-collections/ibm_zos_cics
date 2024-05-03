@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-# (c) Copyright IBM Corp. 2023
+# (c) Copyright IBM Corp. 2023,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import CYLINDERS, MEGABYTES
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import CYLINDERS, MEGABYTES
 
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
     PYTHON_LANGUAGE_FEATURES_MESSAGE,
@@ -13,9 +13,9 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     RMUTL_update_run_name
 )
 __metaclass__ = type
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import data_set_utils
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import global_catalog
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.response import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _data_set_utils as data_set_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _global_catalog as global_catalog
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import (
     MVSExecutionException,
     _execution,
 )

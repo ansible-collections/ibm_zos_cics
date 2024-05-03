@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# (c) Copyright IBM Corp. 2023
+# (c) Copyright IBM Corp. 2023,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from __future__ import absolute_import, division, print_function
@@ -193,10 +193,10 @@ msg:
   type: str
 """
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set_utils import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import (
     _build_idcams_define_cmd
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import (
     MEGABYTES,
     REGION_DATA_SETS,
     SPACE_PRIMARY,
@@ -204,7 +204,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.data_set import (
     SPACE_TYPE,
     DataSet
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.local_request_queue import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._local_request_queue import (
     _get_idcams_cmd_lrq
 )
 
