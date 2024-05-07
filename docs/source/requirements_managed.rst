@@ -1,5 +1,5 @@
 .. ...........................................................................
-.. © Copyright IBM Corporation 2020,2021                                     .
+.. © Copyright IBM Corporation 2020,2024                                     .
 .. ...........................................................................
 
 Requirements of managed nodes
@@ -21,24 +21,15 @@ The requirements of the managed node are as follows:
 
   * `requests`_
   * `xmltodict`_
-  * `typing`_ (For Python versions < 3.5)
 
   If you delegate the tasks to run on your localhost, the Python module dependencies
   need to be installed on your localhost instead.
 
-  You can install them from CLI:
+  You can install them from the CLI by using the following command:
 
-  * If your Python version is no less than 3.5:
+  .. code-block:: sh
 
-    .. code-block:: sh
-
-       pip install requests xmltodict
-
-  * If your Python version < 3.5:
-
-    .. code-block:: sh
-
-       pip install requests xmltodict typing
+     pip install requests xmltodict
 
 
   You can also install them using the playbook. For example, this `CICS
@@ -49,9 +40,6 @@ The requirements of the managed node are as follows:
 
 .. _xmltodict:
    https://pypi.org/project/xmltodict/
-
-.. _typing:
-   https://pypi.org/project/typing/
    
 .. _CICS sample playbook:
    https://github.com/IBM/z_ansible_collections_samples/tree/main/zos_subsystems/cics/cmci/reporting
