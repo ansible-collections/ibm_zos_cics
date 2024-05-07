@@ -68,3 +68,12 @@ releases:
     - include-requirements-txt.yaml
     - release_summary.yaml
     release_date: '2023-05-16'
+  1.0.6:
+    changes:
+      bugfixes:
+      - Allows CPSM Scope and Context to contain the following special characters
+        '$', '@', and '#'
+      release_summary: This release contains one bug fix
+    fragments:
+    - 1.0.6.yaml
+    release_date: '2024-05-07'
