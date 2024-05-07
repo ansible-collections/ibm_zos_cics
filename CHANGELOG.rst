@@ -5,13 +5,26 @@ ibm.ibm_zos_cics Release Notes
 .. contents:: Topics
 
 
+v1.0.6
+======
+
+Release Summary
+---------------
+
+This release contains one bug fix
+
+Bugfixes
+--------
+
+- Allows CPSM Scope and Context to contain the following special characters '$', '@', and '#'
+
 v1.0.5
 ======
 
 Release Summary
 ---------------
 
-This release contains one bug fix.
+This release contains one bug fix
 
 Bugfixes
 --------
