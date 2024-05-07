@@ -13,8 +13,30 @@
     group/ibm.ibm_zos_cics.region_group:
       cics_data_sets:
         template: "{{ cics_install_path }}.<< lib_name >>"
+        sdfhload: "{{ cics_install_path }}.SDFHLOAD"
       region_data_sets:
         template: "{{ region_data_set_path }}.<< data_set_name >>"
+        dfhtemp:
+          dsn: "{{ region_data_set_path }}.DFHTEMP"
+        dfhcsd:
+          dsn: "{{ region_data_set_path }}.DFHCSD"
+        dfhgcd:
+          dsn: "{{ region_data_set_path }}.DFHGCD"
+        dfhintra:
+          dsn: "{{ region_data_set_path }}.DFHINTRA"
+        dfhlcd:
+          dsn: "{{ region_data_set_path }}.DFHLCD"
+        dfhlrq:
+          dsn: "{{ region_data_set_path }}.DFHLRQ"
+        dfhauxt:
+          dsn: "{{ region_data_set_path }}.DFHAUXT"
+        dfhdmpa:
+          dsn: "{{ region_data_set_path }}.DFHDMPA"
+      state: "initial"
+      space_primary: 10
+      space_secondary: 3
+      space_type: "M"
+      volumes: "VOL001"
 
   tasks:
   - name: Skip whole test if Ansible version too low
@@ -40,10 +62,6 @@
         block:
         - name: Run MODULE_NAME module with initial state
           ibm.ibm_zos_cics.MODULE_NAME:
-            state: "initial"
-            space_primary: 10
-            space_secondary: 3
-            space_type: "M"
           register: result
         - name: Debug
           ansible.builtin.debug:
