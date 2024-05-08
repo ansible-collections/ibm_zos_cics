@@ -23,7 +23,7 @@ For more ways of delegating tasks, see `Controlling where tasks run`_.
 The requirements of the managed node are as follows:
 
 * z/OS Version 2.3 or later
-* IBM CICS TS 4.2 or later
+* All IBM CICS TS releases that are in service
 * A `CMCI connection`_ must be set up in either a CICSplex or a stand-alone CICS region
 * Python module dependencies:
 
