@@ -15,8 +15,8 @@ A control node is any machine with Ansible® installed. You can run commands and
 
 .. note:: The IBM® z/OS® CICS® collection cannot run on a Windows system.
 
-* `Ansible version`_: 2.11 or later
-* `Python`_: 2.7 or later
+* `Ansible version`_: 2.14 or later
+* `Python`_: 3.9 or later
 
 
 .. _Ansible version:

@@ -100,15 +100,15 @@ following:
 
 
 The value for the property **ansible_host** is the hostname of the managed node;
-for example, ``ansible_host: ec33017A.vmec.svl.ibm.com``
+for example, ``ansible_host: example.com``
 
 The value for the property **zos_target_username** is the user name to use when
-connecting to the host; for example, ``ansible_user: omvsadm``.
+connecting to the host; for example, ``ansible_user: ibmuser``.
 
 The value for the property **ansible_python_interpreter** is the target host
 Python path. This is useful for systems with more than one Python installation,
 or when Python is not installed in the default location **/usr/bin/python**;
-for example, ``ansible_python_interpreter: /usr/lpp/rsusr/python36/bin/python``
+for example, ``ansible_python_interpreter: /usr/lpp/rsusr/python39/bin/python``
 
 For more information on Python configuration requirements on z/OS, refer to
 Ansible `FAQ`_.
@@ -152,11 +152,11 @@ path; for example, ``/usr/lpp/IBM/zoautil/lib/``.
 The value for the property **LIBPATH** is both the path to the Python libraries
 on the target and the ZOA Utilities Python library path separated by
 colons ``:``; for example,
-``/usr/lpp/IBM/zoautil/lib/:/usr/lpp/rsusr/python36/lib:/lib:/usr/lib:.``.
+``/usr/lpp/IBM/zoautil/lib/:/usr/lpp/rsusr/python39/lib:/lib:/usr/lib:.``.
 
 The value for the property **PATH** is the ZOA utilities BIN path and the Python
 interpreter path; for example,
-``/usr/lpp/IBM/zoautil/bin:/usr/lpp/rsusr/python36/bin/python:/bin``.
+``/usr/lpp/IBM/zoautil/bin:/usr/lpp/rsusr/python39/bin/python:/bin``.
 
 The included sample variables file (zos_host.yml) contains variables specific to
 the playbook as well as the following:
@@ -167,8 +167,8 @@ the playbook as well as the following:
       _BPXK_AUTOCVT: ON
       ZOAU_HOME: '/usr/lpp/IBM/zoautil'
       PYTHONPATH: '/usr/lpp/IBM/zoautil/lib'
-      LIBPATH: '/usr/lpp/IBM/zoautil/lib/:/usr/lpp/rsusr/python36/lib:/usr/lib:/lib:.'
-      PATH: '/usr/lpp/IBM/zoautil/bin:/usr/lpp/rsusr/python36/bin/python:/bin'
+      LIBPATH: '/usr/lpp/IBM/zoautil/lib/:/usr/lpp/rsusr/python39/lib:/usr/lib:/lib:.'
+      PATH: '/usr/lpp/IBM/zoautil/bin:/usr/lpp/rsusr/python39/bin/python:/bin'
 
 .. note::
    In ZOAU 1.0.2 and later, the property **ZOAU_ROOT** is no longer supported
