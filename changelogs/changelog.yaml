@@ -77,3 +77,11 @@ releases:
     fragments:
     - 1.0.6.yaml
     release_date: '2024-05-07'
+  2.0.0:
+    changes:
+      breaking_changes:
+      - Python 2.7 is no longer supported as the managed node runtime
+      release_summary: Removed support for Python 2.7
+    fragments:
+    - 2.0.0.yml
+    release_date: '2024-05-08'
