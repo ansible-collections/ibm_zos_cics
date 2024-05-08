@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# (c) Copyright IBM Corp. 2020,2021
+# (c) Copyright IBM Corp. 2020,2023
 trap "exit" INT
 set -e
 

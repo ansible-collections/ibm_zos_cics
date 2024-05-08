@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# (c) Copyright IBM Corp. 2023
+# (c) Copyright IBM Corp. 2023,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 set -eux
