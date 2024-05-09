@@ -1,0 +1,177 @@
+# (c) Copyright IBM Corp. 2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Test Destination for MODULE_NAME module
+
+  hosts: "all"
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+  vars:
+    data_set_path_A: "{{ region_data_set_path }}.{{ data_set_name_A }}"
+    data_set_path_B: "{{ region_data_set_path }}.{{ data_set_name_B }}"
+
+  module_defaults:
+    ibm.ibm_zos_cics.MODULE_NAME:
+      cics_data_sets:
+        template: "{{ cics_install_path }}.<< lib_name >>"
+      region_data_sets:
+        template: "{{ region_data_set_path }}.<< data_set_name >>"
+
+  tasks:
+    # #############################################################################
+    # ############################## Initial Cleanup ##############################
+    # #############################################################################
+
+    - name: Delete {{ data_set_name_A }}
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ data_set_path_A }}"
+        state: absent
+      register: result
+      retries: 3
+      until: result is not failed
+
+    - name: Delete {{ data_set_name_B }}
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ data_set_path_B }}"
+        state: absent
+      register: result
+      retries: 3
+      until: result is not failed
+
+    # #############################################################################
+    # ####################### Module Testing - Initial ############################
+    # #############################################################################
+
+    - name: Wrap test in block so cleanup always runs
+      block:
+      - name: Run MODULE_NAME module with initial state and destination A
+        ibm.ibm_zos_cics.MODULE_NAME:
+          state: "initial"
+          destination: "A"
+        register: result
+      - name: Debug
+        ansible.builtin.debug:
+          msg: "{{ result }}"
+
+      - name: Assert {{ data_set_name_A }} created (changed is true)
+        ansible.builtin.assert:
+          that:
+            - result.failed == false
+            - result.changed == true
+            - result.start_state.exists == false
+            - result.end_state.exists == true
+            - result.msg == ""
+            - "'executions' in result"
+
+      # #############################################################################
+
+      - name: Run MODULE_NAME module with initial state and destination B
+        ibm.ibm_zos_cics.MODULE_NAME:
+          state: "initial"
+          destination: "B"
+        register: result
+      - name: Debug
+        ansible.builtin.debug:
+          msg: "{{ result }}"
+
+      - name: Assert {{ data_set_name_B }} created (changed is true)
+        ansible.builtin.assert:
+          that:
+            - result.failed == false
+            - result.changed == true
+            - result.start_state.exists == false
+            - result.end_state.exists == true
+            - result.msg == ""
+            - "'executions' in result"
+
+      # #############################################################################
+      # ####################### Module Testing - Absent #############################
+      # #############################################################################
+
+      - name: Run MODULE_NAME module with absent state and destination A
+        ibm.ibm_zos_cics.MODULE_NAME:
+          state: "absent"
+          destination: "A"
+        register: result
+      - name: Debug
+        ansible.builtin.debug:
+          msg: "{{ result }}"
+
+      - name: Assert {{ data_set_name_A }} deleted (changed is true)
+        ansible.builtin.assert:
+          that:
+            - result.failed == false
+            - result.changed == true
+            - result.start_state.exists == true
+            - result.end_state.exists == false
+            - result.msg == ""
+            - "'executions' in result"
+
+      # #############################################################################
+
+      - name: Run MODULE_NAME module with absent state and destination B
+        ibm.ibm_zos_cics.MODULE_NAME:
+          state: "absent"
+          destination: "B"
+        register: result
+      - name: Debug
+        ansible.builtin.debug:
+          msg: "{{ result }}"
+
+      - name: Assert {{ data_set_name_B }} deleted (changed is true)
+        ansible.builtin.assert:
+          that:
+            - result.failed == false
+            - result.changed == true
+            - result.start_state.exists == true
+            - result.end_state.exists == false
+            - result.msg == ""
+            - "'executions' in result"
+
+      # #############################################################################
+      # ####################### Module Testing - Mismatching ########################
+      # #############################################################################
+
+      - name: Mismatched destination
+        ibm.ibm_zos_cics.MODULE_NAME:
+          region_data_sets:
+            DATA_SET_NAME_LOWER_A:
+              dsn: "{{ data_set_path_A }}"
+          state: absent
+          destination: B
+        register: result
+        ignore_errors: true
+      - name: Debug
+        ansible.builtin.debug:
+          msg: "{{ result }}"
+
+      - name: Assert Failure
+        ansible.builtin.assert:
+          that:
+            - result.failed is true
+            - result.changed is false
+            - result.msg == "No template or data set overide found for DATA_SET_NAME_LOWER_B"
+            - "'executions' in result"
+            - "'start_state' in result"
+            - "'end_state' in result"
+
+      # #############################################################################
+      # ################################## Cleanup ##################################
+      # #############################################################################
+
+      always:
+      - name: Delete {{ data_set_name_A }}
+        ibm.ibm_zos_core.zos_data_set:
+          name: "{{ data_set_path_A }}"
+          state: absent
+        register: result
+        retries: 3
+        until: result is not failed
+
+      - name: Delete {{ data_set_name_B }}
+        ibm.ibm_zos_core.zos_data_set:
+          name: "{{ data_set_path_B }}"
+          state: absent
+        register: result
+        retries: 3
+        until: result is not failed

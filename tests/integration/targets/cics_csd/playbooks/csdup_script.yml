@@ -1,0 +1,228 @@
+# (c) Copyright IBM Corp. 2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Test CSDUP script for csd module
+
+  hosts: "all"
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+  vars:
+    data_set_name: "DFHCSD"
+    data_set_path: "{{ region_data_set_path }}.{{ data_set_name }}"
+    script_data_set_path: "{{ region_data_set_path }}.CSDUP"
+    script_uss_path: "{{ uss_path }}/script.csdup"
+    script_local_path: "{{ playbook_dir }}/script.csdup"
+
+  module_defaults:
+    ibm.ibm_zos_cics.csd:
+      cics_data_sets:
+        template: "{{ cics_install_path }}.<< lib_name >>"
+      region_data_sets:
+        template: "{{ region_data_set_path }}.<< data_set_name >>"
+
+  tasks:
+    # #############################################################################
+    # ############################## Initial Cleanup ##############################
+    # #############################################################################
+
+    - name: Delete {{ data_set_name }}
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ data_set_path }}"
+        state: absent
+      register: result
+      retries: 3
+      until: result is not failed
+
+    - name: Delete {{ script_data_set_path }}
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ script_data_set_path }}"
+        state: absent
+      register: result
+      retries: 3
+      until: result is not failed
+
+    - name: Delete {{ script_uss_path }}
+      ansible.builtin.file:
+        path: "{{ script_uss_path }}"
+        state: absent
+
+    # #############################################################################
+    # ############################## Module Testing ###############################
+    # #############################################################################
+
+    - name: Wrap test in block so cleanup always runs
+      block:
+        - name: Run csd module with initial state
+          ibm.ibm_zos_cics.csd:
+            state: "initial"
+          register: result
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert {{ data_set_name }} created
+          ansible.builtin.assert:
+            that:
+              - result.failed == false
+              - result.changed == true
+              - result.start_state.exists == false
+              - result.end_state.exists == true
+              - result.msg == ""
+
+        # #############################################################################
+
+        - name: Create a data set with a script in it
+          ibm.ibm_zos_core.zos_copy:
+            content: "DEFINE PROGRAM(TESTPRG1) GROUP(TESTGRP1)"
+            dest: "{{ script_data_set_path }}"
+            dest_data_set:
+              type: "SEQ"
+              record_format: "FB"
+          register: result
+          retries: 3
+          until: result is not failed
+
+        - name: Run csd module with a DFHCSDUP script from a data set
+          ibm.ibm_zos_cics.csd:
+            state: "script"
+            script_location: "DATA_SET"
+            script_src: "{{ script_data_set_path }}"
+          register: result
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert script was run
+          ansible.builtin.assert:
+            that:
+              - result.failed == false
+              - result.changed == true
+              - result.executions|select("search", "PROGRAM TESTPRG1 DEFINED IN GROUP TESTGRP1")
+              - result.msg == ""
+              - result.start_state.exists == true
+              - result.end_state.exists == true
+
+        # #############################################################################
+
+        - name: Create a USS file with a script in it
+          ansible.builtin.shell: |
+            mkdir -p {{ uss_path }}
+            echo "DEFINE PROGRAM(TESTPRG2) GROUP(TESTGRP2)" > {{ script_uss_path }}
+          changed_when: true
+
+        - name: Run csd module with a DFHCSDUP script from a USS file
+          ibm.ibm_zos_cics.csd:
+            state: "script"
+            script_location: "USS"
+            script_src: "{{ script_uss_path }}"
+          register: result
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert script was run
+          ansible.builtin.assert:
+            that:
+              - result.failed == false
+              - result.changed == true
+              - result.executions|select("search", "PROGRAM TESTPRG2 DEFINED IN GROUP TESTGRP2")
+              - result.msg == ""
+              - result.start_state.exists == true
+              - result.end_state.exists == true
+
+        # #############################################################################
+
+        - name: Run csd module with a DFHCSDUP script from a local file
+          ibm.ibm_zos_cics.csd:
+            state: "script"
+            script_location: "LOCAL"
+            script_src: "{{ script_local_path }}"
+          register: result
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert script was run
+          ansible.builtin.assert:
+            that:
+              - result.failed == false
+              - result.changed == true
+              - result.executions|select("search", "PROGRAM TESTPRG3 DEFINED IN GROUP TESTGRP3")
+              - result.msg == ""
+              - result.start_state.exists == true
+              - result.end_state.exists == true
+
+        # #############################################################################
+
+        - name: Run csd module with a DFHCSDUP script inline (single line)
+          ibm.ibm_zos_cics.csd:
+            state: "script"
+            script_src: "{{ script_local_path }}"
+            script_location: "INLINE"
+            script_content: "DEFINE PROGRAM(TESTPRG4) GROUP(TESTGRP4)"
+          register: result
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert script was run
+          ansible.builtin.assert:
+            that:
+              - result.failed == false
+              - result.changed == true
+              - result.executions|select("search", "PROGRAM TESTPRG4 DEFINED IN GROUP TESTGRP4")
+              - result.msg == ""
+              - result.start_state.exists == true
+              - result.end_state.exists == true
+
+        # #############################################################################
+
+        - name: Run csd module with a DFHCSDUP script inline (multiple lines)
+          ibm.ibm_zos_cics.csd:
+            state: "script"
+            script_src: "{{ script_local_path }}"
+            script_location: "INLINE"
+            script_content: |
+              DEFINE PROGRAM(TESTPRG5) GROUP(TESTGRP5)
+              DEFINE PROGRAM(TESTPRG6) GROUP(TESTGRP6)
+          register: result
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert script was run
+          ansible.builtin.assert:
+            that:
+              - result.failed == false
+              - result.changed == true
+              - result.executions|select("search", "PROGRAM TESTPRG5 DEFINED IN GROUP TESTGRP5")
+              - result.executions|select("search", "PROGRAM TESTPRG6 DEFINED IN GROUP TESTGRP6")
+              - result.msg == ""
+              - result.start_state.exists == true
+              - result.end_state.exists == true
+
+        # #############################################################################
+        # ################################## Cleanup ##################################
+        # #############################################################################
+
+      always:
+        - name: Delete {{ data_set_name }}
+          ibm.ibm_zos_core.zos_data_set:
+            name: "{{ data_set_path }}"
+            state: absent
+          register: result
+          retries: 3
+          until: result is changed
+
+        - name: Delete {{ script_data_set_path }}
+          ibm.ibm_zos_core.zos_data_set:
+            name: "{{ script_data_set_path }}"
+            state: absent
+          register: result
+          retries: 3
+          until: result is changed
+
+        - name: Delete {{ script_uss_path }}
+          ansible.builtin.file:
+            path: "{{ script_uss_path }}"
+            state: absent

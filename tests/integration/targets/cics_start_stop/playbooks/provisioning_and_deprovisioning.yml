@@ -1,0 +1,61 @@
+# (c) Copyright IBM Corp. 2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Provision and Deprovision CICS Region
+  hosts: 'all'
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+
+  module_defaults:
+    group/ibm.ibm_zos_cics.region_group:
+      cics_data_sets:
+        template: "{{ cics_install_path }}.<< lib_name >>"
+      region_data_sets:
+        template: "{{ region_data_set_path }}.<< data_set_name >>"
+      space_primary: 5
+      space_secondary: 2
+      space_type: "M"
+
+  tasks:
+    - name: Skip whole test if Ansible version too low
+      when: ansible_version.minor > 11
+      block:
+        - name: Create data sets
+          ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
+          vars:
+            data_set_state: initial
+
+        - name: Start CICS
+          ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
+
+        - name: Stop CICS
+          ansible.builtin.import_tasks: ../repeatable_tasks/stop_cics.yml
+          vars:
+            mode: normal
+
+        - name: Warm CICS data sets
+          ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
+          vars:
+            data_set_state: warm
+
+        - name: Start CICS
+          ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
+
+        - name: Stop CICS
+          ansible.builtin.import_tasks: ../repeatable_tasks/stop_cics.yml
+          vars:
+            mode: immediate
+
+        - name: Start CICS
+          ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
+
+        - name: Stop CICS
+          ansible.builtin.import_tasks: ../repeatable_tasks/stop_cics.yml
+          vars:
+            mode: cancel
+
+      always:
+        - name: Delete data sets
+          ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
+          vars:
+            data_set_state: absent
