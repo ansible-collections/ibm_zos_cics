@@ -135,7 +135,7 @@ def test_get_idcams_cmd_forward_recovery():
         primary=SPACE_PRIMARY_DEFAULT,
         secondary=SPACE_SECONDARY_DEFAULT,
         log="ALL",
-        logstreamid="TEST.DATA.LOG.STREAM"
+        logstream_id="TEST.DATA.LOG.STREAM"
     )
     idcams_cmd_csd = data_set_utils._build_idcams_define_cmd(csd._get_idcams_cmd_csd(csd_data_set))
     assert idcams_cmd_csd == '''
@@ -156,7 +156,7 @@ def test_get_idcams_cmd_forward_recovery():
 
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE)
-def test_get_idcams_cmd_backout_recovery_logstreamid_provided():
+def test_get_idcams_cmd_backout_recovery_logstream_id_provided():
     csd_data_set = dict(
         name=NAME,
         sdfhload="CICSTS.IN56.SDFHLOAD",
@@ -167,7 +167,7 @@ def test_get_idcams_cmd_backout_recovery_logstreamid_provided():
         primary=SPACE_PRIMARY_DEFAULT,
         secondary=SPACE_SECONDARY_DEFAULT,
         log="UNDO",
-        logstreamid="TEST.DATA.LOG.STREAM"
+        logstream_id="TEST.DATA.LOG.STREAM"
     )
     idcams_cmd_csd = data_set_utils._build_idcams_define_cmd(csd._get_idcams_cmd_csd(csd_data_set))
     assert idcams_cmd_csd == '''

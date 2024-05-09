@@ -292,4 +292,12 @@ Return Values
       
         
       
+      
+                              
+       msg
+        | A string containing an error message if applicable
+      
+        | **returned**: always
+        | **type**: str
+      
         

@@ -77,7 +77,7 @@ log
 
 
      
-logstreamid
+logstream_id
   The 26-character name of the z/OS™ log stream to be used as the forward recovery log.
 
   This is required when you use \ :literal:`log=ALL`\ .
@@ -442,5 +442,13 @@ Return Values
           | **type**: str
       
         
+      
+      
+                              
+       msg
+        | A string containing an error message if applicable
+      
+        | **returned**: always
+        | **type**: str
       
         

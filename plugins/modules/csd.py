@@ -165,7 +165,7 @@ options:
       - "ALL"
     required: false
     type: str
-  logstreamid:
+  logstream_id:
     description:
       - The 26-character name of the z/OS™ log stream to be used as the forward recovery log.
       - This is required when you use O(log=ALL).
@@ -357,7 +357,7 @@ SCRIPT_LOCATION_OPTIONS = [DATA_SET, USS, LOCAL, INLINE]
 SCRIPT_LOCATION_DEFAULT = DATA_SET
 LOG = "log"
 LOG_OPTIONS = ["NONE", "UNDO", "ALL"]
-LOGSTREAMID = "logstreamid"
+LOGSTREAMID = "logstream_id"
 
 
 class AnsibleCSDModule(DataSet):
