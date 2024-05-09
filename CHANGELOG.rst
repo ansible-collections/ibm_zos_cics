@@ -5,6 +5,32 @@ ibm.ibm_zos_cics Release Notes
 .. contents:: Topics
 
 
+v2.0.0
+======
+
+Release Summary
+---------------
+
+Removed support for Python 2.7
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- Python 2.7 is no longer supported as the managed node runtime
+
+v1.0.6
+======
+
+Release Summary
+---------------
+
+This release contains one bug fix
+
+Bugfixes
+--------
+
+- Allows CPSM Scope and Context to contain the following special characters '$', '@', and '#'
+
 v1.1.0-beta.5
 =============
 

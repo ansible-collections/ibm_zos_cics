@@ -68,6 +68,23 @@ releases:
     - include-requirements-txt.yaml
     - release_summary.yaml
     release_date: '2023-05-16'
+  1.0.6:
+    changes:
+      bugfixes:
+      - Allows CPSM Scope and Context to contain the following special characters
+        '$', '@', and '#'
+      release_summary: This release contains one bug fix
+    fragments:
+    - 1.0.6.yaml
+    release_date: '2024-05-07'
+  2.0.0:
+    changes:
+      breaking_changes:
+      - Python 2.7 is no longer supported as the managed node runtime
+      release_summary: Removed support for Python 2.7
+    fragments:
+    - 2.0.0.yml
+    release_date: '2024-05-08'
   1.1.0-beta.1:
     changes:
       release_summary: This release contains a new Global Catalog module
