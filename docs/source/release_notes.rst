@@ -1,11 +1,27 @@
 .. ...............................................................................
-.. © Copyright IBM Corporation 2020,2023                                         .
+.. © Copyright IBM Corporation 2020,2024                                         .
 .. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
 .. ...............................................................................
 
 ========
 Releases
 ========
+
+Version 2.0.0
+======
+
+What's new
+---------------
+
+* **Removed support for Python 2.7.** Python 2.7 is no longer supported as the managed node runtime.
+
+
+Version 1.0.6
+=============
+What's New
+-------------------
+* Bug fix that allows CICSPlex SM Scope and Context to contain special characters '$', '@', and '#'.
+
 
 Version 1.0.5
 =============
@@ -48,25 +64,25 @@ Initial release of the **IBM® z/OS® CICS® collection**, also referred to as *
 
 This collection can manage CICS and CICSPlex® SM resources and definitions by calling the `CMCI REST API`_, which can be configured in a CICSplex or in a stand-alone region.
 
-* Modules
+**Modules**
 
-  * ``cmci_create`` - Create definitional CICS and CICSPlex SM resources in CICS regions, by initiating POST requests via the CMCI REST API.
-  * ``cmci_delete`` - Remove or discard definitional and installed CICS and CICSPlex SM resources from CICS regions, by initiating DELETE requests via the CMCI REST API.
-  * ``cmci_get`` - Retrieve information about installed and definitional CICS and CICSPlex SM resources from CICS regions, by initiating GET requests via the CMCI REST API.
-  * ``cmci_action`` - Install CICS and CICSPlex SM resources into CICS regions from definitions, by initiating PUT requests via the CMCI REST API.
-  * ``cmci_update`` - Make changes to CICS and CICSPlex SM resources in CICS regions, by initiating PUT requests via the CMCI REST API.
-
-
-* Documentation
-
-  * Generic documentation is available at `the documentation site`_, covering guidance on installation, modules, and other reference.
-
-  * Documentation related to playbook configuration is provided with sample playbooks at the `samples repository`_. Each playbook contains a README that explains what configurations must be made to run a sample playbook.
+* ``cmci_create`` - Create definitional CICS and CICSPlex SM resources in CICS regions, by initiating POST requests via the CMCI REST API.
+* ``cmci_delete`` - Remove or discard definitional and installed CICS and CICSPlex SM resources from CICS regions, by initiating DELETE requests via the CMCI REST API.
+* ``cmci_get`` - Retrieve information about installed and definitional CICS and CICSPlex SM resources from CICS regions, by initiating GET requests via the CMCI REST API.
+* ``cmci_action`` - Install CICS and CICSPlex SM resources into CICS regions from definitions, by initiating PUT requests via the CMCI REST API.
+* ``cmci_update`` - Make changes to CICS and CICSPlex SM resources in CICS regions, by initiating PUT requests via the CMCI REST API.
 
 
-* Playbooks
+**Documentation**
 
-  * Sample playbooks are available at the `samples repository`_. Each playbook contains a README that explains what configurations must be made to run a sample playbook.
+* Generic documentation is available at `the documentation site`_, covering guidance on installation, modules, and other reference.
+
+* Documentation related to playbook configuration is provided with sample playbooks at the `samples repository`_. Each playbook contains a README that explains what configurations must be made to run a sample playbook.
+
+
+**Playbooks**
+
+* Sample playbooks are available at the `samples repository`_. Each playbook contains a README that explains what configurations must be made to run a sample playbook.
 
 .. _samples repository:
    https://github.com/IBM/z_ansible_collections_samples/tree/main/zos_subsystems/cics
