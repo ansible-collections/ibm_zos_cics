@@ -144,13 +144,20 @@ Examples
 .. code-block:: yaml+jinja
 
    
-   - name: Initialize a transient data intrapartition data set
+   - name: Initialize a transient data intrapartition data set by using the templated location
      ibm.ibm_zos_cics.intrapartition:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        state: "initial"
 
-   - name: Initialize a large transient data intrapartition data set
+   - name: Initialize a user specified transient data intrapartition data set
+     ibm.ibm_zos_cics.intrapartition:
+       region_data_sets:
+         dfhintra:
+           dsn: "REGIONS.ABCD0001.DFHINTRA"
+       state: "initial"
+
+   - name: Initialize a large transient data intrapartition data set by using the templated location
      ibm.ibm_zos_cics.intrapartition:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -158,10 +165,30 @@ Examples
        space_type: "M"
        state: "initial"
 
-   - name: Delete a transient data intrapartition data set
+   - name: Retain the existing state of a transient data intrapartition data set data set defined by the template
      ibm.ibm_zos_cics.intrapartition:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
+       state: "warm"
+
+   - name: Retain the existing state of a user specified transient data intrapartition data set
+     ibm.ibm_zos_cics.intrapartition:
+       region_data_sets:
+         dfhintra:
+           dsn: "REGIONS.ABCD0001.DFHINTRA"
+       state: "warm"
+
+   - name: Delete a transient data intrapartition data set data set defined by the template
+     ibm.ibm_zos_cics.intrapartition:
+       region_data_sets:
+         template: "REGIONS.ABCD0001.<< data_set_name >>"
+       state: "absent"
+
+   - name: Delete a user specified transient data intrapartition data set
+     ibm.ibm_zos_cics.intrapartition:
+       region_data_sets:
+         dfhintra:
+           dsn: "REGIONS.ABCD0001.DFHINTRA"
        state: "absent"
 
 

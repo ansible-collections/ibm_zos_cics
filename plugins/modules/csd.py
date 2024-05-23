@@ -14,7 +14,7 @@ module: csd
 short_description: Create, remove, and manage the CICS CSD
 description:
   - Create, remove, and manage the
-    L(CICS system definition data set,https://www.ibm.com/docs/en/cics-ts/6.1?topic=configuring-setting-up-shared-data-sets-csd-sysin) (CSD) used by a CICS®
+    L(CICS system definition data set,https://www.ibm.com/docs/en/cics-ts/latest?topic=configuring-setting-up-shared-data-sets-csd-sysin) (CSD) used by a CICS®
     region.
   - You can use this module when provisioning or de-provisioning a CICS region, or when managing
     the state of the CSD during upgrades or restarts.
@@ -29,7 +29,7 @@ extends_documentation_fragment:
 
 
 EXAMPLES = r"""
-- name: Initialize a CSD
+- name: Initialize a CSD by using the templated location
   ibm.ibm_zos_cics.csd:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -37,7 +37,16 @@ EXAMPLES = r"""
       template: "CICSTS61.CICS.<< lib_name >>"
     state: "initial"
 
-- name: Initialize a large CSD
+- name: Initialize a user specified CSD
+  ibm.ibm_zos_cics.csd:
+    region_data_sets:
+      dfhcsd:
+        dsn: "REGIONS.ABCD0001.DFHCSD"
+    cics_data_sets:
+      sdfhload: "CICSTS61.CICS.SDFHLOAD"
+    state: "initial"
+
+- name: Initialize a large CSD by using the templated location
   ibm.ibm_zos_cics.csd:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -47,7 +56,7 @@ EXAMPLES = r"""
     space_type: "M"
     state: "initial"
 
-- name: Delete a CSD
+- name: Delete a CSD defined by the template
   ibm.ibm_zos_cics.csd:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -55,12 +64,30 @@ EXAMPLES = r"""
       template: "CICSTS61.CICS.<< lib_name >>"
     state: "absent"
 
-- name: Retain the existing state of a CSD
+- name: Delete a user specified CSD
+  ibm.ibm_zos_cics.csd:
+    region_data_sets:
+      dfhcsd:
+        dsn: "REGIONS.ABCD0001.DFHCSD"
+    cics_data_sets:
+      sdfhload: "CICSTS61.CICS.SDFHLOAD"
+    state: "absent"
+
+- name: Retain the existing state of a CSD defined by the template
   ibm.ibm_zos_cics.csd:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
+    state: "warm"
+
+- name: Retain the existing state of a user specified CSD
+  ibm.ibm_zos_cics.csd:
+    region_data_sets:
+      dfhcsd:
+        dsn: "REGIONS.ABCD0001.DFHCSD"
+    cics_data_sets:
+      sdfhload: "CICSTS61.CICS.SDFHLOAD"
     state: "warm"
 
 - name: Run a DFHCSDUP script from a data set

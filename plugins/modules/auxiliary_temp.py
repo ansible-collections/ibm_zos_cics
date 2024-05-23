@@ -27,13 +27,20 @@ extends_documentation_fragment:
 
 
 EXAMPLES = r"""
-- name: Initialize an auxiliary temporary storage data set
+- name: Initialize an auxiliary temporary storage data set by using the templated location
   ibm.ibm_zos_cics.auxiliary_temp:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: "initial"
 
-- name: Initialize a large auxiliary temporary storage data set
+- name: Initialize a user specified auxiliary temporary storage data set
+  ibm.ibm_zos_cics.auxiliary_temp:
+    region_data_sets:
+      dfhtemp:
+        dsn: "REGIONS.ABCD0001.DFHTEMP"
+    state: "initial"
+
+- name: Initialize a large auxiliary temporary storage data set by using the templated location
   ibm.ibm_zos_cics.auxiliary_temp:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -41,10 +48,30 @@ EXAMPLES = r"""
     space_type: "M"
     state: "initial"
 
-- name: Delete an existing auxiliary temporary storage data set
+- name: Retain the existing state of an auxiliary temporary storage data set defined by the template
   ibm.ibm_zos_cics.auxiliary_temp:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
+    state: "warm"
+
+- name: Retain the existing state of a user specified auxiliary temporary storage data set
+  ibm.ibm_zos_cics.auxiliary_temp:
+    region_data_sets:
+      dfhtemp:
+        dsn: "REGIONS.ABCD0001.DFHTEMP"
+    state: "warm"
+
+- name: Delete an existing auxiliary temporary storage data set defined by the template
+  ibm.ibm_zos_cics.auxiliary_temp:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    state: "absent"
+
+- name: Delete an existing user specified auxiliary temporary storage data set
+  ibm.ibm_zos_cics.auxiliary_temp:
+    region_data_sets:
+      dfhtemp:
+        dsn: "REGIONS.ABCD0001.DFHTEMP"
     state: "absent"
 """
 

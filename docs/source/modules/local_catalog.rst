@@ -174,7 +174,7 @@ Examples
 .. code-block:: yaml+jinja
 
    
-   - name: Initialize a local catalog data set
+   - name: Initialize a local catalog data set by using the templated location
      ibm.ibm_zos_cics.local_catalog:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -182,7 +182,16 @@ Examples
          template: "CICSTS61.CICS.<< lib_name >>"
        state: "initial"
 
-   - name: Initialize a large catalog data set
+   - name: Initialize a user specified local catalog data set
+     ibm.ibm_zos_cics.local_catalog:
+       region_data_sets:
+         dfhlcd:
+           dsn: "REGIONS.ABCD0001.DFHLCD"
+       cics_data_sets:
+         sdfhload: "CICSTS61.CICS.SDFHLOAD"
+       state: "initial"
+
+   - name: Initialize a large catalog data set by using the templated location
      ibm.ibm_zos_cics.local_catalog:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -192,12 +201,38 @@ Examples
        space_type: "REC"
        state: "initial"
 
-   - name: Delete a local catalog data set
+   - name: Retain the existing local catalog defined by the template
      ibm.ibm_zos_cics.local_catalog:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        cics_data_sets:
          template: "CICSTS61.CICS.<< lib_name >>"
+       state: "warm"
+
+   - name: Retain a user specified local catalog in its current state
+     ibm.ibm_zos_cics.local_catalog:
+       region_data_sets:
+         dfhlcd:
+           dsn: "REGIONS.ABCD0001.DFHLCD"
+       cics_data_sets:
+         sdfhload: "CICSTS61.CICS.SDFHLOAD"
+       state: "warm"
+
+   - name: Delete a local catalog data set defined by the template
+     ibm.ibm_zos_cics.local_catalog:
+       region_data_sets:
+         template: "REGIONS.ABCD0001.<< data_set_name >>"
+       cics_data_sets:
+         template: "CICSTS61.CICS.<< lib_name >>"
+       state: "absent"
+
+   - name: Delete a user specified local catalog data set
+     ibm.ibm_zos_cics.local_catalog:
+       region_data_sets:
+         dfhlcd:
+           dsn: "REGIONS.ABCD0001.DFHLCD"
+       cics_data_sets:
+         sdfhload: "CICSTS61.CICS.SDFHLOAD"
        state: "absent"
 
 

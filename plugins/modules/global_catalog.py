@@ -31,7 +31,7 @@ extends_documentation_fragment:
 
 
 EXAMPLES = r"""
-- name: Initialize a global catalog
+- name: Initialize a global catalog by using the templated location
   ibm.ibm_zos_cics.global_catalog:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -39,7 +39,7 @@ EXAMPLES = r"""
       template: "CICSTS61.CICS.<< lib_name >>"
     state: "initial"
 
-- name: Initialize a large global catalog
+- name: Initialize a large global catalog by using the templated location
   ibm.ibm_zos_cics.global_catalog:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -49,7 +49,18 @@ EXAMPLES = r"""
     space_type: "M"
     state: "initial"
 
-- name: Set autostart override record to AUTOASIS
+- name: Initialize a large user specified global catalog
+  ibm.ibm_zos_cics.global_catalog:
+    region_data_sets:
+      dfhgcd:
+        dsn: "REGIONS.ABCD0001.DFHGCD"
+    cics_data_sets:
+      sdfhload: "CICSTS61.CICS.SDFHLOAD"
+    space_primary: 100
+    space_type: "M"
+    state: "initial"
+
+- name: Set the autostart override record to AUTOASIS for a global catalog defined by the template
   ibm.ibm_zos_cics.global_catalog:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -57,7 +68,16 @@ EXAMPLES = r"""
       template: "CICSTS61.CICS.<< lib_name >>"
     state: "warm"
 
-- name: Set autostart override record to AUTOCOLD
+- name: Set the autostart override record to AUTOASIS for a user specified global catalog
+  ibm.ibm_zos_cics.global_catalog:
+    region_data_sets:
+      dfhgcd:
+        dsn: "REGIONS.ABCD0001.DFHGCD"
+    cics_data_sets:
+      sdfhload: "CICSTS61.CICS.SDFHLOAD"
+    state: "warm"
+
+- name: Set the autostart override record to AUTOCOLD for a global catalog defined by the template
   ibm.ibm_zos_cics.global_catalog:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -65,12 +85,30 @@ EXAMPLES = r"""
       template: "CICSTS61.CICS.<< lib_name >>"
     state: "cold"
 
-- name: Delete a global catalog
+- name: Set the autostart override record to AUTOCOLD for a user specified global catalog
+  ibm.ibm_zos_cics.global_catalog:
+    region_data_sets:
+      dfhgcd:
+        dsn: "REGIONS.ABCD0001.DFHGCD"
+    cics_data_sets:
+      sdfhload: "CICSTS61.CICS.SDFHLOAD"
+    state: "cold"
+
+- name: Delete a global catalog defined by the template
   ibm.ibm_zos_cics.global_catalog:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
+    state: "absent"
+
+- name: Delete a user specified global catalog
+  ibm.ibm_zos_cics.global_catalog:
+    region_data_sets:
+      dfhgcd:
+        dsn: "REGIONS.ABCD0001.DFHGCD"
+    cics_data_sets:
+      sdfhload: "CICSTS61.CICS.SDFHLOAD"
     state: "absent"
 """
 

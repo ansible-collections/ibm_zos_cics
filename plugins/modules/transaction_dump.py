@@ -12,7 +12,7 @@ DOCUMENTATION = r'''
 module: transaction_dump
 short_description: Allocate transaction dump data sets
 description:
-  - Allocates the two L(transaction dump ,https://www.ibm.com/docs/en/cics-ts/6.1?topic=sets-defining-transaction-dump-data)
+  - Allocates the two L(transaction dump ,https://www.ibm.com/docs/en/cics-ts/latest?topic=sets-defining-transaction-dump-data)
     data sets used by a CICS® region.
   - The two data sets are referred to as transaction dump data set A (DFHDMPA) and transaction dump data set B (DFHDMPB).
 author: Thomas Foyle (@tom-foyle)
@@ -23,26 +23,102 @@ extends_documentation_fragment:
 
 
 EXAMPLES = r"""
-- name: Allocate transaction dump data set A (implicit)
+- name: Allocate transaction dump data set A (implicit) by using the templated location
   ibm.ibm_zos_cics.transaction_dump:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: initial
 
-- name: Allocate transaction dump data set A
+- name: Allocate a user specified data set as transaction dump data set A (implicit)
   ibm.ibm_zos_cics.transaction_dump:
+    region_data_sets:
+      dfhdmpa:
+        dsn: "REGIONS.ABCD0001.DFHDMPA"
+    state: initial
+
+- name: Allocate transaction dump data set A by using the templated location
+  ibm.ibm_zos_cics.transaction_dump:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: initial
     destination: A
 
-- name: Allocate transaction dump data set B
+- name: Allocate a user specified data set as transaction dump data set A
   ibm.ibm_zos_cics.transaction_dump:
+    region_data_sets:
+      dfhdmpa:
+        dsn: "REGIONS.ABCD0001.DFHDMPA"
+    state: initial
+    destination: A
+
+- name: Allocate transaction dump data set B by using the templated location
+  ibm.ibm_zos_cics.transaction_dump:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: initial
     destination: B
 
-- name: Delete transaction dump data set A (implicit)
+- name: Allocate a user specified data set as transaction dump data set B
   ibm.ibm_zos_cics.transaction_dump:
+    region_data_sets:
+      dfhdmpb:
+        dsn: "REGIONS.ABCD0001.DFHDMPB"
+    state: initial
+    destination: B
+
+- name: Retain the existing state of transaction dump data set A (implicit) defined by the template
+  ibm.ibm_zos_cics.transaction_dump:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    state: "warm"
+
+- name: Retain the existing state of a user specified transaction dump data set A (implicit)
+  ibm.ibm_zos_cics.transaction_dump:
+    region_data_sets:
+      dfhdmpa:
+        dsn: "REGIONS.ABCD0001.DFHDMPA"
+    state: "warm"
+
+- name: Retain the existing state of transaction dump data set B defined by the template
+  ibm.ibm_zos_cics.transaction_dump:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    state: "warm"
+    destination: B
+
+- name: Retain the existing state of a user specified transaction dump data set B
+  ibm.ibm_zos_cics.transaction_dump:
+    region_data_sets:
+      dfhdmpb:
+        dsn: "REGIONS.ABCD0001.DFHDMPB"
+    state: "warm"
+    destination: B
+
+- name: Delete transaction dump data set A (implicit) defined by the template
+  ibm.ibm_zos_cics.transaction_dump:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: absent
 
-- name: Delete transaction dump data set B
+- name: Delete a user specified transaction dump data set A (implicit)
   ibm.ibm_zos_cics.transaction_dump:
+    region_data_sets:
+      dfhdmpa:
+        dsn: "REGIONS.ABCD0001.DFHDMPA"
+    state: absent
+
+- name: Delete transaction dump data set B defined by the template
+  ibm.ibm_zos_cics.transaction_dump:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    state: absent
+    destination: B
+
+- name: Delete a user specified transaction dump data set B
+  ibm.ibm_zos_cics.transaction_dump:
+    region_data_sets:
+      dfhdmpb:
+        dsn: "REGIONS.ABCD0001.DFHDMPB"
     state: absent
     destination: B
 """

@@ -12,7 +12,7 @@ DOCUMENTATION = r'''
 module: trace
 short_description: Allocate auxiliary trace data sets
 description:
-  - Allocates the two L(auxiliary trace,https://www.ibm.com/docs/en/cics-ts/6.1?topic=sets-setting-up-auxiliary-trace-data)
+  - Allocates the two L(auxiliary trace,https://www.ibm.com/docs/en/cics-ts/latest?topic=sets-setting-up-auxiliary-trace-data)
     data sets used by a CICS® region. When CICS auxiliary trace is activated, trace entries produced by CICS are written to the auxiliary trace data sets.
     These data sets can hold large amounts of trace data.
   - The two data sets are referred to as auxiliary trace data set A (DFHAUXT) and auxiliary trace data set B (DFHBUXT).
@@ -23,26 +23,102 @@ extends_documentation_fragment:
 '''
 
 EXAMPLES = r"""
-- name: Allocate auxiliary trace data set A (implicit)
+- name: Allocate auxiliary trace data set A (implicit) by using the templated location
   ibm.ibm_zos_cics.trace:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: initial
 
-- name: Allocate auxiliary trace data set A
+- name: Allocate a user specified data set as auxiliary trace data set A (implicit)
   ibm.ibm_zos_cics.trace:
+    region_data_sets:
+      dfhauxt:
+        dsn: "REGIONS.ABCD0001.DFHAUXT"
+    state: initial
+
+- name: Allocate auxiliary trace data set A by using the templated location
+  ibm.ibm_zos_cics.trace:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: initial
     destination: A
 
-- name: Allocate auxiliary trace data set B
+- name: Allocate a user specified data set as auxiliary trace data set A
   ibm.ibm_zos_cics.trace:
+    region_data_sets:
+      dfhauxt:
+        dsn: "REGIONS.ABCD0001.DFHAUXT"
+    state: initial
+    destination: A
+
+- name: Allocate auxiliary trace data set B by using the templated location
+  ibm.ibm_zos_cics.trace:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: initial
     destination: B
 
-- name: Delete auxiliary trace data set A (implicit)
+- name: Allocate a user specified data set as auxiliary trace data set B
   ibm.ibm_zos_cics.trace:
+    region_data_sets:
+      dfhbuxt:
+        dsn: "REGIONS.ABCD0001.DFHBUXT"
+    state: initial
+    destination: B
+
+- name: Retain the existing state of auxiliary trace data set A (implicit) defined by the template
+  ibm.ibm_zos_cics.trace:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    state: "warm"
+
+- name: Retain the existing state of a user specified auxiliary trace data set A (implicit)
+  ibm.ibm_zos_cics.trace:
+    region_data_sets:
+      dfhauxt:
+        dsn: "REGIONS.ABCD0001.DFHAUXT"
+    state: "warm"
+
+- name: Retain the existing state of auxiliary trace data set B defined by the template
+  ibm.ibm_zos_cics.trace:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    state: "warm"
+    destination: B
+
+- name: Retain the existing state of a user specified auxiliary trace data set B
+  ibm.ibm_zos_cics.trace:
+    region_data_sets:
+      dfhbuxt:
+        dsn: "REGIONS.ABCD0001.DFHBUXT"
+    state: "warm"
+    destination: B
+
+- name: Delete auxiliary trace data set A (implicit) defined by the template
+  ibm.ibm_zos_cics.trace:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: absent
 
-- name: Delete auxiliary trace data set B
+- name: Delete a user specified auxiliary trace data set A (implicit)
   ibm.ibm_zos_cics.trace:
+    region_data_sets:
+      dfhauxt:
+        dsn: "REGIONS.ABCD0001.DFHBUXT"
+    state: absent
+
+- name: Delete auxiliary trace data set B defined by the template
+  ibm.ibm_zos_cics.trace:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    state: absent
+    destination: B
+
+- name: Delete a user specified auxiliary trace data set B
+  ibm.ibm_zos_cics.trace:
+    region_data_sets:
+      dfhbuxt:
+        dsn: "REGIONS.ABCD0001.DFHBUXT"
     state: absent
     destination: B
 """

@@ -26,13 +26,20 @@ extends_documentation_fragment:
 
 
 EXAMPLES = r"""
-- name: Initialize a local request queue data set
+- name: Initialize a local request queue data set by using the templated location
   ibm.ibm_zos_cics.local_request_queue:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: "initial"
 
-- name: Initialize a large request queue data set
+- name: Initialize a user specified local request queue data set
+  ibm.ibm_zos_cics.local_request_queue:
+    region_data_sets:
+      dfhlrq:
+        dsn: "REGIONS.ABCD0001.DFHLRQ"
+    state: "initial"
+
+- name: Initialize a large request queue data set by using the templated location
   ibm.ibm_zos_cics.local_request_queue:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
@@ -40,10 +47,30 @@ EXAMPLES = r"""
     space_type: "M"
     state: "initial"
 
-- name: Delete a local request queue data set
+- name: Retain the existing state of a local request queue data set defined by the template
   ibm.ibm_zos_cics.local_request_queue:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
+    state: "warm"
+
+- name: Retain the existing state of a user specified local request queue data set
+  ibm.ibm_zos_cics.local_request_queue:
+    region_data_sets:
+      dfhlrq:
+        dsn: "REGIONS.ABCD0001.DFHLRQ"
+    state: "warm"
+
+- name: Delete a local request queue data set defined by the template
+  ibm.ibm_zos_cics.local_request_queue:
+    region_data_sets:
+      template: "REGIONS.ABCD0001.<< data_set_name >>"
+    state: "absent"
+
+- name: Delete a user specified local request queue data set
+  ibm.ibm_zos_cics.local_request_queue:
+    region_data_sets:
+      dfhlrq:
+        dsn: "REGIONS.ABCD0001.DFHLRQ"
     state: "absent"
 """
 
