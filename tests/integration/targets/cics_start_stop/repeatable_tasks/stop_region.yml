@@ -9,10 +9,10 @@
   retries: 180
   delay: 10
 
-- name: Stop CICS
+- name: Stop Region
   block:
     - name: Issue shutdown command
-      ibm.ibm_zos_cics.stop_cics:
+      ibm.ibm_zos_cics.stop_region:
         job_id: "{{ start_result.job_id }}"
         mode: "{{ mode }}"
       register: stop_result

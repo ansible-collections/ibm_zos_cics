@@ -35,8 +35,8 @@
           ansible.builtin.pause:
             seconds: 5
 
-        - name: Stop CICS
-          ansible.builtin.import_tasks: ../repeatable_tasks/stop_cics.yml
+        - name: Stop CICS Region
+          ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
           ignore_errors: true
           register: stop_result
           vars:

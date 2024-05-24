@@ -9,14 +9,14 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 ---
-module: stop_cics
+module: stop_region
 short_description: Stop a CICS region
 description:
   - Stop a CICS region by using CEMT PERFORM SHUTDOWN. You can choose to perform a NORMAL or IMMEDIATE shutdown.
   - During a NORMAL or IMMEDIATE shutdown, a shutdown assist program should run to enable CICS to shut down in a controlled manner.
     By default, the CICS-supplied shutdown assist transaction, CESD is used. You can specify a custom shutdown assist program in the
     SDTRAN system initialization parameter. The task runs until the region has successfully shut down, or until the shutdown fails.
-  - You must have a console installed in the CICS region so that the stop_cics module can communicate with CICS. To define a console,
+  - You must have a console installed in the CICS region so that the stop_region module can communicate with CICS. To define a console,
     you must install a terminal with the CONSNAME attribute set to your TSO user ID. For detailed instructions, see
     L(Defining TSO users as console devices,https://www.ibm.com/docs/en/cics-ts/6.1?topic=cics-defining-tso-users-as-console-devices).
     Add your console definition into one of the resource lists defined on the GRPLIST system initialization parameter so that it gets
@@ -29,7 +29,7 @@ options:
   job_id:
     description:
       - Identifies the job ID belonging to the running CICS region.
-      - The stop_cics module uses this job ID to identify the state of the CICS region and shut it down.
+      - The stop_region module uses this job ID to identify the state of the CICS region and shut it down.
     type: str
     required: true
   mode:
@@ -58,12 +58,12 @@ options:
 
 
 EXAMPLES = r'''
-- name: "Stop CICS"
-  ibm.ibm_zos_cics.stop_cics:
+- name: "Stop CICS region"
+  ibm.ibm_zos_cics.stop_region:
     job_id: JOB12345
 
-- name: "Stop CICS immediately"
-  ibm.ibm_zos_cics.stop_cics:
+- name: "Stop CICS region immediately"
+  ibm.ibm_zos_cics.stop_region:
     job_id: JOB12354
     mode: immediate
 '''

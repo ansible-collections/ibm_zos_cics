@@ -5,7 +5,7 @@ import time
 import re
 import logging
 from ansible.plugins.action import ActionBase
-from ansible_collections.ibm.ibm_zos_cics.plugins.modules.stop_cics import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.modules.stop_region import (
     JOB_ID, MODE, IMMEDIATE, CANCEL, SDTRAN, NO_SDTRAN)
 from ansible.errors import AnsibleActionFail
 
@@ -19,7 +19,7 @@ FAILED = 'failed'
 IMMEDIATE_SHUTDOWN = 'MODIFY {0},CEMT PERFORM SHUTDOWN IMMEDIATE'
 JOB_NAME = 'job_name'
 JOB_QUERY_FAILED = 'Job query failed.'
-MODULE_NAME = 'ibm.ibm_zos_cics.stop_cics'
+MODULE_NAME = 'ibm.ibm_zos_cics.stop_region'
 NAME = 'name'
 RC = 'rc'
 RETURN = 'return'

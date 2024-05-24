@@ -4,8 +4,8 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 from mock import MagicMock
-from ansible_collections.ibm.ibm_zos_cics.plugins.modules.stop_cics import (
-    AnsibleStopCICSModule as stop_cics, SDTRAN
+from ansible_collections.ibm.ibm_zos_cics.plugins.modules.stop_region import (
+    AnsibleStopCICSModule as stop_region, SDTRAN
 )
 
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
@@ -21,7 +21,7 @@ def initialise_module(**kwargs):
     initial_args = default_arg_parms
     initial_args.update(kwargs)
     set_module_args(initial_args)
-    stop_module = stop_cics()
+    stop_module = stop_region()
     # Mock Ansible module fail and exits, this prevents sys.exit being called but retains an accurate results
     stop_module._module.fail_json = MagicMock(return_value=None)
     stop_module._module.exit_json = MagicMock(return_value=None)

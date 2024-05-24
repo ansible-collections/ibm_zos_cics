@@ -28,8 +28,8 @@
         - name: Start CICS
           ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
 
-        - name: Stop CICS
-          ansible.builtin.import_tasks: ../repeatable_tasks/stop_cics.yml
+        - name: Stop CICS Region
+          ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
           vars:
             mode: normal
 
@@ -41,16 +41,16 @@
         - name: Start CICS
           ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
 
-        - name: Stop CICS
-          ansible.builtin.import_tasks: ../repeatable_tasks/stop_cics.yml
+        - name: Stop CICS Region
+          ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
           vars:
             mode: immediate
 
         - name: Start CICS
           ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
 
-        - name: Stop CICS
-          ansible.builtin.import_tasks: ../repeatable_tasks/stop_cics.yml
+        - name: Stop CICS Region
+          ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
           vars:
             mode: cancel
 

@@ -3,13 +3,13 @@
 .. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
 .. ...............................................................................
 
-:github_url: https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/stop_cics.py
+:github_url: https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/stop_region.py
 
-.. _stop_cics_module:
+.. _stop_region_module:
 
 
-stop_cics -- Stop a CICS region
-===============================
+stop_region -- Stop a CICS region
+=================================
 
 
 
@@ -22,7 +22,7 @@ Synopsis
 --------
 - Stop a CICS region by using CEMT PERFORM SHUTDOWN. You can choose to perform a NORMAL or IMMEDIATE shutdown.
 - During a NORMAL or IMMEDIATE shutdown, a shutdown assist program should run to enable CICS to shut down in a controlled manner. By default, the CICS-supplied shutdown assist transaction, CESD is used. You can specify a custom shutdown assist program in the SDTRAN system initialization parameter. The task runs until the region has successfully shut down, or until the shutdown fails.
-- You must have a console installed in the CICS region so that the stop\_cics module can communicate with CICS. To define a console, you must install a terminal with the CONSNAME attribute set to your TSO user ID. For detailed instructions, see \ `Defining TSO users as console devices <https://www.ibm.com/docs/en/cics-ts/6.1?topic=cics-defining-tso-users-as-console-devices>`__\ . Add your console definition into one of the resource lists defined on the GRPLIST system initialization parameter so that it gets installed into the CICS region. Alternatively, you can use a DFHCSDUP script to update an existing CSD. This function is provided by the csd module.
+- You must have a console installed in the CICS region so that the stop\_region module can communicate with CICS. To define a console, you must install a terminal with the CONSNAME attribute set to your TSO user ID. For detailed instructions, see \ `Defining TSO users as console devices <https://www.ibm.com/docs/en/cics-ts/6.1?topic=cics-defining-tso-users-as-console-devices>`__\ . Add your console definition into one of the resource lists defined on the GRPLIST system initialization parameter so that it gets installed into the CICS region. Alternatively, you can use a DFHCSDUP script to update an existing CSD. This function is provided by the csd module.
 
 
 
@@ -36,7 +36,7 @@ Parameters
 job_id
   Identifies the job ID belonging to the running CICS region.
 
-  The stop\_cics module uses this job ID to identify the state of the CICS region and shut it down.
+  The stop\_region module uses this job ID to identify the state of the CICS region and shut it down.
 
 
   | **required**: True
@@ -82,12 +82,12 @@ Examples
 .. code-block:: yaml+jinja
 
    
-   - name: "Stop CICS"
-     ibm.ibm_zos_cics.stop_cics:
+   - name: "Stop CICS region"
+     ibm.ibm_zos_cics.stop_region:
        job_id: JOB12345
 
-   - name: "Stop CICS immediately"
-     ibm.ibm_zos_cics.stop_cics:
+   - name: "Stop CICS region immediately"
+     ibm.ibm_zos_cics.stop_region:
        job_id: JOB12354
        mode: immediate
 
