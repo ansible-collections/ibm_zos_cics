@@ -9,7 +9,7 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 ---
-module: trace
+module: aux_trace
 short_description: Allocate auxiliary trace data sets
 description:
   - Allocates the two L(auxiliary trace,https://www.ibm.com/docs/en/cics-ts/latest?topic=sets-setting-up-auxiliary-trace-data)
@@ -19,32 +19,32 @@ description:
 author: Kye Maloy (@KyeMaloy97)
 version_added: 1.1.0-beta.4
 extends_documentation_fragment:
-  - ibm.ibm_zos_cics.trace
+  - ibm.ibm_zos_cics.aux_trace
 '''
 
 EXAMPLES = r"""
 - name: Allocate auxiliary trace data set A (implicit) by using the templated location
-  ibm.ibm_zos_cics.trace:
+  ibm.ibm_zos_cics.aux_trace:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: initial
 
 - name: Allocate a user specified data set as auxiliary trace data set A (implicit)
-  ibm.ibm_zos_cics.trace:
+  ibm.ibm_zos_cics.aux_trace:
     region_data_sets:
       dfhauxt:
         dsn: "REGIONS.ABCD0001.DFHAUXT"
     state: initial
 
 - name: Allocate auxiliary trace data set A by using the templated location
-  ibm.ibm_zos_cics.trace:
+  ibm.ibm_zos_cics.aux_trace:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: initial
     destination: A
 
 - name: Allocate a user specified data set as auxiliary trace data set A
-  ibm.ibm_zos_cics.trace:
+  ibm.ibm_zos_cics.aux_trace:
     region_data_sets:
       dfhauxt:
         dsn: "REGIONS.ABCD0001.DFHAUXT"
@@ -52,14 +52,14 @@ EXAMPLES = r"""
     destination: A
 
 - name: Allocate auxiliary trace data set B by using the templated location
-  ibm.ibm_zos_cics.trace:
+  ibm.ibm_zos_cics.aux_trace:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: initial
     destination: B
 
 - name: Allocate a user specified data set as auxiliary trace data set B
-  ibm.ibm_zos_cics.trace:
+  ibm.ibm_zos_cics.aux_trace:
     region_data_sets:
       dfhbuxt:
         dsn: "REGIONS.ABCD0001.DFHBUXT"
@@ -67,27 +67,27 @@ EXAMPLES = r"""
     destination: B
 
 - name: Retain the existing state of auxiliary trace data set A (implicit) defined by the template
-  ibm.ibm_zos_cics.trace:
+  ibm.ibm_zos_cics.aux_trace:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: "warm"
 
 - name: Retain the existing state of a user specified auxiliary trace data set A (implicit)
-  ibm.ibm_zos_cics.trace:
+  ibm.ibm_zos_cics.aux_trace:
     region_data_sets:
       dfhauxt:
         dsn: "REGIONS.ABCD0001.DFHAUXT"
     state: "warm"
 
 - name: Retain the existing state of auxiliary trace data set B defined by the template
-  ibm.ibm_zos_cics.trace:
+  ibm.ibm_zos_cics.aux_trace:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: "warm"
     destination: B
 
 - name: Retain the existing state of a user specified auxiliary trace data set B
-  ibm.ibm_zos_cics.trace:
+  ibm.ibm_zos_cics.aux_trace:
     region_data_sets:
       dfhbuxt:
         dsn: "REGIONS.ABCD0001.DFHBUXT"
@@ -95,27 +95,27 @@ EXAMPLES = r"""
     destination: B
 
 - name: Delete auxiliary trace data set A (implicit) defined by the template
-  ibm.ibm_zos_cics.trace:
+  ibm.ibm_zos_cics.aux_trace:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: absent
 
 - name: Delete a user specified auxiliary trace data set A (implicit)
-  ibm.ibm_zos_cics.trace:
+  ibm.ibm_zos_cics.aux_trace:
     region_data_sets:
       dfhauxt:
         dsn: "REGIONS.ABCD0001.DFHBUXT"
     state: absent
 
 - name: Delete auxiliary trace data set B defined by the template
-  ibm.ibm_zos_cics.trace:
+  ibm.ibm_zos_cics.aux_trace:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: absent
     destination: B
 
 - name: Delete a user specified auxiliary trace data set B
-  ibm.ibm_zos_cics.trace:
+  ibm.ibm_zos_cics.aux_trace:
     region_data_sets:
       dfhbuxt:
         dsn: "REGIONS.ABCD0001.DFHBUXT"
@@ -201,8 +201,8 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import 
     SPACE_TYPE,
     DataSet
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._trace import (
-    _build_seq_data_set_definition_trace
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._aux_trace import (
+    _build_seq_data_set_definition_aux_trace
 )
 
 
@@ -278,7 +278,7 @@ class AnsibleAuxiliaryTraceModule(DataSet):
         return defs
 
     def create_data_set(self):  # type: () -> None
-        definition = _build_seq_data_set_definition_trace(self.get_data_set())
+        definition = _build_seq_data_set_definition_aux_trace(self.get_data_set())
         super().build_seq_data_set(self.ds_destination, definition)
 
 

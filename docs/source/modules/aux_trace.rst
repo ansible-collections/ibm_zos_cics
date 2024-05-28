@@ -3,13 +3,13 @@
 .. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
 .. ...............................................................................
 
-:github_url: https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/trace.py
+:github_url: https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/aux_trace.py
 
-.. _trace_module:
+.. _aux_trace_module:
 
 
-trace -- Allocate auxiliary trace data sets
-===========================================
+aux_trace -- Allocate auxiliary trace data sets
+===============================================
 
 
 
@@ -178,27 +178,27 @@ Examples
 
    
    - name: Allocate auxiliary trace data set A (implicit) by using the templated location
-     ibm.ibm_zos_cics.trace:
+     ibm.ibm_zos_cics.aux_trace:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        state: initial
 
    - name: Allocate a user specified data set as auxiliary trace data set A (implicit)
-     ibm.ibm_zos_cics.trace:
+     ibm.ibm_zos_cics.aux_trace:
        region_data_sets:
          dfhauxt:
            dsn: "REGIONS.ABCD0001.DFHAUXT"
        state: initial
 
    - name: Allocate auxiliary trace data set A by using the templated location
-     ibm.ibm_zos_cics.trace:
+     ibm.ibm_zos_cics.aux_trace:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        state: initial
        destination: A
 
    - name: Allocate a user specified data set as auxiliary trace data set A
-     ibm.ibm_zos_cics.trace:
+     ibm.ibm_zos_cics.aux_trace:
        region_data_sets:
          dfhauxt:
            dsn: "REGIONS.ABCD0001.DFHAUXT"
@@ -206,14 +206,14 @@ Examples
        destination: A
 
    - name: Allocate auxiliary trace data set B by using the templated location
-     ibm.ibm_zos_cics.trace:
+     ibm.ibm_zos_cics.aux_trace:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        state: initial
        destination: B
 
    - name: Allocate a user specified data set as auxiliary trace data set B
-     ibm.ibm_zos_cics.trace:
+     ibm.ibm_zos_cics.aux_trace:
        region_data_sets:
          dfhbuxt:
            dsn: "REGIONS.ABCD0001.DFHBUXT"
@@ -221,27 +221,27 @@ Examples
        destination: B
 
    - name: Retain the existing state of auxiliary trace data set A (implicit) defined by the template
-     ibm.ibm_zos_cics.trace:
+     ibm.ibm_zos_cics.aux_trace:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        state: "warm"
 
    - name: Retain the existing state of a user specified auxiliary trace data set A (implicit)
-     ibm.ibm_zos_cics.trace:
+     ibm.ibm_zos_cics.aux_trace:
        region_data_sets:
          dfhauxt:
            dsn: "REGIONS.ABCD0001.DFHAUXT"
        state: "warm"
 
    - name: Retain the existing state of auxiliary trace data set B defined by the template
-     ibm.ibm_zos_cics.trace:
+     ibm.ibm_zos_cics.aux_trace:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        state: "warm"
        destination: B
 
    - name: Retain the existing state of a user specified auxiliary trace data set B
-     ibm.ibm_zos_cics.trace:
+     ibm.ibm_zos_cics.aux_trace:
        region_data_sets:
          dfhbuxt:
            dsn: "REGIONS.ABCD0001.DFHBUXT"
@@ -249,27 +249,27 @@ Examples
        destination: B
 
    - name: Delete auxiliary trace data set A (implicit) defined by the template
-     ibm.ibm_zos_cics.trace:
+     ibm.ibm_zos_cics.aux_trace:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        state: absent
 
    - name: Delete a user specified auxiliary trace data set A (implicit)
-     ibm.ibm_zos_cics.trace:
+     ibm.ibm_zos_cics.aux_trace:
        region_data_sets:
          dfhauxt:
            dsn: "REGIONS.ABCD0001.DFHBUXT"
        state: absent
 
    - name: Delete auxiliary trace data set B defined by the template
-     ibm.ibm_zos_cics.trace:
+     ibm.ibm_zos_cics.aux_trace:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        state: absent
        destination: B
 
    - name: Delete a user specified auxiliary trace data set B
-     ibm.ibm_zos_cics.trace:
+     ibm.ibm_zos_cics.aux_trace:
        region_data_sets:
          dfhbuxt:
            dsn: "REGIONS.ABCD0001.DFHBUXT"

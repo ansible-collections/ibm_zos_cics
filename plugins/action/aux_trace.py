@@ -17,7 +17,7 @@ class ActionModule(_DataSetActionPlugin):
 
         return super(ActionModule, self)._run(
             ds_name=ds_name,
-            module_name="trace",
+            module_name="aux_trace",
             cics_data_sets_required=False,
             tmp=tmp,
             task_vars=task_vars,

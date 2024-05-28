@@ -6,14 +6,14 @@
   until: result is not failed
 
 - name: "Auxiliary trace data set (DFHAUXT) {{ data_set_state }}"
-  ibm.ibm_zos_cics.trace:
+  ibm.ibm_zos_cics.aux_trace:
     state: "{{ data_set_state }}"
   register: result
   retries: 3
   until: result is not failed
 
 - name: "Second auxiliary trace data set (DFHBUXT) {{ data_set_state }}"
-  ibm.ibm_zos_cics.trace:
+  ibm.ibm_zos_cics.aux_trace:
     state: "{{ data_set_state }}"
     destination: B
   register: result

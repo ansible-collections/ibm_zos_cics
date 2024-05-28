@@ -15,7 +15,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     LISTDS_run_name,
     set_module_args
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.modules import trace
+from ansible_collections.ibm.ibm_zos_cics.plugins.modules import aux_trace
 import pytest
 import sys
 
@@ -53,7 +53,7 @@ def initialise_module(**kwargs):
     initial_args = default_arg_parms
     initial_args.update(kwargs)
     set_module_args(initial_args)
-    trace_module = trace.AnsibleAuxiliaryTraceModule()
+    trace_module = aux_trace.AnsibleAuxiliaryTraceModule()
     trace_module._module.fail_json = MagicMock(return_value=None)
     trace_module._module.exit_json = MagicMock(return_value=None)
     return trace_module
