@@ -12,7 +12,7 @@ class ActionModule(_DataSetActionPlugin):
     def run(self, tmp=None, task_vars=None):
         return super(ActionModule, self)._run(
             ds_name="dfhtemp",
-            module_name="auxiliary_temp",
+            module_name="aux_temp_storage",
             cics_data_sets_required=False,
             tmp=tmp,
             task_vars=task_vars,

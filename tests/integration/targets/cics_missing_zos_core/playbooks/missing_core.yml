@@ -89,7 +89,7 @@
           - "'unable to locate collection ibm.ibm_zos_core' in result.msg"
 
     - name: Create Auxiliary Temp data set
-      ibm.ibm_zos_cics.auxiliary_temp:
+      ibm.ibm_zos_cics.aux_temp_storage:
         state: "initial"
         region_data_sets:
           template: "{{ region_data_set_path }}.<< data_set_name >>"

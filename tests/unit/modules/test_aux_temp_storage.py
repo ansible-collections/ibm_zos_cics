@@ -18,7 +18,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     LISTDS_run_name,
     set_module_args
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.modules import auxiliary_temp
+from ansible_collections.ibm.ibm_zos_cics.plugins.modules import aux_temp_storage
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
 import pytest
 import sys
@@ -46,7 +46,7 @@ def initialise_module(**kwargs):
     initial_args = default_arg_parms
     initial_args.update(kwargs)
     set_module_args(initial_args)
-    temp_module = auxiliary_temp.AnsibleAuxiliaryTempModule()
+    temp_module = aux_temp_storage.AnsibleAuxiliaryTempModule()
     temp_module._module.fail_json = MagicMock(return_value=None)
     temp_module._module.exit_json = MagicMock(return_value=None)
     return temp_module
@@ -108,7 +108,7 @@ def test_create_an_intial_temp_ds():
 @pytest.mark.skipif(
     sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
-def test_delete_an_existing_auxiliary_temp_ds():
+def test_delete_an_existing_aux_temp_storage_ds():
     temp_module = initialise_module(state="absent")
 
     data_set_utils._execute_idcams = MagicMock(

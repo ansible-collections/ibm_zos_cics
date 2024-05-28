@@ -10,7 +10,7 @@ __metaclass__ = type
 
 DOCUMENTATION = r"""
 ---
-module: auxiliary_temp
+module: aux_temp_storage
 short_description: Create and remove the CICS auxiliary temporary storage data set
 description:
   - Create and remove the L(auxiliary temporary storage,https://www.ibm.com/docs/en/cics-ts/latest?topic=sets-defining-auxiliary-temporary-storage-data-set)
@@ -22,26 +22,26 @@ description:
 author: Andrew Twydell (@andrewtwydell)
 version_added: 1.1.0-beta.4
 extends_documentation_fragment:
-  - ibm.ibm_zos_cics.auxiliary_temporary
+  - ibm.ibm_zos_cics.aux_temp_storage
 """
 
 
 EXAMPLES = r"""
 - name: Initialize an auxiliary temporary storage data set by using the templated location
-  ibm.ibm_zos_cics.auxiliary_temp:
+  ibm.ibm_zos_cics.aux_temp_storage:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: "initial"
 
 - name: Initialize a user specified auxiliary temporary storage data set
-  ibm.ibm_zos_cics.auxiliary_temp:
+  ibm.ibm_zos_cics.aux_temp_storage:
     region_data_sets:
       dfhtemp:
         dsn: "REGIONS.ABCD0001.DFHTEMP"
     state: "initial"
 
 - name: Initialize a large auxiliary temporary storage data set by using the templated location
-  ibm.ibm_zos_cics.auxiliary_temp:
+  ibm.ibm_zos_cics.aux_temp_storage:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     space_primary: 50
@@ -49,26 +49,26 @@ EXAMPLES = r"""
     state: "initial"
 
 - name: Retain the existing state of an auxiliary temporary storage data set defined by the template
-  ibm.ibm_zos_cics.auxiliary_temp:
+  ibm.ibm_zos_cics.aux_temp_storage:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: "warm"
 
 - name: Retain the existing state of a user specified auxiliary temporary storage data set
-  ibm.ibm_zos_cics.auxiliary_temp:
+  ibm.ibm_zos_cics.aux_temp_storage:
     region_data_sets:
       dfhtemp:
         dsn: "REGIONS.ABCD0001.DFHTEMP"
     state: "warm"
 
 - name: Delete an existing auxiliary temporary storage data set defined by the template
-  ibm.ibm_zos_cics.auxiliary_temp:
+  ibm.ibm_zos_cics.aux_temp_storage:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: "absent"
 
 - name: Delete an existing user specified auxiliary temporary storage data set
-  ibm.ibm_zos_cics.auxiliary_temp:
+  ibm.ibm_zos_cics.aux_temp_storage:
     region_data_sets:
       dfhtemp:
         dsn: "REGIONS.ABCD0001.DFHTEMP"
@@ -153,7 +153,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import 
     SPACE_TYPE,
     DataSet
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._auxiliary_temp import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._aux_temp_storage import (
     _get_idcams_cmd_temp
 )
 

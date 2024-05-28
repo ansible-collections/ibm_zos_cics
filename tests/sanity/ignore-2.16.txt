@@ -7,7 +7,7 @@ plugins/modules/global_catalog.py validate-modules:missing-gplv3-license # Licen
 plugins/modules/local_catalog.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
 plugins/modules/local_request_queue.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
 plugins/modules/intrapartition.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
-plugins/modules/auxiliary_temp.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
+plugins/modules/aux_temp_storage.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
 plugins/modules/aux_trace.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
 plugins/modules/csd.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
 plugins/modules/transaction_dump.py validate-modules:missing-gplv3-license # Licence is Apache-2.0

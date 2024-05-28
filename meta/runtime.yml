@@ -8,12 +8,12 @@ action_groups:
     - cmci_get
     - cmci_update
   region_group:
-    - auxiliary_temp
+    - aux_temp_storage
+    - aux_trace
     - csd
     - global_catalog
     - intrapartition
     - local_catalog
     - local_request_queue
-    - aux_trace
     - transaction_dump
     - start_cics

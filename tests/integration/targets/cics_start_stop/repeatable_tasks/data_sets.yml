@@ -1,5 +1,5 @@
 - name: "Auxiliary temporary storage data set (DFHTEMP) {{ data_set_state }}"
-  ibm.ibm_zos_cics.auxiliary_temp:
+  ibm.ibm_zos_cics.aux_temp_storage:
     state: "{{ data_set_state }}"
   register: result
   retries: 3
