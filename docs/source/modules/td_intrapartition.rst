@@ -3,13 +3,13 @@
 .. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
 .. ...............................................................................
 
-:github_url: https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/intrapartition.py
+:github_url: https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/td_intrapartition.py
 
-.. _intrapartition_module:
+.. _td_intrapartition_module:
 
 
-intrapartition -- Create and remove the CICS transient data intrapartition data set
-===================================================================================
+td_intrapartition -- Create and remove the CICS transient data intrapartition data set
+======================================================================================
 
 
 
@@ -145,20 +145,20 @@ Examples
 
    
    - name: Initialize a transient data intrapartition data set by using the templated location
-     ibm.ibm_zos_cics.intrapartition:
+     ibm.ibm_zos_cics.td_intrapartition:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        state: "initial"
 
    - name: Initialize a user specified transient data intrapartition data set
-     ibm.ibm_zos_cics.intrapartition:
+     ibm.ibm_zos_cics.td_intrapartition:
        region_data_sets:
          dfhintra:
            dsn: "REGIONS.ABCD0001.DFHINTRA"
        state: "initial"
 
    - name: Initialize a large transient data intrapartition data set by using the templated location
-     ibm.ibm_zos_cics.intrapartition:
+     ibm.ibm_zos_cics.td_intrapartition:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        space_primary: 50
@@ -166,26 +166,26 @@ Examples
        state: "initial"
 
    - name: Retain the existing state of a transient data intrapartition data set data set defined by the template
-     ibm.ibm_zos_cics.intrapartition:
+     ibm.ibm_zos_cics.td_intrapartition:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        state: "warm"
 
    - name: Retain the existing state of a user specified transient data intrapartition data set
-     ibm.ibm_zos_cics.intrapartition:
+     ibm.ibm_zos_cics.td_intrapartition:
        region_data_sets:
          dfhintra:
            dsn: "REGIONS.ABCD0001.DFHINTRA"
        state: "warm"
 
    - name: Delete a transient data intrapartition data set data set defined by the template
-     ibm.ibm_zos_cics.intrapartition:
+     ibm.ibm_zos_cics.td_intrapartition:
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        state: "absent"
 
    - name: Delete a user specified transient data intrapartition data set
-     ibm.ibm_zos_cics.intrapartition:
+     ibm.ibm_zos_cics.td_intrapartition:
        region_data_sets:
          dfhintra:
            dsn: "REGIONS.ABCD0001.DFHINTRA"

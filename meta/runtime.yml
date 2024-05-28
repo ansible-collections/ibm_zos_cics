@@ -12,8 +12,8 @@ action_groups:
     - aux_trace
     - csd
     - global_catalog
-    - intrapartition
     - local_catalog
     - local_request_queue
+    - td_intrapartition
     - transaction_dump
     - start_cics

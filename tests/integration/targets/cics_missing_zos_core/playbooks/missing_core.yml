@@ -69,8 +69,8 @@
           - result.failed is true
           - "'unable to locate collection ibm.ibm_zos_core' in result.msg"
 
-    - name: Create Intrapartition data set
-      ibm.ibm_zos_cics.intrapartition:
+    - name: Create TD Intrapartition data set
+      ibm.ibm_zos_cics.td_intrapartition:
         state: "initial"
         region_data_sets:
           template: "{{ region_data_set_path }}.<< data_set_name >>"

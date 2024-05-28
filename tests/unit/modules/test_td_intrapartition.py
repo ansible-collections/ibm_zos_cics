@@ -18,7 +18,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     LISTDS_run_name,
     set_module_args
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.modules import intrapartition
+from ansible_collections.ibm.ibm_zos_cics.plugins.modules import td_intrapartition
 import pytest
 import sys
 
@@ -47,7 +47,7 @@ def initialise_module(**kwargs):
     initial_args = default_arg_parms
     initial_args.update(kwargs)
     set_module_args(initial_args)
-    intra_module = intrapartition.AnsibleIntrapartitionModule()
+    intra_module = td_intrapartition.AnsibleTDIntrapartitionModule()
     intra_module._module.fail_json = MagicMock(return_value=None)
     intra_module._module.exit_json = MagicMock(return_value=None)
     return intra_module
@@ -56,7 +56,7 @@ def initialise_module(**kwargs):
 @pytest.mark.skipif(
     sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
-def test_create_an_intial_intrapartition_ds():
+def test_create_an_intial_td_intrapartition_ds():
     intra_module = initialise_module()
 
     data_set_utils._execute_idcams = MagicMock(
@@ -108,7 +108,7 @@ def test_create_an_intial_intrapartition_ds():
 @pytest.mark.skipif(
     sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE
 )
-def test_delete_an_existing_intrapartition_ds():
+def test_delete_an_existing_td_intrapartition_ds():
     intra_module = initialise_module(state="absent")
 
     data_set_utils._execute_idcams = MagicMock(

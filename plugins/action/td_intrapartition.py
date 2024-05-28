@@ -12,7 +12,7 @@ class ActionModule(_DataSetActionPlugin):
     def run(self, tmp=None, task_vars=None):
         return super(ActionModule, self)._run(
             ds_name="dfhintra",
-            module_name="intrapartition",
+            module_name="td_intrapartition",
             cics_data_sets_required=False,
             tmp=tmp,
             task_vars=task_vars,

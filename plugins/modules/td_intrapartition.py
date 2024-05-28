@@ -10,7 +10,7 @@ __metaclass__ = type
 
 DOCUMENTATION = r"""
 ---
-module: intrapartition
+module: td_intrapartition
 short_description: Create and remove the CICS transient data intrapartition data set
 description:
   - Create and remove the L(transient data intrapartition,https://www.ibm.com/docs/en/cics-ts/latest?topic=data-defining-intrapartition-set)
@@ -22,26 +22,26 @@ description:
 author: Andrew Twydell (@andrewtwydell)
 version_added: 1.1.0-beta.4
 extends_documentation_fragment:
-  - ibm.ibm_zos_cics.intrapartition
+  - ibm.ibm_zos_cics.td_intrapartition
 """
 
 
 EXAMPLES = r"""
 - name: Initialize a transient data intrapartition data set by using the templated location
-  ibm.ibm_zos_cics.intrapartition:
+  ibm.ibm_zos_cics.td_intrapartition:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: "initial"
 
 - name: Initialize a user specified transient data intrapartition data set
-  ibm.ibm_zos_cics.intrapartition:
+  ibm.ibm_zos_cics.td_intrapartition:
     region_data_sets:
       dfhintra:
         dsn: "REGIONS.ABCD0001.DFHINTRA"
     state: "initial"
 
 - name: Initialize a large transient data intrapartition data set by using the templated location
-  ibm.ibm_zos_cics.intrapartition:
+  ibm.ibm_zos_cics.td_intrapartition:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     space_primary: 50
@@ -49,26 +49,26 @@ EXAMPLES = r"""
     state: "initial"
 
 - name: Retain the existing state of a transient data intrapartition data set data set defined by the template
-  ibm.ibm_zos_cics.intrapartition:
+  ibm.ibm_zos_cics.td_intrapartition:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: "warm"
 
 - name: Retain the existing state of a user specified transient data intrapartition data set
-  ibm.ibm_zos_cics.intrapartition:
+  ibm.ibm_zos_cics.td_intrapartition:
     region_data_sets:
       dfhintra:
         dsn: "REGIONS.ABCD0001.DFHINTRA"
     state: "warm"
 
 - name: Delete a transient data intrapartition data set data set defined by the template
-  ibm.ibm_zos_cics.intrapartition:
+  ibm.ibm_zos_cics.td_intrapartition:
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     state: "absent"
 
 - name: Delete a user specified transient data intrapartition data set
-  ibm.ibm_zos_cics.intrapartition:
+  ibm.ibm_zos_cics.td_intrapartition:
     region_data_sets:
       dfhintra:
         dsn: "REGIONS.ABCD0001.DFHINTRA"
@@ -151,7 +151,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import 
     SPACE_TYPE,
     DataSet
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._intrapartition import (
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._td_intrapartition import (
     _get_idcams_cmd_intra
 )
 
@@ -161,14 +161,14 @@ SPACE_PRIMARY_DEFAULT = 100
 SPACE_SECONDARY_DEFAULT = 10
 
 
-class AnsibleIntrapartitionModule(DataSet):
+class AnsibleTDIntrapartitionModule(DataSet):
     def __init__(self):
-        super(AnsibleIntrapartitionModule, self).__init__(SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT)
+        super(AnsibleTDIntrapartitionModule, self).__init__(SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT)
         self.name = self.region_param[DSN]["dsn"].upper()
         self.expected_data_set_organization = "VSAM"
 
     def _get_arg_spec(self):  # type: () -> dict
-        arg_spec = super(AnsibleIntrapartitionModule, self)._get_arg_spec()
+        arg_spec = super(AnsibleTDIntrapartitionModule, self)._get_arg_spec()
 
         arg_spec[SPACE_PRIMARY].update({
             "default": SPACE_PRIMARY_DEFAULT
@@ -208,7 +208,7 @@ class AnsibleIntrapartitionModule(DataSet):
 
 
 def main():
-    AnsibleIntrapartitionModule().main()
+    AnsibleTDIntrapartitionModule().main()
 
 
 if __name__ == "__main__":

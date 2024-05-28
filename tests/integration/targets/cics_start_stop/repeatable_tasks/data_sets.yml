@@ -58,7 +58,7 @@
   until: result is not failed
 
 - name: "Transient data intrapartition data set (DFHINTRA) {{ data_set_state }}"
-  ibm.ibm_zos_cics.intrapartition:
+  ibm.ibm_zos_cics.td_intrapartition:
     state: "{{ data_set_state }}"
   register: result
   retries: 3
