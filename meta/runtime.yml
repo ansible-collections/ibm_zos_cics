@@ -7,7 +7,7 @@ action_groups:
     - cmci_delete
     - cmci_get
     - cmci_update
-  region_group:
+  region:
     - aux_temp_storage
     - aux_trace
     - csd

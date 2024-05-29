@@ -7,7 +7,7 @@
   environment: "{{ environment_vars }}"
 
   module_defaults:
-    group/ibm.ibm_zos_cics.region_group:
+    group/ibm.ibm_zos_cics.region:
       cics_data_sets:
         template: "{{ cics_install_path }}.<< lib_name >>"
       region_data_sets:

@@ -1,7 +1,7 @@
 # (c) Copyright IBM Corp. 2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
-- name: Test region_group module defaults for MODULE_NAME module
+- name: Test region module defaults for MODULE_NAME module
 
   hosts: "all"
   gather_facts: false
@@ -10,7 +10,7 @@
     data_set_path: "{{ region_data_set_path }}.{{ data_set_name }}"
 
   module_defaults:
-    group/ibm.ibm_zos_cics.region_group:
+    group/ibm.ibm_zos_cics.region:
       cics_data_sets:
         template: "{{ cics_install_path }}.<< lib_name >>"
         sdfhload: "{{ cics_install_path }}.SDFHLOAD"
@@ -80,7 +80,7 @@
         # #############################################################################
         # ################################## Cleanup ##################################
         # #############################################################################
-      
+
         always:
         - name: Delete {{ data_set_name }}
           ibm.ibm_zos_core.zos_data_set:
