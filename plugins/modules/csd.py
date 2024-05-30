@@ -96,9 +96,9 @@ EXAMPLES = r"""
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
-    state: "script"
-    script_location: "DATA_SET"
-    script_src: "TESTER.DEFS.SCRIPT"
+    state: "changed"
+    input_location: "DATA_SET"
+    input_src: "TESTER.DEFS.SCRIPT"
 
 - name: Run a DFHCSDUP script from a USS file
   ibm.ibm_zos_cics.csd:
@@ -106,8 +106,8 @@ EXAMPLES = r"""
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
-    script_location: "USS"
-    script_src: "/u/tester/defs/script.csdup"
+    input_location: "USS"
+    input_src: "/u/tester/defs/script.csdup"
 
 - name: Run a DFHCSDUP script from a local file
   ibm.ibm_zos_cics.csd:
@@ -115,8 +115,8 @@ EXAMPLES = r"""
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
-    script_location: "LOCAL"
-    script_src: "/User/tester/defs/script.csdup"
+    input_location: "LOCAL"
+    input_src: "/User/tester/defs/script.csdup"
 
 - name: Run a DFHCSDUP script inline
   ibm.ibm_zos_cics.csd:
@@ -124,8 +124,8 @@ EXAMPLES = r"""
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
-    script_location: "INLINE"
-    script_content: |
+    input_location: "INLINE"
+    input_content: |
       DEFINE PROGRAM(TESTPRG1) GROUP(TESTGRP1)
       DEFINE PROGRAM(TESTPRG2) GROUP(TESTGRP2)
 """
@@ -225,17 +225,17 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._csd import (
 DSN = "dfhcsd"
 SPACE_PRIMARY_DEFAULT = 4
 SPACE_SECONDARY_DEFAULT = 1
-SCRIPT = "script"
-STATE_OPTIONS = [ABSENT, INITIAL, WARM, SCRIPT]
-SCRIPT_SOURCE = "script_src"
-SCRIPT_LOCATION = "script_location"
-SCRIPT_CONTENT = "script_content"
+CHANGED = "changed"
+STATE_OPTIONS = [ABSENT, INITIAL, WARM, CHANGED]
+INPUT_SOURCE = "input_src"
+INPUT_LOCATION = "input_location"
+INPUT_CONTENT = "input_content"
 DATA_SET = "DATA_SET"
 USS = "USS"
 LOCAL = "LOCAL"
 INLINE = "INLINE"
-SCRIPT_LOCATION_OPTIONS = [DATA_SET, USS, LOCAL, INLINE]
-SCRIPT_LOCATION_DEFAULT = DATA_SET
+INPUT_LOCATION_OPTIONS = [DATA_SET, USS, LOCAL, INLINE]
+INPUT_LOCATION_DEFAULT = DATA_SET
 LOG = "log"
 LOG_OPTIONS = ["NONE", "UNDO", "ALL"]
 LOGSTREAMID = "logstream_id"
@@ -243,8 +243,8 @@ LOGSTREAMID = "logstream_id"
 
 class AnsibleCSDModule(DataSet):
     def __init__(self):
-        self.script_src = ""
-        self.script_location = ""
+        self.input_src = ""
+        self.input_location = ""
         super(AnsibleCSDModule, self).__init__(SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT)
         self._validate_log_args()
         self.name = self.region_param[DSN]["dsn"].upper()
@@ -292,15 +292,15 @@ class AnsibleCSDModule(DataSet):
             },
         }
         arg_spec.update({
-            SCRIPT_SOURCE: {
+            INPUT_SOURCE: {
                 "type": "str"
             },
-            SCRIPT_LOCATION: {
+            INPUT_LOCATION: {
                 "type": "str",
-                "choices": SCRIPT_LOCATION_OPTIONS,
+                "choices": INPUT_LOCATION_OPTIONS,
                 "default": DATA_SET
             },
-            SCRIPT_CONTENT: {
+            INPUT_CONTENT: {
                 "type": "str"
             },
         })
@@ -329,21 +329,21 @@ class AnsibleCSDModule(DataSet):
             "arg_type": "data_set_base"
         })
         defs[REGION_DATA_SETS]["options"][DSN]["options"]["dsn"].pop("type")
-        if SCRIPT_LOCATION == DATA_SET:
-            defs[SCRIPT_SOURCE].update({
+        if INPUT_LOCATION == DATA_SET:
+            defs[INPUT_SOURCE].update({
                 "arg_type": "data_set_base"
             })
-            defs[SCRIPT_SOURCE].pop("type")
+            defs[INPUT_SOURCE].pop("type")
         return defs
 
     def assign_parameters(self, params):  # type: (dict) -> None
         super().assign_parameters(params)
-        if params.get(SCRIPT_SOURCE):
-            self.script_src = params[SCRIPT_SOURCE]
-        if params.get(SCRIPT_LOCATION):
-            self.script_location = params[SCRIPT_LOCATION]
-        if params.get(SCRIPT_CONTENT):
-            self.script_content = params[SCRIPT_CONTENT]
+        if params.get(INPUT_SOURCE):
+            self.input_src = params[INPUT_SOURCE]
+        if params.get(INPUT_LOCATION):
+            self.input_location = params[INPUT_LOCATION]
+        if params.get(INPUT_CONTENT):
+            self.input_content = params[INPUT_CONTENT]
 
     def execute_target_state(self):   # type: () -> None
         if self.target_state == ABSENT:
@@ -352,7 +352,7 @@ class AnsibleCSDModule(DataSet):
             self.init_data_set()
         elif self.target_state == WARM:
             self.warm_with_records()
-        elif self.target_state == SCRIPT:
+        elif self.target_state == CHANGED:
             self.csdup_script()
         else:
             self.invalid_target_state()
@@ -380,28 +380,28 @@ class AnsibleCSDModule(DataSet):
 
     def csdup_script(self):
 
-        if not self.script_location:
-            self._fail("script_location required")
+        if not self.input_location:
+            self._fail("input_location required")
 
-        if self.script_location == INLINE:
-            if not self.script_content:
-                self._fail("script_content required when script_location={0}".format(self.script_location))
+        if self.input_location == INLINE:
+            if not self.input_content:
+                self._fail("input_content required when input_location={0}".format(self.input_location))
         else:
-            if not self.script_src:
-                self._fail("script_src required when script_location={0}".format(self.script_location))
+            if not self.input_src:
+                self._fail("input_src required when input_location={0}".format(self.input_location))
 
         try:
             csdup_script_executions = []
-            if self.script_location == DATA_SET:
-                csdup_script_executions.extend(_run_dfhcsdup(self.get_data_set(), DatasetDefinition(self.script_src)))
-            elif self.script_location == USS:
-                file = open(self.script_src)
+            if self.input_location == DATA_SET:
+                csdup_script_executions.extend(_run_dfhcsdup(self.get_data_set(), DatasetDefinition(self.input_src)))
+            elif self.input_location == USS:
+                file = open(self.input_src)
                 file_content = file.read()
                 csdup_script_executions.extend(_run_dfhcsdup(self.get_data_set(), StdinDefinition(content=file_content)))
-            elif self.script_location in [LOCAL, INLINE]:
-                csdup_script_executions.extend(_run_dfhcsdup(self.get_data_set(), StdinDefinition(content=self.script_content)))
+            elif self.input_location in [LOCAL, INLINE]:
+                csdup_script_executions.extend(_run_dfhcsdup(self.get_data_set(), StdinDefinition(content=self.input_content)))
             else:
-                self._fail("script_location: {0} not recognised.".format(self.script_location))
+                self._fail("input_location: {0} not recognised.".format(self.input_location))
 
             self.executions.extend(csdup_script_executions)
 

@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.plugin_utils._module_action_plugin import _DataSetActionPlugin
-from ansible_collections.ibm.ibm_zos_cics.plugins.modules.csd import LOCAL, SCRIPT_CONTENT, SCRIPT_LOCATION, SCRIPT_SOURCE
+from ansible_collections.ibm.ibm_zos_cics.plugins.modules.csd import LOCAL, INPUT_CONTENT, INPUT_LOCATION, INPUT_SOURCE
 
 
 class ActionModule(_DataSetActionPlugin):
@@ -21,8 +21,8 @@ class ActionModule(_DataSetActionPlugin):
 
     def _process_module_args(self, module_args, _templar, ds_name, task_vars, cics_data_sets_required):
         super(ActionModule, self)._process_module_args(module_args, _templar, ds_name, task_vars, cics_data_sets_required)
-        script_location = module_args.get(SCRIPT_LOCATION)
-        if script_location == LOCAL:
-            script_src = module_args.get(SCRIPT_SOURCE)
-            with open(script_src, 'r') as script_file:
-                module_args[SCRIPT_CONTENT] = script_file.read()
+        input_location = module_args.get(INPUT_LOCATION)
+        if input_location == LOCAL:
+            input_src = module_args.get(INPUT_SOURCE)
+            with open(input_src, 'r') as input_file:
+                module_args[INPUT_CONTENT] = input_file.read()

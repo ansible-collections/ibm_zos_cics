@@ -46,9 +46,9 @@
     - ignore_csd_script is not defined or ignore_csd_script is false
     - data_set_state == "initial"
   ibm.ibm_zos_cics.csd:
-    state: "script"
-    script_location: "INLINE"
-    script_content: "ADD GROUP(DFHTERMC) LIST(DFHLIST1)"
+    state: "changed"
+    input_location: "INLINE"
+    input_content: "ADD GROUP(DFHTERMC) LIST(DFHLIST1)"
 
 - name: "Local request queue data set (DFHLRQ) {{ data_set_state }}"
   ibm.ibm_zos_cics.local_request_queue:

@@ -61,6 +61,49 @@ cics_data_sets
 
 
      
+input_content
+  The content of the DFHCSDUP script to submit, if you are using the \ :literal:`input\_location=INLINE`\  option.
+
+
+  | **required**: False
+  | **type**: str
+
+
+     
+input_location
+  The type of location from which to load the DFHCSDUP script.
+
+  Specify \ :literal:`DATA\_SET`\  to load from a PDS, PDSE, or sequential data set.
+
+  Specify \ :literal:`USS`\  to load from a file on UNIX System Services (USS).
+
+  Specify \ :literal:`LOCAL`\  to load from a file local to the Ansible control node.
+
+  Specify \ :literal:`INLINE`\  to allow a script to be passed directly through the \ :literal:`input\_content`\  parameter.
+
+
+  | **required**: False
+  | **type**: str
+  | **default**: DATA_SET
+  | **choices**: DATA_SET, USS, LOCAL, INLINE
+
+
+     
+input_src
+  The path to the source file that contains the DFHCSDUP script to submit.
+
+  It can be a data set. For example: "TESTER.DEFS.SCRIPT" or "TESTER.DEFS(SCRIPT)"
+
+  It can be a USS file. For example: "/u/tester/defs/script.csdup"
+
+  It can be a local file. For example: "/User/tester/defs/script.csdup"
+
+
+  | **required**: False
+  | **type**: str
+
+
+     
 log
   Specify the recovery attribute for the CSD, overriding the CSD system initialization parameters.
 
@@ -126,49 +169,6 @@ region_data_sets
 
 
      
-script_content
-  The content of the DFHCSDUP script to submit, if you are using the \ :literal:`script\_location=INLINE`\  option.
-
-
-  | **required**: False
-  | **type**: str
-
-
-     
-script_location
-  The type of location from which to load the DFHCSDUP script.
-
-  Specify \ :literal:`DATA\_SET`\  to load from a PDS, PDSE, or sequential data set.
-
-  Specify \ :literal:`USS`\  to load from a file on UNIX System Services (USS).
-
-  Specify \ :literal:`LOCAL`\  to load from a file local to the Ansible control node.
-
-  Specify \ :literal:`INLINE`\  to allow a script to be passed directly through the \ :literal:`script\_content`\  parameter.
-
-
-  | **required**: False
-  | **type**: str
-  | **default**: DATA_SET
-  | **choices**: DATA_SET, USS, LOCAL, INLINE
-
-
-     
-script_src
-  The path to the source file that contains the DFHCSDUP script to submit.
-
-  It can be a data set. For example: "TESTER.DEFS.SCRIPT" or "TESTER.DEFS(SCRIPT)"
-
-  It can be a USS file. For example: "/u/tester/defs/script.csdup"
-
-  It can be a local file. For example: "/User/tester/defs/script.csdup"
-
-
-  | **required**: False
-  | **type**: str
-
-
-     
 space_primary
   The size of the primary space allocated to the CSD. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
 
@@ -217,12 +217,12 @@ state
 
   Specify \ :literal:`warm`\  to retain an existing CSD in its current state. The module verifies whether the specified data set exists and whether it contains any records. If both conditions are met, the module leaves the data set as is. If the data set does not exist or if it is empty, the operation fails.
 
-  Specify \ :literal:`script`\  to run a DFHCSDUP script to update an existing CSD.
+  Specify \ :literal:`changed`\  to run a DFHCSDUP script to update an existing CSD.
 
 
   | **required**: True
   | **type**: str
-  | **choices**: initial, absent, warm, script
+  | **choices**: initial, absent, warm, changed
 
 
      
@@ -309,9 +309,9 @@ Examples
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        cics_data_sets:
          template: "CICSTS61.CICS.<< lib_name >>"
-       state: "script"
-       script_location: "DATA_SET"
-       script_src: "TESTER.DEFS.SCRIPT"
+       state: "changed"
+       input_location: "DATA_SET"
+       input_src: "TESTER.DEFS.SCRIPT"
 
    - name: Run a DFHCSDUP script from a USS file
      ibm.ibm_zos_cics.csd:
@@ -319,8 +319,8 @@ Examples
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        cics_data_sets:
          template: "CICSTS61.CICS.<< lib_name >>"
-       script_location: "USS"
-       script_src: "/u/tester/defs/script.csdup"
+       input_location: "USS"
+       input_src: "/u/tester/defs/script.csdup"
 
    - name: Run a DFHCSDUP script from a local file
      ibm.ibm_zos_cics.csd:
@@ -328,8 +328,8 @@ Examples
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        cics_data_sets:
          template: "CICSTS61.CICS.<< lib_name >>"
-       script_location: "LOCAL"
-       script_src: "/User/tester/defs/script.csdup"
+       input_location: "LOCAL"
+       input_src: "/User/tester/defs/script.csdup"
 
    - name: Run a DFHCSDUP script inline
      ibm.ibm_zos_cics.csd:
@@ -337,8 +337,8 @@ Examples
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        cics_data_sets:
          template: "CICSTS61.CICS.<< lib_name >>"
-       script_location: "INLINE"
-       script_content: |
+       input_location: "INLINE"
+       input_content: |
          DEFINE PROGRAM(TESTPRG1) GROUP(TESTGRP1)
          DEFINE PROGRAM(TESTPRG2) GROUP(TESTGRP2)
 

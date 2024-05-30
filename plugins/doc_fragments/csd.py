@@ -100,21 +100,21 @@ options:
         The module verifies whether the specified data set exists and whether it contains any records.
         If both conditions are met, the module leaves the data set as is.
         If the data set does not exist or if it is empty, the operation fails.
-      - Specify V(script) to run a DFHCSDUP script to update an existing CSD.
+      - Specify V(changed) to run a DFHCSDUP script to update an existing CSD.
     choices:
       - "initial"
       - "absent"
       - "warm"
-      - "script"
+      - "changed"
     required: true
     type: str
-  script_location:
+  input_location:
     description:
       - The type of location from which to load the DFHCSDUP script.
       - Specify V(DATA_SET) to load from a PDS, PDSE, or sequential data set.
       - Specify V(USS) to load from a file on UNIX System Services (USS).
       - Specify V(LOCAL) to load from a file local to the Ansible control node.
-      - Specify V(INLINE) to allow a script to be passed directly through the O(script_content) parameter.
+      - Specify V(INLINE) to allow a script to be passed directly through the O(input_content) parameter.
     choices:
       - "DATA_SET"
       - "USS"
@@ -123,7 +123,7 @@ options:
     type: str
     required: false
     default: "DATA_SET"
-  script_src:
+  input_src:
     description:
       - The path to the source file that contains the DFHCSDUP script to submit.
       - 'It can be a data set. For example: "TESTER.DEFS.SCRIPT" or "TESTER.DEFS(SCRIPT)"'
@@ -131,9 +131,9 @@ options:
       - 'It can be a local file. For example: "/User/tester/defs/script.csdup"'
     type: str
     required: false
-  script_content:
+  input_content:
     description:
-      - The content of the DFHCSDUP script to submit, if you are using the O(script_location=INLINE) option.
+      - The content of the DFHCSDUP script to submit, if you are using the O(input_location=INLINE) option.
     type: str
     required: false
   log:
