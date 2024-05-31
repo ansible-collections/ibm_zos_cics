@@ -57,8 +57,8 @@ class ActionModule(ActionBase):
 def _process_module_args(module_args, _templar, task_vars):
     for library_key in LIBRARY_KEYS:
         _set_top_libraries_key(module_args, library_key)
-        _validate_list_of_data_set_lengths(module_args[library_key]["top_libraries"])
-        _validate_list_of_data_set_lengths(module_args[library_key].get("libraries", []))
+        _validate_list_of_data_set_lengths(module_args[library_key]["top_data_sets"])
+        _validate_list_of_data_set_lengths(module_args[library_key].get("data_sets", []))
 
     for cics_lib in CICS_DS_KEYS:
         _process_libraries_args(module_args, _templar, task_vars, "cics_data_sets", cics_lib)

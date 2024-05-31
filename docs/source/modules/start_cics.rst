@@ -132,8 +132,8 @@ dfhrpl
 
 
      
-  libraries
-    The DFHRPL libraries to be appended to the bottom of the list.
+  data_sets
+    The DFHRPL data sets to be appended to the bottom of the list.
 
 
     | **required**: False
@@ -141,8 +141,8 @@ dfhrpl
 
 
      
-  top_libraries
-    The DFHRPL libraries to be appended to the very top of the statement.
+  top_data_sets
+    The DFHRPL data sets to be appended to the very top of the statement.
 
 
     | **required**: False
@@ -3361,8 +3361,8 @@ steplib
 
 
      
-  libraries
-    The \ :literal:`STEPLIB`\  libraries to be appended to the bottom of the library list.
+  data_sets
+    The \ :literal:`STEPLIB`\  data sets to be appended to the bottom of the library list.
 
 
     | **required**: False
@@ -3370,8 +3370,8 @@ steplib
 
 
      
-  top_libraries
-    The \ :literal:`STEPLIB`\  libraries to be appended to the very top of the statement.
+  top_data_sets
+    The \ :literal:`STEPLIB`\  data sets to be appended to the very top of the statement.
 
 
     | **required**: False
@@ -3451,11 +3451,11 @@ Examples
          sysprint:
            omit: True
        steplib:
-         top_libraries:
-           - TOP.LIBRARY.ONE
-           - TOP.LIBRARY.TWO
-         libraries:
-           - BOTTOM.LIBRARY.ONE
+         top_data_sets:
+           - TOP.DATA_SET.ONE
+           - TOP.DATA_SET.TWO
+         data_sets:
+           - BOTTOM.DATA_SET.ONE
        sit_parameters:
          start: COLD
          sit: 6$

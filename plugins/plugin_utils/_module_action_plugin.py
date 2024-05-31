@@ -164,9 +164,9 @@ def _check_template(module_args, arg_dict):
 
 def _set_top_libraries_key(module_args, dict_key):
     if module_args.get(dict_key) is None:
-        module_args[dict_key] = {"top_libraries": []}
-    elif module_args[dict_key].get("top_libraries") is None:
-        module_args[dict_key].update({"top_libraries": []})
+        module_args[dict_key] = {"top_data_sets": []}
+    elif module_args[dict_key].get("top_data_sets") is None:
+        module_args[dict_key].update({"top_data_sets": []})
 
 
 def _remove_data_set_args(module_args):

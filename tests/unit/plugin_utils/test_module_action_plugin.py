@@ -204,31 +204,31 @@ def test__set_top_libraries_key():
     args_without_top_libs = {"region_data_sets": {"template": "data.set.template.<< data_set_name >>"}}
     _set_top_libraries_key(args_without_top_libs, "dfhrpl")
 
-    assert "top_libraries" in list(args_without_top_libs["dfhrpl"].keys())
+    assert "top_data_sets" in list(args_without_top_libs["dfhrpl"].keys())
     assert len(list(args_without_top_libs.keys())) == 2
 
 
 def test__set_top_libraries_key_with_existing_key():
-    args_without_top_libs = {"region_data_sets": {"template": "data.set.template.<< data_set_name >>"}, "dfhrpl": {"top_libraries": "data.set.path"}}
+    args_without_top_libs = {"region_data_sets": {"template": "data.set.template.<< data_set_name >>"}, "dfhrpl": {"top_data_sets": "data.set.path"}}
 
     assert len(list(args_without_top_libs.keys())) == 2
 
     _set_top_libraries_key(args_without_top_libs, "dfhrpl")
 
     assert len(list(args_without_top_libs.keys())) == 2
-    assert "top_libraries" in list(args_without_top_libs["dfhrpl"].keys())
-    assert args_without_top_libs["dfhrpl"]["top_libraries"] == "data.set.path"
+    assert "top_data_sets" in list(args_without_top_libs["dfhrpl"].keys())
+    assert args_without_top_libs["dfhrpl"]["top_data_sets"] == "data.set.path"
 
 
 def test__set_top_libraries_key_with_existing_libraries_key_not_top_libraries_key():
-    args_without_top_libs = {"region_data_sets": {"template": "data.set.template.<< data_set_name >>"}, "dfhrpl": {"libraries": "data.set.path"}}
+    args_without_top_libs = {"region_data_sets": {"template": "data.set.template.<< data_set_name >>"}, "dfhrpl": {"data_sets": "data.set.path"}}
 
     assert len(list(args_without_top_libs.keys())) == 2
     _set_top_libraries_key(args_without_top_libs, "dfhrpl")
 
     assert len(list(args_without_top_libs.keys())) == 2
-    assert "top_libraries" in list(args_without_top_libs["dfhrpl"].keys())
-    assert args_without_top_libs["dfhrpl"]["libraries"] == "data.set.path"
+    assert "top_data_sets" in list(args_without_top_libs["dfhrpl"].keys())
+    assert args_without_top_libs["dfhrpl"]["data_sets"] == "data.set.path"
 
 
 def test__remove_data_set_args():

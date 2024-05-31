@@ -54,10 +54,10 @@ def test_process_args_with_only_template():
             "template": "TEST.LE.<< lib_name >>"
         },
         "steplib": {
-            "top_libraries": []
+            "top_data_sets": []
         },
         "dfhrpl": {
-            "top_libraries": []
+            "top_data_sets": []
         }
     }
 
@@ -106,10 +106,10 @@ def test_process_args_with_some_overrides():
             "template": "TEST.LE.<< lib_name >>"
         },
         "steplib": {
-            "top_libraries": []
+            "top_data_sets": []
         },
         "dfhrpl": {
-            "top_libraries": []
+            "top_data_sets": []
         }
     }
 
@@ -166,10 +166,10 @@ def test_process_args_with_only_overrides():
             "sceerun2": "TEST.LE.RUN2",
         },
         "steplib": {
-            "top_libraries": []
+            "top_data_sets": []
         },
         "dfhrpl": {
-            "top_libraries": []
+            "top_data_sets": []
         }
     }
 
@@ -330,10 +330,10 @@ def test_process_args_with_extra_data_set_args():
             "template": "TEST.LE.<< lib_name >>"
         },
         "steplib": {
-            "top_libraries": []
+            "top_data_sets": []
         },
         "dfhrpl": {
-            "top_libraries": []
+            "top_data_sets": []
         }
     }
 
@@ -379,10 +379,10 @@ def test_process_args_with_only_template_and_optional_cpsm_arg():
             "template": "TEST.CPSM.<< lib_name >>"
         },
         "steplib": {
-            "top_libraries": []
+            "top_data_sets": []
         },
         "dfhrpl": {
-            "top_libraries": []
+            "top_data_sets": []
         }
     }
 
@@ -432,9 +432,9 @@ def test_process_args_with_optional_cpsm_arg_and_overrides():
             "template": "TEST.CPSM.<< lib_name >>"
         },
         "steplib": {
-            "top_libraries": []
+            "top_data_sets": []
         },
         "dfhrpl": {
-            "top_libraries": []
+            "top_data_sets": []
         }
     }

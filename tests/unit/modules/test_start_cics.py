@@ -81,7 +81,7 @@ def test_add_exec_parameters_with_sit_parameters():
 
 
 def test_add_block_of_libraries_empty_libraries():
-    module = setup_and_update_parms({"steplib": {"top_libraries": [], "libraries": []}})
+    module = setup_and_update_parms({"steplib": {"top_data_sets": [], "data_sets": []}})
     module._add_block_of_libraries("steplib")
     assert module.dds == []
 
@@ -93,8 +93,8 @@ def test_add_libraries_with_none_passed():
     assert dsn_dict == []
 
 
-def test_add_block_of_libraries_empty_top_libraries():
-    module = setup_and_update_parms({"steplib": {"top_libraries": [], "libraries": ["LIB.ONE"]}})
+def test_add_block_of_libraries_empty_top_data_sets():
+    module = setup_and_update_parms({"steplib": {"top_data_sets": [], "data_sets": ["LIB.ONE"]}})
     module._add_block_of_libraries("steplib")
     assert module.dds == [{"steplib": [{DISP: SHR, DSN: "LIB.ONE"}]}]
 
@@ -494,33 +494,33 @@ def test_fail():
 
 
 def test_concat_libraries_both_provided():
-    libraries = ["FIRST_LIB", "SECOND_LIB"]
-    top_libraries = ["FIRST_TOP_LIB", "SECOND_TOP_LIB"]
+    data_sets = ["FIRST_LIB", "SECOND_LIB"]
+    top_data_sets = ["FIRST_TOP_LIB", "SECOND_TOP_LIB"]
     module = setup_and_update_parms({
-        "steplib": {"libraries": libraries, "top_libraries": top_libraries}})
+        "steplib": {"data_sets": data_sets, "top_data_sets": top_data_sets}})
     concat_libs = module._concat_libraries("steplib")
-    assert concat_libs == top_libraries + libraries
+    assert concat_libs == top_data_sets + data_sets
 
 
 def test_concat_libraries_only_first_provided():
-    top_libraries = ["FIRST_TOP_LIB", "SECOND_TOP_LIB"]
+    top_data_sets = ["FIRST_TOP_LIB", "SECOND_TOP_LIB"]
     module = setup_and_update_parms({
-        "steplib": {"libraries": None, "top_libraries": top_libraries}})
+        "steplib": {"data_sets": None, "top_data_sets": top_data_sets}})
     concat_libs = module._concat_libraries("steplib")
-    assert concat_libs == top_libraries
+    assert concat_libs == top_data_sets
 
 
 def test_concat_libraries_only_second_provided():
-    libraries = ["FIRST_LIB", "SECOND_LIB"]
+    data_sets = ["FIRST_LIB", "SECOND_LIB"]
     module = setup_and_update_parms({
-        "steplib": {"libraries": libraries, "top_libraries": None}})
+        "steplib": {"data_sets": data_sets, "top_data_sets": None}})
     concat_libs = module._concat_libraries("steplib")
-    assert concat_libs == libraries
+    assert concat_libs == data_sets
 
 
 def test_concat_libraries_none_provided():
     module = setup_and_update_parms({
-        "steplib": {"libraries": None, "top_libraries": None}})
+        "steplib": {"data_sets": None, "top_data_sets": None}})
     concat_libs = module._concat_libraries("steplib")
     assert concat_libs == []
 
@@ -558,16 +558,16 @@ def test_copy_libraries_to_steplib_and_dfhrpl():
             "template": "TEST.CPSM.<< lib_name >>"
         },
         "steplib": {
-            "top_libraries": []
+            "top_data_sets": []
         },
         "dfhrpl": {
-            "top_libraries": []
+            "top_data_sets": []
         }
     })
     module._copy_libraries_to_steplib_and_dfhrpl()
 
     assert module.module_args["steplib"] == {
-        "top_libraries": [
+        "top_data_sets": [
             "TEST.CICS.SDFHAUTH",
             "TEST.CICS.SDFHLIC",
             "TEST.CPSM.SEYUAUTH",
@@ -576,7 +576,7 @@ def test_copy_libraries_to_steplib_and_dfhrpl():
         ]
     }
     assert module.module_args["dfhrpl"] == {
-        "top_libraries": [
+        "top_data_sets": [
             "TEST.CICS.SDFHLOAD",
             "TEST.CPSM.SEYULOAD",
             "TEST.LE.SCEECICS",
@@ -616,10 +616,10 @@ def test__populate_dds():
             "seyuload": "test.seyuload",
         },
         "steplib": {
-            "top_libraries": ["some.top.lib"]
+            "top_data_sets": ["some.top.lib"]
         },
         "dfhrpl": {
-            "top_libraries": ["another.top.lib"]
+            "top_data_sets": ["another.top.lib"]
         }
     })
     dds = module._populate_dds()
@@ -716,7 +716,7 @@ def test_validate_parameters_applid_too_long():
 def test_validate_parameters_steplib_library_too_long():
     prepare_for_fail()
     steplib = "LIB.TOOO.LONGQUALIFIER"
-    module = setup_and_update_parms({"steplib": {"top_libraries": [steplib]}})
+    module = setup_and_update_parms({"steplib": {"top_data_sets": [steplib]}})
     with pytest.raises(AnsibleFailJson) as exec_info:
         module.validate_parameters()
     assert exec_info.value.args[0]['msg'] == 'Invalid argument "{0}" for type "data_set_base".'.format(steplib)

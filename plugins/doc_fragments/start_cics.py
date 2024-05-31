@@ -239,15 +239,15 @@ options:
     type: dict
     required: false
     suboptions:
-      top_libraries:
+      top_data_sets:
         description:
-          - The C(STEPLIB) libraries to be appended to the very top of the statement.
+          - The C(STEPLIB) data sets to be appended to the very top of the statement.
         type: list
         required: false
         elements: str
-      libraries:
+      data_sets:
         description:
-          - The C(STEPLIB) libraries to be appended to the bottom of the library list.
+          - The C(STEPLIB) data sets to be appended to the bottom of the library list.
         type: list
         required: false
         elements: str
@@ -258,15 +258,15 @@ options:
     type: dict
     required: false
     suboptions:
-      top_libraries:
+      top_data_sets:
         description:
-          - The DFHRPL libraries to be appended to the very top of the statement.
+          - The DFHRPL data sets to be appended to the very top of the statement.
         required: false
         type: list
         elements: str
-      libraries:
+      data_sets:
         description:
-          - The DFHRPL libraries to be appended to the bottom of the list.
+          - The DFHRPL data sets to be appended to the bottom of the list.
         type: list
         required: false
         elements: str

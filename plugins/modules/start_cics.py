@@ -77,11 +77,11 @@ EXAMPLES = r"""
       sysprint:
         omit: True
     steplib:
-      top_libraries:
-        - TOP.LIBRARY.ONE
-        - TOP.LIBRARY.TWO
-      libraries:
-        - BOTTOM.LIBRARY.ONE
+      top_data_sets:
+        - TOP.DATA_SET.ONE
+        - TOP.DATA_SET.TWO
+      data_sets:
+        - BOTTOM.DATA_SET.ONE
     sit_parameters:
       start: COLD
       sit: 6$
@@ -185,7 +185,7 @@ DSN = 'dsn'
 JOB_PARAMETERS = 'job_parameters'
 LE_DATA_SETS = 'le_data_sets'
 LOGUSR = 'logusr'
-LIBRARIES = 'libraries'
+DATA_SETS = 'data_sets'
 MSGUSR = 'msgusr'
 OMIT = 'omit'
 OUTPUT_DATA_SETS = 'output_data_sets'
@@ -200,7 +200,7 @@ SYSOUT = 'sysout'
 SYSPRINT = 'sysprint'
 SYSUDUMP = 'sysudump'
 TEMPLATE = 'template'
-TOP_LIBRARIES = 'top_libraries'
+TOP_DATA_SETS = 'top_data_sets'
 
 region_data_sets_list = ['dfhauxt', 'dfhbuxt', 'dfhcsd', 'dfhgcd', 'dfhintra',
                          'dfhlcd', 'dfhlrq', 'dfhtemp', 'dfhdmpa', 'dfhdmpb']
@@ -263,7 +263,7 @@ class AnsibleStartCICSModule(object):
         for lib_type, list_of_libs in libraries_to_copy.items():
             for lib in list_of_libs:
                 if self.module_args.get(lib_type) and self.module_args[lib_type].get(lib):
-                    self.module_args[target_arg][TOP_LIBRARIES].append(self.module_args[lib_type][lib].upper())
+                    self.module_args[target_arg][TOP_DATA_SETS].append(self.module_args[lib_type][lib].upper())
 
     def _add_exec_parameters(self, exec_data):
         if self._check_parameter_is_provided(SIT_PARAMETERS):
@@ -448,12 +448,12 @@ class AnsibleStartCICSModule(object):
         self.result["failed"] = True
         self._module.fail_json(msg=msg, **self.result)
 
-    def _concat_libraries(self, lib_name):
+    def _concat_libraries(self, ds_name):
         data_sets = []
-        library_type = [TOP_LIBRARIES, LIBRARIES]
-        for library_name in library_type:
-            if self.module_args.get(lib_name).get(library_name):
-                data_sets.extend(self.module_args[lib_name][library_name])
+        data_set_types = [TOP_DATA_SETS, DATA_SETS]
+        for data_set_name in data_set_types:
+            if self.module_args.get(ds_name).get(data_set_name):
+                data_sets.extend(self.module_args[ds_name][data_set_name])
         return data_sets
 
     def validate_parameters(self):
@@ -469,10 +469,10 @@ class AnsibleStartCICSModule(object):
         self.batch_update_arg_defs_for_ds(defs, CICS_DATA_SETS, ["sdfhauth", "sdfhlic", "sdfhload"])
         self.batch_update_arg_defs_for_ds(defs, LE_DATA_SETS, ["sceecics", "sceerun", "sceerun2"])
         self.batch_update_arg_defs_for_ds(defs, CPSM_DATA_SETS, ["seyuload", "seyuauth"])
-        defs[STEPLIB]["options"][TOP_LIBRARIES].update({"elements": "data_set_base"})
-        defs[STEPLIB]["options"][LIBRARIES].update({"elements": "data_set_base"})
-        defs[DFHRPL]["options"][TOP_LIBRARIES].update({"elements": "data_set_base"})
-        defs[DFHRPL]["options"][LIBRARIES].update({"elements": "data_set_base"})
+        defs[STEPLIB]["options"][TOP_DATA_SETS].update({"elements": "data_set_base"})
+        defs[STEPLIB]["options"][DATA_SETS].update({"elements": "data_set_base"})
+        defs[DFHRPL]["options"][TOP_DATA_SETS].update({"elements": "data_set_base"})
+        defs[DFHRPL]["options"][DATA_SETS].update({"elements": "data_set_base"})
 
         # Qualifier is the arg type for things like Applid's, job names which follow the 8 character rule.
         self.update_arg_def(defs[APPLID], "qualifier")
@@ -694,12 +694,12 @@ class AnsibleStartCICSModule(object):
                 'type': 'dict',
                 'required': False,
                 'options': {
-                    TOP_LIBRARIES: {
+                    TOP_DATA_SETS: {
                         'type': 'list',
                         'required': False,
                         'elements': 'str'
                     },
-                    LIBRARIES: {
+                    DATA_SETS: {
                         'type': 'list',
                         'required': False,
                         'elements': 'str'
@@ -710,12 +710,12 @@ class AnsibleStartCICSModule(object):
                 'type': 'dict',
                 'required': False,
                 'options': {
-                    TOP_LIBRARIES: {
+                    TOP_DATA_SETS: {
                         'type': 'list',
                         'required': False,
                         'elements': 'str'
                     },
-                    LIBRARIES: {
+                    DATA_SETS: {
                         'type': 'list',
                         'required': False,
                         'elements': 'str'
