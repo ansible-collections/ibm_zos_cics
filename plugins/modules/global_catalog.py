@@ -202,6 +202,10 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils i
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import (
     CICS_DATA_SETS,
     MEGABYTES,
+    KILOBYTES,
+    RECORDS,
+    CYLINDERS,
+    TRACKS,
     REGION_DATA_SETS,
     SPACE_PRIMARY,
     SPACE_SECONDARY,
@@ -219,6 +223,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._global_catalog i
 
 COLD = "cold"
 STATE_OPTIONS = [ABSENT, INITIAL, WARM, COLD]
+SPACE_OPTIONS = [KILOBYTES, MEGABYTES, RECORDS, CYLINDERS, TRACKS]
 DSN = "dfhgcd"
 AUTO_START_WARM = "AUTOASIS"
 AUTO_START_COLD = "AUTOCOLD"
@@ -285,7 +290,8 @@ class AnsibleGlobalCatalogModule(DataSet):
             "default": SPACE_SECONDARY_DEFAULT
         })
         arg_spec[SPACE_TYPE].update({
-            "default": MEGABYTES
+            "default": MEGABYTES,
+            "choices": SPACE_OPTIONS,
         })
         arg_spec[STATE].update({
             "choices": STATE_OPTIONS

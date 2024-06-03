@@ -206,6 +206,10 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils i
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import (
     CICS_DATA_SETS,
     MEGABYTES,
+    KILOBYTES,
+    RECORDS,
+    CYLINDERS,
+    TRACKS,
     REGION_DATA_SETS,
     SPACE_PRIMARY,
     SPACE_SECONDARY,
@@ -225,6 +229,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._csd import (
 DSN = "dfhcsd"
 SPACE_PRIMARY_DEFAULT = 4
 SPACE_SECONDARY_DEFAULT = 1
+SPACE_OPTIONS = [KILOBYTES, MEGABYTES, RECORDS, CYLINDERS, TRACKS]
 CHANGED = "changed"
 STATE_OPTIONS = [ABSENT, INITIAL, WARM, CHANGED]
 INPUT_SOURCE = "input_src"
@@ -260,7 +265,8 @@ class AnsibleCSDModule(DataSet):
             "default": SPACE_SECONDARY_DEFAULT
         })
         arg_spec[SPACE_TYPE].update({
-            "default": MEGABYTES
+            "default": MEGABYTES,
+            "choices": SPACE_OPTIONS,
         })
         arg_spec[STATE].update({
             "choices": STATE_OPTIONS

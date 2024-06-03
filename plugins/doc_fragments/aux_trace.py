@@ -37,13 +37,12 @@ options:
       - This option takes effect only when the auxiliary trace data set is being created.
         If the data set already exists, the option has no effect.
       - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
-        records (V(REC)), cylinders (V(CYL)), or tracks (V(TRK)).
+        cylinders (V(CYL)), or tracks (V(TRK)).
     required: false
     type: str
     choices:
       - M
       - K
-      - REC
       - CYL
       - TRK
     default: M

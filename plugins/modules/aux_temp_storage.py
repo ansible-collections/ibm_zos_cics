@@ -147,6 +147,10 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils i
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import (
     RECORDS,
+    KILOBYTES,
+    MEGABYTES,
+    CYLINDERS,
+    TRACKS,
     REGION_DATA_SETS,
     SPACE_PRIMARY,
     SPACE_SECONDARY,
@@ -161,6 +165,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._aux_temp_storage
 DSN = "dfhtemp"
 SPACE_PRIMARY_DEFAULT = 200
 SPACE_SECONDARY_DEFAULT = 10
+SPACE_OPTIONS = [KILOBYTES, MEGABYTES, RECORDS, CYLINDERS, TRACKS]
 
 
 class AnsibleAuxiliaryTempModule(DataSet):
@@ -179,7 +184,8 @@ class AnsibleAuxiliaryTempModule(DataSet):
             "default": SPACE_SECONDARY_DEFAULT
         })
         arg_spec[SPACE_TYPE].update({
-            "default": RECORDS
+            "default": RECORDS,
+            "choices": SPACE_OPTIONS,
         })
         arg_spec[REGION_DATA_SETS]["options"].update({
             DSN: {

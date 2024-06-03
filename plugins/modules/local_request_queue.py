@@ -146,6 +146,10 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils i
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import (
     MEGABYTES,
+    KILOBYTES,
+    RECORDS,
+    CYLINDERS,
+    TRACKS,
     REGION_DATA_SETS,
     SPACE_PRIMARY,
     SPACE_SECONDARY,
@@ -160,6 +164,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._local_request_qu
 DSN = "dfhlrq"
 SPACE_PRIMARY_DEFAULT = 4
 SPACE_SECONDARY_DEFAULT = 1
+SPACE_OPTIONS = [KILOBYTES, MEGABYTES, RECORDS, CYLINDERS, TRACKS]
 
 
 class AnsibleLocalRequestQueueModule(DataSet):
@@ -178,7 +183,8 @@ class AnsibleLocalRequestQueueModule(DataSet):
             "default": SPACE_SECONDARY_DEFAULT
         })
         arg_spec[SPACE_TYPE].update({
-            "default": MEGABYTES
+            "default": MEGABYTES,
+            "choices": SPACE_OPTIONS,
         })
         arg_spec[REGION_DATA_SETS]["options"].update({
             DSN: {

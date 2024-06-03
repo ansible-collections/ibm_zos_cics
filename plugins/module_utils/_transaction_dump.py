@@ -17,6 +17,7 @@ def _build_seq_data_set_definition_transaction_dump(data_set):   # type: (dict) 
         primary=data_set["primary"],
         secondary=data_set["secondary"],
         primary_unit=data_set["unit"],
+        secondary_unit=data_set["unit"],
         volumes=data_set.get("volumes"),
         block_size=BLOCK_SIZE_DEFAULT,
         record_length=RECORD_LENGTH_DEFAULT,

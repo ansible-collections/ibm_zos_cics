@@ -39,6 +39,7 @@ def test_transaction_dump_definition_megabytes():
         primary=SPACE_PRIMARY_DEFAULT,
         secondary=SPACE_SECONDARY_DEFAULT,
         primary_unit="M",
+        secondary_unit="M",
         type="SEQ"
     )
 
@@ -71,6 +72,7 @@ def test_trace_definition_volumes():
         primary=SPACE_PRIMARY_DEFAULT,
         secondary=SPACE_SECONDARY_DEFAULT,
         primary_unit="M",
+        secondary_unit="M",
         type="SEQ",
         volumes=["vserv1"]
     )

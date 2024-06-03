@@ -33,7 +33,7 @@ MEGABYTES = "M"
 RECORDS = "REC"
 CYLINDERS = "CYL"
 TRACKS = "TRK"
-SPACE_OPTIONS = [KILOBYTES, MEGABYTES, RECORDS, CYLINDERS, TRACKS]
+SPACE_OPTIONS = [KILOBYTES, MEGABYTES, CYLINDERS, TRACKS]
 ABSENT = "absent"
 INITIAL = "initial"
 WARM = "warm"
@@ -258,7 +258,6 @@ class DataSet():
 
     def init_data_set(self):   # type: () -> None
         if self.exists:
-
             try:
                 icetool_executions, record_count = _run_icetool(self.name)
                 self.executions.extend(icetool_executions)
@@ -270,7 +269,6 @@ class DataSet():
             except MVSExecutionException as e:
                 self.executions.extend(e.executions)
                 self._fail(e.message)
-
         else:
             self.create_data_set()
 

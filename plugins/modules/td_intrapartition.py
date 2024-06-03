@@ -144,7 +144,11 @@ msg:
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import _build_idcams_define_cmd
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import (
+    MEGABYTES,
+    KILOBYTES,
     RECORDS,
+    CYLINDERS,
+    TRACKS,
     REGION_DATA_SETS,
     SPACE_PRIMARY,
     SPACE_SECONDARY,
@@ -159,6 +163,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._td_intrapartitio
 DSN = "dfhintra"
 SPACE_PRIMARY_DEFAULT = 100
 SPACE_SECONDARY_DEFAULT = 10
+SPACE_OPTIONS = [KILOBYTES, MEGABYTES, RECORDS, CYLINDERS, TRACKS]
 
 
 class AnsibleTDIntrapartitionModule(DataSet):
@@ -177,7 +182,8 @@ class AnsibleTDIntrapartitionModule(DataSet):
             "default": SPACE_SECONDARY_DEFAULT
         })
         arg_spec[SPACE_TYPE].update({
-            "default": RECORDS
+            "default": RECORDS,
+            "choices": SPACE_OPTIONS,
         })
         arg_spec[REGION_DATA_SETS]["options"].update({
             DSN: {

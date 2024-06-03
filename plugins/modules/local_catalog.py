@@ -165,7 +165,11 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils i
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import (
     CICS_DATA_SETS,
+    MEGABYTES,
+    KILOBYTES,
     RECORDS,
+    CYLINDERS,
+    TRACKS,
     REGION_DATA_SETS,
     SPACE_PRIMARY,
     SPACE_SECONDARY,
@@ -184,6 +188,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._local_catalog im
 DSN = "dfhlcd"
 SPACE_PRIMARY_DEFAULT = 200
 SPACE_SECONDARY_DEFAULT = 5
+SPACE_OPTIONS = [KILOBYTES, MEGABYTES, RECORDS, CYLINDERS, TRACKS]
 
 
 class AnsibleLocalCatalogModule(DataSet):
@@ -202,7 +207,8 @@ class AnsibleLocalCatalogModule(DataSet):
             "default": SPACE_SECONDARY_DEFAULT
         })
         arg_spec[SPACE_TYPE].update({
-            "default": RECORDS
+            "default": RECORDS,
+            "choices": SPACE_OPTIONS,
         })
         arg_spec[REGION_DATA_SETS]["options"].update({
             DSN: {
