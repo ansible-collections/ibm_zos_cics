@@ -9,6 +9,11 @@ Playbooks
 There are sample playbooks that demonstrate the **IBM z/OS CICS collection**
 functionality in the `samples repository`_.
 
+The sample playbooks fall into two categories:
+
+- Operations on CICS and CICSPlex SM resources and definitions. The sample playbooks use the CMCI modules to achieve various real-life use cases.
+- CICS provisioning. The sample playbook demonstrates how a set of modules for provisioning and managing CICS TS data sets and utilities can be used to provision, start, stop, and deprovision a CICS region.
+
 .. _samples repository:
    https://github.com/IBM/z_ansible_collections_samples
 
@@ -28,8 +33,8 @@ to reference your CICS artifacts and configuration.
 
 You can find the playbook content that is included with the collection in the
 same location where the collection is installed. For more information, refer to
-the `installation documentation`_. In the following examples, this document will
-refer to the installation path as ``~/.ansible/collections/ibm/ibm_zos_cics``.
+the `installation documentation`_. In the following examples, this document
+refers to the installation path as ``~/.ansible/collections/ibm/ibm_zos_cics``.
 
 
 .. _Ansible playbook:
@@ -81,13 +86,13 @@ Inventory
 ---------
 
 Ansible works with multiple managed nodes (hosts) at the same time, using a
-list or group of lists known as an `inventory`_. Once the inventory is defined,
+list or group of lists known as an `inventory`_. After the inventory is defined,
 you can use `patterns`_ to select the hosts or groups that you want Ansible to
 run against.
 
-Included in the CICS `deploy program sample`_ is an example `inventory file`_
-which shows how host information is supplied to Ansible. It looks like the 
-following:
+Included in the CICS `deploy program sample`_ is an example `inventory file`_,
+which shows how host information is supplied to Ansible. Code that defines a host
+is shown below:
 
 .. code-block:: yaml
 
@@ -98,24 +103,16 @@ following:
          ansible_user: zos_target_username
          ansible_python_interpreter: path_to_python_interpreter_binary_on_zos_target
 
+A host is defined by the following properties:
 
-The value for the property **ansible_host** is the hostname of the managed node;
-for example, ``ansible_host: example.com``
+- **ansible_host**: The value of this property identifies the hostname of the managed node. For example: ``ansible_host: example.com``
+- **zos_target_username**: The value of this property identifies the user name to use when connecting to the host. For example: ``ansible_user: ibmuser``
+- **ansible_python_interpreter**: The value of this property specifies the Python path for the target host. For example: ``ansible_python_interpreter: /usr/lpp/rsusr/python39/bin/python``
+  This is useful for systems with more than one Python installation, or when Python is not installed in the default location **/usr/bin/python**.
 
-The value for the property **zos_target_username** is the user name to use when
-connecting to the host; for example, ``ansible_user: ibmuser``.
+For more information about the Python configuration requirements on z/OS, see the Ansible `FAQ`_.
 
-The value for the property **ansible_python_interpreter** is the target host
-Python path. This is useful for systems with more than one Python installation,
-or when Python is not installed in the default location **/usr/bin/python**;
-for example, ``ansible_python_interpreter: /usr/lpp/rsusr/python39/bin/python``
-
-For more information on Python configuration requirements on z/OS, refer to
-Ansible `FAQ`_.
-
-Behavioral inventory parameters such as ``ansible_port`` which allows you
-to set the port for a host can be reviewed in the
-`behavioral inventory parameters`_.
+For behavioral inventory parameters such as ``ansible_port`` which allows you to set the port for a host, see `behavioral inventory parameters`_.
 
 .. _inventory:
    https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
@@ -139,27 +136,16 @@ Although you can store variables in the inventory file, storing separate host
 and group variables files may help you organize your variable values more
 easily. An example of one of these variable files is the `zos_host.yml`_
 file included with the `deploy_program sample`_, which is used to provide the
-required environment variables.
+required environment variables. Another such example is the `variables.yml`_ file
+included with the `CICS provisioning`_ playbook.
 
-The value for the property **BPXK_AUTOCVT** must be configured to ``ON``.
+The properties that define the environment variables are as follows:
 
-The value for the property **ZOAU_HOME** is the ZOA Utilities install root path;
-for example, ``/usr/lpp/IBM/zoautil``.
-
-The value for the property **PYTHONPATH** is the ZOA Utilities Python library
-path; for example, ``/usr/lpp/IBM/zoautil/lib/``.
-
-The value for the property **LIBPATH** is both the path to the Python libraries
-on the target and the ZOA Utilities Python library path separated by
-colons ``:``; for example,
-``/usr/lpp/IBM/zoautil/lib/:/usr/lpp/rsusr/python39/lib:/lib:/usr/lib:.``.
-
-The value for the property **PATH** is the ZOA utilities BIN path and the Python
-interpreter path; for example,
-``/usr/lpp/IBM/zoautil/bin:/usr/lpp/rsusr/python39/bin/python:/bin``.
-
-The included sample variables file (zos_host.yml) contains variables specific to
-the playbook as well as the following:
+- **BPXK_AUTOCVT**: The value must be ``ON``.
+- **ZOAU_HOME**: The value of this property identifies the ZOA Utilities install root path. For example: ``/usr/lpp/IBM/zoautil``
+- **PYTHONPATH**: The value of this property identifies the ZOA Utilities Python library path. For example: ``/usr/lpp/IBM/zoautil/lib/``
+- **LIBPATH**: The value of this property specifies both the path to the Python libraries on the target and the ZOA Utilities Python library path, separated by colons ``:``. For example: ``/usr/lpp/IBM/zoautil/lib/:/usr/lpp/rsusr/python39/lib:/lib:/usr/lib:.``
+- **PATH**: The value of this property identifies the ZOA utilities BIN path and the Python interpreter path, separated by colons ``:``. For example: ``/usr/lpp/IBM/zoautil/bin:/usr/lpp/rsusr/python39/bin/python:/bin``
 
 .. code-block:: yaml
 
@@ -181,6 +167,10 @@ the playbook as well as the following:
    https://github.com/IBM/z_ansible_collections_samples/blob/main/zos_subsystems/cics/cmci/deploy_program/host_vars/zos_host.yml
 .. _deploy_program sample:
    https://github.com/IBM/z_ansible_collections_samples/blob/main/zos_subsystems/cics/cmci/deploy_program
+.. _variables.yml:
+   https://github.com/IBM/z_ansible_collections_samples/blob/main/zos_subsystems/cics/provisioning/host_vars/variables.yml
+.. _CICS provisioning:
+   https://github.com/IBM/z_ansible_collections_samples/tree/main/zos_subsystems/cics/provisioning
 
 
 
@@ -188,7 +178,9 @@ Module Defaults
 ---------------
 
 Ansible has a module defaults feature to use the same values during every use of
-a module, rather than repeating them everytime. Here we can set the host url and
+a module, rather than repeating them everytime.
+
+For example, when using CMCI modules to manage CICS and CICSPlex SM resources and definitions, you can set the host url and
 credentials of the **cmci_get** module to be the same throughout the playbook.
 
 .. code-block:: yaml
@@ -200,7 +192,7 @@ credentials of the **cmci_get** module to be the same throughout the playbook.
        cmci_password: "{{ cmci_password }}"
 
 
-If you wish to use the same values in **all** CMCI modules, you can assign them
+If you want to use the same values in **all** CMCI modules, you can assign them
 to the group called **cmci_group**.
 
 .. code-block:: yaml
@@ -211,6 +203,23 @@ to the group called **cmci_group**.
        cmci_port: "system.port.number"
        cmci_user: "my.username"
        cmci_password: "my.password"
+
+
+Likewise, you can easily apply a default set of CICS TS data sets and utilities for the provisioning or de-provisioning of CICS regions.
+If you want to use the same values in **all** CICS TS data set provisioning modules, you can assign them to the group called **region_group**.
+For example, the following **module_defaults** example indicates that the SDFHLOAD library of the CICS installation is created by default using the templated location of
+``CTS610.CICS740.<< data_set_name >>``, and the region data sets are to be created by using the templated location of ``{{ansible_user}}.REGIONS.{{applid}}.<< data_set_name >>``.
+
+.. code-block:: yaml
+
+   module_defaults:
+     group/ibm.ibm_zos_cics.region_group:
+       state: initial
+       cics_data_sets:
+         template: "CTS610.CICS740.<< data_set_name >>"
+       region_data_sets:
+         template: "{{ansible_user}}.REGIONS.{{applid}}.<< data_set_name >>"
+
 
 .. note::
    Group module defaults are only available in ``ansible-core`` 2.12 or later. If
