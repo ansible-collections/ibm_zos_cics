@@ -6,6 +6,9 @@
   gather_facts: false
   environment: "{{ environment_vars }}"
 
+  vars:
+    AUTOINSTALL_FAIL_MSG: "Shutdown command failed because the auto-install of the console was unsuccessful. See executions for full command output."
+
   module_defaults:
     group/ibm.ibm_zos_cics.region:
       cics_data_sets:
@@ -17,8 +20,7 @@
       space_type: "M"
 
   tasks:
-    - name: Skip whole test if Ansible version too low
-      when: ansible_version.minor > 11
+    - name: Failed stop
       block:
         - name: Create data sets (not CSD)
           ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
@@ -37,7 +39,6 @@
         - name: Stop CICS Region
           ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
           ignore_errors: true
-          register: stop_result
           vars:
             mode: normal
             expect_failure: true
@@ -45,17 +46,15 @@
         - name: Assert failure with message
           ansible.builtin.assert:
             that:
-              - stop_result.failed is true
-              - stop_result.msg == "Shutdown command failed because the auto-install of the console was unsuccessful. See executions for full command output."
-              - stop_result.changed is false
-              - "'executions' in stop_result"
-
+              - stop_output.failed is true
+              - stop_output.msg == "{{ AUTOINSTALL_FAIL_MSG }}"
+              - stop_output.changed is false
+              - "'executions' in stop_output"
       always:
         - name: Cancel and Delete job
           ansible.builtin.command:
-            cmd: "tsocmd CANCEL {{ start_region_applid }}({{ start_result.stdout }}) PURGE"
-          register: delete_result
-          changed_when: delete_result.rc == 0
+            cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
+          ignore_errors: true
         - name: Delete data sets
           ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
           vars:

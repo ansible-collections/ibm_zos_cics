@@ -17,9 +17,10 @@
       space_type: "M"
 
   tasks:
-    - name: Skip whole test if Ansible version too low
-      when: ansible_version.minor > 11
+    - name: Normal Start Stop
       block:
+      - name: Initial normal
+        block:
         - name: Create data sets
           ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
           vars:
@@ -33,6 +34,14 @@
           vars:
             mode: normal
 
+        always:
+          - name: Delete job
+            ansible.builtin.command:
+              cmd: "jcan P {{ start_region_applid }} {{ start_result.job_id }}"
+            ignore_errors: true
+
+      - name: Warm Immediate
+        block:
         - name: Warm CICS data sets
           ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
           vars:
@@ -46,6 +55,14 @@
           vars:
             mode: immediate
 
+        always:
+          - name: Delete job
+            ansible.builtin.command:
+              cmd: "jcan P {{ start_region_applid }} {{ start_result.job_id }}"
+            ignore_errors: true
+
+      - name: Normal Cancel
+        block:
         - name: Start CICS
           ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
 
@@ -53,6 +70,12 @@
           ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
           vars:
             mode: cancel
+
+        always:
+          - name: Delete job
+            ansible.builtin.command:
+              cmd: "jcan P {{ start_region_applid }} {{ start_result.job_id }}"
+            ignore_errors: true
 
       always:
         - name: Delete data sets
