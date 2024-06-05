@@ -170,26 +170,36 @@ from ansible.module_utils.basic import AnsibleModule
 CANCEL = 'cancel'
 IMMEDIATE = 'immediate'
 JOB_ID = 'job_id'
+JOB_NAME = 'job_name'
 MODE = 'mode'
 NORMAL = 'normal'
 NO_SDTRAN = 'no_sdtran'
 SDTRAN = 'sdtran'
+TIMEOUT = 'timeout'
+TIMEOUT_DEFAULT = -1
 
 
 class AnsibleStopCICSModule(object):
 
     def __init__(self):
         self._module = AnsibleModule(
-            argument_spec=self.init_argument_spec(), mutually_exclusive=[('sdtran', 'no_sdtran')],
+            argument_spec=self.init_argument_spec(),
+            mutually_exclusive=[(SDTRAN, NO_SDTRAN)],
+            required_one_of=[(JOB_ID, JOB_NAME)],
         )
         self.changed = False
         self.failed = False
+        self.msg = ""
         self.executions = []
 
     def main(self):
         if self._module.params.get(SDTRAN):
             self._validate_sdtran(self._module.params[SDTRAN])
-        self._module.exit_json()
+        if not self._module.params.get(JOB_ID) and not self._module.params.get(JOB_NAME):
+            self._fail("At least one of {0} or {1} must be specified".format(
+                JOB_ID, JOB_NAME))
+        self.result = self.get_result()
+        self._module.exit_json(**self.result)
 
     def _validate_sdtran(self, program):  # type: (str) -> None
         if len(program) > 4:
@@ -213,22 +223,31 @@ class AnsibleStopCICSModule(object):
         return {
             JOB_ID: {
                 'type': 'str',
-                'required': True,
+                'required': False,
+            },
+            JOB_NAME: {
+                'type': 'str',
+                'required': False,
             },
             MODE: {
                 'type': 'str',
                 'required': False,
                 'default': NORMAL,
-                'choices': [NORMAL, IMMEDIATE, CANCEL]
+                'choices': [NORMAL, IMMEDIATE, CANCEL],
             },
             SDTRAN: {
                 'type': 'str',
-                'required': False
+                'required': False,
             },
             NO_SDTRAN: {
                 'type': 'bool',
                 'required': False,
                 'default': False,
+            },
+            TIMEOUT: {
+                'type': 'int',
+                'required': False,
+                'default': TIMEOUT_DEFAULT,
             }
         }
 

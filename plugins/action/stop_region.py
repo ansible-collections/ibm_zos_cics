@@ -6,146 +6,376 @@ import re
 import logging
 from ansible.plugins.action import ActionBase
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.stop_region import (
-    JOB_ID, MODE, IMMEDIATE, CANCEL, SDTRAN, NO_SDTRAN)
+    JOB_ID,
+    MODE,
+    IMMEDIATE,
+    CANCEL,
+    SDTRAN,
+    NO_SDTRAN,
+    JOB_NAME,
+    TIMEOUT,
+    TIMEOUT_DEFAULT,
+)
 from ansible.errors import AnsibleActionFail
+from datetime import datetime, timedelta
 
-ACTIVE_AND_WAITING = 'CICS is still active... waiting for successful shutdown.'
-CANCEL_REGION = 'CANCEL {0}'
-CICS_NOT_ACTIVE = 'CICS region is not active.'
-CHECK_CICS_STATUS = 'z/OS Job Query - Checking status of job {0}'
-EXECUTIONS = 'executions'
-DEFAULT_SHUTDOWN = 'MODIFY {0},CEMT PERFORM SHUTDOWN'
-FAILED = 'failed'
-IMMEDIATE_SHUTDOWN = 'MODIFY {0},CEMT PERFORM SHUTDOWN IMMEDIATE'
-JOB_NAME = 'job_name'
-JOB_QUERY_FAILED = 'Job query failed.'
-MODULE_NAME = 'ibm.ibm_zos_cics.stop_region'
-NAME = 'name'
-RC = 'rc'
-RETURN = 'return'
-RUNNING_ATTEMPTING_TO_STOP = 'CICS is running, attempting to stop CICS.'
-SHUTDOWN_FAILED = 'Shutdown Failed'
-SHUTDOWN_REGION = 'Shutdown CICS'
-SHUTDOWN_SUCCESS = 'CICS has been shutdown.'
-SDTRAN_COMMAND = '{0} SDTRAN({1})'
-NO_SDTRAN_COMMAND = '{0} NOSDTRAN'
+logging.basicConfig(level=logging.DEBUG)
+
+ACTIVE_AND_WAITING = "CICS is still active... waiting for successful shutdown."
+CANCEL_REGION = "CANCEL {0}"
+CHECK_CICS_STATUS = "Checking status of job {0}"
+EXECUTIONS = "executions"
+DEFAULT_SHUTDOWN = "MODIFY {0},CEMT PERFORM SHUTDOWN"
+FAILED = "failed"
+CHANGED = "changed"
+MSG = "msg"
+EXECUTING = "EXECUTING"
+STATUS = "status"
+IMMEDIATE_SHUTDOWN = "MODIFY {0},CEMT PERFORM SHUTDOWN IMMEDIATE"
+STOP_MODULE_NAME = "ibm.ibm_zos_cics.stop_region"
+NAME = "name"
+RC = "rc"
+RETURN = "return"
+RUNNING_ATTEMPTING_TO_STOP = "CICS is running, attempting to stop CICS."
+SHUTDOWN_SUCCESS = "CICS has been shutdown."
+SDTRAN_COMMAND = "{0} SDTRAN({1})"
+NO_SDTRAN_COMMAND = "{0} NOSDTRAN"
+TSO_STATUS_COMMAND = "STATUS {0}"
+TSO_STATUS_ID_COMMAND = "STATUS {0}({1})"
 
 
 class ActionModule(ActionBase):
-
     def run(self, tmp=None, task_vars=None):
-        super(ActionModule, self).run(tmp, task_vars)
-        self.module_args = self._task.args.copy()
+        self._setup(tmp, task_vars)
+        self._execute_stop_module()
 
-        self.result = {
-            "failed": False,
-            "changed": False,
-            "msg": "",
-            "executions": [],
-        }
-
-        self.result.update(
-            self._execute_module(
-                module_name=MODULE_NAME,
-                module_args=self.module_args,
-                task_vars=task_vars,
-                tmp=tmp,
-            )
-        )
         if self.result.get(FAILED):
             return self.result
 
-        self._configure(task_vars)
+        self._parse_module_params()
 
         try:
-            self.shutdown_cics_region()
-        except (AnsibleActionFail, KeyError) as e:
-            self.result.update({"failed": True, "msg": e.args[0]})
+            self._get_job_data()
+        except AnsibleActionFail as e:
+            self.result.update(
+                {MSG: e.args[0], FAILED: True, CHANGED: False})
+            return self.result
+
+        if not self.job_id or not self.job_name or self.job_status != EXECUTING:
+            self.result.update({FAILED: False, CHANGED: False, })
+            return self.result
+
+        self.logger.debug(RUNNING_ATTEMPTING_TO_STOP)
+        try:
+            if self.stop_mode == CANCEL:
+                self._cancel_region()
+            else:
+                self._perform_shutdown()
+        except AnsibleActionFail as e:
+            self.result.update(
+                {MSG: e.args[0], FAILED: True, CHANGED: False})
+            return self.result
+
+        try:
+            self.wait_for_shutdown()
+            self.result.update({CHANGED: True})
+        except TimeoutError as e:
+            self.result.update({MSG: e.args[0], FAILED: True})
+
         return self.result
 
-    def _configure(self, task_vars):
+    def _cancel_region(self):
+        run_command_result = self.execute_cancel_shell_cmd(
+            self.job_name, self.job_id)
+        if not run_command_result.get(CHANGED) or run_command_result.get(RC) != 0:
+            raise AnsibleActionFail("Error running job cancel command")
+
+    def _perform_shutdown(self):
+        shutdown_command = format_shutdown_command(
+            self.job_name, self.stop_mode, self.sdtran, self.no_sdtran
+        )
+        shutdown_output = self.execute_zos_operator_cmd(shutdown_command)
+        get_console_errors(shutdown_output)
+
+    def _setup(self, tmp, task_vars):
+        super(ActionModule, self).run(tmp, task_vars)
         self.task_vars = task_vars
+        self.tmp = tmp
+        self.module_args = self._task.args.copy()
         self.logger = logging.getLogger(__name__)
-        logging.basicConfig(level=logging.DEBUG)
-        self.result = dict(changed=False, failed=False, executions=[])
 
-    def shutdown_cics_region(self):  # type: () -> None
-        region_running = self.is_job_running()
-        self.result[EXECUTIONS].append({NAME: CHECK_CICS_STATUS.format(self.module_args[JOB_ID]), RETURN: self.jobs})
-        if region_running:
-            self.logger.debug(RUNNING_ATTEMPTING_TO_STOP)
-            shutdown_result = self.run_shutdown_command(self.get_shutdown_command())
-            self.result[EXECUTIONS].append({NAME: SHUTDOWN_REGION, RC: shutdown_result.pop(RC), RETURN: shutdown_result})
+        self.result = {
+            FAILED: False,
+            CHANGED: False,
+            MSG: "",
+            EXECUTIONS: [],
+        }
 
-            self.get_console_errors(shutdown_result)
-            self.result["changed"] = True
+    def _execute_stop_module(self):
+        self.result.update(
+            self._execute_module(
+                module_name=STOP_MODULE_NAME,
+                module_args=self.module_args,
+                task_vars=self.task_vars,
+                tmp=self.tmp,
+            ))
 
-            self.wait_for_successful_shutdown()
-        else:
-            self.logger.debug(CICS_NOT_ACTIVE)
+    def _parse_module_params(self):
+        self.job_name = self.module_args.get(JOB_NAME)
+        self.job_id = self.module_args.get(JOB_ID)
+        self.stop_mode = self.module_args.get(MODE)
+        self.sdtran = self.module_args.get(SDTRAN)
+        self.no_sdtran = self.module_args.get(NO_SDTRAN)
+        self.timeout = self.module_args.get(TIMEOUT, TIMEOUT_DEFAULT)
+        self.job_status = EXECUTING
 
-    def get_console_errors(self, shutdown_result):
-        shutdown_stdout = "".join(shutdown_result.get("content", [])).replace(
-            " ", "").replace("\n", "").upper()
-        fail_pattern = r'CICSAUTOINSTALLFORCONSOLE[A-Z]{4}\d{4}HASFAILED'
-        ignore_pattern = r'CONSOLE[A-Z]{4}\d{4}HASNOTBEENDEFINEDTOCICS.INPUTISIGNORED'
+    def _get_job_data(self):
+        if self.job_id and self.job_name:
+            self.job_status = self._get_job_status()
+        elif self.job_name:
+            running_jobs = self._get_running_jobs()
 
-        if re.search(fail_pattern, shutdown_stdout):
+            if len(running_jobs) == 0:
+                self.job_status = "MISSING"
+                return
+            if len(running_jobs) > 1:
+                self.job_status = "MULTIPLE"
+                raise AnsibleActionFail(
+                    "Cannot ambiguate between multiple running jobs with the same name ({0}). Use `job_id` as a parameter to specify the correct job.".format(self.job_name))
+
+            self.job_id = running_jobs[0][JOB_ID]
+            self.job_status = running_jobs[0][STATUS]
+
+        elif self.job_id:
+            self.job_name = self._get_job_name_from_id()
+            self.job_status = self._get_job_status()
+
+    def _get_job_name_from_id(self):
+        job_query_response = self.execute_zos_job_query(self.job_id)
+        return _get_job_name_from_query(job_query_response, self.job_id)
+
+    def _get_job_status(self):
+        tso_status_response = self.execute_zos_tso_cmd(
+            TSO_STATUS_ID_COMMAND.format(self.job_name, self.job_id)
+        )
+        self._add_status_execution("{0}({1})".format(
+            self.job_name, self.job_id), tso_status_response)
+        job_status = _get_job_status_name_id(
+            tso_status_response, self.job_name, self.job_id
+        )
+
+        if job_status == "COMBINATION INVALID":
             raise AnsibleActionFail(
-                "Shutdown command failed because the auto-install of the console was unsuccessful. See executions for full command output.")
-        if re.search(ignore_pattern, shutdown_stdout):
-            raise AnsibleActionFail(
-                "Shutdown command failed because the console used was not defined. See executions for full command output.")
+                "No jobs found with name {0} and ID {1}".format(self.job_name, self.job_id))
+        return job_status
 
-    def wait_for_successful_shutdown(self):  # type: () -> None
-        region_running = self.is_job_running()
-        while region_running:
+    def _get_running_jobs(self):
+        tso_query_response = self.execute_zos_tso_cmd(
+            TSO_STATUS_COMMAND.format(self.job_name)
+        )
+        self._add_status_execution(self.job_name, tso_query_response)
+        jobs = _get_job_info_from_status(tso_query_response, self.job_name)
+        if len(jobs) == 0:
+            raise AnsibleActionFail(
+                "Job with name {0} not found".format(self.job_name))
+
+        running = []
+        for job in jobs:
+            if job[STATUS] == EXECUTING:
+                running.append(job)
+        return running
+
+    def _add_status_execution(self, job, result):
+        self.result[EXECUTIONS].append({
+            NAME: CHECK_CICS_STATUS.format(job),
+            RETURN: result,
+        })
+
+    def wait_for_shutdown(self):
+        end_time = calculate_end_time(
+            self.timeout) if self.timeout > 0 else None
+
+        self.result[EXECUTIONS].append({})
+        status = EXECUTING
+        while status == EXECUTING and (
+            get_datetime_now() < end_time if end_time else True
+        ):
             self.logger.debug(ACTIVE_AND_WAITING)
             time.sleep(15)
-            region_running = self.is_job_running()
+
+            tso_cmd_response = self.execute_zos_tso_cmd(
+                TSO_STATUS_ID_COMMAND.format(self.job_name, self.job_id)
+            )
+
+            self.result[EXECUTIONS].pop()
+            self._add_status_execution(self.job_id, tso_cmd_response)
+
+            status = _get_job_status_name_id(
+                tso_cmd_response, self.job_name, self.job_id
+            )
+
+        if status == EXECUTING:
+            raise TimeoutError(
+                "Timeout reached before region successfully stopped")
         self.logger.debug(SHUTDOWN_SUCCESS)
-        self.result[EXECUTIONS].append({NAME: CHECK_CICS_STATUS.format(self.module_args[JOB_ID]), RETURN: self.jobs})
 
-    def is_job_running(self):  # type: () -> bool
-        self.jobs = self._get_job_query_result()
-        if self.jobs.get(FAILED):
-            self.result[FAILED] = True
-            raise AnsibleActionFail(JOB_QUERY_FAILED)
-
-        # Get list of running jobs, if it's equal to 1, region is active, so return true
-        return len([job for job in self.jobs["jobs"] if job["ret_code"] is None]) == 1
-
-    def _get_job_query_result(self):  # type: () -> dict
-        return self._execute_module(module_name="ibm.ibm_zos_core.zos_job_query",
-                                    module_args={JOB_ID: self.module_args[JOB_ID]},
-                                    task_vars=self.task_vars)
-
-    def get_shutdown_command(self):  # type: () -> str
-        job_name = self.jobs['jobs'][0][JOB_NAME]
-
-        if self.module_args.get(MODE) == CANCEL:
-            return CANCEL_REGION.format(job_name)
-
-        shutdown_command = DEFAULT_SHUTDOWN.format(job_name)
-        if self.module_args.get(MODE) == IMMEDIATE:
-            shutdown_command = IMMEDIATE_SHUTDOWN.format(job_name)
-        return self._get_shutdown_assistant_command(shutdown_command)
-
-    def _get_shutdown_assistant_command(self, base_command):  # type: (str) -> str
-        if self.module_args.get(SDTRAN):
-            program = self.module_args[SDTRAN]
-            return SDTRAN_COMMAND.format(base_command, program.upper())
-        if self.module_args.get(NO_SDTRAN):
-            return NO_SDTRAN_COMMAND.format(base_command)
-        return base_command
-
-    def run_shutdown_command(self, cmd):  # type: (str) -> dict
-        shutdown_result = self._execute_module(
-            module_name="ibm.ibm_zos_core.zos_operator",
-            module_args={"cmd": cmd},
-            task_vars=self.task_vars
+    def execute_zos_tso_cmd(self, command):
+        return self._execute_module(
+            module_name="ibm.ibm_zos_core.zos_tso_command",
+            module_args={"commands": command},
+            task_vars=self.task_vars,
         )
-        if shutdown_result.get(FAILED):
-            self.result[FAILED] = True
-            raise AnsibleActionFail(SHUTDOWN_FAILED)
-        return shutdown_result
+
+    def execute_zos_job_query(self, job_id):
+        query_response = self._execute_module(
+            module_name="ibm.ibm_zos_core.zos_job_query",
+            module_args={JOB_ID: job_id},
+            task_vars=self.task_vars,
+        )
+        self.result[EXECUTIONS].append({
+            NAME: "ZOS Job Query - {0}".format(job_id),
+            RETURN: query_response
+        })
+        return query_response
+
+    def execute_zos_operator_cmd(self, command):
+        operator_response = self._execute_module(
+            module_name="ibm.ibm_zos_core.zos_operator",
+            module_args={"cmd": command},
+            task_vars=self.task_vars,
+        )
+        self.result[EXECUTIONS].append({
+            NAME: "ZOS Operator Command - {0}".format(command),
+            RETURN: operator_response,
+        })
+        return operator_response
+
+    def execute_cancel_shell_cmd(self, job_name, job_id):
+        # This is borrowed from the Ansible command/shell action plugins
+        # It's how they run commands from an action plugin on a remote
+        self._task.args = {
+            "_uses_shell": True,
+            "_raw_params": "jcan C {0} {1}".format(job_name, job_id),
+        }
+        command_action = self._shared_loader_obj.action_loader.get(
+            "ansible.legacy.command",
+            task=self._task,
+            connection=self._connection,
+            play_context=self._play_context,
+            loader=self._loader,
+            templar=self._templar,
+            shared_loader_obj=self._shared_loader_obj,
+        )
+        cancel_response = command_action.run(task_vars=self.task_vars)
+        self.result[EXECUTIONS].append({
+            NAME: "Cancel command - {0}({1})".format(job_name, job_id),
+            RETURN: cancel_response,
+        })
+        return cancel_response
+
+
+def get_datetime_now():
+    return datetime.now()
+
+
+def calculate_end_time(timeout_seconds: int) -> datetime:
+    now = get_datetime_now()
+    offset = timedelta(0, timeout_seconds)
+    return now + offset
+
+
+def format_cancel_command(job_name, job_id):
+    return "jcan C {0} {1}".format(job_name, job_id)
+
+
+def format_shutdown_command(job_name, stop_mode, sdtran=None, no_sdtran=None):
+    shutdown_command = DEFAULT_SHUTDOWN.format(job_name)
+    if stop_mode == IMMEDIATE:
+        shutdown_command = IMMEDIATE_SHUTDOWN.format(job_name)
+
+    if sdtran:
+        return SDTRAN_COMMAND.format(shutdown_command, sdtran.upper())
+    if no_sdtran:
+        return NO_SDTRAN_COMMAND.format(shutdown_command)
+
+    return shutdown_command
+
+
+def get_console_errors(shutdown_result):
+    shutdown_stdout = (
+        "".join(shutdown_result.get("content", []))
+        .replace(" ", "")
+        .replace("\n", "")
+        .upper()
+    )
+    fail_pattern = r"CICSAUTOINSTALLFORCONSOLE[A-Z]{4}\d{4}HASFAILED"
+    ignore_pattern = r"CONSOLE[A-Z]{4}\d{4}HASNOTBEENDEFINEDTOCICS.INPUTISIGNORED"
+
+    if re.search(fail_pattern, shutdown_stdout):
+        raise AnsibleActionFail(
+            "Shutdown command failed because the auto-install of the console was unsuccessful. See executions for full command output."
+        )
+    if re.search(ignore_pattern, shutdown_stdout):
+        raise AnsibleActionFail(
+            "Shutdown command failed because the console used was not defined. See executions for full command output."
+        )
+
+
+def _get_job_info_from_status(tso_query_response, job_name):
+    tso_response_content = tso_query_response["output"][0].get("content")
+    pattern = r"{0}".format(job_name)
+    job_strings = [
+        line for line in tso_response_content if re.search(pattern, line)]
+    jobs = []
+    for job in job_strings:
+        if (
+            "JOB {0} NOT FOUND".format(job_name) in job.upper()
+            or "STATUS {0}".format(job_name) in job.upper()
+        ):
+            continue
+        jobs.append({
+            JOB_NAME: job_name,
+            JOB_ID: job.split("(")[1].split(")")[0],
+            STATUS: job.split(")")[1].strip(),
+        })
+    return jobs
+
+
+def _get_job_name_from_query(job_query_response, job_id):
+    if job_query_response.get(FAILED):
+        raise AnsibleActionFail(
+            "Job query failed - {0}".format(
+                job_query_response.get("message", "(No failure message provided by zos_job_query)")))
+
+    jobs = job_query_response.get("jobs", [])
+
+    if len(jobs) == 0:
+        raise AnsibleActionFail("No jobs found with id {0}".format(job_id))
+    elif (
+        len(jobs) == 1
+        and jobs[0].get(JOB_NAME, "") == "*"
+        and jobs[0].get("ret_code", {}).get("msg", "") == "JOB NOT FOUND"
+    ):
+        raise AnsibleActionFail("No jobs found with id {0}".format(job_id))
+    elif len(jobs) > 1:
+        raise AnsibleActionFail(
+            "Multiple jobs found with ID {0}".format(job_id))
+
+    return jobs[0].get(JOB_NAME)
+
+
+def _get_job_status_name_id(tso_status_command_response, job_name, job_id):
+    if len(tso_status_command_response.get("output", [])) != 1:
+        raise AnsibleActionFail("Output not received for TSO STATUS command")
+
+    tso_response_content = tso_status_command_response["output"][0].get(
+        "content")
+    pattern = r"{0}\({1}\)".format(job_name, job_id)
+    jobs = [line for line in tso_response_content if re.search(pattern, line)]
+    if len(jobs) == 0:
+        raise AnsibleActionFail(
+            "No jobs found with name {0} and ID {1}".format(job_name, job_id)
+        )
+    if len(jobs) > 1:
+        raise AnsibleActionFail("Multiple jobs with name and ID found")
+    return jobs[0].split(")")[1].strip()
