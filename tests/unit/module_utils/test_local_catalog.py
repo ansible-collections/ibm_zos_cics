@@ -201,3 +201,5 @@ def test_bad_ccutl_response():
 
         assert error_message == "DFHCCUTL failed with RC 99"
         assert executions == expected_executions
+    else:
+        assert False

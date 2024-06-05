@@ -79,7 +79,9 @@ def test_data_set_with_override_but_no_dsn_key():
     try:
         _process_module_args(args_with_override, templar, "dfhlrq", task_vars, False)
     except KeyError as e:
-        assert e.args[0] == "No template or data set overide found for dfhlrq"
+        assert e.args[0] == "No template or data set override found for dfhlrq"
+    else:
+        assert False
 
 
 def test_data_set_with_override_but_no_dsn_value():
@@ -95,7 +97,9 @@ def test_data_set_with_override_but_no_dsn_value():
     try:
         _process_module_args(args_with_override, templar, "dfhlrq", task_vars, False)
     except KeyError as e:
-        assert e.args[0] == "No template or data set overide found for dfhlrq"
+        assert e.args[0] == "No template or data set override found for dfhlrq"
+    else:
+        assert False
 
 
 def test_data_set_without_override_or_template():
@@ -111,7 +115,9 @@ def test_data_set_without_override_or_template():
     try:
         _process_module_args(args_with_garbage, templar, "dfhlrq", task_vars, False)
     except KeyError as e:
-        assert e.args[0] == "No template or data set overide found for dfhlrq"
+        assert e.args[0] == "No template or data set override found for dfhlrq"
+    else:
+        assert False
 
 
 def test_data_set_with_unnecessary_cics_data_sets_arg():

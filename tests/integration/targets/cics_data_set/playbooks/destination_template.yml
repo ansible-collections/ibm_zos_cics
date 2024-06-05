@@ -150,7 +150,7 @@
           that:
             - result.failed is true
             - result.changed is false
-            - result.msg == "No template or data set overide found for DATA_SET_NAME_LOWER_B"
+            - result.msg == "No template or data set override found for DATA_SET_NAME_LOWER_B"
             - "'executions' in result"
             - "'start_state' in result"
             - "'end_state' in result"

@@ -95,3 +95,5 @@ def test__run_icetool_with_no_zoau_response():
     except MVSExecutionException as e:
         assert e.message == "ICETOOL Command output not recognised"
         assert e.executions == expected_executions
+    else:
+        assert False

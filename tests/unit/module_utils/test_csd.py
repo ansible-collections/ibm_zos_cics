@@ -330,6 +330,8 @@ def test_bad_csdup_response():
 
         assert error_message == "DFHCSDUP failed with RC 99"
         assert executions == expected_executions
+    else:
+        assert False
 
 
 def test_warning_csdup_response():
@@ -405,3 +407,5 @@ def test_rc_8_csdup_response():
 
         assert error_message == "DFHCSDUP failed with RC 8"
         assert executions == expected_executions
+    else:
+        assert False

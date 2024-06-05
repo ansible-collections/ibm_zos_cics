@@ -540,8 +540,8 @@ def test__write_jcl_to_data_set_fail():
         "stderr": "An error occurred during write of data set \"TEST.DATA.SET\". RC=99. "
     }]
 
-    try:
+    with pytest.raises(MVSExecutionException) as e:
         JCLHelper._write_jcl_to_data_set(jcl, data_set_name)
-    except MVSExecutionException as e:
-        assert e.message == "Failed to copy JCL content to data set"
-        assert e.executions == expected_executions
+
+    assert e.value.message == "Failed to copy JCL content to data set"
+    assert e.value.executions == expected_executions

@@ -209,6 +209,8 @@ def test__run_idcams_bad_return_code_when_creating():
     except MVSExecutionException as e:
         assert e.message == "RC 99 when creating data set"
         assert e.executions == expected_executions
+    else:
+        assert False
 
 
 def test__run_idcams_bad_return_code_when_deleting():
@@ -235,6 +237,8 @@ def test__run_idcams_bad_return_code_when_deleting():
     except MVSExecutionException as e:
         assert e.message == "RC 99 when deleting data set"
         assert e.executions == expected_executions
+    else:
+        assert False
 
 
 def test__run_listds_exists_vsam():
@@ -412,6 +416,8 @@ def test__run_listds_bad_rc():
     except MVSExecutionException as e:
         assert e.message == "RC 16 running LISTDS Command"
         assert e.executions == expected_executions
+    else:
+        assert False
 
 
 def test__run_listds_not_exists():
@@ -458,6 +464,8 @@ def test__run_listds_with_no_zoau_response():
     except MVSExecutionException as e:
         assert e.message == "LISTDS Command output not recognised"
         assert e.executions == expected_executions
+    else:
+        assert False
 
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE)
@@ -530,6 +538,8 @@ def test__run_iefbr14_bad_rc():
     except MVSExecutionException as e:
         assert e.message == "RC {0} when creating sequential data set".format(99)
         assert e.executions == expected_executions
+    else:
+        assert False
 
 
 def test__run_iefbr14_no_response():
@@ -573,6 +583,8 @@ def test__run_iefbr14_no_response():
     except MVSExecutionException as e:
         assert e.message == "IEFBR14 Command output not recognised"
         assert e.executions == expected_executions
+    else:
+        assert False
 
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE)
@@ -620,3 +632,5 @@ def test__read_data_set_content_bad_rc():
     except MVSExecutionException as e:
         assert e.message == "RC {0} when reading content from data set {1}".format(rc, data_set_name)
         assert e.executions == expected_executions
+    else:
+        assert False

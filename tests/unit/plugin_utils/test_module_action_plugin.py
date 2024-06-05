@@ -94,7 +94,9 @@ def test__process_region_data_set_args_without_template_or_override():
     try:
         _process_region_data_set_args(args_with_garbage, templar, "dfhgcd", task_vars)
     except KeyError as e:
-        assert e.args[0] == "No template or data set overide found for dfhgcd"
+        assert e.args[0] == "No template or data set override found for dfhgcd"
+    else:
+        assert False
 
 
 def test__validate_data_set_length():
@@ -110,6 +112,8 @@ def test__validate_data_set_length_too_long():
         _validate_data_set_length(ds_name)
     except ValueError as e:
         assert e.args[0] == "Data set: {0} is longer than 44 characters.".format(ds_name)
+    else:
+        assert False
 
 
 def test__validate_data_set_length_45_characters():
@@ -118,6 +122,8 @@ def test__validate_data_set_length_45_characters():
         _validate_data_set_length(ds_name)
     except ValueError as e:
         assert e.args[0] == "Data set: {0} is longer than 44 characters.".format(ds_name)
+    else:
+        assert False
 
 
 def test__validate_list_of_data_set_lengths():
@@ -131,6 +137,8 @@ def test__validate_list_of_data_set_lengths_one_too_long():
         _validate_list_of_data_set_lengths(ds_list)
     except ValueError as e:
         assert e.args[0] == "Data set: {0} is longer than 44 characters.".format("testdata.testdata.testdata.tests.intra.dfhintra")
+    else:
+        assert False
 
 
 def test__process_libraries_args_with_template():
@@ -153,6 +161,8 @@ def test__process_libraries_args_with_too_long_cics_data_set():
         _process_libraries_args(args_with_template, templar, task_vars, "cics_data_sets", "sdfhload")
     except ValueError as e:
         assert e.args[0] == "Data set: data.set.template.too.long.for.jcl.rules.SDFHLOAD is longer than 44 characters."
+    else:
+        assert False
     assert args_with_template["cics_data_sets"]["sdfhload"] == "data.set.template.too.long.for.jcl.rules.SDFHLOAD"
 
 
@@ -165,6 +175,8 @@ def test__process_libraries_args_with_too_long_le_data_set():
         _process_libraries_args(args_with_template, templar, task_vars, "le_data_sets", "sceecics")
     except ValueError as e:
         assert e.args[0] == "Data set: data.set.template.too.long.for.jcl.rules.SCEECICS is longer than 44 characters."
+    else:
+        assert False
     assert args_with_template["le_data_sets"]["sceecics"] == "data.set.template.too.long.for.jcl.rules.SCEECICS"
 
 
@@ -186,7 +198,9 @@ def test__process_libraries_args_without_template_or_override():
     try:
         _process_libraries_args(args_with_garbage, templar, task_vars, "cics_data_sets", "sdfhload")
     except KeyError as e:
-        assert e.args[0] == "No template or library overide found for sdfhload"
+        assert e.args[0] == "No template or library override found for sdfhload"
+    else:
+        assert False
 
 
 def test__check_template():

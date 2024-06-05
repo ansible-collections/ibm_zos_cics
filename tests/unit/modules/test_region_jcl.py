@@ -536,7 +536,6 @@ def test_check_parameter_is_provided_when_its_absent():
 def test_fail():
     prepare_for_fail()
     module = setup_and_update_parms({})
-    # assert module.result["failed"] is False
     expected_message = "Module failed for test"
     with pytest.raises(AnsibleFailJson) as message:
         module._fail(expected_message)

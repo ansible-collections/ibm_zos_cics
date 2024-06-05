@@ -196,7 +196,9 @@ def test_process_args_with_missing_overrides_no_template():
     try:
         _process_module_args(module_args, templar, task_vars)
     except KeyError as e:
-        assert e.args[0] == "No template or library overide found for sdfhauth"
+        assert e.args[0] == "No template or library override found for sdfhauth"
+    else:
+        assert False
 
 
 def test_process_args_with_one_missing_override_no_template():
@@ -217,7 +219,9 @@ def test_process_args_with_one_missing_override_no_template():
     try:
         _process_module_args(module_args, templar, task_vars)
     except KeyError as e:
-        assert e.args[0] == "No template or library overide found for sceerun"
+        assert e.args[0] == "No template or library override found for sceerun"
+    else:
+        assert False
 
 
 def test_process_args_with_missing_region_data_sets():
@@ -235,6 +239,8 @@ def test_process_args_with_missing_region_data_sets():
         _process_module_args(module_args, templar, task_vars)
     except KeyError as e:
         assert e.args[0] == "Required argument region_data_sets not found"
+    else:
+        assert False
 
 
 def test_process_args_with_missing_dsn_key():
@@ -264,7 +270,9 @@ def test_process_args_with_missing_dsn_key():
     try:
         _process_module_args(module_args, templar, task_vars)
     except KeyError as e:
-        assert e.args[0] == "No template or data set overide found for dfhgcd"
+        assert e.args[0] == "No template or data set override found for dfhgcd"
+    else:
+        assert False
 
 
 def test_process_args_with_missing_dsn_value():
@@ -294,7 +302,9 @@ def test_process_args_with_missing_dsn_value():
     try:
         _process_module_args(module_args, templar, task_vars)
     except KeyError as e:
-        assert e.args[0] == "No template or data set overide found for dfhgcd"
+        assert e.args[0] == "No template or data set override found for dfhgcd"
+    else:
+        assert False
 
 
 def test_process_args_with_only_template_and_optional_cpsm_arg():
