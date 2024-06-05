@@ -9,22 +9,22 @@ __metaclass__ = type
 
 DOCUMENTATION = r"""
 ---
-module: start_cics
-short_description: Start a CICS region
+module: region_jcl
+short_description: Create CICS region JCL data set
 description:
-  - Start a CICS® region by providing CICS system data sets and system initialization parameters for CICS startup using the C(DFHSIP) program.
+  - Create a data set containing JCL to start a CICS® region by providing CICS system data sets and
+    system initialization parameters for CICS startup using the C(DFHSIP) program.
 author: Kiera Bennett (@KieraBennett)
 version_added: 1.1.0-beta.5
 seealso:
   - module: stop_cics
 extends_documentation_fragment:
-  - ibm.ibm_zos_cics.start_cics.documentation
+  - ibm.ibm_zos_cics.region_jcl.documentation
 """
 
 EXAMPLES = r"""
-- name: Start CICS
-  ibm.ibm_zos_cics.start_cics:
-    submit_jcl: True
+- name: Create CICS region JCL data set
+  ibm.ibm_zos_cics.region_jcl:
     applid: ABC9ABC1
     cics_data_sets:
       template: 'CICSTS61.CICS.<< lib_name >>'
@@ -57,9 +57,8 @@ EXAMPLES = r"""
       wrkarea: 2048
       sysidnt: ZPY1
 
-- name: Start CICS with more customization
+- name: Create CICS region JCL data set with more customization
   ibm.ibm_zos_cics.start_cics:
-    submit_jcl: True
     applid: ABC9ABC1
     job_parameters:
       class: A
@@ -114,25 +113,46 @@ EXAMPLES = r"""
 
 RETURN = r"""
   changed:
-    description: True if the CICS startup JCL was submitted, otherwise False.
+    description: True if the CICS startup JCL data set was created, otherwise False.
     returned: always
     type: bool
   failed:
     description: True if the Ansible task failed, otherwise False.
     returned: always
     type: bool
+  start_state:
+    description:
+        - The state of the CICS startup JCL data set before the Ansible task runs.
+    returned: always
+    type: dict
+    contains:
+      data_set_organization:
+        description: The organization of the data set at the start of the Ansible task.
+        returned: always
+        type: str
+        sample: "Sequential"
+      exists:
+        description: True if the CICS startup JCL data set exists.
+        type: bool
+        returned: always
+  end_state:
+    description: The state of the CICS startup JCL data set at the end of the Ansible task.
+    returned: always
+    type: dict
+    contains:
+      data_set_organization:
+        description: The organization of the data set at the end of the Ansible task.
+        returned: always
+        type: str
+        sample: "Sequential"
+      exists:
+        description: True if the CICS startup JCL data set exists.
+        type: bool
+        returned: always
   jcl:
     description: The CICS startup JCL that is built during module execution.
     returned: always
     type: list
-  job_id:
-    description: The job ID of the CICS startup job.
-    returned: If the CICS startup JCL has been submitted.
-    type: str
-  err:
-    description: The error message returned when building the JCL.
-    returned: always
-    type: str
   executions:
     description: A list of program executions performed during the Ansible task.
     returned: always
@@ -161,16 +181,35 @@ RETURN = r"""
     type: str
 """
 
-
-from ansible.module_utils.basic import AnsibleModule
+import string
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import (
+    MEGABYTES,
+    REGION_DATA_SETS,
+    CICS_DATA_SETS,
+    SPACE_PRIMARY,
+    SPACE_SECONDARY,
+    SPACE_TYPE,
+    ABSENT,
+    INITIAL,
+    WARM,
+    DataSet
+)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import _read_data_set_content
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._jcl_helper import (
     JCLHelper, DLM, DD_INSTREAM, CONTENT, END_INSTREAM, JOB_CARD, EXECS, JOB_NAME, DDS, NAME
 )
-import string
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException
 
+
+DFHSTART = "dfhstart"
+SPACE_PRIMARY_DEFAULT = 5
+SPACE_SECONDARY_DEFAULT = 3
+
+
+region_data_sets_list = ['dfhauxt', 'dfhbuxt', 'dfhcsd', 'dfhgcd', 'dfhintra',
+                         'dfhlcd', 'dfhlrq', 'dfhtemp', 'dfhdmpa', 'dfhdmpb', 'dfhstart']
 APPLID = 'applid'
-CICS_DATA_SETS = 'cics_data_sets'
 CEEMSG = 'ceemsg'
 CEEOUT = 'ceeout'
 CPSM_DATA_SETS = 'cpsm_data_sets'
@@ -190,7 +229,6 @@ MSGUSR = 'msgusr'
 OMIT = 'omit'
 OUTPUT_DATA_SETS = 'output_data_sets'
 PGM = 'pgm'
-REGION_DATA_SETS = 'region_data_sets'
 SIT_PARAMETERS = 'sit_parameters'
 SHR = 'SHR'
 STEPLIB = 'steplib'
@@ -202,39 +240,144 @@ SYSUDUMP = 'sysudump'
 TEMPLATE = 'template'
 TOP_DATA_SETS = 'top_data_sets'
 
-region_data_sets_list = ['dfhauxt', 'dfhbuxt', 'dfhcsd', 'dfhgcd', 'dfhintra',
-                         'dfhlcd', 'dfhlrq', 'dfhtemp', 'dfhdmpa', 'dfhdmpb']
 
-
-class AnsibleStartCICSModule(object):
-
+class AnsibleRegionJCLModule(DataSet):
     def __init__(self):
+        self.jcl = ""
+        super(AnsibleRegionJCLModule, self).__init__(SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT)
+        self.name = self.region_param[DFHSTART][DSN].upper()
+        self.expected_data_set_organization = "Sequential"
         self.dds = []
-        self._module = AnsibleModule(
-            argument_spec=self.init_argument_spec()
-        )
-        self.module_args = self._module.params
-        self.result = dict(jcl=[], changed=False, failed=False, err="", executions=[])
         self.jcl_helper = JCLHelper()
 
-    def main(self):
-        self.validate_parameters()
+    def get_result(self):  # type: () -> dict
+        result = super().get_result()
+        result.update({
+            "jcl": self.jcl
+        })
+        return result
+
+    def _get_arg_spec(self):  # type: () -> dict
+        arg_spec = super(AnsibleRegionJCLModule, self)._get_arg_spec()
+
+        arg_spec[SPACE_PRIMARY].update({
+            "default": SPACE_PRIMARY_DEFAULT
+        })
+        arg_spec[SPACE_SECONDARY].update({
+            "default": SPACE_SECONDARY_DEFAULT
+        })
+        arg_spec[SPACE_TYPE].update({
+            "default": MEGABYTES
+        })
+        # Add all the unique arguments for the module
+        arg_spec.update(self.init_argument_spec())
+        return arg_spec
+
+    def get_arg_defs(self):  # type: () -> dict
+        defs = super().get_arg_defs()
+        defs.update(self.init_argument_spec())
+        self.batch_update_arg_defs_for_ds(defs, REGION_DATA_SETS, region_data_sets_list, True)
+        self.batch_update_arg_defs_for_ds(defs, CICS_DATA_SETS, ["sdfhauth", "sdfhlic", "sdfhload"])
+        self.batch_update_arg_defs_for_ds(defs, LE_DATA_SETS, ["sceecics", "sceerun", "sceerun2"])
+        self.batch_update_arg_defs_for_ds(defs, CPSM_DATA_SETS, ["seyuload", "seyuauth"])
+        defs[STEPLIB]["options"][TOP_DATA_SETS].update({"elements": "data_set_base"})
+        defs[STEPLIB]["options"][DATA_SETS].update({"elements": "data_set_base"})
+        defs[DFHRPL]["options"][TOP_DATA_SETS].update({"elements": "data_set_base"})
+        defs[DFHRPL]["options"][DATA_SETS].update({"elements": "data_set_base"})
+        self.update_arg_def(defs[APPLID], "qualifier")
+        if defs.get(JOB_PARAMETERS):
+            if defs[JOB_PARAMETERS]["options"].get(JOB_NAME):
+                # If they've provided a job_name we need to validate this too
+                self.update_arg_def(defs[JOB_PARAMETERS]["options"][JOB_NAME], "qualifier")
+        # Popping sit parameters as these dont need validation and it will complain at arbitary keys.
+        defs.pop(SIT_PARAMETERS)
+        return defs
+
+    def batch_update_arg_defs_for_ds(self, defs, key, list_of_args_to_update, dsn=False):
+        for arg in list_of_args_to_update:
+            if dsn:
+                self.update_arg_def(defs[key]["options"][arg]["options"][DSN])
+            else:
+                self.update_arg_def(defs[key]["options"][arg])
+
+    def update_arg_def(self, dict_to_update, arg_type="data_set_base"):
+        dict_to_update.update({"arg_type": arg_type})
+        dict_to_update.pop("type")
+
+    def create_data_set(self):  # type: () -> None
+        data_set_def = DatasetDefinition(
+            dataset_name=self.name,
+            primary=self.primary,
+            secondary=self.secondary,
+            primary_unit=self.unit,
+            secondary_unit=self.unit,
+            volumes=self.volumes,
+            block_size=4096,
+            record_length=80,
+            record_format="FB",
+            disposition="NEW",
+            normal_disposition="CATALOG",
+            conditional_disposition="DELETE",
+            type="SEQ"
+        )
+
+        super().build_seq_data_set(DFHSTART, data_set_def)
+        self.write_jcl()
+
+    def generate_jcl(self):
         self._build_data_structure_of_arguments()
         self.jcl_helper.render_jcl()
+        self.jcl = "\n".join(self.jcl_helper.jcl)
 
-        jcl = self.jcl_helper.jcl
-        self._submit_jcl(jcl)
-        self.result["jcl"] = jcl
-        self._module.exit_json(**self.result)
+    def write_jcl(self):
+        try:
+            jcl_writer_execution = JCLHelper._write_jcl_to_data_set(self.jcl, self.name)
+            self.executions.extend(jcl_writer_execution)
+        except MVSExecutionException as e:
+            self.executions.extend(e.executions)
+            super()._fail(e.message)
+
+    def init_data_set(self):
+        self.generate_jcl()
+        if self.exists:
+            super().delete_data_set()
+            super().update_data_set_state()
+            self.create_data_set()
+        else:
+            self.create_data_set()
+
+    def warm_target_state(self):
+        if self.exists:
+            self.generate_jcl()
+            try:
+                jcl_writer_execution, jcl_data = _read_data_set_content(self.name)
+                self.executions.extend(jcl_writer_execution)
+                if jcl_data.strip() != self.jcl.strip():
+                    super()._fail("Data set {0} does not contain the expected Region JCL.".format(self.name))
+            except MVSExecutionException as e:
+                self.executions.extend(e.executions)
+                super()._fail(e.message)
+        else:
+            super()._fail("Data set {0} does not exist.".format(self.name))
+
+    def execute_target_state(self):   # type: () -> None
+        if self.target_state == ABSENT:
+            super().delete_data_set()
+        elif self.target_state == INITIAL:
+            self.init_data_set()
+        elif self.target_state == WARM:
+            self.warm_target_state()
+        else:
+            super().invalid_target_state()
 
     def _build_data_structure_of_arguments(self):
-        self._remove_none_values_from_dict(self.module_args)
+        self._remove_none_values_from_dict(self._module.params)
         self._populate_job_card_dict()
         self._populate_exec_dict()
 
     def _populate_job_card_dict(self):
-        job_name = self.module_args[APPLID]
-        self.jcl_helper.job_data[JOB_CARD] = self.module_args.get(JOB_PARAMETERS, {JOB_NAME: job_name})
+        job_name = self._module.params[APPLID]
+        self.jcl_helper.job_data[JOB_CARD] = self._module.params.get(JOB_PARAMETERS, {JOB_NAME: job_name})
         if self.jcl_helper.job_data[JOB_CARD].get(JOB_NAME) is None:
             self.jcl_helper.job_data[JOB_CARD].update({JOB_NAME: job_name})
 
@@ -254,16 +397,16 @@ class AnsibleStartCICSModule(object):
         return self.dds
 
     def _copy_libraries_to_steplib_and_dfhrpl(self):
-        steplib_args = {"cics_data_sets": ["sdfhauth", "sdfhlic"], "cpsm_data_sets": ["seyuauth"], "le_data_sets": ["sceerun", "sceerun2"]}
-        dfhrpl_args = {"cics_data_sets": ["sdfhload"], "cpsm_data_sets": ["seyuload"], "le_data_sets": ["sceecics", "sceerun", "sceerun2"]}
-        self._copy_libraries(steplib_args, "steplib")
-        self._copy_libraries(dfhrpl_args, "dfhrpl")
+        steplib_args = {CICS_DATA_SETS: ["sdfhauth", "sdfhlic"], CPSM_DATA_SETS: ["seyuauth"], LE_DATA_SETS: ["sceerun", "sceerun2"]}
+        dfhrpl_args = {CICS_DATA_SETS: ["sdfhload"], CPSM_DATA_SETS: ["seyuload"], LE_DATA_SETS: ["sceecics", "sceerun", "sceerun2"]}
+        self._copy_libraries(steplib_args, STEPLIB)
+        self._copy_libraries(dfhrpl_args, DFHRPL)
 
     def _copy_libraries(self, libraries_to_copy, target_arg):
         for lib_type, list_of_libs in libraries_to_copy.items():
             for lib in list_of_libs:
-                if self.module_args.get(lib_type) and self.module_args[lib_type].get(lib):
-                    self.module_args[target_arg][TOP_DATA_SETS].append(self.module_args[lib_type][lib].upper())
+                if self._module.params.get(lib_type) and self._module.params[lib_type].get(lib):
+                    self._module.params[target_arg][TOP_DATA_SETS].append(self._module.params[lib_type][lib].upper())
 
     def _add_exec_parameters(self, exec_data):
         if self._check_parameter_is_provided(SIT_PARAMETERS):
@@ -281,10 +424,10 @@ class AnsibleStartCICSModule(object):
 
     def _get_delimiter(self, content):
         # If they've used the instream delimiter in their instream data
-        if AnsibleStartCICSModule._check_for_existing_dlm_within_content(content):
+        if AnsibleRegionJCLModule._check_for_existing_dlm_within_content(content):
             dlm = self._find_unused_character(content)
             if dlm is None:
-                self._fail(
+                super()._fail(
                     "Cannot replace instream delimiter as all character instances have been used.")
             # Return a new delimiter so that they dont accidentally terminate their instream early.
             return dlm
@@ -300,12 +443,12 @@ class AnsibleStartCICSModule(object):
         for line in content:
             first_two_chars_in_line = line[:2]
             char_combinations_present.add(first_two_chars_in_line)
-        combination = AnsibleStartCICSModule._get_unused_combination_of_chars(
+        combination = AnsibleRegionJCLModule._get_unused_combination_of_chars(
             char_combinations_present, preferred_dlms)
         if combination:
             return combination
         else:
-            return AnsibleStartCICSModule._get_unused_combination_of_chars(char_combinations_present,
+            return AnsibleRegionJCLModule._get_unused_combination_of_chars(char_combinations_present,
                                                                            all_chars)
 
     @staticmethod
@@ -327,15 +470,15 @@ class AnsibleStartCICSModule(object):
     def _validate_content(self, content):
         for current_item in content:
             if DD_INSTREAM in current_item.upper():
-                self._fail("Invalid content for an in-stream: {0}".format(DD_INSTREAM))
+                super()._fail("Invalid content for an in-stream: {0}".format(DD_INSTREAM))
             if DD_DATA in current_item.upper():
-                self._fail("Invalid content for an in-stream: {0}".format(DD_DATA))
+                super()._fail("Invalid content for an in-stream: {0}".format(DD_DATA))
 
     def _add_output_data_sets(self):
         output_data_sets = [CEEMSG, CEEOUT, MSGUSR, SYSPRINT, SYSUDUMP, SYSABEND, SYSOUT,
                             DFHCXRF, LOGUSR]
 
-        user_provided_data_sets = self.module_args.get(OUTPUT_DATA_SETS, {})
+        user_provided_data_sets = self._module.params.get(OUTPUT_DATA_SETS, {})
         default_class = user_provided_data_sets.pop(DEFAULT_SYSOUT_CLASS, '*')
 
         for data_set in output_data_sets:
@@ -361,12 +504,13 @@ class AnsibleStartCICSModule(object):
             user_provided_data_sets[data_set] = {SYSOUT: default_class.upper()}
 
     def _add_per_region_data_sets(self):
-        data_set_dict = self.module_args.get(REGION_DATA_SETS)
+        data_set_dict = self._module.params.get(REGION_DATA_SETS)
 
         for dd_name, parameters in data_set_dict.items():
-            parameters[DSN] = parameters[DSN].upper()
-            parameters[DISP] = SHR
-            self.dds.append({dd_name: [parameters]})
+            if dd_name != "dfhstart":
+                parameters[DSN] = parameters[DSN].upper()
+                parameters[DISP] = SHR
+                self.dds.append({dd_name: [parameters]})
 
     def _add_libraries(self, data_sets):
         dsn_dict = []
@@ -377,13 +521,13 @@ class AnsibleStartCICSModule(object):
 
     def _add_sit_parameters(self):
         if self._check_parameter_is_provided(SIT_PARAMETERS):
-            self.module_args[SIT_PARAMETERS][APPLID] = self.module_args[APPLID]
+            self._module.params[SIT_PARAMETERS][APPLID] = self._module.params[APPLID]
             sit_parms = self._manage_dictionaries_in_sit_parameters(
-                self.module_args[SIT_PARAMETERS])
+                self._module.params[SIT_PARAMETERS])
             list_of_strings = JCLHelper._concatenate_key_value_pairs_into_list(
                 sit_parms)
             self._validate_content(list_of_strings)
-            wrapped_content = AnsibleStartCICSModule._wrap_sit_parameters(list_of_strings)
+            wrapped_content = AnsibleRegionJCLModule._wrap_sit_parameters(list_of_strings)
             dlm = self._get_delimiter(wrapped_content)
             if dlm:
                 self.dds.append(
@@ -408,28 +552,14 @@ class AnsibleStartCICSModule(object):
             dictionary.pop(key)
         return dictionary
 
-    def _submit_jcl(self, jcl):
-        if self.module_args.get("submit_jcl"):
-            # Submit the JCL using ZOAU jsub
-            try:
-                jcl = "\n".join(jcl)
-                rc, stdout, stderr = self._module.run_command(["echo", jcl], handle_exceptions=False)
-                rc, stdout, stderr = self._module.run_command(["jsub"], data=stdout, handle_exceptions=False)
-                self.result["changed"] = True
-                self.result["executions"].append({"name": "z/OS Job Submit - Submit CICS Startup JCL",
-                                                  "stdout": stdout, "stderr": stderr, "rc": rc})
-                self.result["job_id"] = stdout.strip('\n')
-            except Exception as e:
-                self._fail("Failed to submit jcl - {0}".format(str(e)))
-
     def _validate_dictionary_value_within_sit_parms(self, sit_param_key_with_trailing_x, chars_to_replace_trailing_x):
         number_of_x_chars = len(sit_param_key_with_trailing_x) - len(sit_param_key_with_trailing_x.rstrip('x'))
 
         if sit_param_key_with_trailing_x.upper() == "SKRXXXX":
             if len(chars_to_replace_trailing_x) != 3 and len(chars_to_replace_trailing_x) != 4:
-                self._fail("Invalid key: {0}. Key must be a length of 3 or 4.".format(chars_to_replace_trailing_x))
+                super()._fail("Invalid key: {0}. Key must be a length of 3 or 4.".format(chars_to_replace_trailing_x))
         elif len(chars_to_replace_trailing_x) != number_of_x_chars:
-            self._fail("Invalid key: {0}. Key must be the same length as the x's within {1}.".format(
+            super()._fail("Invalid key: {0}. Key must be the same length as the x's within {1}.".format(
                 chars_to_replace_trailing_x, sit_param_key_with_trailing_x))
 
     def _remove_none_values_from_dict(self, dictionary):
@@ -440,60 +570,17 @@ class AnsibleStartCICSModule(object):
                 self._remove_none_values_from_dict(v)
 
     def _check_parameter_is_provided(self, parameter_name):
-        if self.module_args.get(parameter_name) is None or self.module_args.get(parameter_name) is {}:
+        if self._module.params.get(parameter_name) is None or self._module.params.get(parameter_name) is {}:
             return False
         return True
-
-    def _fail(self, msg):
-        self.result["failed"] = True
-        self._module.fail_json(msg=msg, **self.result)
 
     def _concat_libraries(self, ds_name):
         data_sets = []
         data_set_types = [TOP_DATA_SETS, DATA_SETS]
         for data_set_name in data_set_types:
-            if self.module_args.get(ds_name).get(data_set_name):
-                data_sets.extend(self.module_args[ds_name][data_set_name])
+            if self._module.params.get(ds_name).get(data_set_name):
+                data_sets.extend(self._module.params[ds_name][data_set_name])
         return data_sets
-
-    def validate_parameters(self):
-        try:
-            BetterArgParser(self.get_arg_defs()).parse_args(self.module_args)
-        except ValueError as e:
-            self._fail(e.args[0])
-
-    def get_arg_defs(self):
-        defs = self.init_argument_spec()
-        # Setting arg_type to be the correct type required for the validation within BetterArgParser
-        self.batch_update_arg_defs_for_ds(defs, REGION_DATA_SETS, region_data_sets_list, True)
-        self.batch_update_arg_defs_for_ds(defs, CICS_DATA_SETS, ["sdfhauth", "sdfhlic", "sdfhload"])
-        self.batch_update_arg_defs_for_ds(defs, LE_DATA_SETS, ["sceecics", "sceerun", "sceerun2"])
-        self.batch_update_arg_defs_for_ds(defs, CPSM_DATA_SETS, ["seyuload", "seyuauth"])
-        defs[STEPLIB]["options"][TOP_DATA_SETS].update({"elements": "data_set_base"})
-        defs[STEPLIB]["options"][DATA_SETS].update({"elements": "data_set_base"})
-        defs[DFHRPL]["options"][TOP_DATA_SETS].update({"elements": "data_set_base"})
-        defs[DFHRPL]["options"][DATA_SETS].update({"elements": "data_set_base"})
-
-        # Qualifier is the arg type for things like Applid's, job names which follow the 8 character rule.
-        self.update_arg_def(defs[APPLID], "qualifier")
-        if defs.get("job_parameters"):
-            if defs["job_parameters"]["options"].get(JOB_NAME):
-                # If they've provided a job_name we need to validate this too
-                self.update_arg_def(defs["job_parameters"]["options"][JOB_NAME], "qualifier")
-        # Popping sit parameters as these dont need validation and it will complain at arbitary keys.
-        defs.pop(SIT_PARAMETERS)
-        return defs
-
-    def batch_update_arg_defs_for_ds(self, defs, key, list_of_args_to_update, dsn=False):
-        for arg in list_of_args_to_update:
-            if dsn:
-                self.update_arg_def(defs[key]["options"][arg]["options"][DSN])
-            else:
-                self.update_arg_def(defs[key]["options"][arg])
-
-    def update_arg_def(self, dict_to_update, arg_type="data_set_base"):
-        dict_to_update.update({"arg_type": arg_type})
-        dict_to_update.pop("type")
 
     @staticmethod
     def _wrap_sit_parameters(content):
@@ -504,7 +591,7 @@ class AnsibleStartCICSModule(object):
         for line in content:
             wrapped = False
             for sit_parm in wrappable_sit_parameters:
-                extracted_sit_parameter_from_line = AnsibleStartCICSModule._find_sit_parm_key(line)
+                extracted_sit_parameter_from_line = AnsibleRegionJCLModule._find_sit_parm_key(line)
                 if extracted_sit_parameter_from_line == sit_parm:
                     if len(line) > 80:
                         # If the lines too long, break after character 80 and put 80 character chunks into the list.
@@ -530,7 +617,6 @@ class AnsibleStartCICSModule(object):
                 'type': 'dict',
                 'required': False,
                 'options': {
-
                     'accounting_information': {
                         'type': 'dict',
                         'required': False,
@@ -622,11 +708,6 @@ class AnsibleStartCICSModule(object):
             APPLID: {
                 'type': 'str',
                 'required': True,
-            },
-            'submit_jcl': {
-                'type': 'bool',
-                'required': False,
-                'default': False,
             },
             CICS_DATA_SETS: {
                 'type': 'dict',
@@ -830,6 +911,16 @@ class AnsibleStartCICSModule(object):
                             },
                         }
                     },
+                    'dfhstart': {
+                        'type': 'dict',
+                        'required': False,
+                        'options': {
+                            DSN : {
+                                'type': 'str',
+                                'required': False
+                            }
+                        }
+                    }
                 }
             },
             OUTPUT_DATA_SETS: {
@@ -2133,7 +2224,7 @@ class AnsibleStartCICSModule(object):
 
 
 def main():
-    AnsibleStartCICSModule().main()
+    AnsibleRegionJCLModule().main()
 
 
 if __name__ == '__main__':

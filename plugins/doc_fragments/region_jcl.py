@@ -11,6 +11,62 @@ class ModuleDocFragment(object):
 
     DOCUMENTATION = r"""
 options:
+  space_primary:
+    description:
+      - The size of the primary space allocated to the CICS startup JCL data set.
+        Note that this is just the value; the unit is specified with O(space_type).
+      - This option takes effect only when the CICS startup JCL data set is being created.
+        If the CICS startup JCL data set already exists, the option has no effect.
+    type: int
+    required: false
+    default: 5
+  space_secondary:
+    description:
+      - The size of the secondary space allocated to the CICS startup JCL data set.
+        Note that this is just the value; the unit is specified with O(space_type).
+      - This option takes effect only when the CICS startup JCL data set is being created.
+        If the CICS startup JCL data set already exists, the option has no effect.
+    type: int
+    required: false
+    default: 3
+  space_type:
+    description:
+      - The unit portion of the CICS startup JCL data set size. Note that this is
+        just the unit; the value for the primary space is specified with O(space_primary)
+        and the value for the secondary space is specified with O(space_secondary).
+      - This option takes effect only when the CICS startup JCL data set is being created.
+        If the CICS startup JCL data set already exists, the option has no effect.
+      - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
+        cylinders (V(CYL)), or tracks (V(TRK)).
+    required: false
+    type: str
+    choices:
+      - M
+      - K
+      - CYL
+      - TRK
+    default: M
+  volumes:
+    description:
+      - The volume(s) where the data set is created. Use a string to define a singular volume or a list of strings for multiple volumes.
+    type: raw
+    required: false
+  state:
+    description:
+      - The intended state for the CICS startup JCL data set, which the module aims to achieve.
+      - Specify V(absent) to remove the CICS startup JCL data set entirely, if it already exists.
+      - Specify V(initial) to create the CICS startup JCL data set if it does not already exist.
+      - Specify V(warm) to retain an existing CICS startup JCL data set in its current state.
+        The module verifies whether the specified data set exists and whether it matches the
+        generated startup JCL.
+        If both conditions are met, the module leaves the data set as is.
+        If the data set does not exist or does not match, the operation fails.
+    choices:
+      - "initial"
+      - "absent"
+      - "warm"
+    required: true
+    type: str
   job_parameters:
     description:
         - Specifies various parameters to be applied to the CICS startup job.
@@ -152,12 +208,6 @@ options:
       - The name of your z/OS Communications Server application identifier for this CICS region.
     type: str
     required: true
-  submit_jcl:
-    description:
-      - Specify whether or not you want the CICS startup job to be submitted.
-    type: bool
-    required: false
-    default: false
   cics_data_sets:
     description:
       - The data set names of the C(SDFHAUTH), C(SDFHLOAD) and C(SDFHLIC) libraries, for example,
@@ -392,6 +442,17 @@ options:
           dsn:
             description:
               - The data set name of the temporary storage to override the template.
+            type: str
+            required: false
+      dfhstart:
+        description:
+          - Overrides the templated location for the JCL data set.
+        required: false
+        type: dict
+        suboptions:
+          dsn:
+            description:
+              - The data set name of the JCL data set to override the template.
             type: str
             required: false
   output_data_sets:

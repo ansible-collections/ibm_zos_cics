@@ -78,3 +78,34 @@
   register: result
   retries: 3
   until: result is not failed
+
+- name: Create start CICS JCL
+  ibm.ibm_zos_cics.region_jcl:
+    state: "{{ data_set_state }}"
+    applid: "{{ start_region_applid }}"
+    job_parameters:
+      region: 0M
+    cics_data_sets:
+      template: "{{ cics_install_path }}.<< lib_name >>"
+      sdfhlic: "{{ cics_install_path }}.LIC.SDFHLIC"
+    le_data_sets:
+      template: "{{ le_path }}.<< lib_name >>"
+    region_data_sets:
+      template: "{{ region_data_set_path }}.<< data_set_name >>"
+    cpsm_data_sets:
+      template: "{{ cpsm_data_set_path }}.<< lib_name >>"
+    sit_parameters:
+      start: AUTO
+      sit: 6$
+      aicons: "{{ aicons_val | default('AUTO') }}"
+      cicssvc: 217
+      edsalim: 500M
+      grplist: (DFHLIST*)
+      gmtext: 'Welcome to CICS Integration Tests'
+      srbsvc: 218
+      tcpip: "NO"
+      usshome: "{{ usshome }}"
+      sysidnt: ZPY1
+  register: result
+  retries: 3
+  until: result is not failed

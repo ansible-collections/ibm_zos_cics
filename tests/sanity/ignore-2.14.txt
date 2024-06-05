@@ -11,5 +11,5 @@ plugins/modules/aux_temp_storage.py validate-modules:missing-gplv3-license # Lic
 plugins/modules/aux_trace.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
 plugins/modules/csd.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
 plugins/modules/transaction_dump.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
-plugins/modules/start_cics.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
+plugins/modules/region_jcl.py validate-modules:missing-gplv3-license # Licence is Apache-2.0
 plugins/modules/stop_region.py validate-modules:missing-gplv3-license # Licence is Apache-2.0

@@ -17,9 +17,9 @@ action_groups:
     - aux_temp_storage
     - aux_trace
     - csd
+    - region_jcl
     - global_catalog
     - local_catalog
     - local_request_queue
     - td_intrapartition
     - transaction_dump
-    - start_cics

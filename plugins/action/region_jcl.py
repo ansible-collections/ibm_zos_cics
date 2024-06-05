@@ -13,12 +13,11 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.plugin_utils._module_action_pl
     LIBRARY_KEYS,
     _process_libraries_args,
     _process_region_data_set_args,
-    _remove_data_set_args,
     _set_top_libraries_key,
     _validate_list_of_data_set_lengths
 )
 
-MODULE_NAME = 'ibm.ibm_zos_cics.start_cics'
+MODULE_NAME = 'ibm.ibm_zos_cics.region_jcl'
 
 
 class ActionModule(ActionBase):
@@ -31,8 +30,9 @@ class ActionModule(ActionBase):
             "changed": False,
             "msg": "",
             "executions": [],
-            "jcl": [],
-            "job_id": "",
+            "jcl": "",
+            "start_state": {"data_set_organization": "NONE", "exists": False},
+            "end_state": {"data_set_organization": "NONE", "exists": False},
         }
 
         try:
@@ -76,6 +76,3 @@ def _process_module_args(module_args, _templar, task_vars):
     if module_args.get("cpsm_data_sets"):
         for cpsm_lib in CPSM_DS_KEYS:
             _process_libraries_args(module_args, _templar, task_vars, "cpsm_data_sets", cpsm_lib)
-
-    # Remove extra args
-    _remove_data_set_args(module_args)

@@ -6,6 +6,8 @@
 # FOR INTERNAL USE IN THE COLLECTION ONLY.
 
 from __future__ import (absolute_import, division, print_function)
+
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.ansible_module import AnsibleModuleHelper
 __metaclass__ = type
 import re
 
@@ -14,6 +16,16 @@ from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw impor
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DDStatement, StdoutDefinition, DatasetDefinition, StdinDefinition
 
 MVS_CMD_RETRY_ATTEMPTS = 10
+
+
+DSORG = {
+    "PS": "Sequential",
+    "PO": "Partitioned",
+    "IS": "Indexed Sequential",
+    "DA": "Direct Access",
+    "VSAM": "VSAM",
+    "??": "Other"
+}
 
 
 def _run_idcams(cmd, name, location, delete=False):  # type: (str, str, str, bool) -> list[dict[str, str| int]]
@@ -164,6 +176,20 @@ def _build_idcams_volumes(volumes):  # type: (list[str]) -> str
     return " -\n    VOLUMES({0})".format(volumes_cmd.rstrip())
 
 
+def _get_data_set_type(listds_stdout):
+    data_set_type = ""
+    matches = re.findall(r"\s+(PS|PO|IS|DA|VSAM|\?\?)\s+", listds_stdout)
+
+    if (len(matches) != 0):
+        try:
+            data_set_type = DSORG[matches[0]]
+        except KeyError:
+            data_set_type = "Unspecified"
+    else:
+        data_set_type = "Unspecified"
+    return data_set_type
+
+
 def _run_listds(location):  # type: (str) -> tuple[list[_execution], bool, str]
     cmd = " LISTDS '{0}'".format(location)
     executions = []
@@ -194,23 +220,7 @@ def _run_listds(location):  # type: (str) -> tuple[list[_execution], bool, str]
         raise MVSExecutionException("RC {0} running LISTDS Command".format(listds_response.rc), executions)
 
     # Exists, RC 0
-
-    matches = re.findall(r"\s+(PS|PO|IS|DA|VSAM|\?\?)\s+", listds_response.stdout.upper())
-    if (len(matches) != 0):
-        if (matches[0] == "PS"):
-            data_set_organization = "Sequential"
-        elif (matches[0] == "PO"):
-            data_set_organization = "Partitioned"
-        elif (matches[0] == "IS"):
-            data_set_organization = "Indexed Sequential"
-        elif (matches[0] == "DA"):
-            data_set_organization = "Direct Access"
-        elif (matches[0] == "VSAM"):
-            data_set_organization = "VSAM"
-        elif (matches[0] == "??"):
-            data_set_organization = "Other"
-    else:
-        data_set_organization = "Unspecified"
+    data_set_organization = _get_data_set_type(listds_response.stdout)
 
     return executions, True, data_set_organization
 
@@ -229,13 +239,16 @@ def _run_iefbr14(ddname, definition):  # type: (str, DatasetDefinition) -> list[
                 rc=iefbr14_response.rc,
                 stdout=iefbr14_response.stdout,
                 stderr=iefbr14_response.stderr))
-
-        if iefbr14_response.rc == 0:
+        if iefbr14_response.stdout != "" or iefbr14_response.stderr != "":
             break
-        else:
-            raise MVSExecutionException(
-                "RC {0} when creating sequential data set".format(
-                    iefbr14_response.rc), executions)
+
+    if iefbr14_response.stdout == "" and iefbr14_response.stderr == "":
+        raise MVSExecutionException("IEFBR14 Command output not recognised", executions)
+
+    if iefbr14_response.rc != 0:
+        raise MVSExecutionException(
+            "RC {0} when creating sequential data set".format(
+                iefbr14_response.rc), executions)
 
     return executions
 
@@ -251,3 +264,26 @@ def _execute_iefbr14(ddname, definition):
         verbose=True,
         debug=False
     )
+
+
+def _execute_command(command):
+    module = AnsibleModuleHelper(argument_spec={})
+    return module.run_command(command)
+
+
+def _read_data_set_content(data_set_name):
+    executions = []
+    command = "dcat '{0}'".format(data_set_name)
+
+    rc, stdout, stderr = _execute_command(command)
+    executions.append(
+        _execution(
+            name="Read data set {0}".format(data_set_name),
+            rc=rc,
+            stdout=stdout,
+            stderr=stderr))
+    if rc != 0:
+        raise MVSExecutionException(
+            "RC {0} when reading content from data set {1}".format(
+                rc, data_set_name), executions)
+    return executions, stdout

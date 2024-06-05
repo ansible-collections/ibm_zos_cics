@@ -9,7 +9,7 @@ __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
 
-REGION_DS_KEYS = ["dfhgcd", "dfhlcd", "dfhintra", "dfhlrq", "dfhtemp", "dfhauxt", "dfhbuxt", "dfhdmpa", "dfhdmpb", "dfhcsd"]
+REGION_DS_KEYS = ["dfhgcd", "dfhlcd", "dfhintra", "dfhlrq", "dfhtemp", "dfhauxt", "dfhbuxt", "dfhdmpa", "dfhdmpb", "dfhcsd", "dfhstart"]
 CICS_DS_KEYS = ["sdfhload", "sdfhauth", "sdfhlic"]
 LE_DS_KEYS = ["sceecics", "sceerun", "sceerun2"]
 CPSM_DS_KEYS = ["seyuauth", "seyuload"]
@@ -167,14 +167,3 @@ def _set_top_libraries_key(module_args, dict_key):
         module_args[dict_key] = {"top_data_sets": []}
     elif module_args[dict_key].get("top_data_sets") is None:
         module_args[dict_key].update({"top_data_sets": []})
-
-
-def _remove_data_set_args(module_args):
-    if "state" in list(module_args):
-        del module_args["state"]
-    if "space_primary" in list(module_args):
-        del module_args["space_primary"]
-    if "space_secondary" in list(module_args):
-        del module_args["space_secondary"]
-    if "space_type" in list(module_args):
-        del module_args["space_type"]

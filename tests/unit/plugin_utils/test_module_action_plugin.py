@@ -18,8 +18,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.plugin_utils._module_action_pl
     _validate_list_of_data_set_lengths,
     _process_libraries_args,
     _check_template,
-    _set_top_libraries_key,
-    _remove_data_set_args
+    _set_top_libraries_key
 )
 
 
@@ -229,26 +228,3 @@ def test__set_top_libraries_key_with_existing_libraries_key_not_top_libraries_ke
     assert len(list(args_without_top_libs.keys())) == 2
     assert "top_data_sets" in list(args_without_top_libs["dfhrpl"].keys())
     assert args_without_top_libs["dfhrpl"]["data_sets"] == "data.set.path"
-
-
-def test__remove_data_set_args():
-    args_with_extra_args_not_applicable_to_start = {
-        "region_data_sets": {"template": "region.data.set.template.<< data_set_name >>"},
-        "cics_data_sets": {"template": "cics.data.set.template.<< lib_name >>"},
-        "le_data_sets": {"template": "le.data.set.template.<< lib_name >>"},
-        "cpsm_data_sets": {"template": "cpsm.data.set.template.<< lib_name >>"},
-        "space_primary": 2,
-        "space_secondary": 1,
-        "space_type": "M",
-        "state": "initial"
-    }
-
-    _remove_data_set_args(args_with_extra_args_not_applicable_to_start)
-
-    assert len(list(args_with_extra_args_not_applicable_to_start.keys())) == 4
-    assert args_with_extra_args_not_applicable_to_start == {
-        "region_data_sets": {"template": "region.data.set.template.<< data_set_name >>"},
-        "cics_data_sets": {"template": "cics.data.set.template.<< lib_name >>"},
-        "le_data_sets": {"template": "le.data.set.template.<< lib_name >>"},
-        "cpsm_data_sets": {"template": "cpsm.data.set.template.<< lib_name >>"},
-    }

@@ -13,7 +13,7 @@
   block:
     - name: Issue shutdown command
       ibm.ibm_zos_cics.stop_region:
-        job_id: "{{ start_result.job_id }}"
+        job_id: "{{ start_result.stdout }}"
         mode: "{{ mode }}"
       register: stop_result
       timeout: 300
@@ -43,6 +43,6 @@
 - name: Execute a command to delete job
   when: expect_failure is not defined or expect_failure is false
   ansible.builtin.command:
-    cmd: "tsocmd CANCEL {{ start_region_applid }}({{ start_result.job_id }}) PURGE"
+    cmd: "tsocmd CANCEL {{ start_region_applid }}({{ start_result.stdout }}) PURGE"
   register: delete_result
   changed_when: delete_result.rc == 0

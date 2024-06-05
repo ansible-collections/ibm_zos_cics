@@ -9,8 +9,9 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     IDCAMS_create_already_exists_stdout,
     IDCAMS_create_stdout,
     IDCAMS_delete_not_found,
-    IDCAMS_delete_vsam,
+    IDCAMS_delete,
     IDCAMS_run_cmd,
+    IEFBR14_get_run_name,
     LISTDS_data_set,
     LISTDS_data_set_doesnt_exist,
     LISTDS_run_name
@@ -122,7 +123,7 @@ def test__run_idcams_create_exists():
 def test__run_idcams_delete():
     location = "ANSIBIT.CICS.IYTWYD03.DFHGCD"
     rc = 0
-    stdout = IDCAMS_delete_vsam(location)
+    stdout = IDCAMS_delete(location)
     stderr = ""
     data_set_utils._execute_idcams = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
@@ -213,7 +214,7 @@ def test__run_idcams_bad_return_code_when_creating():
 def test__run_idcams_bad_return_code_when_deleting():
     location = "ANSIBIT.CICS.IYTWYD02.DFHGCD"
     rc = 99
-    stdout = IDCAMS_delete_vsam(location)
+    stdout = IDCAMS_delete(location)
     stderr = ""
     data_set_utils._execute_idcams = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
@@ -376,6 +377,26 @@ def test__run_listds_exists_unspecified():
     assert ds_org == "Unspecified"
 
 
+def test__run_listds_exists_unknown():
+    location = "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD"
+    rc = 0
+    stdout = LISTDS_data_set(location, "NOT_REAL_DSORG")
+    stderr = ""
+    data_set_utils._execute_listds = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
+
+    result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
+
+    assert len(result_exececutions) == 1
+    assert result_exececutions[0] == {
+        "name": LISTDS_run_name(1),
+        "rc": rc,
+        "stdout": stdout,
+        "stderr": stderr,
+    }
+    assert exists is True
+    assert ds_org == "Unspecified"
+
+
 def test__run_listds_bad_rc():
     location = "ANSIBIT.CICS.TESTS.A365D7A.DFHGCD"
     name = LISTDS_run_name(1)
@@ -442,8 +463,8 @@ def test__run_listds_with_no_zoau_response():
 @pytest.mark.skipif(sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE)
 def test__run_iefbr14():
     rc = 0
-    stdout = ""
-    stderr = ""
+    stdout = "stdout"
+    stderr = "stderr"
     data_set_utils.MVSCmd.execute = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
 
     definition = DatasetDefinition(
@@ -474,8 +495,128 @@ def test__run_iefbr14():
     }
 
 
+def test__run_iefbr14_bad_rc():
+    rc = 99
+    stdout = "stdout"
+    stderr = "stderr"
+    data_set_utils.MVSCmd.execute = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
+
+    definition = DatasetDefinition(
+        dataset_name="DFHTEST",
+        block_size=4096,
+        record_length=4096,
+        record_format="FB",
+        disposition="NEW",
+        normal_disposition="catalog",
+        conditional_disposition="delete",
+        primary=15,
+        secondary=3,
+        primary_unit="MB",
+        type="SEQ"
+    )
+
+    expected_executions = [{
+        "name": "IEFBR14 - DFHIEFT - Run 1",
+        "rc": rc,
+        "stdout": stdout,
+        "stderr": stderr,
+    }]
+
+    try:
+        data_set_utils._run_iefbr14(
+            ddname="DFHIEFT",
+            definition=definition
+        )
+    except MVSExecutionException as e:
+        assert e.message == "RC {0} when creating sequential data set".format(99)
+        assert e.executions == expected_executions
+
+
+def test__run_iefbr14_no_response():
+    rc = 0
+    stdout = ""
+    stderr = ""
+    data_set_utils.MVSCmd.execute = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
+
+    definition = DatasetDefinition(
+        dataset_name="DFHTEST",
+        block_size=4096,
+        record_length=4096,
+        record_format="FB",
+        disposition="NEW",
+        normal_disposition="catalog",
+        conditional_disposition="delete",
+        primary=15,
+        secondary=3,
+        primary_unit="MB",
+        type="SEQ"
+    )
+
+    expected_executions = [
+        _execution(name=IEFBR14_get_run_name(1), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=IEFBR14_get_run_name(2), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=IEFBR14_get_run_name(3), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=IEFBR14_get_run_name(4), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=IEFBR14_get_run_name(5), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=IEFBR14_get_run_name(6), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=IEFBR14_get_run_name(7), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=IEFBR14_get_run_name(8), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=IEFBR14_get_run_name(9), rc=rc, stdout=stdout, stderr=stderr),
+        _execution(name=IEFBR14_get_run_name(10), rc=rc, stdout=stdout, stderr=stderr)
+    ]
+
+    try:
+        data_set_utils._run_iefbr14(
+            ddname="DFHIEFT",
+            definition=definition
+        )
+    except MVSExecutionException as e:
+        assert e.message == "IEFBR14 Command output not recognised"
+        assert e.executions == expected_executions
+
+
 @pytest.mark.skipif(sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE)
 def test__build_idcams_volumes():
     volumes = ["vserv1", "vserv2", "vserv3"]
 
     assert data_set_utils._build_idcams_volumes(volumes) == " -\n    VOLUMES(vserv1 vserv2 vserv3)"
+
+
+def test__read_data_set_content():
+    rc = 0
+    stdout = "stdout"
+    stderr = "stderr"
+
+    data_set_name = "TEST.DATA.SET"
+    data_set_utils._execute_command = MagicMock(return_value=(rc, stdout, stderr))
+    result_executions, result_data_set_content = data_set_utils._read_data_set_content(data_set_name)
+
+    assert result_data_set_content == stdout
+    assert result_executions[0] == {
+        "name": "Read data set {0}".format(data_set_name),
+        "rc": 0,
+        "stdout": stdout,
+        "stderr": stderr
+    }
+
+
+def test__read_data_set_content_bad_rc():
+    rc = 99
+    stdout = "stdout"
+    stderr = "stderr"
+
+    data_set_name = "TEST.DATA.SET"
+    data_set_utils._execute_command = MagicMock(return_value=(rc, stdout, stderr))
+
+    expected_executions = [{
+        "name": "Read data set {0}".format(data_set_name),
+        "rc": rc,
+        "stdout": stdout,
+        "stderr": stderr
+    }]
+
+    try:
+        data_set_utils._read_data_set_content(data_set_name)
+    except MVSExecutionException as e:
+        assert e.message == "RC {0} when reading content from data set {1}".format(rc, data_set_name)
+        assert e.executions == expected_executions

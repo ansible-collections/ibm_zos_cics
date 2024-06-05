@@ -7,8 +7,8 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.modules.start_cics import DSN
-from ansible_collections.ibm.ibm_zos_cics.plugins.action.start_cics import _process_module_args
+from ansible_collections.ibm.ibm_zos_cics.plugins.modules.region_jcl import DSN
+from ansible_collections.ibm.ibm_zos_cics.plugins.action.region_jcl import _process_module_args
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
@@ -39,7 +39,8 @@ def test_process_args_with_only_template():
             'dfhlrq': {DSN: "TEST.CICSPY1.RDEV.DFHLRQ"},
             'dfhtemp': {DSN: "TEST.CICSPY1.RDEV.DFHTEMP"},
             'dfhdmpa': {DSN: "TEST.CICSPY1.RDEV.DFHDMPA"},
-            'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DFHDMPB"}
+            'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DFHDMPB"},
+            'dfhstart': {DSN: "TEST.CICSPY1.RDEV.DFHSTART"},
         },
         "cics_data_sets": {
             "sdfhload": "TEST.CICS.SDFHLOAD",
@@ -91,7 +92,8 @@ def test_process_args_with_some_overrides():
             'dfhlrq': {DSN: "TEST.CICSPY1.RDEV.DFHLRQ"},
             'dfhtemp': {DSN: "TEST.CICSPY1.RDEV.DFHTEMP"},
             'dfhdmpa': {DSN: "TEST.CICSPY1.RDEV.DFHDMPA"},
-            'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DFHDMPB"}
+            'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DFHDMPB"},
+            'dfhstart': {DSN: "TEST.CICSPY1.RDEV.DFHSTART"},
         },
         "cics_data_sets": {
             "sdfhload": "TEST.CICS.LOAD",
@@ -126,7 +128,8 @@ def test_process_args_with_only_overrides():
             'dfhlrq': {DSN: "TEST.CICSPY1.RDEV.LRQ"},
             'dfhtemp': {DSN: "TEST.CICSPY1.RDEV.TEMP"},
             'dfhdmpa': {DSN: "TEST.CICSPY1.RDEV.DUMPA"},
-            'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DUMPB"}
+            'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DUMPB"},
+            'dfhstart': {DSN: "TEST.CICSPY1.RDEV.START"},
         },
         "cics_data_sets": {
             "sdfhload": "TEST.CICS.LOAD",
@@ -153,7 +156,8 @@ def test_process_args_with_only_overrides():
             'dfhlrq': {DSN: "TEST.CICSPY1.RDEV.LRQ"},
             'dfhtemp': {DSN: "TEST.CICSPY1.RDEV.TEMP"},
             'dfhdmpa': {DSN: "TEST.CICSPY1.RDEV.DUMPA"},
-            'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DUMPB"}
+            'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DUMPB"},
+            'dfhstart': {DSN: "TEST.CICSPY1.RDEV.START"},
         },
         "cics_data_sets": {
             "sdfhload": "TEST.CICS.LOAD",
@@ -245,6 +249,7 @@ def test_process_args_with_missing_dsn_key():
             'dfhtemp': {DSN: "TEST.CICSPY1.RDEV.TEMP"},
             'dfhdmpa': {DSN: "TEST.CICSPY1.RDEV.DUMPA"},
             'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DUMPB"},
+            'dfhstart': {DSN: "TEST.CICSPY1.RDEV.START"},
             "dfhgcd": {"garbage": "more.garbage"}
         },
         "cics_data_sets": {
@@ -274,6 +279,7 @@ def test_process_args_with_missing_dsn_value():
             'dfhtemp': {DSN: "TEST.CICSPY1.RDEV.TEMP"},
             'dfhdmpa': {DSN: "TEST.CICSPY1.RDEV.DUMPA"},
             'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DUMPB"},
+            'dfhstart': {DSN: "TEST.CICSPY1.RDEV.START"},
             "dfhgcd": {"dsn": None}
         },
         "cics_data_sets": {
@@ -289,53 +295,6 @@ def test_process_args_with_missing_dsn_value():
         _process_module_args(module_args, templar, task_vars)
     except KeyError as e:
         assert e.args[0] == "No template or data set overide found for dfhgcd"
-
-
-def test_process_args_with_extra_data_set_args():
-    module_args = {
-        "region_data_sets": {"template": "TEST.CICSPY1.RDEV.<< data_set_name >>"},
-        "cics_data_sets": {"template": "TEST.CICS.<< lib_name >>"},
-        "le_data_sets": {"template": "TEST.LE.<< lib_name >>"},
-        "space_primary": 2,
-        "space_secondary": 1,
-        "space_type": "M",
-        "state": "initial"
-    }
-    templar = get_templar(module_args)
-    task_vars = module_args
-    _process_module_args(module_args, templar, task_vars)
-    assert module_args == {
-        "region_data_sets": {
-            'dfhauxt': {DSN: "TEST.CICSPY1.RDEV.DFHAUXT"},
-            'dfhbuxt': {DSN: "TEST.CICSPY1.RDEV.DFHBUXT"},
-            'dfhcsd': {DSN: "TEST.CICSPY1.RDEV.DFHCSD"},
-            'dfhgcd': {DSN: "TEST.CICSPY1.RDEV.DFHGCD"},
-            'dfhintra': {DSN: "TEST.CICSPY1.RDEV.DFHINTRA"},
-            'dfhlcd': {DSN: "TEST.CICSPY1.RDEV.DFHLCD"},
-            'dfhlrq': {DSN: "TEST.CICSPY1.RDEV.DFHLRQ"},
-            'dfhtemp': {DSN: "TEST.CICSPY1.RDEV.DFHTEMP"},
-            'dfhdmpa': {DSN: "TEST.CICSPY1.RDEV.DFHDMPA"},
-            'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DFHDMPB"}
-        },
-        "cics_data_sets": {
-            "sdfhload": "TEST.CICS.SDFHLOAD",
-            "sdfhauth": "TEST.CICS.SDFHAUTH",
-            "sdfhlic": "TEST.CICS.SDFHLIC",
-            "template": "TEST.CICS.<< lib_name >>"
-        },
-        "le_data_sets": {
-            "sceecics": "TEST.LE.SCEECICS",
-            "sceerun": "TEST.LE.SCEERUN",
-            "sceerun2": "TEST.LE.SCEERUN2",
-            "template": "TEST.LE.<< lib_name >>"
-        },
-        "steplib": {
-            "top_data_sets": []
-        },
-        "dfhrpl": {
-            "top_data_sets": []
-        }
-    }
 
 
 def test_process_args_with_only_template_and_optional_cpsm_arg():
@@ -359,7 +318,8 @@ def test_process_args_with_only_template_and_optional_cpsm_arg():
             'dfhlrq': {DSN: "TEST.CICSPY1.RDEV.DFHLRQ"},
             'dfhtemp': {DSN: "TEST.CICSPY1.RDEV.DFHTEMP"},
             'dfhdmpa': {DSN: "TEST.CICSPY1.RDEV.DFHDMPA"},
-            'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DFHDMPB"}
+            'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DFHDMPB"},
+            'dfhstart': {DSN: "TEST.CICSPY1.RDEV.DFHSTART"},
         },
         "cics_data_sets": {
             "sdfhload": "TEST.CICS.SDFHLOAD",
@@ -412,7 +372,8 @@ def test_process_args_with_optional_cpsm_arg_and_overrides():
             'dfhlrq': {DSN: "TEST.CICSPY1.RDEV.DFHLRQ"},
             'dfhtemp': {DSN: "TEST.CICSPY1.RDEV.DFHTEMP"},
             'dfhdmpa': {DSN: "TEST.CICSPY1.RDEV.DFHDMPA"},
-            'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DFHDMPB"}
+            'dfhdmpb': {DSN: "TEST.CICSPY1.RDEV.DFHDMPB"},
+            'dfhstart': {DSN: "TEST.CICSPY1.RDEV.DFHSTART"},
         },
         "cics_data_sets": {
             "sdfhload": "TEST.CICS.SDFHLOAD",

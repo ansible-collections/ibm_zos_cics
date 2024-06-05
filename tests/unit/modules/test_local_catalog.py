@@ -15,7 +15,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     ICETOOL_stderr,
     ICETOOL_stdout,
     IDCAMS_delete_run_name,
-    IDCAMS_delete_vsam,
+    IDCAMS_delete,
     IDCAMS_create_run_name,
     LISTDS_data_set_doesnt_exist,
     LISTDS_data_set,
@@ -147,7 +147,7 @@ def test_delete_an_existing_local_catalog():
         )
     )
     data_set_utils._execute_idcams = MagicMock(
-        return_value=MVSCmdResponse(0, IDCAMS_delete_vsam(NAME), ""),
+        return_value=MVSCmdResponse(0, IDCAMS_delete(NAME), ""),
     )
 
     lcd_module.main()
@@ -162,7 +162,7 @@ def test_delete_an_existing_local_catalog():
             _execution(
                 name=IDCAMS_delete_run_name(1, NAME),
                 rc=0,
-                stdout=IDCAMS_delete_vsam(NAME),
+                stdout=IDCAMS_delete(NAME),
                 stderr="",
             ),
             _execution(
@@ -195,7 +195,7 @@ def test_delete_an_existing_local_catalog_and_replace():
 
     data_set_utils._execute_idcams = MagicMock(
         side_effect=[
-            MVSCmdResponse(0, IDCAMS_delete_vsam(NAME), ""),
+            MVSCmdResponse(0, IDCAMS_delete(NAME), ""),
             MVSCmdResponse(0, NAME, ""),
         ]
     )
@@ -237,7 +237,7 @@ def test_delete_an_existing_local_catalog_and_replace():
             _execution(
                 name=IDCAMS_delete_run_name(1, NAME),
                 rc=0,
-                stdout=IDCAMS_delete_vsam(NAME),
+                stdout=IDCAMS_delete(NAME),
                 stderr="",
             ),
             _execution(

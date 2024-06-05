@@ -3,6 +3,7 @@
 # (c) Copyright IBM Corp. 2023,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 import json
+from textwrap import dedent
 from ansible.module_utils.common.text.converters import to_bytes
 from ansible.module_utils import basic
 
@@ -120,7 +121,7 @@ def IDCAMS_create_already_exists_stdout(data_set_name):
     """.format(data_set_name)
 
 
-def IDCAMS_delete_vsam(data_set_name):
+def IDCAMS_delete(data_set_name):
     return """
         1IDCAMS  SYSTEM SERVICES                                           TIME: 18:54:07        01/29/24     PAGE      1
         0
@@ -162,6 +163,10 @@ def IEFBR14_create_stderr(data_set_name, dd_name):
         BGYSC0327I Attach Exit code: 0 from IEFBR14
         BGYSC0338I Dataset free succeeded for {1}={0}
     """.format(data_set_name, dd_name)
+
+
+def IEFBR14_get_run_name(run):
+    return "IEFBR14 - DFHIEFT - Run {0}".format(run)
 
 
 def ICETOOL_name(count):
@@ -380,3 +385,97 @@ def CSDUP_add_group_stdout(data_set_name):
         DFH5108 I COMMANDS NOT EXECUTED AFTER ERROR(S): 0
         DFH5109 I END OF DFHCSDUP UTILITY JOB. HIGHEST RETURN CODE WAS: 0
     """.format(data_set_name)
+
+
+def read_data_set_content_run_name(data_set_name):
+    return "Read data set {0}".format(data_set_name)
+
+
+def get_sample_generated_JCL_args(data_set_name, state):
+    return {
+        "state": state,
+        "applid": "APPLID",
+        "region_data_sets": {
+            'dfhauxt': {"dsn": "test.dfhauxt"},
+            'dfhbuxt': {"dsn": "test.dfhbuxt"},
+            'dfhcsd': {"dsn": "test.dfhcsd"},
+            'dfhgcd': {"dsn": "test.dfhgcd"},
+            'dfhintra': {"dsn": "test.dfhintra"},
+            'dfhlcd': {"dsn": "test.dfhlcd"},
+            'dfhlrq': {"dsn": "test.dfhlrq"},
+            'dfhtemp': {"dsn": "test.dfhtemp"},
+            'dfhdmpa': {"dsn": "test.dfhdmpa"},
+            'dfhdmpb': {"dsn": "test.dfhdmpb"},
+            "dfhstart": {"dsn": data_set_name}
+        },
+        "cics_data_sets": {
+            "sdfhload": "test.sdfhload",
+            "sdfhauth": "test.sdfhauth",
+            "sdfhlic": "test.sdfhlic",
+        },
+        "le_data_sets": {
+            "sceecics": "test.sceecics",
+            "sceerun": "test.sceerun",
+            "sceerun2": "test.sceerun2",
+        },
+        "cpsm_data_sets": {
+            "seyuauth": "test.seyuauth",
+            "seyuload": "test.seyuload",
+        },
+        "steplib": {
+            "top_data_sets": ["some.top.lib"]
+        },
+        "dfhrpl": {
+            "top_data_sets": ["another.top.lib"]
+        },
+        "job_parameters": {
+            "region": "0M"
+        },
+        "sit_parameters": {
+            "start": "AUTO",
+            "tcpip": "NO"
+        }
+    }
+
+
+def get_sample_generated_JCL():
+    return dedent("""
+        //APPLID   JOB REGION=0M
+        //         EXEC PGM=DFHSIP,PARM=SI
+        //STEPLIB  DD DSN=SOME.TOP.LIB,DISP=SHR
+        //         DD DSN=TEST.SDFHAUTH,DISP=SHR
+        //         DD DSN=TEST.SDFHLIC,DISP=SHR
+        //         DD DSN=TEST.SEYUAUTH,DISP=SHR
+        //         DD DSN=TEST.SCEERUN,DISP=SHR
+        //         DD DSN=TEST.SCEERUN2,DISP=SHR
+        //DFHRPL   DD DSN=ANOTHER.TOP.LIB,DISP=SHR
+        //         DD DSN=TEST.SDFHLOAD,DISP=SHR
+        //         DD DSN=TEST.SEYULOAD,DISP=SHR
+        //         DD DSN=TEST.SCEECICS,DISP=SHR
+        //         DD DSN=TEST.SCEERUN,DISP=SHR
+        //         DD DSN=TEST.SCEERUN2,DISP=SHR
+        //DFHAUXT  DD DSN=TEST.DFHAUXT,DISP=SHR
+        //DFHBUXT  DD DSN=TEST.DFHBUXT,DISP=SHR
+        //DFHCSD   DD DSN=TEST.DFHCSD,DISP=SHR
+        //DFHGCD   DD DSN=TEST.DFHGCD,DISP=SHR
+        //DFHINTRA DD DSN=TEST.DFHINTRA,DISP=SHR
+        //DFHLCD   DD DSN=TEST.DFHLCD,DISP=SHR
+        //DFHLRQ   DD DSN=TEST.DFHLRQ,DISP=SHR
+        //DFHTEMP  DD DSN=TEST.DFHTEMP,DISP=SHR
+        //DFHDMPA  DD DSN=TEST.DFHDMPA,DISP=SHR
+        //DFHDMPB  DD DSN=TEST.DFHDMPB,DISP=SHR
+        //CEEMSG   DD SYSOUT=*
+        //CEEOUT   DD SYSOUT=*
+        //MSGUSR   DD SYSOUT=*
+        //SYSPRINT DD SYSOUT=*
+        //SYSUDUMP DD SYSOUT=*
+        //SYSABEND DD SYSOUT=*
+        //SYSOUT   DD SYSOUT=*
+        //DFHCXRF  DD SYSOUT=*
+        //LOGUSR   DD SYSOUT=*
+        //SYSIN    DD *
+        START=AUTO
+        TCPIP=NO
+        APPLID=APPLID
+        /*
+        //""").lstrip()

@@ -13,7 +13,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     ICETOOL_stdout,
     IDCAMS_create_stdout,
     IDCAMS_delete_run_name,
-    IDCAMS_delete_vsam,
+    IDCAMS_delete,
     IDCAMS_create_run_name,
     LISTDS_data_set_doesnt_exist,
     LISTDS_data_set,
@@ -147,7 +147,7 @@ def test_delete_an_existing_global_catalog():
     gcd_module = initialise_module(state="absent")
 
     data_set_utils._execute_idcams = MagicMock(
-        return_value=MVSCmdResponse(0, IDCAMS_delete_vsam(NAME), ""),
+        return_value=MVSCmdResponse(0, IDCAMS_delete(NAME), ""),
     )
 
     data_set_utils._execute_listds = MagicMock(
@@ -185,7 +185,7 @@ def test_delete_an_existing_global_catalog():
             _execution(
                 name=IDCAMS_delete_run_name(1, NAME),
                 rc=0,
-                stdout=IDCAMS_delete_vsam(NAME),
+                stdout=IDCAMS_delete(NAME),
                 stderr="",
             ),
             _execution(

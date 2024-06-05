@@ -8,7 +8,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import 
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
     PYTHON_LANGUAGE_FEATURES_MESSAGE,
     IDCAMS_delete_run_name,
-    IDCAMS_delete_vsam,
+    IDCAMS_delete,
     IEFBR14_create_stderr,
     LISTDS_data_set_doesnt_exist,
     LISTDS_data_set,
@@ -121,7 +121,7 @@ def test_delete_an_existing_transaction_dump():
     transaction_dump_module = initialise_module(state="absent")
 
     data_set_utils._execute_idcams = MagicMock(
-        return_value=MVSCmdResponse(0, IDCAMS_delete_vsam(NAMEA), "")
+        return_value=MVSCmdResponse(0, IDCAMS_delete(NAMEA), "")
     )
     data_set_utils._execute_listds = MagicMock(
         side_effect=[
@@ -142,7 +142,7 @@ def test_delete_an_existing_transaction_dump():
             _execution(
                 name=IDCAMS_delete_run_name(1, NAMEA),
                 rc=0,
-                stdout=IDCAMS_delete_vsam(NAMEA),
+                stdout=IDCAMS_delete(NAMEA),
                 stderr=""
             ),
             _execution(

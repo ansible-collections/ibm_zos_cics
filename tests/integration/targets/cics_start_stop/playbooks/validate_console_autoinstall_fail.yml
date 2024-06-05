@@ -25,11 +25,10 @@
           vars:
             data_set_state: initial
             ignore_csd_script: true
+            aicons_val: "AUTO"
 
         - name: Start CICS
           ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
-          vars:
-            aicons_val: "AUTO"
 
         - name: Delay
           ansible.builtin.pause:
@@ -54,7 +53,7 @@
       always:
         - name: Cancel and Delete job
           ansible.builtin.command:
-            cmd: "tsocmd CANCEL {{ start_region_applid }}({{ start_result.job_id }}) PURGE"
+            cmd: "tsocmd CANCEL {{ start_region_applid }}({{ start_result.stdout }}) PURGE"
           register: delete_result
           changed_when: delete_result.rc == 0
         - name: Delete data sets
