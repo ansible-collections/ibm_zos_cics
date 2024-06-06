@@ -3,13 +3,13 @@
 .. Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)  .
 .. ...............................................................................
 
-:github_url: https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/start_cics.py
+:github_url: https://github.com/ansible-collections/ibm_zos_cics/blob/main/plugins/modules/region_jcl.py
 
-.. _start_cics_module:
+.. _region_jcl_module:
 
 
-start_cics -- Start a CICS region
-=================================
+region_jcl -- Create CICS region JCL data set
+=============================================
 
 
 
@@ -20,7 +20,7 @@ start_cics -- Start a CICS region
 
 Synopsis
 --------
-- Start a CICS® region by providing CICS system data sets and system initialization parameters for CICS startup using the \ :literal:`DFHSIP`\  program.
+- Create a data set containing JCL to start a CICS® region by providing CICS system data sets and system initialization parameters for CICS startup using the \ :literal:`DFHSIP`\  program.
 
 
 
@@ -834,6 +834,25 @@ region_data_sets
      
     dsn
       The data set name of the local request queue to override the template.
+
+
+      | **required**: False
+      | **type**: str
+
+
+
+     
+  dfhstart
+    Overrides the templated location for the JCL data set.
+
+
+    | **required**: False
+    | **type**: dict
+
+
+     
+    dsn
+      The data set name of the JCL data set to override the template.
 
 
       | **required**: False
@@ -3352,6 +3371,65 @@ sit_parameters
 
 
      
+space_primary
+  The size of the primary space allocated to the CICS startup JCL data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+
+  This option takes effect only when the CICS startup JCL data set is being created. If the CICS startup JCL data set already exists, the option has no effect.
+
+  If this option is not set the primary space is dynamically calculated based on the size of the generated CICS startup JCL
+
+
+  | **required**: False
+  | **type**: int
+
+
+     
+space_secondary
+  The size of the secondary space allocated to the CICS startup JCL data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+
+  This option takes effect only when the CICS startup JCL data set is being created. If the CICS startup JCL data set already exists, the option has no effect.
+
+  If this option is not set the primary space is dynamically calculated as 10% of the total size of the generated CICS startup JCL
+
+
+  | **required**: False
+  | **type**: int
+
+
+     
+space_type
+  The unit portion of the CICS startup JCL data set size. Note that this is just the unit; the value for the primary space is specified with \ :literal:`space\_primary`\  and the value for the secondary space is specified with \ :literal:`space\_secondary`\ .
+
+  This option takes effect only when the CICS startup JCL data set is being created. If the CICS startup JCL data set already exists, the option has no effect.
+
+  The size can be specified in megabytes (\ :literal:`M`\ ), kilobytes (\ :literal:`K`\ ), cylinders (\ :literal:`CYL`\ ), or tracks (\ :literal:`TRK`\ ).
+
+  If neither \ :literal:`space\_secondary`\  or \ :literal:`space\_primary`\  are set, then this value will not have any effect
+
+
+  | **required**: False
+  | **type**: str
+  | **default**: M
+  | **choices**: M, K, CYL, TRK
+
+
+     
+state
+  The intended state for the CICS startup JCL data set, which the module aims to achieve.
+
+  Specify \ :literal:`absent`\  to remove the CICS startup JCL data set entirely, if it already exists.
+
+  Specify \ :literal:`initial`\  to create the CICS startup JCL data set if it does not already exist.
+
+  Specify \ :literal:`warm`\  to retain an existing CICS startup JCL data set in its current state. The module verifies whether the specified data set exists and whether it matches the generated startup JCL. If both conditions are met, the module leaves the data set as is. If the data set does not exist or does not match, the operation fails.
+
+
+  | **required**: True
+  | **type**: str
+  | **choices**: initial, absent, warm
+
+
+     
 steplib
   Any locations of additional \ :literal:`STEPLIB`\  libraries to add, that are not \ :literal:`SDFHAUTH`\ , \ :literal:`SDFHLIC`\ , \ :literal:`SCEERUN`\ , or \ :literal:`SCEERUN2`\ .
 
@@ -3380,12 +3458,12 @@ steplib
 
 
      
-submit_jcl
-  Specify whether or not you want the CICS startup job to be submitted.
+volumes
+  The volume(s) where the data set is created. Use a string to define a singular volume or a list of strings for multiple volumes.
 
 
   | **required**: False
-  | **type**: bool
+  | **type**: raw
 
 
 
@@ -3396,9 +3474,8 @@ Examples
 .. code-block:: yaml+jinja
 
    
-   - name: Start CICS
-     ibm.ibm_zos_cics.start_cics:
-       submit_jcl: True
+   - name: Create CICS region JCL data set
+     ibm.ibm_zos_cics.region_jcl:
        applid: ABC9ABC1
        cics_data_sets:
          template: 'CICSTS61.CICS.<< lib_name >>'
@@ -3431,9 +3508,8 @@ Examples
          wrkarea: 2048
          sysidnt: ZPY1
 
-   - name: Start CICS with more customization
-     ibm.ibm_zos_cics.start_cics:
-       submit_jcl: True
+   - name: Create CICS region JCL data set with more customization
+     ibm.ibm_zos_cics.region_jcl:
        applid: ABC9ABC1
        job_parameters:
          class: A
@@ -3506,7 +3582,7 @@ Return Values
    
                               
        changed
-        | True if the CICS startup JCL was submitted, otherwise False.
+        | True if the CICS startup JCL data set was created, otherwise False.
       
         | **returned**: always
         | **type**: bool
@@ -3521,27 +3597,69 @@ Return Values
       
       
                               
+       start_state
+        | The state of the CICS startup JCL data set before the Ansible task runs.
+      
+        | **returned**: always
+        | **type**: dict
+              
+   
+                              
+        data_set_organization
+          | The organization of the data set at the start of the Ansible task.
+      
+          | **returned**: always
+          | **type**: str
+          | **sample**: Sequential
+
+            
+      
+      
+                              
+        exists
+          | True if the CICS startup JCL data set exists.
+      
+          | **returned**: always
+          | **type**: bool
+      
+        
+      
+      
+                              
+       end_state
+        | The state of the CICS startup JCL data set at the end of the Ansible task.
+      
+        | **returned**: always
+        | **type**: dict
+              
+   
+                              
+        data_set_organization
+          | The organization of the data set at the end of the Ansible task.
+      
+          | **returned**: always
+          | **type**: str
+          | **sample**: Sequential
+
+            
+      
+      
+                              
+        exists
+          | True if the CICS startup JCL data set exists.
+      
+          | **returned**: always
+          | **type**: bool
+      
+        
+      
+      
+                              
        jcl
         | The CICS startup JCL that is built during module execution.
       
         | **returned**: always
         | **type**: list
-      
-      
-                              
-       job_id
-        | The job ID of the CICS startup job.
-      
-        | **returned**: If the CICS startup JCL has been submitted.
-        | **type**: str
-      
-      
-                              
-       err
-        | The error message returned when building the JCL.
-      
-        | **returned**: always
-        | **type**: str
       
       
                               
