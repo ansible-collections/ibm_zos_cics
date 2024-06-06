@@ -193,12 +193,12 @@ credentials of the **cmci_get** module to be the same throughout the playbook.
 
 
 If you want to use the same values in **all** CMCI modules, you can assign them
-to the group called **cmci_group**.
+to the group called **cmci**.
 
 .. code-block:: yaml
 
    module_defaults:
-     group/ibm.ibm_zos_cics.cmci_group:
+     group/ibm.ibm_zos_cics.cmci:
        cmci_host: "my.system.host"
        cmci_port: "system.port.number"
        cmci_user: "my.username"
@@ -207,8 +207,8 @@ to the group called **cmci_group**.
 
 Likewise, you can easily apply a default set of CICS TS data sets and utilities for the provisioning or de-provisioning of CICS regions.
 If you want to use the same values in **all** CICS TS data set provisioning modules, you can assign them to the group called **region_group**.
-For example, the following **module_defaults** example indicates that the SDFHLOAD library of the CICS installation is created by default using the templated location of
-``CTS610.CICS740.<< data_set_name >>``, and the region data sets are to be created by using the templated location of ``{{ansible_user}}.REGIONS.{{applid}}.<< data_set_name >>``.
+The following **module_defaults** example illustrates the use of a templated location for some data sets and a user-specified name for
+some other data sets instead of the template.
 
 .. code-block:: yaml
 
@@ -217,8 +217,19 @@ For example, the following **module_defaults** example indicates that the SDFHLO
        state: initial
        cics_data_sets:
          template: "CTS610.CICS740.<< data_set_name >>"
+         sdfhauth: "CICSTS61.OVERRDE.TEMPLT.SDFHAUTH"
        region_data_sets:
          template: "{{ansible_user}}.REGIONS.{{applid}}.<< data_set_name >>"
+         dfhgcd: "REGIONS.{{applid}}.GCD"
+
+The **cics_data_sets** parameter defines the data set names of the SDFHAUTH, SDFHLOAD and SDFHLIC libraries. These libraries can be used by
+multiple CICS regions. In this example, the SDFHLOAD and SDFHLIC libraries are created by default using the templated location
+of ``CTS610.CICS740.<< data_set_name >>``, so their data set names are ``CTS610.CICS740.SDFHLOAD`` and ``CTS610.CICS740.SDFHLIC`` respectively.
+However, SDFHAUTH is created with the data set name of ``CICSTS61.OVERRDE.TEMPLT.SDFHAUTH``, overriding the template.
+
+The **region_data_sets** parameter defines the data sets that are used by a single CICS region. In this example, all the region data sets except
+DFHGCD are created by default using the templated location of ``{{ansible_user}}.REGIONS.{{applid}}.<< data_set_name >>``, while DFHGCD is created
+with the data set name of ``REGIONS.{{applid}}.GCD``, overriding the template.
 
 
 .. note::
