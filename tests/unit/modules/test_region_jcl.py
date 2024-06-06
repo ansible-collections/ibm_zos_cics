@@ -844,6 +844,173 @@ def test_find_sit_parm_key_not_present():
     assert key is None
 
 
+def test_calculate_size_parameters_with_overrides():
+    module = setup_and_update_parms({
+        "space_primary": 10,
+        "space_secondary": 5,
+        "space_type": "CYL"
+    })
+
+    assert module.unit == "CYL"
+    assert module.primary == 10
+    assert module.primary_unit == ""
+    assert module.secondary == 5
+    assert module.secondary_unit == ""
+
+    module.generate_jcl()
+    module.calculate_size_parameters()
+
+    assert module.unit == "CYL"
+    assert module.primary_unit == "CYL"
+    assert module.primary == 10
+    assert module.secondary_unit == "CYL"
+    assert module.secondary == 5
+
+
+def test_calculate_size_parameters_no_overrides():
+    module = setup_and_update_parms({})
+
+    assert module.unit == "M"
+    assert module.primary == 1
+    assert module.primary_unit == ""
+    assert module.secondary == 1
+    assert module.secondary_unit == ""
+
+    module.generate_jcl()
+    module.calculate_size_parameters()
+
+    assert module.unit == "M"
+    assert module.primary_unit == "K"
+    assert module.primary == 2
+    assert module.secondary_unit == "K"
+    assert module.secondary == 1
+
+
+def test_calculate_size_parameters_primary_override_only():
+    module = setup_and_update_parms({"space_primary": 10})
+
+    assert module.unit == "M"
+    assert module.primary == 10
+    assert module.primary_unit == ""
+    assert module.secondary == 1
+    assert module.secondary_unit == ""
+
+    module.generate_jcl()
+    module.calculate_size_parameters()
+
+    assert module.unit == "M"
+    assert module.primary_unit == "M"
+    assert module.primary == 10
+    assert module.secondary_unit == "K"
+    assert module.secondary == 1
+
+
+def test_calculate_size_parameters_secondary_override_only():
+    module = setup_and_update_parms({"space_secondary": 10})
+
+    assert module.unit == "M"
+    assert module.primary == 1
+    assert module.primary_unit == ""
+    assert module.secondary == 10
+    assert module.secondary_unit == ""
+
+    module.generate_jcl()
+    module.calculate_size_parameters()
+
+    assert module.unit == "M"
+    assert module.primary_unit == "K"
+    assert module.primary == 2
+    assert module.secondary_unit == "M"
+    assert module.secondary == 10
+
+
+def test_calculate_size_parameters_primary_override_and_units_only():
+    module = setup_and_update_parms({
+        "space_primary": 10,
+        "space_type": "CYL"
+    })
+
+    assert module.unit == "CYL"
+    assert module.primary == 10
+    assert module.primary_unit == ""
+    assert module.secondary == 1
+    assert module.secondary_unit == ""
+
+    module.generate_jcl()
+    module.calculate_size_parameters()
+
+    assert module.unit == "CYL"
+    assert module.primary_unit == "CYL"
+    assert module.primary == 10
+    assert module.secondary_unit == "K"
+    assert module.secondary == 1
+
+
+def test_calculate_size_parameters_primary_override_and_secondary_only():
+    module = setup_and_update_parms({
+        "space_primary": 10,
+        "space_secondary": "5"
+    })
+
+    assert module.unit == "M"
+    assert module.primary == 10
+    assert module.primary_unit == ""
+    assert module.secondary == 5
+    assert module.secondary_unit == ""
+
+    module.generate_jcl()
+    module.calculate_size_parameters()
+
+    assert module.unit == "M"
+    assert module.primary_unit == "M"
+    assert module.primary == 10
+    assert module.secondary_unit == "M"
+    assert module.secondary == 5
+
+
+def test_calculate_size_parameters_secondary_override_and_units_only():
+    module = setup_and_update_parms({
+        "space_secondary": 10,
+        "space_type": "CYL"
+    })
+
+    assert module.unit == "CYL"
+    assert module.primary == 1
+    assert module.primary_unit == ""
+    assert module.secondary == 10
+    assert module.secondary_unit == ""
+
+    module.generate_jcl()
+    module.calculate_size_parameters()
+
+    assert module.unit == "CYL"
+    assert module.primary_unit == "K"
+    assert module.primary == 2
+    assert module.secondary_unit == "CYL"
+    assert module.secondary == 10
+
+
+def test_calculate_size_parameters_units_override_only():
+    module = setup_and_update_parms({
+        "space_type": "CYL"
+    })
+
+    assert module.unit == "CYL"
+    assert module.primary == 1
+    assert module.primary_unit == ""
+    assert module.secondary == 1
+    assert module.secondary_unit == ""
+
+    module.generate_jcl()
+    module.calculate_size_parameters()
+
+    assert module.unit == "CYL"
+    assert module.primary_unit == "K"
+    assert module.primary == 2
+    assert module.secondary_unit == "K"
+    assert module.secondary == 1
+
+
 def test_initial_state():
     prepare_for_exit()
     region_jcl_module = setup_and_update_parms(get_sample_generated_JCL_args(DS_NAME, "initial"))

@@ -17,18 +17,20 @@ options:
         Note that this is just the value; the unit is specified with O(space_type).
       - This option takes effect only when the CICS startup JCL data set is being created.
         If the CICS startup JCL data set already exists, the option has no effect.
+      - If this option is not set the primary space is dynamically calculated based on the
+        size of the generated CICS startup JCL
     type: int
     required: false
-    default: 5
   space_secondary:
     description:
       - The size of the secondary space allocated to the CICS startup JCL data set.
         Note that this is just the value; the unit is specified with O(space_type).
       - This option takes effect only when the CICS startup JCL data set is being created.
         If the CICS startup JCL data set already exists, the option has no effect.
+      - If this option is not set the primary space is dynamically calculated as 10% of
+        the total size of the generated CICS startup JCL
     type: int
     required: false
-    default: 3
   space_type:
     description:
       - The unit portion of the CICS startup JCL data set size. Note that this is
@@ -38,6 +40,8 @@ options:
         If the CICS startup JCL data set already exists, the option has no effect.
       - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
         cylinders (V(CYL)), or tracks (V(TRK)).
+      - If neither O(space_secondary) or O(space_primary) are set, then this value will
+        not have any effect
     required: false
     type: str
     choices:

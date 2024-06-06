@@ -196,11 +196,13 @@ class DataSet():
         """
         # Mandatory parameters
         self.target_state = params[STATE]
-        self.primary = params[SPACE_PRIMARY]
-        self.secondary = params[SPACE_SECONDARY]
         self.region_param = params[REGION_DATA_SETS]
 
         # Optional parameters
+        if params.get(SPACE_PRIMARY):
+            self.primary = params[SPACE_PRIMARY]
+        if params.get(SPACE_SECONDARY):
+            self.secondary = params[SPACE_SECONDARY]
         if params.get(SPACE_TYPE):
             self.unit = params[SPACE_TYPE]
         if params.get(CICS_DATA_SETS) and params.get(CICS_DATA_SETS).get("sdfhload"):

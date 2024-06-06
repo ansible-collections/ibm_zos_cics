@@ -58,7 +58,7 @@ EXAMPLES = r"""
       sysidnt: ZPY1
 
 - name: Create CICS region JCL data set with more customization
-  ibm.ibm_zos_cics.start_cics:
+  ibm.ibm_zos_cics.region_jcl:
     applid: ABC9ABC1
     job_parameters:
       class: A
@@ -182,12 +182,11 @@ RETURN = r"""
 """
 
 import string
+import math
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import (
     MEGABYTES,
     REGION_DATA_SETS,
     CICS_DATA_SETS,
-    SPACE_PRIMARY,
-    SPACE_SECONDARY,
     SPACE_TYPE,
     ABSENT,
     INITIAL,
@@ -244,11 +243,13 @@ TOP_DATA_SETS = 'top_data_sets'
 class AnsibleRegionJCLModule(DataSet):
     def __init__(self):
         self.jcl = ""
-        super(AnsibleRegionJCLModule, self).__init__(SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT)
+        super(AnsibleRegionJCLModule, self).__init__(1, 1)
         self.name = self.region_param[DFHSTART][DSN].upper()
         self.expected_data_set_organization = "Sequential"
         self.dds = []
         self.jcl_helper = JCLHelper()
+        self.primary_unit = ""
+        self.secondary_unit = ""
 
     def get_result(self):  # type: () -> dict
         result = super().get_result()
@@ -259,13 +260,6 @@ class AnsibleRegionJCLModule(DataSet):
 
     def _get_arg_spec(self):  # type: () -> dict
         arg_spec = super(AnsibleRegionJCLModule, self)._get_arg_spec()
-
-        arg_spec[SPACE_PRIMARY].update({
-            "default": SPACE_PRIMARY_DEFAULT
-        })
-        arg_spec[SPACE_SECONDARY].update({
-            "default": SPACE_SECONDARY_DEFAULT
-        })
         arg_spec[SPACE_TYPE].update({
             "default": MEGABYTES
         })
@@ -304,13 +298,32 @@ class AnsibleRegionJCLModule(DataSet):
         dict_to_update.update({"arg_type": arg_type})
         dict_to_update.pop("type")
 
+    def calculate_size_parameters(self):
+        # Default primary and seconddary units to the space_type module arg
+        self.primary_unit = self.unit
+        self.secondary_unit = self.unit
+
+        min_size_bytes = int(math.ceil(len(self.jcl.encode()) / 1024))
+        primary_size_kilobytes = int(math.ceil(min_size_bytes * 1.1))
+        secondary_size_kilobytes = int(math.ceil(primary_size_kilobytes * 0.1))
+
+        # Check if a user has passed space arguments
+        if not self._module.params.get("space_primary"):
+            self.primary = primary_size_kilobytes
+            self.primary_unit = "K"
+
+        if not self._module.params.get("space_secondary"):
+            self.secondary = secondary_size_kilobytes
+            self.secondary_unit = "K"
+
     def create_data_set(self):  # type: () -> None
+        self.calculate_size_parameters()
         data_set_def = DatasetDefinition(
             dataset_name=self.name,
             primary=self.primary,
             secondary=self.secondary,
-            primary_unit=self.unit,
-            secondary_unit=self.unit,
+            primary_unit=self.primary_unit,
+            secondary_unit=self.secondary_unit,
             volumes=self.volumes,
             block_size=4096,
             record_length=80,
@@ -915,7 +928,7 @@ class AnsibleRegionJCLModule(DataSet):
                         'type': 'dict',
                         'required': False,
                         'options': {
-                            DSN : {
+                            DSN: {
                                 'type': 'str',
                                 'required': False
                             }
