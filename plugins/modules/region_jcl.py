@@ -279,10 +279,9 @@ class AnsibleRegionJCLModule(DataSet):
         defs[DFHRPL]["options"][TOP_DATA_SETS].update({"elements": "data_set_base"})
         defs[DFHRPL]["options"][DATA_SETS].update({"elements": "data_set_base"})
         self.update_arg_def(defs[APPLID], "qualifier")
-        if defs.get(JOB_PARAMETERS):
-            if defs[JOB_PARAMETERS]["options"].get(JOB_NAME):
-                # If they've provided a job_name we need to validate this too
-                self.update_arg_def(defs[JOB_PARAMETERS]["options"][JOB_NAME], "qualifier")
+        if defs.get(JOB_PARAMETERS) and defs[JOB_PARAMETERS]["options"].get(JOB_NAME):
+            # If they've provided a job_name we need to validate this too
+            self.update_arg_def(defs[JOB_PARAMETERS]["options"][JOB_NAME], "qualifier")
         # Popping sit parameters as these dont need validation and it will complain at arbitary keys.
         defs.pop(SIT_PARAMETERS)
         return defs
