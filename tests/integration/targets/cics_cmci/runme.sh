@@ -19,4 +19,5 @@ ansible-playbook -e "@$VAR_PATH" playbooks/cmci_incorrect_scheme.yml
 ansible-playbook -e "@$VAR_PATH" playbooks/cmci_bas_link.yml
 ansible-playbook -e "@$VAR_PATH" playbooks/cmci_bas_install.yml
 ansible-playbook -e "@$VAR_PATH" playbooks/cmci_bas_install_error.yml
-ansible-playbook -e "@$VAR_PATH" playbooks/cics_cmci_module_defaults.yml
+ansible-playbook -e "@$VAR_PATH" playbooks/cics_cmci_module_defaults_cmci.yml
+ansible-playbook -e "@$VAR_PATH" playbooks/cics_cmci_module_defaults_cmci_group.yml

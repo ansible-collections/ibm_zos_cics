@@ -7,6 +7,12 @@ action_groups:
     - cmci_delete
     - cmci_get
     - cmci_update
+  cmci:
+    - cmci_action
+    - cmci_create
+    - cmci_delete
+    - cmci_get
+    - cmci_update
   region:
     - aux_temp_storage
     - aux_trace
