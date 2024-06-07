@@ -68,7 +68,7 @@
         - name: Issue shutdown command (with job_id and job_name)
           ibm.ibm_zos_cics.stop_region:
             job_name: "{{ start_region_applid }}"
-            job_id: "{{ start_result.job_id }}"
+            job_id: "{{ start_result.stdout }}"
             mode: normal
             timeout: 120
           register: stop_result
@@ -96,7 +96,7 @@
       always:
         - name: Delete job
           ansible.builtin.command:
-            cmd: "jcan P {{ start_region_applid }} {{ start_result.job_id }}"
+            cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
           ignore_errors: true
 
     - name: Stop job no timeout
@@ -107,7 +107,7 @@
         - name: Issue shutdown command (with job_id and job_name)
           ibm.ibm_zos_cics.stop_region:
             job_name: "{{ start_region_applid }}"
-            job_id: "{{ start_result.job_id }}"
+            job_id: "{{ start_result.stdout }}"
             mode: normal
             timeout: -1
           register: stop_result
@@ -159,7 +159,7 @@
         - name: Issue shutdown command (wrong name)
           ibm.ibm_zos_cics.stop_region:
             job_name: "NONJOB"
-            job_id: "{{ start_result.job_id }}"
+            job_id: "{{ start_result.stdout }}"
           register: stop_result
           timeout: 300
           ignore_errors: true
@@ -172,11 +172,11 @@
           ansible.builtin.assert:
             that:
               - stop_result.failed == true
-              - stop_result.msg == "No jobs found with name NONJOB and ID {{ start_result.job_id }}"
+              - stop_result.msg == "No jobs found with name NONJOB and ID {{ start_result.stdout }}"
       always:
         - name: Delete job
           ansible.builtin.command:
-            cmd: "jcan C {{ start_region_applid }} {{ start_result.job_id }}"
+            cmd: "jcan C {{ start_region_applid }} {{ start_result.stdout }}"
           ignore_errors: true
 
     - name: Stop job already stopped
@@ -193,7 +193,7 @@
               - stop_result.msg == ""
         - name: Issue shutdown command with ID
           ibm.ibm_zos_cics.stop_region:
-            job_id: "{{ start_result.job_id }}"
+            job_id: "{{ start_result.stdout }}"
           register: stop_result
         - name: Assert CICS stop did not fail
           ansible.builtin.assert:
@@ -203,7 +203,7 @@
               - stop_result.msg == ""
         - name: Issue shutdown command with ID and name
           ibm.ibm_zos_cics.stop_region:
-            job_id: "{{ start_result.job_id }}"
+            job_id: "{{ start_result.stdout }}"
             job_name: "{{ start_region_applid }}"
           register: stop_result
         - name: Assert CICS stop did not fail
@@ -215,7 +215,7 @@
         
         - name: Issue shutdown command with mismatched name and id (wrong name)
           ibm.ibm_zos_cics.stop_region:
-            job_id: "{{ start_result.job_id }}"
+            job_id: "{{ start_result.stdout }}"
             job_name: "NONJOB"
           register: stop_result
           ignore_errors: true
@@ -224,7 +224,7 @@
             that:
               - stop_result.failed == true
               - stop_result.changed == false
-              - stop_result.msg == "No jobs found with name NONJOB and ID {{ start_result.job_id }}"
+              - stop_result.msg == "No jobs found with name NONJOB and ID {{ start_result.stdout }}"
         - name: Issue shutdown command with mismatched name and id  (wrong id)
           ibm.ibm_zos_cics.stop_region:
             job_id: "NONJOB"
@@ -241,7 +241,7 @@
       always:
         - name: Delete job
           ansible.builtin.command:
-            cmd: "jcan P {{ start_region_applid }} {{ start_result.job_id }}"
+            cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
           ignore_errors: true
         - name: Delete data sets
           ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml

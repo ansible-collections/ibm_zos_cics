@@ -45,7 +45,7 @@
         - jobid is not defined or jobid is true
       ibm.ibm_zos_cics.stop_region:
         job_name: "{{ start_region_applid }}"
-        job_id: "{{ start_result.job_id }}"
+        job_id: "{{ start_result.stdout }}"
         mode: "{{ mode }}"
       register: stop_result
       timeout: 300

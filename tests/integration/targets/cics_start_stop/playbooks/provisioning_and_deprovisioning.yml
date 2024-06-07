@@ -37,7 +37,7 @@
         always:
           - name: Delete job
             ansible.builtin.command:
-              cmd: "jcan P {{ start_region_applid }} {{ start_result.job_id }}"
+              cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
             ignore_errors: true
 
       - name: Warm Immediate
@@ -58,7 +58,7 @@
         always:
           - name: Delete job
             ansible.builtin.command:
-              cmd: "jcan P {{ start_region_applid }} {{ start_result.job_id }}"
+              cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
             ignore_errors: true
 
       - name: Normal Cancel
@@ -74,7 +74,7 @@
         always:
           - name: Delete job
             ansible.builtin.command:
-              cmd: "jcan P {{ start_region_applid }} {{ start_result.job_id }}"
+              cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
             ignore_errors: true
 
       always:
