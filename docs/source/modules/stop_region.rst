@@ -183,7 +183,7 @@ Return Values
         rc
           | The return code for the program execution.
       
-          | **returned**: on shutdown execution
+          | **returned**: always
           | **type**: int
       
       
@@ -204,10 +204,18 @@ Return Values
       
       
                               
+         failed
+            | True if the module failed, otherwise False.
+      
+            | **returned**: always
+            | **type**: bool
+      
+      
+                              
          jobs
             | The output information for a list of jobs matching specified criteria.
       
-            | **returned**: success
+            | **returned**: on zos_job_query module execution
             | **type**: list
               
    
@@ -298,7 +306,7 @@ Return Values
          message
             | Message returned on failure.
       
-            | **returned**: failure
+            | **returned**: on zos_job_query module execution
             | **type**: str
       
       
@@ -306,8 +314,74 @@ Return Values
          content
             | The resulting text from the command submitted.
       
-            | **returned**: on success of PERFORM SHUTDOWN command submission.
+            | **returned**: on zos_operator module execution
             | **type**: list
+      
+      
+                              
+         cmd
+            | The operator command that has been executed
+      
+            | **returned**: on zos_operator module execution
+            | **type**: str
+      
+      
+                              
+         rc
+            | The return code from the operator command
+      
+            | **returned**: on zos_operator module execution
+            | **type**: int
+      
+      
+                              
+         max_rc
+            | The maximum return code from the tso status command
+      
+            | **returned**: on zos_tso_command module execution
+            | **type**: int
+      
+      
+                              
+         output
+            | The output from the tso command
+      
+            | **returned**: on zos_tso_command module execution
+            | **type**: list
+              
+   
+                              
+          command
+              | The executed TSO command.
+      
+              | **returned**: always
+              | **type**: str
+      
+      
+                              
+          rc
+              | The return code from the executed TSO command.
+      
+              | **returned**: always
+              | **type**: int
+      
+      
+                              
+          content
+              | The response resulting from the execution of the TSO command.
+      
+              | **returned**: always
+              | **type**: list
+      
+      
+                              
+          lines
+              | The line number of the content.
+      
+              | **returned**: always
+              | **type**: int
+      
+        
       
         
       

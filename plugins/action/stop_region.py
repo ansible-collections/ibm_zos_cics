@@ -195,6 +195,7 @@ class ActionModule(ActionBase):
     def _add_status_execution(self, job, result):
         self.executions.append({
             NAME: CHECK_CICS_STATUS.format(job),
+            RC: result.get("max_rc"),
             RETURN: result,
         })
 
@@ -241,6 +242,7 @@ class ActionModule(ActionBase):
         )
         self.executions.append({
             NAME: "ZOS Job Query - {0}".format(job_id),
+            RC: 0 if query_response.get("message", "-") == "" and isinstance(query_response.get("jobs", {}), list) else 1,
             RETURN: query_response
         })
         return query_response
@@ -253,6 +255,7 @@ class ActionModule(ActionBase):
         )
         self.executions.append({
             NAME: "ZOS Operator Command - {0}".format(command),
+            RC: operator_response.get("rc"),
             RETURN: operator_response,
         })
         return operator_response
@@ -276,6 +279,7 @@ class ActionModule(ActionBase):
         cancel_response = command_action.run(task_vars=self.task_vars)
         self.executions.append({
             NAME: "Cancel command - {0}({1})".format(job_name, job_id),
+            RC: cancel_response.get("rc"),
             RETURN: cancel_response,
         })
         return cancel_response

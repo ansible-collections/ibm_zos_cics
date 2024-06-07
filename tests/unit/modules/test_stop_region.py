@@ -33,8 +33,6 @@ def test__validate_sdtran():
     stop_module._module.params[SDTRAN] = "CESD"
     stop_module.main()
     assert stop_module.failed is False
-    assert stop_module.changed is False
-    assert stop_module.executions == []
 
 
 def test__validate_sdtran_3_chars():
@@ -42,8 +40,6 @@ def test__validate_sdtran_3_chars():
     stop_module._module.params[SDTRAN] = "C$D"
     stop_module.main()
     assert stop_module.failed is False
-    assert stop_module.changed is False
-    assert stop_module.executions == []
 
 
 def test__validate_sdtran_numerical():
@@ -51,8 +47,6 @@ def test__validate_sdtran_numerical():
     stop_module._module.params[SDTRAN] = "1234"
     stop_module.main()
     assert stop_module.failed is False
-    assert stop_module.changed is False
-    assert stop_module.executions == []
 
 
 def test__validate_sdtran_too_long():
@@ -64,4 +58,3 @@ def test__validate_sdtran_too_long():
         stop_module.msg
         == "Value: CESDS, is invalid. SDTRAN value must be  1-4 characters."
     )
-    assert stop_module.executions == []

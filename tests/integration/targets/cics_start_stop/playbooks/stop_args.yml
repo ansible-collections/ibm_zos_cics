@@ -86,6 +86,12 @@
               - stop_result.executions[-1].return.output[0].content | length == 2
               - "'ON OUTPUT QUEUE' in '{{ stop_result.executions[-1].return.output[0].content | join(' ') }}'"
             fail_msg: "CICS Region did not stop successfully"
+        - name: Assert execution RCs are 0
+          ansible.builtin.assert:
+            that:
+              - item.rc == 0
+            msg: Job failed with RC != 0
+          loop: "{{ stop_result.executions }}"
 
       always:
         - name: Delete job
@@ -120,6 +126,12 @@
               - stop_result.executions[-1].return.output[0].content | length == 2
               - "'ON OUTPUT QUEUE' in '{{ stop_result.executions[-1].return.output[0].content | join(' ') }}'"
             fail_msg: "CICS Region did not stop successfully"
+        - name: Assert execution RCs are 0
+          ansible.builtin.assert:
+            that:
+              - item.rc == 0
+            msg: Job failed with RC != 0
+          loop: "{{ stop_result.executions }}"
 
     - name: Stop job mismatched name and ID
       block:

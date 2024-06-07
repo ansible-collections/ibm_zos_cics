@@ -78,6 +78,14 @@
       - "'ON OUTPUT QUEUE' in '{{ stop_output.executions[-1].return.output[0].content | join(' ') }}'"
     fail_msg: "CICS Region did not stop successfully"
 
+- name: Assert execution RCs are 0
+  when: expect_failure is not defined or expect_failure is false
+  ansible.builtin.assert:
+    that:
+      - item.rc == 0
+    msg: Job failed with RC != 0
+  loop: "{{ stop_output.executions }}"
+
 - name: Execute a command to delete job
   when: expect_failure is not defined or expect_failure is false
   ansible.builtin.command:

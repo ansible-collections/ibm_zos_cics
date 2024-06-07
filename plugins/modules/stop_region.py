@@ -123,7 +123,7 @@ executions:
     rc:
       description: The return code for the program execution.
       type: int
-      returned: on shutdown execution
+      returned: always
     return:
       description: The standard output returned by the program execution.
       type: dict
@@ -133,10 +133,14 @@ executions:
           description: True if the state was changed, otherwise False.
           returned: always
           type: bool
+        failed:
+          description: True if the module failed, otherwise False.
+          returned: always
+          type: bool
         jobs:
           description: The output information for a list of jobs matching specified criteria.
           type: list
-          returned: success
+          returned: on zos_job_query module execution
           elements: dict
           contains:
             job_id:
@@ -186,12 +190,47 @@ executions:
                       type: int
         message:
           description: Message returned on failure.
-          returned: failure
+          returned: on zos_job_query module execution
           type: str
         content:
           description: The resulting text from the command submitted.
-          returned: on success of PERFORM SHUTDOWN command submission.
+          returned: on zos_operator module execution
           type: list
+        cmd:
+          description: The operator command that has been executed
+          returned: on zos_operator module execution
+          type: str
+        rc:
+          description: The return code from the operator command
+          returned: on zos_operator module execution
+          type: int
+        max_rc:
+          description: The maximum return code from the tso status command
+          returned: on zos_tso_command module execution
+          type: int
+        output:
+          description: The output from the tso command
+          returned: on zos_tso_command module execution
+          type: list
+          elements: dict
+          contains:
+            command:
+              description: The executed TSO command.
+              returned: always
+              type: str
+            rc:
+              description: The return code from the executed TSO command.
+              returned: always
+              type: int
+            content:
+              description: The response resulting from the execution of the TSO command.
+              returned: always
+              type: list
+            lines:
+              description: The line number of the content.
+              returned: always
+              type: int
+
 msg:
   description: A string containing an error message if applicable
   returned: always
