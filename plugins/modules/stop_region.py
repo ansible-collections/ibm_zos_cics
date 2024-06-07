@@ -220,10 +220,8 @@ class AnsibleStopCICSModule(object):
             mutually_exclusive=[(SDTRAN, NO_SDTRAN)],
             required_one_of=[(JOB_ID, JOB_NAME)],
         )
-        self.changed = False
         self.failed = False
         self.msg = ""
-        self.executions = []
 
     def main(self):
         if self._module.params.get(SDTRAN):
@@ -247,9 +245,9 @@ class AnsibleStopCICSModule(object):
 
     def get_result(self):  # type: () -> dict
         return {
-            "changed": self.changed,
+            "changed": False,
             "failed": self.failed,
-            "executions": self.executions,
+            "executions": [],
             "msg": self.msg
         }
 

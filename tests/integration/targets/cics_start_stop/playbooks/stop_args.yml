@@ -142,7 +142,7 @@
           ansible.builtin.assert:
             that:
               - stop_result.failed == true
-              - stop_result.msg == "No jobs found with name TWYD01 and ID NONJOB"
+              - stop_result.msg == "No jobs found with name {{ start_region_applid }} and ID NONJOB"
         
         - name: Issue shutdown command (wrong name)
           ibm.ibm_zos_cics.stop_region:

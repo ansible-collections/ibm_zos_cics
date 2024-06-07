@@ -49,21 +49,20 @@ class ActionModule(ActionBase):
         self._setup(tmp, task_vars)
         self._execute_stop_module()
 
-        if self.result.get(FAILED):
-            return self.result
+        if self.failed:
+            return self.get_result()
 
         self._parse_module_params()
 
         try:
             self._get_job_data()
         except AnsibleActionFail as e:
-            self.result.update(
-                {MSG: e.args[0], FAILED: True, CHANGED: False})
-            return self.result
+            self.failed = True
+            return self.get_result(e.args[0])
 
         if not self.job_id or not self.job_name or self.job_status != EXECUTING:
-            self.result.update({FAILED: False, CHANGED: False, })
-            return self.result
+            self.failed = True
+            return self.get_result()
 
         self.logger.debug(RUNNING_ATTEMPTING_TO_STOP)
         try:
@@ -72,17 +71,17 @@ class ActionModule(ActionBase):
             else:
                 self._perform_shutdown()
         except AnsibleActionFail as e:
-            self.result.update(
-                {MSG: e.args[0], FAILED: True, CHANGED: False})
-            return self.result
+            self.failed = True
+            return self.get_result(e.args[0])
 
         try:
             self.wait_for_shutdown()
-            self.result.update({CHANGED: True})
+            self.changed = True
         except TimeoutError as e:
-            self.result.update({MSG: e.args[0], FAILED: True})
+            self.failed = True
+            self.msg = e.args[0]
 
-        return self.result
+        return self.get_result()
 
     def _cancel_region(self):
         run_command_result = self.execute_cancel_shell_cmd(
@@ -104,21 +103,28 @@ class ActionModule(ActionBase):
         self.module_args = self._task.args.copy()
         self.logger = logging.getLogger(__name__)
 
-        self.result = {
-            FAILED: False,
-            CHANGED: False,
-            MSG: "",
-            EXECUTIONS: [],
+        self.failed = False
+        self.changed = False
+        self.msg = ""
+        self.executions = []
+
+    def get_result(self, msg=None):
+        return {
+            FAILED: self.failed,
+            CHANGED: self.changed,
+            MSG: msg if msg else self.msg,
+            EXECUTIONS: self.executions,
         }
 
     def _execute_stop_module(self):
-        self.result.update(
-            self._execute_module(
-                module_name=STOP_MODULE_NAME,
-                module_args=self.module_args,
-                task_vars=self.task_vars,
-                tmp=self.tmp,
-            ))
+        stop_module_output = self._execute_module(
+            module_name=STOP_MODULE_NAME,
+            module_args=self.module_args,
+            task_vars=self.task_vars,
+            tmp=self.tmp,
+        )
+        self.failed = stop_module_output.get(FAILED, self.failed)
+        self.msg = stop_module_output.get(MSG, self.msg)
 
     def _parse_module_params(self):
         self.job_name = self.module_args.get(JOB_NAME)
@@ -141,7 +147,8 @@ class ActionModule(ActionBase):
             if len(running_jobs) > 1:
                 self.job_status = "MULTIPLE"
                 raise AnsibleActionFail(
-                    "Cannot ambiguate between multiple running jobs with the same name ({0}). Use `job_id` as a parameter to specify the correct job.".format(self.job_name))
+                    "Cannot ambiguate between multiple running jobs with the same name ({0}). Use `job_id` as a parameter to specify the correct job.".format(
+                        self.job_name))
 
             self.job_id = running_jobs[0][JOB_ID]
             self.job_status = running_jobs[0][STATUS]
@@ -186,7 +193,7 @@ class ActionModule(ActionBase):
         return running
 
     def _add_status_execution(self, job, result):
-        self.result[EXECUTIONS].append({
+        self.executions.append({
             NAME: CHECK_CICS_STATUS.format(job),
             RETURN: result,
         })
@@ -195,7 +202,7 @@ class ActionModule(ActionBase):
         end_time = calculate_end_time(
             self.timeout) if self.timeout > 0 else None
 
-        self.result[EXECUTIONS].append({})
+        self.executions.append({})
         status = EXECUTING
         while status == EXECUTING and (
             get_datetime_now() < end_time if end_time else True
@@ -207,7 +214,7 @@ class ActionModule(ActionBase):
                 TSO_STATUS_ID_COMMAND.format(self.job_name, self.job_id)
             )
 
-            self.result[EXECUTIONS].pop()
+            self.executions.pop()
             self._add_status_execution(self.job_id, tso_cmd_response)
 
             status = _get_job_status_name_id(
@@ -232,7 +239,7 @@ class ActionModule(ActionBase):
             module_args={JOB_ID: job_id},
             task_vars=self.task_vars,
         )
-        self.result[EXECUTIONS].append({
+        self.executions.append({
             NAME: "ZOS Job Query - {0}".format(job_id),
             RETURN: query_response
         })
@@ -244,7 +251,7 @@ class ActionModule(ActionBase):
             module_args={"cmd": command},
             task_vars=self.task_vars,
         )
-        self.result[EXECUTIONS].append({
+        self.executions.append({
             NAME: "ZOS Operator Command - {0}".format(command),
             RETURN: operator_response,
         })
@@ -267,7 +274,7 @@ class ActionModule(ActionBase):
             shared_loader_obj=self._shared_loader_obj,
         )
         cancel_response = command_action.run(task_vars=self.task_vars)
-        self.result[EXECUTIONS].append({
+        self.executions.append({
             NAME: "Cancel command - {0}({1})".format(job_name, job_id),
             RETURN: cancel_response,
         })
