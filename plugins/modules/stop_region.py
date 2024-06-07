@@ -12,9 +12,11 @@ DOCUMENTATION = r'''
 module: stop_region
 short_description: Stop a CICS region
 description:
-  - Stop a CICS region by using CEMT PERFORM SHUTDOWN. You can choose to perform a NORMAL or IMMEDIATE shutdown.
-  - During a NORMAL or IMMEDIATE shutdown, a shutdown assist program should run to enable CICS to shut down in a controlled manner.
-    By default, the CICS-supplied shutdown assist transaction, CESD is used. You can specify a custom shutdown assist program in the
+  - Stop a CICS region by issuing a CEMT PERFORM SHUTDOWN, or cancel the job using ZOAU's job cancelling capability.
+  - The job_id, job_name, or both can be used to shutdown a region. If mulitple jobs are running with the same name, the job_id is required.
+  - You can choose the shutdown mode from NORMAL, IMMEDIATE, or CANCEL.
+  - During a NORMAL or IMMEDIATE shutdown, a shutdown assist transaction should run to enable CICS to shut down in a controlled manner.
+    By default, the CICS-supplied shutdown assist transaction, CESD is used. You can specify a custom shutdown assist transaction in the
     SDTRAN system initialization parameter. The task runs until the region has successfully shut down, or until the shutdown fails.
   - You must have a console installed in the CICS region so that the stop_region module can communicate with CICS. To define a console,
     you must install a terminal with the CONSNAME attribute set to your TSO user ID. For detailed instructions, see
@@ -22,6 +24,8 @@ description:
     Add your console definition into one of the resource lists defined on the GRPLIST system initialization parameter so that it gets
     installed into the CICS region.
     Alternatively, you can use a DFHCSDUP script to update an existing CSD. This function is provided by the csd module.
+  - You may specify a timeout, in seconds, to wait for the region to stop after issuing the command. If this timeout is reached, the module
+    completes in a failed state. Default behaviour does not use a timeout, which is set using a value of -1.
 version_added: 1.1.0-beta.5
 author:
   - Kiera Bennett (@KieraBennett)
@@ -31,7 +35,14 @@ options:
       - Identifies the job ID belonging to the running CICS region.
       - The stop_region module uses this job ID to identify the state of the CICS region and shut it down.
     type: str
-    required: true
+    required: false
+  job_name:
+    description:
+      - Identifies the job name belonging to the running CICS region.
+      - The stop_region module uses this job name to identify the state of the CICS region and shut it down.
+      - The job_name must be unique; if multiple jobs with the same name are running, use job_id.
+    type: str
+    required: false
   mode:
     description:
       - Specify the type of shutdown to be executed on the CICS region.
@@ -54,6 +65,13 @@ options:
     type: bool
     default: false
     required: false
+  timeout:
+    description:
+      - Time to wait for region to stop, in seconds.
+      - Specify -1 to exclude a timeout.
+    type: int
+    default: -1
+    required: false
 '''
 
 
@@ -66,11 +84,26 @@ EXAMPLES = r'''
   ibm.ibm_zos_cics.stop_region:
     job_id: JOB12354
     mode: immediate
+
+- name: "Stop CICS region with name and ID"
+  ibm.ibm_zos_cics.stop_region:
+    job_id: JOB12354
+    job_name: MYREG01
+
+- name: "Stop CICS using job name"
+  ibm.ibm_zos_cics.stop_region:
+    job_name: ANS1234
+    mode: normal
+
+- name: "Cancel CICS region"
+  ibm.ibm_zos_cics.stop_region:
+    job_name: ANS1234
+    mode: cancel
 '''
 
 RETURN = r'''
 changed:
-  description: True if the PERFORM SHUTDOWN command was executed.
+  description: True if the PERFORM SHUTDOWN or CANCEL command was executed.
   returned: always
   type: bool
 failed:
@@ -201,9 +234,10 @@ class AnsibleStopCICSModule(object):
         self.result = self.get_result()
         self._module.exit_json(**self.result)
 
-    def _validate_sdtran(self, program):  # type: (str) -> None
-        if len(program) > 4:
-            self._fail("Value: {0}, is invalid. SDTRAN value must be  1-4 characters.".format(program))
+    def _validate_sdtran(self, transaction):  # type: (str) -> None
+        if len(transaction) > 4:
+            self._fail(
+                "Value: {0}, is invalid. SDTRAN value must be  1-4 characters.".format(transaction))
 
     def _fail(self, msg):  # type: (str) -> None
         self.failed = True

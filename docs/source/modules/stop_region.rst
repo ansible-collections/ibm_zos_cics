@@ -20,9 +20,12 @@ stop_region -- Stop a CICS region
 
 Synopsis
 --------
-- Stop a CICS region by using CEMT PERFORM SHUTDOWN. You can choose to perform a NORMAL or IMMEDIATE shutdown.
-- During a NORMAL or IMMEDIATE shutdown, a shutdown assist program should run to enable CICS to shut down in a controlled manner. By default, the CICS-supplied shutdown assist transaction, CESD is used. You can specify a custom shutdown assist program in the SDTRAN system initialization parameter. The task runs until the region has successfully shut down, or until the shutdown fails.
+- Stop a CICS region by issuing a CEMT PERFORM SHUTDOWN, or cancel the job using ZOAU's job cancelling capability.
+- The job\_id, job\_name, or both can be used to shutdown a region. If mulitple jobs are running with the same name, the job\_id is required.
+- You can choose the shutdown mode from NORMAL, IMMEDIATE, or CANCEL.
+- During a NORMAL or IMMEDIATE shutdown, a shutdown assist transaction should run to enable CICS to shut down in a controlled manner. By default, the CICS-supplied shutdown assist transaction, CESD is used. You can specify a custom shutdown assist transaction in the SDTRAN system initialization parameter. The task runs until the region has successfully shut down, or until the shutdown fails.
 - You must have a console installed in the CICS region so that the stop\_region module can communicate with CICS. To define a console, you must install a terminal with the CONSNAME attribute set to your TSO user ID. For detailed instructions, see \ `Defining TSO users as console devices <https://www.ibm.com/docs/en/cics-ts/6.1?topic=cics-defining-tso-users-as-console-devices>`__\ . Add your console definition into one of the resource lists defined on the GRPLIST system initialization parameter so that it gets installed into the CICS region. Alternatively, you can use a DFHCSDUP script to update an existing CSD. This function is provided by the csd module.
+- You may specify a timeout, in seconds, to wait for the region to stop after issuing the command. If this timeout is reached, the module completes in a failed state. Default behaviour does not use a timeout, which is set using a value of -1.
 
 
 
@@ -39,7 +42,20 @@ job_id
   The stop\_region module uses this job ID to identify the state of the CICS region and shut it down.
 
 
-  | **required**: True
+  | **required**: False
+  | **type**: str
+
+
+     
+job_name
+  Identifies the job name belonging to the running CICS region.
+
+  The stop\_region module uses this job name to identify the state of the CICS region and shut it down.
+
+  The job\_name must be unique; if multiple jobs with the same name are running, use job\_id.
+
+
+  | **required**: False
   | **type**: str
 
 
@@ -74,6 +90,18 @@ sdtran
   | **type**: str
 
 
+     
+timeout
+  Time to wait for region to stop, in seconds.
+
+  Specify -1 to exclude a timeout.
+
+
+  | **required**: False
+  | **type**: int
+  | **default**: -1
+
+
 
 
 Examples
@@ -91,6 +119,21 @@ Examples
        job_id: JOB12354
        mode: immediate
 
+   - name: "Stop CICS region with name and ID"
+     ibm.ibm_zos_cics.stop_region:
+       job_id: JOB12354
+       job_name: MYREG01
+
+   - name: "Stop CICS using job name"
+     ibm.ibm_zos_cics.stop_region:
+       job_name: ANS1234
+       mode: normal
+
+   - name: "Cancel CICS region"
+     ibm.ibm_zos_cics.stop_region:
+       job_name: ANS1234
+       mode: cancel
+
 
 
 
@@ -106,7 +149,7 @@ Return Values
    
                               
        changed
-        | True if the PERFORM SHUTDOWN command was executed.
+        | True if the PERFORM SHUTDOWN or CANCEL command was executed.
       
         | **returned**: always
         | **type**: bool
