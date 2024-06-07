@@ -3,12 +3,9 @@
 # (c) Copyright IBM Corp. 2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
-from unittest.mock import MagicMock
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._jcl_helper import (
     JCLHelper, JCL_PREFIX, JOB_CARD, EXECS
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.data_set import DataSet, DatasetWriteError
 import pytest
 import sys
 
@@ -508,40 +505,3 @@ def test_add_single_quotes_to_text():
     assert JCLHelper._add_single_quotes_to_text("\"hel'lo\"") == "'hel''lo'"
     assert JCLHelper._add_single_quotes_to_text("hel'lo") == "'hel''lo'"
     assert JCLHelper._add_single_quotes_to_text("h'e'l'l'o") == "'h''e''l''l''o'"
-
-
-def test__write_jcl_to_data_set():
-    data_set_name = "TEST.DATA.SET"
-    jcl = ""
-    DataSet.write = MagicMock()
-
-    expected_executions = [{
-        "name": "Copy JCL contents to data set",
-        "rc": 0,
-        "stdout": "",
-        "stderr": ""
-    }]
-
-    executions = JCLHelper._write_jcl_to_data_set(jcl, data_set_name)
-
-    assert expected_executions == executions
-
-
-def test__write_jcl_to_data_set_fail():
-    rc = 99
-    data_set_name = "TEST.DATA.SET"
-    jcl = ""
-    DataSet.write = MagicMock(side_effect=DatasetWriteError(data_set_name, rc))
-
-    expected_executions = [{
-        "name": "Copy JCL contents to data set",
-        "rc": 1,
-        "stdout": "",
-        "stderr": "An error occurred during write of data set \"TEST.DATA.SET\". RC=99. "
-    }]
-
-    with pytest.raises(MVSExecutionException) as e:
-        JCLHelper._write_jcl_to_data_set(jcl, data_set_name)
-
-    assert e.value.message == "Failed to copy JCL content to data set"
-    assert e.value.executions == expected_executions

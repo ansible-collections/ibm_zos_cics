@@ -21,12 +21,13 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     IEFBR14_create_stderr,
     LISTDS_data_set,
     LISTDS_data_set_doesnt_exist,
+    LISTDS_member_doesnt_exist,
     LISTDS_run_name,
+    LISTSDS_member_data_set,
     get_sample_generated_JCL,
     get_sample_generated_JCL_args
 )
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.data_set import DataSet
 import pytest
 import sys
 
@@ -737,7 +738,6 @@ def test_validate_parameters_job_name():
     prepare_for_exit()
     job_name = "STRTJOB"
     module = setup_and_update_parms({"job_parameters": {"job_name": job_name}})
-    module.validate_parameters()
     module._exit()
     assert not module.result["failed"]
 
@@ -755,7 +755,6 @@ def test_validate_parameters_ds():
     prepare_for_exit()
     data_set_name = "DATASET.DATA"
     module = setup_and_update_parms({"cics_data_sets": {"sdfhauth": data_set_name}})
-    module.validate_parameters()
     module._exit()
     assert not module.result["failed"]
 
@@ -782,7 +781,7 @@ def test_validate_parameters_region_ds_too_long():
     prepare_for_fail()
     region_ds = "LIB.TOOO.LONGQUALIFIER"
     with pytest.raises(AnsibleFailJson) as exec_info:
-        module = setup_and_update_parms({"region_data_sets": {"dfhcsd": {"dsn": region_ds}}})
+        module = setup_and_update_parms({"region_data_sets": {"dfhcsd": {"dsn": region_ds}, "dfhstart": {"dsn": DS_NAME}}})
         assert module.result["failed"]
     assert exec_info.value.args[0]['msg'] == 'Invalid argument "{0}" for type "data_set_base".'.format(region_ds)
 
@@ -1011,6 +1010,34 @@ def test_calculate_size_parameters_units_override_only():
     assert module.secondary == 1
 
 
+def test_check_member():
+    module = setup_and_update_parms({
+        "region_data_sets": {
+            "dfhstart": {
+                "dsn": "TEST.DATA(MEMBER)"
+            }
+        }
+    })
+    module.check_member()
+
+    assert module.member is True
+    assert module.get_expected_ds_org() == "Partitioned"
+
+
+def test_check_member_not_member():
+    module = setup_and_update_parms({
+        "region_data_sets": {
+            "dfhstart": {
+                "dsn": "TEST.DATA.PDSE"
+            }
+        }
+    })
+    module.check_member()
+
+    assert module.member is False
+    assert module.get_expected_ds_org() == "Sequential"
+
+
 def test_initial_state():
     prepare_for_exit()
     region_jcl_module = setup_and_update_parms(get_sample_generated_JCL_args(DS_NAME, "initial"))
@@ -1028,7 +1055,7 @@ def test_initial_state():
         )
     )
 
-    DataSet.write = MagicMock()
+    _data_set_utils._execute_command = MagicMock(return_value=(0, "", ""))
 
     region_jcl_module.main()
     expected_result = dict(
@@ -1094,7 +1121,7 @@ def test_initial_state_pre_existing():
         )
     )
 
-    DataSet.write = MagicMock()
+    _data_set_utils._execute_command = MagicMock(return_value=(0, "", ""))
 
     region_jcl_module.main()
     expected_result = dict(
@@ -1337,9 +1364,6 @@ def test_absent_state_not_existing():
     _data_set_utils._execute_listds = MagicMock(
         return_value=MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(DS_NAME), ""),
     )
-    _data_set_utils._execute_idcams = MagicMock(
-        return_value=MVSCmdResponse(0, IDCAMS_delete(DS_NAME), "")
-    )
 
     region_jcl_module.main()
     expected_result = dict(
@@ -1354,6 +1378,619 @@ def test_absent_state_not_existing():
                 name=LISTDS_run_name(1),
                 rc=8,
                 stdout=LISTDS_data_set_doesnt_exist(DS_NAME),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=False,
+        failed=False,
+        msg="",
+        jcl=""
+    )
+    assert region_jcl_module.get_result() == expected_result
+
+
+def test_initial_state_member():
+    prepare_for_exit()
+    BASE_DS = "TEST.DATA"
+    MEMBER_NAME = "START"
+    MEMBER_DS_NAME = "{0}({1})".format(BASE_DS, MEMBER_NAME)
+    region_jcl_module = setup_and_update_parms(get_sample_generated_JCL_args(MEMBER_DS_NAME, "initial"))
+
+    _data_set_utils._execute_listds = MagicMock(
+        side_effect=[
+            MVSCmdResponse(0, LISTDS_data_set(BASE_DS, "PO"), ""),
+            MVSCmdResponse(4, LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(BASE_DS, "PO"), ""),
+            MVSCmdResponse(0, LISTSDS_member_data_set(BASE_DS, MEMBER_NAME), "")
+        ]
+    )
+
+    _data_set_utils._execute_command = MagicMock(return_value=(0, "", ""))
+
+    region_jcl_module.main()
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(BASE_DS, "PO"),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=4,
+                stdout=LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME),
+                stderr="",
+            ),
+            _execution(
+                name="Copy JCL contents to data set",
+                rc=0,
+                stdout="",
+                stderr=""
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(BASE_DS, "PO"),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTSDS_member_data_set(BASE_DS, MEMBER_NAME),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="Partitioned"
+        ),
+        changed=True,
+        failed=False,
+        msg="",
+        jcl=get_sample_generated_JCL()
+    )
+    assert region_jcl_module.get_result() == expected_result
+
+
+def test_initial_state_member_base_not_exisitng():
+    prepare_for_fail()
+    BASE_DS = "TEST.DATA"
+    MEMBER_NAME = "START"
+    MEMBER_DS_NAME = "{0}({1})".format(BASE_DS, MEMBER_NAME)
+    region_jcl_module = setup_and_update_parms(get_sample_generated_JCL_args(MEMBER_DS_NAME, "initial"))
+
+    _data_set_utils._execute_listds = MagicMock(
+        side_effect=[
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(BASE_DS), ""),
+            MVSCmdResponse(4, LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME), ""),
+        ]
+    )
+
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(BASE_DS),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=4,
+                stdout=LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME),
+                stderr="",
+            )
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=False,
+        failed=True,
+        msg="Base data set TEST.DATA does not exist. Can only create a member in an existing PDS/E",
+        jcl=get_sample_generated_JCL()
+    )
+    with pytest.raises(AnsibleFailJson):
+        region_jcl_module.main()
+    assert region_jcl_module.get_result() == expected_result
+
+
+def test_initial_state_pre_existing_member():
+    prepare_for_exit()
+    BASE_DS = "TEST.DATA"
+    MEMBER_NAME = "START"
+    MEMBER_DS_NAME = "{0}({1})".format(BASE_DS, MEMBER_NAME)
+    region_jcl_module = setup_and_update_parms(get_sample_generated_JCL_args(MEMBER_DS_NAME, "initial"))
+
+    _data_set_utils._execute_listds = MagicMock(
+        side_effect=[
+            MVSCmdResponse(0, LISTDS_data_set(BASE_DS, "PO"), ""),
+            MVSCmdResponse(0, LISTSDS_member_data_set(BASE_DS, MEMBER_NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(BASE_DS, "PO"), ""),
+            MVSCmdResponse(4, LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(BASE_DS, "PO"), ""),
+            MVSCmdResponse(0, LISTSDS_member_data_set(BASE_DS, MEMBER_NAME), "")
+        ]
+    )
+    _data_set_utils._execute_idcams = MagicMock(
+        return_value=MVSCmdResponse(0, IDCAMS_delete(MEMBER_DS_NAME), "")
+    )
+
+    _data_set_utils._execute_command = MagicMock(return_value=(0, "", ""))
+
+    region_jcl_module.main()
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(BASE_DS, "PO"),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTSDS_member_data_set(BASE_DS, MEMBER_NAME),
+                stderr="",
+            ),
+            _execution(
+                name=IDCAMS_delete_run_name(1, MEMBER_DS_NAME),
+                rc=0,
+                stdout=IDCAMS_delete(MEMBER_DS_NAME),
+                stderr=""
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(BASE_DS, "PO"),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=4,
+                stdout=LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME),
+                stderr="",
+            ),
+            _execution(
+                name="Copy JCL contents to data set",
+                rc=0,
+                stdout="",
+                stderr=""
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(BASE_DS, "PO"),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTSDS_member_data_set(BASE_DS, MEMBER_NAME),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="Partitioned"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="Partitioned"
+        ),
+        changed=True,
+        failed=False,
+        msg="",
+        jcl=get_sample_generated_JCL()
+    )
+    assert region_jcl_module.get_result() == expected_result
+
+
+def test_warm_state_match_member():
+    prepare_for_exit()
+    BASE_DS = "TEST.DATA"
+    MEMBER_NAME = "START"
+    MEMBER_DS_NAME = "{0}({1})".format(BASE_DS, MEMBER_NAME)
+    region_jcl_module = setup_and_update_parms(get_sample_generated_JCL_args(MEMBER_DS_NAME, "warm"))
+
+    _data_set_utils._execute_listds = MagicMock(
+        side_effect=[
+            MVSCmdResponse(0, LISTDS_data_set(BASE_DS, "PO"), ""),
+            MVSCmdResponse(0, LISTSDS_member_data_set(BASE_DS, MEMBER_NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(BASE_DS, "PO"), ""),
+            MVSCmdResponse(0, LISTSDS_member_data_set(BASE_DS, MEMBER_NAME), "")
+        ]
+    )
+    _data_set_utils._execute_command = MagicMock(return_value=(0, get_sample_generated_JCL(), ""))
+
+    region_jcl_module.main()
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(BASE_DS, "PO"),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTSDS_member_data_set(BASE_DS, MEMBER_NAME),
+                stderr="",
+            ),
+            _execution(
+                name="Read data set {0}".format(MEMBER_DS_NAME),
+                rc=0,
+                stdout=get_sample_generated_JCL(),
+                stderr=""
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(BASE_DS, "PO"),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTSDS_member_data_set(BASE_DS, MEMBER_NAME),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="Partitioned"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="Partitioned"
+        ),
+        changed=False,
+        failed=False,
+        msg="",
+        jcl=get_sample_generated_JCL()
+    )
+    assert region_jcl_module.get_result() == expected_result
+
+
+def test_warm_state_not_existing_member():
+    prepare_for_fail()
+    BASE_DS = "TEST.DATA"
+    MEMBER_NAME = "START"
+    MEMBER_DS_NAME = "{0}({1})".format(BASE_DS, MEMBER_NAME)
+    region_jcl_module = setup_and_update_parms(get_sample_generated_JCL_args(MEMBER_DS_NAME, "warm"))
+
+    _data_set_utils._execute_listds = MagicMock(
+        side_effect=[
+            MVSCmdResponse(0, LISTDS_data_set(BASE_DS, "PO"), ""),
+            MVSCmdResponse(4, LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME), ""),
+        ]
+    )
+
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(BASE_DS, "PO"),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=4,
+                stdout=LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=False,
+        failed=True,
+        msg="Data set TEST.DATA(START) does not exist.",
+        jcl=""
+    )
+    with pytest.raises(AnsibleFailJson):
+        region_jcl_module.main()
+
+    assert region_jcl_module.get_result() == expected_result
+
+
+def test_warm_state_not_existing_member_and_base():
+    prepare_for_fail()
+    BASE_DS = "TEST.DATA"
+    MEMBER_NAME = "START"
+    MEMBER_DS_NAME = "{0}({1})".format(BASE_DS, MEMBER_NAME)
+    region_jcl_module = setup_and_update_parms(get_sample_generated_JCL_args(MEMBER_DS_NAME, "warm"))
+
+    _data_set_utils._execute_listds = MagicMock(
+        side_effect=[
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(BASE_DS), ""),
+            MVSCmdResponse(4, LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME), ""),
+        ]
+    )
+
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(BASE_DS),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=4,
+                stdout=LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=False,
+        failed=True,
+        msg="Data set TEST.DATA(START) does not exist.",
+        jcl=""
+    )
+    with pytest.raises(AnsibleFailJson):
+        region_jcl_module.main()
+
+    assert region_jcl_module.get_result() == expected_result
+
+
+def test_warm_state_non_match_member():
+    prepare_for_fail()
+    BASE_DS = "TEST.DATA"
+    MEMBER_NAME = "START"
+    MEMBER_DS_NAME = "{0}({1})".format(BASE_DS, MEMBER_NAME)
+    region_jcl_module = setup_and_update_parms(get_sample_generated_JCL_args(MEMBER_DS_NAME, "warm"))
+
+    _data_set_utils._execute_listds = MagicMock(
+        side_effect=[
+            MVSCmdResponse(0, LISTDS_data_set(BASE_DS, "PO"), ""),
+            MVSCmdResponse(0, LISTSDS_member_data_set(BASE_DS, MEMBER_NAME), "")
+        ]
+    )
+    _data_set_utils._execute_command = MagicMock(return_value=(0, "NON MATHCING JCL", ""))
+
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(BASE_DS, "PO"),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTSDS_member_data_set(BASE_DS, MEMBER_NAME),
+                stderr="",
+            ),
+            _execution(
+                name="Read data set {0}".format(MEMBER_DS_NAME),
+                rc=0,
+                stdout="NON MATHCING JCL",
+                stderr=""
+            ),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="Partitioned"
+        ),
+        end_state=dict(
+            exists=True,
+            data_set_organization="Partitioned"
+        ),
+        changed=False,
+        failed=True,
+        msg="Data set TEST.DATA(START) does not contain the expected Region JCL.",
+        jcl=get_sample_generated_JCL()
+    )
+    with pytest.raises(AnsibleFailJson):
+        region_jcl_module.main()
+
+    assert region_jcl_module.get_result() == expected_result
+
+
+def test_absent_state_pre_existing_member():
+    prepare_for_exit()
+    BASE_DS = "TEST.DATA"
+    MEMBER_NAME = "START"
+    MEMBER_DS_NAME = "{0}({1})".format(BASE_DS, MEMBER_NAME)
+    region_jcl_module = setup_and_update_parms(get_sample_generated_JCL_args(MEMBER_DS_NAME, "absent"))
+
+    _data_set_utils._execute_listds = MagicMock(
+        side_effect=[
+            MVSCmdResponse(0, LISTDS_data_set(BASE_DS, "PO"), ""),
+            MVSCmdResponse(0, LISTSDS_member_data_set(BASE_DS, MEMBER_NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(BASE_DS, "PO"), ""),
+            MVSCmdResponse(4, LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME), ""),
+        ]
+    )
+    _data_set_utils._execute_idcams = MagicMock(
+        return_value=MVSCmdResponse(0, IDCAMS_delete(MEMBER_DS_NAME), "")
+    )
+
+    region_jcl_module.main()
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(BASE_DS, "PO"),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTSDS_member_data_set(BASE_DS, MEMBER_NAME),
+                stderr="",
+            ),
+            _execution(
+                name=IDCAMS_delete_run_name(1, MEMBER_DS_NAME),
+                rc=0,
+                stdout=IDCAMS_delete(MEMBER_DS_NAME),
+                stderr=""
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(BASE_DS, "PO"),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=4,
+                stdout=LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=True,
+            data_set_organization="Partitioned"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=True,
+        failed=False,
+        msg="",
+        jcl=""
+    )
+    assert region_jcl_module.get_result() == expected_result
+
+
+def test_absent_state_not_existing_member():
+    prepare_for_exit()
+    BASE_DS = "TEST.DATA"
+    MEMBER_NAME = "START"
+    MEMBER_DS_NAME = "{0}({1})".format(BASE_DS, MEMBER_NAME)
+    region_jcl_module = setup_and_update_parms(get_sample_generated_JCL_args(MEMBER_DS_NAME, "absent"))
+
+    _data_set_utils._execute_listds = MagicMock(
+        side_effect=[
+            MVSCmdResponse(0, LISTDS_data_set(BASE_DS, "PO"), ""),
+            MVSCmdResponse(4, LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME), ""),
+            MVSCmdResponse(0, LISTDS_data_set(BASE_DS, "PO"), ""),
+            MVSCmdResponse(4, LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME), ""),
+        ]
+    )
+
+    region_jcl_module.main()
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(BASE_DS, "PO"),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=4,
+                stdout=LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=0,
+                stdout=LISTDS_data_set(BASE_DS, "PO"),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=4,
+                stdout=LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME),
+                stderr="",
+            ),
+        ],
+        start_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        end_state=dict(
+            exists=False,
+            data_set_organization="NONE"
+        ),
+        changed=False,
+        failed=False,
+        msg="",
+        jcl=""
+    )
+    assert region_jcl_module.get_result() == expected_result
+
+
+def test_absent_state_not_existing_member_and_base():
+    prepare_for_exit()
+    BASE_DS = "TEST.DATA"
+    MEMBER_NAME = "START"
+    MEMBER_DS_NAME = "{0}({1})".format(BASE_DS, MEMBER_NAME)
+    region_jcl_module = setup_and_update_parms(get_sample_generated_JCL_args(MEMBER_DS_NAME, "absent"))
+
+    _data_set_utils._execute_listds = MagicMock(
+        side_effect=[
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(BASE_DS), ""),
+            MVSCmdResponse(4, LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME), ""),
+            MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(BASE_DS), ""),
+            MVSCmdResponse(4, LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME), ""),
+        ]
+    )
+
+    region_jcl_module.main()
+    expected_result = dict(
+        executions=[
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(BASE_DS),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=4,
+                stdout=LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=8,
+                stdout=LISTDS_data_set_doesnt_exist(BASE_DS),
+                stderr="",
+            ),
+            _execution(
+                name=LISTDS_run_name(1),
+                rc=4,
+                stdout=LISTDS_member_doesnt_exist(BASE_DS, MEMBER_NAME),
                 stderr="",
             ),
         ],

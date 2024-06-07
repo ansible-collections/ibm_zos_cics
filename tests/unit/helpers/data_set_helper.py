@@ -41,6 +41,22 @@ def LISTDS_data_set_doesnt_exist(data_set_name):
     """.format(data_set_name)
 
 
+def LISTDS_member_doesnt_exist(base_data_set_name, member_name):
+    return """
+      1READY
+        LISTDS '{0}({1})'
+       {0}
+       --RECFM-LRECL-BLKSIZE-DSORG
+         FB    80    27920   PO
+       --VOLUMES--
+         P2P117
+       DIRECTORY INFORMATION NOT AVAILABLE+
+       MEMBER NAME NOT FOUND
+       READY
+       END
+    """.format(base_data_set_name, member_name)
+
+
 def LISTDS_data_set(data_set_name, dsorg):
     return """
         1READY
@@ -53,6 +69,22 @@ def LISTDS_data_set(data_set_name, dsorg):
          READY
          END
     """.format(data_set_name, dsorg)
+
+
+def LISTSDS_member_data_set(base_data_set_name, member_name):
+    return """
+        1READY
+            LISTDS '{0}({1})'
+        {0}
+        --RECFM-LRECL-BLKSIZE-DSORG
+            FB    80    27920   PO
+        --VOLUMES--
+            P2P117
+        --MEMBER---TTR----ALIAS-TTRN-CNT-DATA
+            {1}      000110 NO    0    00
+        READY
+        END
+    """.format(base_data_set_name, member_name)
 
 
 def IDCAMS_run_cmd(data_set_name):

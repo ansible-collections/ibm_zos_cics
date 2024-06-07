@@ -183,6 +183,7 @@ RETURN = r"""
 
 import string
 import math
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.data_set import is_member
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import (
     MEGABYTES,
     REGION_DATA_SETS,
@@ -193,12 +194,13 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import 
     WARM,
     DataSet
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import _read_data_set_content
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import _read_data_set_content, _write_jcl_to_data_set
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._jcl_helper import (
     JCLHelper, DLM, DD_INSTREAM, CONTENT, END_INSTREAM, JOB_CARD, EXECS, JOB_NAME, DDS, NAME
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import _run_listds
 
 
 DFHSTART = "dfhstart"
@@ -207,7 +209,7 @@ SPACE_SECONDARY_DEFAULT = 3
 
 
 region_data_sets_list = ['dfhauxt', 'dfhbuxt', 'dfhcsd', 'dfhgcd', 'dfhintra',
-                         'dfhlcd', 'dfhlrq', 'dfhtemp', 'dfhdmpa', 'dfhdmpb', 'dfhstart']
+                         'dfhlcd', 'dfhlrq', 'dfhtemp', 'dfhdmpa', 'dfhdmpb']
 APPLID = 'applid'
 CEEMSG = 'ceemsg'
 CEEOUT = 'ceeout'
@@ -227,7 +229,9 @@ DATA_SETS = 'data_sets'
 MSGUSR = 'msgusr'
 OMIT = 'omit'
 OUTPUT_DATA_SETS = 'output_data_sets'
+PARTITIONED = 'Partitioned'
 PGM = 'pgm'
+SEQUENTIAL = 'Sequential'
 SIT_PARAMETERS = 'sit_parameters'
 SHR = 'SHR'
 STEPLIB = 'steplib'
@@ -245,11 +249,23 @@ class AnsibleRegionJCLModule(DataSet):
         self.jcl = ""
         super(AnsibleRegionJCLModule, self).__init__(1, 1)
         self.name = self.region_param[DFHSTART][DSN].upper()
-        self.expected_data_set_organization = "Sequential"
+        self.base_data_set_name = ""
+        self.base_exists = False
+        self.base_data_set_organization = ""
         self.dds = []
         self.jcl_helper = JCLHelper()
         self.primary_unit = ""
         self.secondary_unit = ""
+
+    def check_member(self):
+        ds_name_param = self._module.params[REGION_DATA_SETS][DFHSTART][DSN]
+        return is_member(ds_name_param)
+
+    def get_expected_ds_org(self):
+        if self.member:
+            return PARTITIONED
+        else:
+            return SEQUENTIAL
 
     def get_result(self):  # type: () -> dict
         result = super().get_result()
@@ -270,6 +286,12 @@ class AnsibleRegionJCLModule(DataSet):
     def get_arg_defs(self):  # type: () -> dict
         defs = super().get_arg_defs()
         defs.update(self.init_argument_spec())
+        self.member = self.check_member()
+        self.expected_data_set_organization = self.get_expected_ds_org()
+        if self.member:
+            self.update_arg_def(defs[REGION_DATA_SETS]["options"][DFHSTART]["options"][DSN], "data_set_member")
+        else:
+            region_data_sets_list.append("dfhstart")
         self.batch_update_arg_defs_for_ds(defs, REGION_DATA_SETS, region_data_sets_list, True)
         self.batch_update_arg_defs_for_ds(defs, CICS_DATA_SETS, ["sdfhauth", "sdfhlic", "sdfhload"])
         self.batch_update_arg_defs_for_ds(defs, LE_DATA_SETS, ["sceecics", "sceerun", "sceerun2"])
@@ -298,7 +320,7 @@ class AnsibleRegionJCLModule(DataSet):
         dict_to_update.pop("type")
 
     def calculate_size_parameters(self):
-        # Default primary and seconddary units to the space_type module arg
+        # Default primary and secondary units to the space_type module arg
         self.primary_unit = self.unit
         self.secondary_unit = self.unit
 
@@ -317,23 +339,29 @@ class AnsibleRegionJCLModule(DataSet):
 
     def create_data_set(self):  # type: () -> None
         self.calculate_size_parameters()
-        data_set_def = DatasetDefinition(
-            dataset_name=self.name,
-            primary=self.primary,
-            secondary=self.secondary,
-            primary_unit=self.primary_unit,
-            secondary_unit=self.secondary_unit,
-            volumes=self.volumes,
-            block_size=4096,
-            record_length=80,
-            record_format="FB",
-            disposition="NEW",
-            normal_disposition="CATALOG",
-            conditional_disposition="DELETE",
-            type="SEQ"
-        )
+        if self.member:
+            if not self.base_exists:
+                self._fail("Base data set {0} does not exist. Can only create a member in an existing PDS/E".format(self.base_data_set_name))
+            if self.base_data_set_organization != PARTITIONED:
+                self._fail("Base data set {0} is not a PDS/E. Member cannot be created in base data set".format(self.base_data_set_name))
+        else:
+            data_set_def = DatasetDefinition(
+                dataset_name=self.name,
+                primary=self.primary,
+                secondary=self.secondary,
+                primary_unit=self.primary_unit,
+                secondary_unit=self.secondary_unit,
+                volumes=self.volumes,
+                block_size=4096,
+                record_length=80,
+                record_format="FB",
+                disposition="NEW",
+                normal_disposition="CATALOG",
+                conditional_disposition="DELETE",
+                type="SEQ"
+            )
+            super().build_seq_data_set(DFHSTART, data_set_def)
 
-        super().build_seq_data_set(DFHSTART, data_set_def)
         self.write_jcl()
 
     def generate_jcl(self):
@@ -343,8 +371,9 @@ class AnsibleRegionJCLModule(DataSet):
 
     def write_jcl(self):
         try:
-            jcl_writer_execution = JCLHelper._write_jcl_to_data_set(self.jcl, self.name)
+            jcl_writer_execution = _write_jcl_to_data_set(self.jcl, self.name)
             self.executions.extend(jcl_writer_execution)
+            self.changed = True
         except MVSExecutionException as e:
             self.executions.extend(e.executions)
             super()._fail(e.message)
@@ -353,18 +382,22 @@ class AnsibleRegionJCLModule(DataSet):
         self.generate_jcl()
         if self.exists:
             super().delete_data_set()
-            super().update_data_set_state()
+            self.update_data_set_state()
             self.create_data_set()
         else:
             self.create_data_set()
 
     def warm_target_state(self):
-        if self.exists:
+        if (self.exists and not self.member) or (self.exists and self.base_exists and self.member):
             self.generate_jcl()
             try:
                 jcl_writer_execution, jcl_data = _read_data_set_content(self.name)
                 self.executions.extend(jcl_writer_execution)
-                if jcl_data.strip() != self.jcl.strip():
+                gen_jcl = set(self.jcl.split())
+                existing_jcl = set(jcl_data.split())
+
+                jcl_diff = gen_jcl.symmetric_difference(existing_jcl)
+                if len(jcl_diff) != 0:
                     super()._fail("Data set {0} does not contain the expected Region JCL.".format(self.name))
             except MVSExecutionException as e:
                 self.executions.extend(e.executions)
@@ -381,6 +414,20 @@ class AnsibleRegionJCLModule(DataSet):
             self.warm_target_state()
         else:
             super().invalid_target_state()
+
+    def update_data_set_state(self):   # type: () -> None
+        try:
+            if self.member:
+                self.base_data_set_name = self.name.split("(")[0]
+
+                listds_executions, self.base_exists, self.base_data_set_organization = _run_listds(self.base_data_set_name)
+                self.executions.extend(listds_executions)
+
+            listds_executions, self.exists, self.data_set_organization = _run_listds(self.name)
+            self.executions.extend(listds_executions)
+        except MVSExecutionException as e:
+            self.executions.extend(e.executions)
+            self._fail(e.message)
 
     def _build_data_structure_of_arguments(self):
         self._remove_none_values_from_dict(self._module.params)

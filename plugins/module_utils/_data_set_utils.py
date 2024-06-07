@@ -7,10 +7,10 @@
 
 from __future__ import (absolute_import, division, print_function)
 
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.ansible_module import AnsibleModuleHelper
 __metaclass__ = type
 import re
-
+import tempfile
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.ansible_module import AnsibleModuleHelper
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import _execution, MVSExecutionException
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DDStatement, StdoutDefinition, DatasetDefinition, StdinDefinition
@@ -214,6 +214,9 @@ def _run_listds(location):  # type: (str) -> tuple[list[_execution], bool, str]
     if listds_response.rc == 8 and "NOT IN CATALOG" in listds_response.stdout:
         return executions, False, "NONE"
 
+    if listds_response.rc == 4 and "MEMBER NAME NOT FOUND" in listds_response.stdout:
+        return executions, False, "NONE"
+
     # Exists
 
     if listds_response.rc != 0:
@@ -287,3 +290,23 @@ def _read_data_set_content(data_set_name):
             "RC {0} when reading content from data set {1}".format(
                 rc, data_set_name), executions)
     return executions, stdout
+
+
+def _write_jcl_to_data_set(jcl, data_set_name):
+    """Writes generated JCL content to the specified data set
+    """
+    executions = []
+
+    temp = tempfile.NamedTemporaryFile(delete=True)
+    with open(temp.name, "w") as f:
+        f.write(jcl)
+    rc, stdout, stderr = _execute_command("cp -O u {0} \"//'{1}'\"".format(temp.name, data_set_name))
+    executions.append(
+        _execution(
+            name="Copy JCL contents to data set",
+            rc=rc,
+            stdout=stdout,
+            stderr=stderr))
+    if rc != 0:
+        raise MVSExecutionException("Failed to copy JCL content to data set", executions)
+    return executions

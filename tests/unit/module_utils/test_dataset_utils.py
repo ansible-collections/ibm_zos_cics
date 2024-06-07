@@ -14,6 +14,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     IEFBR14_get_run_name,
     LISTDS_data_set,
     LISTDS_data_set_doesnt_exist,
+    LISTDS_member_doesnt_exist,
     LISTDS_run_name
 )
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
@@ -440,6 +441,28 @@ def test__run_listds_not_exists():
     assert ds_org == "NONE"
 
 
+def test__run_listds_member_not_exists():
+    base_ds_name = "ANSIBIT.CICS.TESTS.A294D11B"
+    member_name = "MEMB"
+    location = "{0}({1})".format(base_ds_name, member_name)
+    rc = 4
+    stdout = LISTDS_member_doesnt_exist(base_ds_name, member_name)
+    stderr = ""
+    data_set_utils._execute_listds = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
+
+    result_exececutions, exists, ds_org = data_set_utils._run_listds(location)
+
+    assert len(result_exececutions) == 1
+    assert result_exececutions[0] == {
+        "name": LISTDS_run_name(1),
+        "rc": rc,
+        "stdout": stdout,
+        "stderr": stderr,
+    }
+    assert exists is False
+    assert ds_org == "NONE"
+
+
 def test__run_listds_with_no_zoau_response():
     rc = 0
     stdout = ""
@@ -634,3 +657,46 @@ def test__read_data_set_content_bad_rc():
         assert e.executions == expected_executions
     else:
         assert False
+
+
+def test__write_jcl_to_data_set():
+    data_set_name = "TEST.DATA.SET"
+    jcl = ""
+
+    rc = 0
+    stdout = ""
+    stderr = ""
+    data_set_utils._execute_command = MagicMock(return_value=(rc, stdout, stderr))
+
+    expected_executions = [{
+        "name": "Copy JCL contents to data set",
+        "rc": 0,
+        "stdout": "",
+        "stderr": ""
+    }]
+
+    executions = data_set_utils._write_jcl_to_data_set(jcl, data_set_name)
+
+    assert expected_executions == executions
+
+
+def test__write_jcl_to_data_set_fail():
+    data_set_name = "TEST.DATA.SET"
+    jcl = ""
+    rc = 99
+    stdout = "cp failed"
+    stderr = "stderr"
+    data_set_utils._execute_command = MagicMock(return_value=(rc, stdout, stderr))
+
+    expected_executions = [{
+        "name": "Copy JCL contents to data set",
+        "rc": 99,
+        "stdout": "cp failed",
+        "stderr": "stderr"
+    }]
+
+    with pytest.raises(MVSExecutionException) as e:
+        data_set_utils._write_jcl_to_data_set(jcl, data_set_name)
+
+    assert e.value.message == "Failed to copy JCL content to data set"
+    assert e.value.executions == expected_executions

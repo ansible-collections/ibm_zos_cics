@@ -6,8 +6,6 @@
 # FOR INTERNAL USE IN THE COLLECTION ONLY.
 
 from __future__ import absolute_import, division, print_function
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import _execution, MVSExecutionException
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.data_set import DataSet, DatasetWriteError
 
 __metaclass__ = type
 import re
@@ -377,13 +375,3 @@ class JCLHelper:
             value = value.replace("'", "''")
 
         return "'{0}'".format(value)
-
-    @staticmethod
-    def _write_jcl_to_data_set(jcl, data_set_name):
-        """Writes generated JCL content to the specified data set
-        """
-        try:
-            DataSet.write(data_set_name, jcl)
-            return [_execution("Copy JCL contents to data set", 0, "", "")]
-        except DatasetWriteError as e:
-            raise MVSExecutionException("Failed to copy JCL content to data set", [_execution("Copy JCL contents to data set", 1, "", e.msg)])

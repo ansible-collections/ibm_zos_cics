@@ -1,4 +1,4 @@
-- name: Satrt CICS Region
+- name: Start CICS Region
   ansible.builtin.command:
     cmd: jsub "{{ region_data_set_path }}.DFHSTART"
   register: start_result
