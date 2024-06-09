@@ -61,7 +61,6 @@ class ActionModule(ActionBase):
             return self.get_result(e.args[0])
 
         if not self.job_id or not self.job_name or self.job_status != EXECUTING:
-            self.failed = True
             return self.get_result()
 
         self.logger.debug(RUNNING_ATTEMPTING_TO_STOP)

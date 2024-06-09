@@ -41,181 +41,8 @@ def test_calculate_end_time():
     timeout_seconds = 10
     stop_region_action.get_datetime_now = MagicMock(return_value=now)
 
-    assert calculate_end_time(timeout_seconds) == now + timedelta(0, timeout_seconds)
-
-
-# def test_get_job_status_name_id_running():
-#     tso_response = get_tso_status_response()
-#     job_name = "LINKJOB"
-#     job_id = "JOB12345"
-#     assert get_job_status_name_id(tso_response, job_name, job_id) == "EXECUTING"
-
-
-# def test_get_job_status_name_id_stopped():
-#     tso_response = get_tso_status_response(running=0)
-#     job_name = "LINKJOB"
-#     job_id = "JOB98765"
-#     assert get_job_status_name_id(tso_response, job_name, job_id) == "ON OUTPUT QUEUE"
-
-
-# def test_get_job_status_name_id_empty():
-#     tso_response = get_tso_status_response(running=0, stopped=0)
-#     job_name = "LINKJOB"
-#     job_id = "JOB98765"
-
-#     with pytest.raises(AnsibleActionFail) as action_err:
-#         get_job_status_name_id(tso_response, job_name, job_id)
-#     assert "No jobs found with name {0} and ID {1}".format(job_name, job_id) in str(
-#         action_err
-#     )
-
-
-# def test_get_job_status_name_id_multiple():
-#     tso_response = get_tso_status_response(running=2, stopped=1)
-#     job_name = "LINKJOB"
-#     job_id = "JOB12345"
-
-#     with pytest.raises(AnsibleActionFail) as action_err:
-#         get_job_status_name_id(tso_response, job_name, job_id)
-#     assert "Multiple jobs with name and ID found" in str(action_err)
-
-
-# def test_get_job_status_name_id_no_output():
-#     tso_response = {"output": []}
-#     job_name = "LINKJOB"
-#     job_id = "JOB12345"
-
-#     with pytest.raises(AnsibleActionFail) as action_err:
-#         get_job_status_name_id(tso_response, job_name, job_id)
-#     assert "Output not received for TSO STATUS command" in str(action_err)
-
-
-# def test_get_job_status_name_id_too_many_outputs():
-#     tso_response = {"output": ["COMMAND 1 OUTPUT", "COMMAND 2 OUTPUT"]}
-#     job_name = "LINKJOB"
-#     job_id = "JOB12345"
-
-#     with pytest.raises(AnsibleActionFail) as action_err:
-#         get_job_status_name_id(tso_response, job_name, job_id)
-#     assert "Output not received for TSO STATUS command" in str(action_err)
-
-
-# def test_get_executing_jobs_from_tso_output_1():
-#     job_name = "LINKJOB"
-#     job_id = "JOB12345"
-#     tso_response = get_tso_status_response(
-#         full_response=False, running=1, jobname=job_name, running_job_id=job_id
-#     )
-
-#     executing_jobs = get_executing_jobs_from_tso_output(tso_response)
-#     assert len(executing_jobs) == 1
-#     assert executing_jobs[0] == "IKJ56211I JOB {0}({1}) EXECUTING".format(
-#         job_name, job_id
-#     )
-
-
-# def test_get_executing_jobs_from_tso_output_2():
-#     job_name = "LINKJOB"
-#     job_id = "JOB12345"
-#     tso_response = get_tso_status_response(
-#         full_response=False, running=2, jobname=job_name, running_job_id=job_id
-#     )
-
-#     executing_jobs = get_executing_jobs_from_tso_output(tso_response)
-#     assert len(executing_jobs) == 2
-#     assert executing_jobs[1] == "IKJ56211I JOB {0}({1}) EXECUTING".format(
-#         job_name, job_id
-#     )
-
-
-# def test_get_executing_jobs_from_tso_output_0():
-#     job_name = "LINKJOB"
-#     job_id = "JOB12345"
-#     tso_response = get_tso_status_response(
-#         full_response=False, running=0, jobname=job_name, running_job_id=job_id
-#     )
-
-#     executing_jobs = get_executing_jobs_from_tso_output(tso_response)
-#     assert len(executing_jobs) == 0
-
-
-# def test_extract_id_from_executing_job_line():
-#     job_id = "JOB12345"
-#     job_line = "IKJ56211I JOB JOBNAME({0}) EXECUTING".format(job_id)
-#     assert extract_id_from_executing_job_line(job_line) == job_id
-
-
-# def test_get_running_job_id_from_name_no_output():
-#     tso_response = {"output": []}
-
-#     with pytest.raises(AnsibleActionFail) as action_err:
-#         get_running_job_id_from_name(tso_response)
-#     assert "Output not received for TSO STATUS command" in str(action_err)
-
-
-# def test_get_running_job_id_from_name_0():
-#     tso_response = get_tso_status_response(running=0)
-#     assert get_running_job_id_from_name(tso_response) is None
-
-
-# def test_get_running_job_id_from_name_1():
-#     job_id = "JOB12345"
-#     tso_response = get_tso_status_response(running_job_id=job_id)
-#     assert get_running_job_id_from_name(tso_response) == job_id
-
-
-# def test_get_running_job_id_from_name_2():
-#     tso_response = get_tso_status_response(running=2)
-
-#     with pytest.raises(AnsibleActionFail) as action_err:
-#         get_running_job_id_from_name(tso_response)
-#     assert "More than 1 job running" in str(action_err)
-
-
-# def test_get_job_name_from_id_failed_no_msg():
-#     job_query_response = get_job_query_result(failed=True)
-#     job_id = "JOB12345"
-
-#     with pytest.raises(AnsibleActionFail) as action_err:
-#         get_job_name_from_id(job_query_response, job_id)
-#     assert "Job query failed - (No failure message provided by zos_job_query)" in str(
-#         action_err
-#     )
-
-
-# def test_get_job_name_from_id_failed_msg():
-#     job_query_response = get_job_query_result(failed=True, message="MEANINGFUL ERROR")
-#     job_id = "JOB12345"
-
-#     with pytest.raises(AnsibleActionFail) as action_err:
-#         get_job_name_from_id(job_query_response, job_id)
-#     assert "Job query failed - MEANINGFUL ERROR" in str(action_err)
-
-
-# def test_get_job_name_from_id_0():
-#     job_query_response = get_job_query_result(jobs=0)
-#     job_id = "JOB12345"
-
-#     with pytest.raises(AnsibleActionFail) as action_err:
-#         get_job_name_from_id(job_query_response, job_id)
-#     assert "No jobs found with id {0}".format(job_id) in str(action_err)
-
-
-# def test_get_job_name_from_id_1():
-#     job_id = "JOB12345"
-#     job_name = "AN1234"
-#     job_query_response = get_job_query_result(jobs=1, jobname=job_name)
-
-#     assert get_job_name_from_id(job_query_response, job_id) == job_name
-
-
-# def test_get_job_name_from_id_2():
-#     job_query_response = get_job_query_result(jobs=2)
-#     job_id = "JOB12345"
-
-#     with pytest.raises(AnsibleActionFail) as action_err:
-#         get_job_name_from_id(job_query_response, job_id)
-#     assert "Multiple jobs found with ID {0}".format(job_id) in str(action_err)
+    assert calculate_end_time(timeout_seconds) == now + \
+        timedelta(0, timeout_seconds)
 
 
 def test_format_cancel_command():
@@ -265,7 +92,8 @@ def test_console_error_valid():
         get_console_errors(shutdown_result)
         assert True
     except Exception as e:
-        assert False, "'get_console_errors' raised exception {0}".format(str(e))
+        assert False, "'get_console_errors' raised exception {0}".format(
+            str(e))
 
 
 def test_console_error_undefined():
@@ -279,7 +107,8 @@ def test_console_error_undefined():
 
 
 def test_console_error_install():
-    shutdown_result = get_operator_shutdown_response(console=CONSOLE_AUTOINSTALL_FAIL)
+    shutdown_result = get_operator_shutdown_response(
+        console=CONSOLE_AUTOINSTALL_FAIL)
 
     with pytest.raises(AnsibleActionFail) as action_err:
         get_console_errors(shutdown_result)
@@ -307,7 +136,8 @@ def test_get_job_info_from_status_1_running():
 
 def test_get_job_info_from_status_0_running():
     job_name = "JOBNAM"
-    tso_query_response = get_tso_status_response(jobname=job_name, stopped=0, running=0)
+    tso_query_response = get_tso_status_response(
+        jobname=job_name, stopped=0, running=0)
     assert _get_job_info_from_status(tso_query_response, job_name) == []
 
 
@@ -441,7 +271,8 @@ def test_get_job_name_from_query_0_jobs():
 def test_get_job_name_from_query_missing_jobs():
     job_name = "JOBNAM"
     job_id = "JOB12345"
-    job_query_response = get_job_query_result(jobname=job_name, no_jobs_found=True)
+    job_query_response = get_job_query_result(
+        jobname=job_name, no_jobs_found=True)
 
     with pytest.raises(AnsibleActionFail) as action_err:
         _get_job_name_from_query(job_query_response, job_id)
@@ -465,7 +296,8 @@ def test_get_job_status_name_id():
     tso_query_response = get_tso_status_response(
         jobname=job_name, running_job_id=job_id, stopped_job_id=stopped_id
     )
-    assert _get_job_status_name_id(tso_query_response, job_name, job_id) == "EXECUTING"
+    assert _get_job_status_name_id(
+        tso_query_response, job_name, job_id) == "EXECUTING"
 
 
 def test_get_job_status_name_id_no_output():
@@ -479,7 +311,8 @@ def test_get_job_status_name_id_no_output():
 def test_get_job_status_name_id_0_jobs():
     job_name = "JOBNAM"
     job_id = "JOB12345"
-    tso_query_response = get_tso_status_response(jobname=job_name, running=0, stopped=0)
+    tso_query_response = get_tso_status_response(
+        jobname=job_name, running=0, stopped=0)
     with pytest.raises(AnsibleActionFail) as action_err:
         _get_job_status_name_id(tso_query_response, job_name, job_id)
     assert "No jobs found with name {0} and ID {1}".format(job_name, job_id) in str(
@@ -490,7 +323,8 @@ def test_get_job_status_name_id_0_jobs():
 def test_get_job_status_name_id_2_jobs():
     job_name = "JOBNAM"
     job_id = "JOB12345"
-    tso_query_response = get_tso_status_response(jobname=job_name, running=2, stopped=0)
+    tso_query_response = get_tso_status_response(
+        jobname=job_name, running=2, stopped=0)
     with pytest.raises(AnsibleActionFail) as action_err:
         _get_job_status_name_id(tso_query_response, job_name, job_id)
     assert "Multiple jobs with name and ID found" in str(action_err)
