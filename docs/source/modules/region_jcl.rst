@@ -1051,6 +1051,15 @@ sit_parameters
 
 
      
+  certexpirywarn
+    The CERTEXPIRYWARN parameter specifies whether CICS® warns about expiring certificates, and if so, how many days ahead of the expiry.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
   chkstrm
     The CHKSTRM parameter specifies that terminal storage-violation checking is to be activated or deactivated.
 
@@ -1770,7 +1779,7 @@ sit_parameters
 
      
   infocenter
-    The INFOCENTER system initialization parameter specifies the location of the online . If you add this parameter to the Web User Interface (WUI) CICS startup JCL, a link labeled Information Center is displayed on WUI views and menus. If you do not code this parameter, CICS does not construct links to IBM Documentation. .
+    The INFOCENTER system initialization parameter specifies the location of the online . If you add this parameter to the Web User Interface (WUI) CICS startup JCL, a link labeled Information Center is displayed on WUI views and menus. If you do not code this parameter, CICS does not construct links to IBM Documentation.
 
 
     | **required**: False
@@ -1784,6 +1793,16 @@ sit_parameters
 
     | **required**: False
     | **type**: str
+
+
+     
+  intrdrjobuser
+    The INTRDRJOBUSER system initialization parameter instructs whether to use the task user ID or the CICS® region user ID as the job user ID for a JOB card that is submitted, without a USER parameter, by using SPOOLOPEN with USERID("INTRDR") and SPOOLWRITE. The default is the task user ID unless set otherwise by INTRDRJOBUSER.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: TASK, REGION
 
 
      
@@ -2448,7 +2467,7 @@ sit_parameters
 
     | **required**: False
     | **type**: str
-    | **choices**: YES, NO
+    | **choices**: YES, NO, CPSM
 
 
      
@@ -3367,6 +3386,52 @@ sit_parameters
     | **required**: False
     | **type**: str
     | **choices**: YES, NO
+
+
+     
+  zosmoninterval
+    The ZOSMONINTERVAL system initialization parameter specifies the sampling interval, in seconds, for the CICS® z/OS storage monitor task.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  zossos24unalloc
+    The ZOSSOS24UNALLOC system initialization parameter specifies short-on-storage (SOS) thresholds in KB for the total amount of unallocated z/OS® user region storage and for the largest contiguous storage area available in it.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  zossos31unalloc
+    The ZOSSOS31UNALLOC system initialization parameter specifies short-on-storage (SOS) thresholds in KB for the total amount of unallocated z/OS® extended user region storage and for the largest contiguous storage area available in it.
+
+
+    | **required**: False
+    | **type**: str
+
+
+     
+  zossos64unalloc
+    The ZOSSOS64UNALLOC system initialization parameter specifies a short-on-storage (SOS) threshold in MB for the amount of unallocated z/OS® MEMLIMIT storage in the 64-bit addressing range.
+
+
+    | **required**: False
+    | **type**: int
+
+
+     
+  zossosnewtcb
+    The ZOSSOSNEWTCB system initialization parameter specifies the action that CICS® takes in response to a new open TCB that is being attached directly by CICS when the z/OS® user region storage or extended user region storage is short on storage (SOS). These open TCBs are L8, L9, X8 and X9 TCBs.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: DELAY, NODELAY
 
 
 

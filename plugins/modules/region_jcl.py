@@ -1145,6 +1145,10 @@ class AnsibleRegionJCLModule(DataSet):
                         'type': 'int',
                         'required': False,
                     },
+                    'certexpirywarn': {
+                        'type': 'str',
+                        'required': False,
+                    },
                     'chkstrm': {
                         'type': 'str',
                         'required': False,
@@ -1491,6 +1495,12 @@ class AnsibleRegionJCLModule(DataSet):
                         'type': 'str',
                         'required': False,
                     },
+                    'intrdrjobuser':
+                    {
+                        'type': 'str',
+                        'required': False,
+                        'choices': ['TASK', 'REGION'],
+                    },
                     'inttr': {
                         'type': 'str',
                         'required': False,
@@ -1805,7 +1815,7 @@ class AnsibleRegionJCLModule(DataSet):
                     'racfsync': {
                         'type': 'str',
                         'required': False,
-                        'choices': ['NO', 'YES'],
+                        'choices': ['NO', 'YES', 'CPSM'],
                     },
                     'ramax': {
                         'type': 'int',
@@ -2229,6 +2239,27 @@ class AnsibleRegionJCLModule(DataSet):
                         'type': 'str',
                         'required': False,
                         'choices': ['NO', 'YES']
+                    },
+                    'zosmoninterval': {
+                        'type': 'int',
+                        'required': False,
+                    },
+                    'zossosnewtcb': {
+                        'type': 'str',
+                        'required': False,
+                        'choices': ['DELAY', 'NODELAY']
+                    },
+                    'zossos24unalloc': {
+                        'type': 'str',
+                        'required': False,
+                    },
+                    'zossos31unalloc': {
+                        'type': 'str',
+                        'required': False,
+                    },
+                    'zossos64unalloc': {
+                        'type': 'int',
+                        'required': False,
                     }
                 }
             },
