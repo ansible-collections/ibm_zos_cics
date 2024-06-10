@@ -12,7 +12,7 @@ functionality in the `samples repository`_.
 The sample playbooks fall into two categories:
 
 - Operations on CICS and CICSPlex SM resources and definitions. The sample playbooks use the CMCI modules to achieve various real-life use cases.
-- CICS provisioning. The sample playbook demonstrates how a set of modules for provisioning and managing CICS TS data sets and utilities can be used to provision, start, stop, and deprovision a CICS region.
+- CICS provisioning. The sample playbooks demonstrate how a set of modules for provisioning and managing CICS TS data sets and utilities can be used to provision and deprovision a CICS region and to perform CICS startup or shutdown operations.
 
 .. _samples repository:
    https://github.com/IBM/z_ansible_collections_samples
@@ -137,7 +137,7 @@ and group variables files may help you organize your variable values more
 easily. An example of one of these variable files is the `zos_host.yml`_
 file included with the `deploy_program sample`_, which is used to provide the
 required environment variables. Another such example is the `variables.yml`_ file
-included with the `CICS provisioning`_ playbook.
+included with the `CICS provisioning`_ playbooks.
 
 The properties that define the environment variables are as follows:
 
@@ -158,9 +158,10 @@ The properties that define the environment variables are as follows:
 
 .. note::
    In ZOAU 1.0.2 and later, the property **ZOAU_ROOT** is no longer supported
-   and can be replaced with the property **ZOAU_HOME**. If you are using ZOAU
-   version 1.0.1 or lower, you must continue to use the property
-   **ZOAU_ROOT** which is the ZOA Utilities install root path required for
+   and can be replaced with the property **ZOAU_HOME**.
+   
+   If you are using ZOAU version 1.0.1 or lower, you must continue to use the property
+   **ZOAU_ROOT**, which is the ZOA Utilities install root path required for
    ZOAU; for example, ``/usr/lpp/IBM/zoautil``.
 
 .. _zos_host.yml:
@@ -177,7 +178,7 @@ The properties that define the environment variables are as follows:
 Module Defaults
 ---------------
 
-Ansible has a module defaults feature to use the same values during every use of
+Ansible has a module defaults feature, which allows you to use the same values during every use of
 a module, rather than repeating them everytime.
 
 For example, when using CMCI modules to manage CICS and CICSPlex SM resources and definitions, you can set the host url and
@@ -206,14 +207,14 @@ to the group called **cmci**.
 
 
 Likewise, you can easily apply a default set of CICS TS data sets and utilities for the provisioning or de-provisioning of CICS regions.
-If you want to use the same values in **all** CICS TS data set provisioning modules, you can assign them to the group called **region_group**.
+If you want to use the same values in **all** CICS TS data set provisioning modules, you can assign them to the group called **region**.
 The following **module_defaults** example illustrates the use of a templated location for some data sets and a user-specified name for
 some other data sets instead of the template.
 
 .. code-block:: yaml
 
    module_defaults:
-     group/ibm.ibm_zos_cics.region_group:
+     group/ibm.ibm_zos_cics.region:
        state: initial
        cics_data_sets:
          template: "CTS610.CICS740.<< data_set_name >>"
@@ -222,18 +223,19 @@ some other data sets instead of the template.
          template: "{{ansible_user}}.REGIONS.{{applid}}.<< data_set_name >>"
          dfhgcd: "REGIONS.{{applid}}.GCD"
 
-The **cics_data_sets** parameter defines the data set names of the SDFHAUTH, SDFHLOAD and SDFHLIC libraries. These libraries can be used by
-multiple CICS regions. In this example, the SDFHLOAD and SDFHLIC libraries are created by default using the templated location
-of ``CTS610.CICS740.<< data_set_name >>``, so their data set names are ``CTS610.CICS740.SDFHLOAD`` and ``CTS610.CICS740.SDFHLIC`` respectively.
-However, SDFHAUTH is created with the data set name of ``CICSTS61.OVERRDE.TEMPLT.SDFHAUTH``, overriding the template.
+The **cics_data_sets** parameter defines a defaults group through which you can specify the location of a CICS installation. It is used to define
+the data set names of the SDFHAUTH, SDFHLOAD and SDFHLIC libraries. These libraries can be used by multiple CICS regions. In this example, the SDFHLOAD
+and SDFHLIC libraries are created by default using the templated location of ``CTS610.CICS740.<< data_set_name >>``, so their data set names are
+``CTS610.CICS740.SDFHLOAD`` and ``CTS610.CICS740.SDFHLIC`` respectively. However, the SDFHAUTH library is created with the data set name of
+``CICSTS61.OVERRDE.TEMPLT.SDFHAUTH``, overriding the template.
 
-The **region_data_sets** parameter defines the data sets that are used by a single CICS region. In this example, all the region data sets except
-DFHGCD are created by default using the templated location of ``{{ansible_user}}.REGIONS.{{applid}}.<< data_set_name >>``, while DFHGCD is created
-with the data set name of ``REGIONS.{{applid}}.GCD``, overriding the template.
+The **region_data_sets** parameter defines a defaults group through which you can specify a high level qualifier for the data sets that are used by a
+single CICS region. In this example, all the region data sets except DFHGCD are created by default using the templated location of
+``{{ansible_user}}.REGIONS.{{applid}}.<< data_set_name >>``, while DFHGCD is created with the data set name of ``REGIONS.{{applid}}.GCD``, overriding the template.
 
 
 .. note::
-   Group module defaults are only available in ``ansible-core`` 2.12 or later. If
+   Group module defaults are available in ``ansible-core`` 2.12 or later. If
    this syntax is used with ``ansible-core`` 2.11 or earlier, the values are
    perceived as not present, and a 'missing required arguments' error is thrown.
 
@@ -246,22 +248,30 @@ Access the `collection samples repository`_ and ensure you have navigated to
 the directory containing the playbook you want to run. For example:
 ``zos_subsystems/cics/cmci/deploy_program/``.
 
-Use the Ansible command ``ansible-playbook`` to run the sample playbook.  The
-command syntax is ``ansible-playbook -i <inventory> <playbook>`` which, using
-the example above of ``deploy_program``, is
-``ansible-playbook -i inventory deploy_program.yaml``.
+Use the Ansible command ``ansible-playbook`` to run the sample playbook.
+
+**Command Syntax**
+
+``ansible-playbook -i <inventory> <playbook>``
+
+Assuming the example above of ``deploy_program``, the command to issue is as follows:
+
+``ansible-playbook -i inventory deploy_program.yaml``
 
 This command assumes that the controller's public SSH key has been shared with
 the managed node. If you want to avoid entering a username and password each
-time, copy the SSH public key to the managed node using the ``ssh-copy-id``
-command; for example, ``ssh-copy-id -i ~/.ssh/mykey.pub user@<hostname>``.
+time, copy the SSH public key to the managed node by using the ``ssh-copy-id``
+command, as shown in the following example:
 
-Alternatively, you can use the ``--ask-pass`` option to be prompted for the
-user's password each time a playbook is run; for example,
-``ansible-playbook -i inventory deploy_program.yaml --ask-pass``.
+``ssh-copy-id -i ~/.ssh/mykey.pub user@<hostname>``
+
+Alternatively, you can use the ``--ask-pass`` option, as shown in the following example, so that
+the user is prompted to enter a connection password each time a playbook is run.
+
+``ansible-playbook -i inventory deploy_program.yaml --ask-pass``
 
 .. note::
-   * Using ``--ask-pass`` is not recommended because it will hinder performance.
+   * Using ``--ask-pass`` is not recommended because it hinders performance.
    * Using ``--ask-pass`` requires ``sshpass`` be installed on the controller.
      For further reference, see the `ask-pass documentation`_.
 
@@ -274,15 +284,15 @@ ERROR, DEBUG.
 
 .. note::
    It is a good practice to review the playbook samples before executing them.
-   It will help you understand what requirements in terms of space, location,
-   names, authority, and artifacts will be created and cleaned up. Although
+   This helps you understand what requirements are expected in terms of space, location,
+   names, authority, and artifacts that are created and cleaned up. Although
    samples are always written to operate without the need for the user's
    configuration, flexibility is written into the samples because it is not
-   easy to determine if a sample has access to the host's resources.
-   Review the playbook notes sections for additional details and
+   easy to determine whether a sample has access to the host's resources.
+   Review the notes sections in the playbooks for additional details and
    configuration.
 
-   Playbooks often submit JCL that is included in the samples repository
+   Playbooks often submit a JCL that is included in the samples repository
    under the `files directory`_. Review the sample JCL for necessary edits to
    allow for submission on the target system. The most common changes are to
    add a CLASS parameter and change the NOTIFY user parameter. For more details,

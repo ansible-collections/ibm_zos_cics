@@ -17,8 +17,8 @@ options:
         Note that this is just the value; the unit is specified with O(space_type).
       - This option takes effect only when the CICS startup JCL data set is being created.
         If the CICS startup JCL data set already exists, the option has no effect.
-      - If this option is not set the primary space is dynamically calculated based on the
-        size of the generated CICS startup JCL
+      - If this option is not set, the primary space is dynamically calculated based on the
+        size of the generated CICS startup JCL.
     type: int
     required: false
   space_secondary:
@@ -27,8 +27,8 @@ options:
         Note that this is just the value; the unit is specified with O(space_type).
       - This option takes effect only when the CICS startup JCL data set is being created.
         If the CICS startup JCL data set already exists, the option has no effect.
-      - If this option is not set the primary space is dynamically calculated as 10% of
-        the total size of the generated CICS startup JCL
+      - If this option is not set, the secondary space is dynamically calculated as 10% of
+        the total size of the generated CICS startup JCL.
     type: int
     required: false
   space_type:
@@ -40,8 +40,8 @@ options:
         If the CICS startup JCL data set already exists, the option has no effect.
       - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
         cylinders (V(CYL)), or tracks (V(TRK)).
-      - If neither O(space_secondary) or O(space_primary) are set, then this value will
-        not have any effect
+      - If neither O(space_secondary) nor O(space_primary) is set, then this value does
+        not have any effect.
     required: false
     type: str
     choices:
@@ -288,39 +288,45 @@ options:
         type: str
   steplib:
     description:
-      - Any locations of additional C(STEPLIB) libraries to add, that are not C(SDFHAUTH), C(SDFHLIC), C(SCEERUN), or
-        C(SCEERUN2).
+      - Any locations of additional data sets other than C(SDFHAUTH), C(SDFHLIC), C(SCEERUN), or C(SCEERUN2), to be added to the STEPLIB concatenation.
+        The STEPLIB concatenation is where you specify the libraries that contain the modules loaded by the z/OS operating system.
+        You can either add data sets at the very top of the list or append them to the bottom of the list. There are other data sets in between,
+        as determined by the defaults or other input parameters; for example, C(SEYUAUTH) and C(SEYULOAD) as sepcified with O(cpsm_data_sets),
+        C(SCEERUN) and C(SCEERUN2) as specified with O(le_data_sets), C(SDFHAUTH) and C(SDFHLIC) as specified with O(cics_data_sets), and so on.
     type: dict
     required: false
     suboptions:
       top_data_sets:
         description:
-          - The C(STEPLIB) data sets to be appended to the very top of the statement.
+          - The C(STEPLIB) data sets to be added to the very top of the list.
         type: list
         required: false
         elements: str
       data_sets:
         description:
-          - The C(STEPLIB) data sets to be appended to the bottom of the library list.
+          - The C(STEPLIB) data sets to be added to the bottom of the list.
         type: list
         required: false
         elements: str
   dfhrpl:
     description:
-      - Any locations of additional DFHRPL libraries to add, that are not C(SDFHLOAD), C(SCEECICS), C(SCEERUN), or
-        C(SCEERUN2).
+      - Any locations of additional data sets other than C(SDFHLOAD), C(SCEECICS), C(SCEERUN), or C(SCEERUN2), to be added to the DFHRPL concatenation.
+        The DFHRPL concatenation is where you specify the libraries that contain modules loaded by CICS, for example, the libraries
+        containing your CICS application programs, your CICS control tables, and so on. You can either add data sets at the very top of the
+        list or append them to the bottom of the list. There are other data sets in between, as determined by the defaults or other input
+        parameters; for example, C(SCEERUN) and C(SCEERUN2) as specified with O(le_data_sets), C(SDFHLOAD) as specified with O(cics_data_sets), and so on.
     type: dict
     required: false
     suboptions:
       top_data_sets:
         description:
-          - The DFHRPL data sets to be appended to the very top of the statement.
+          - The C(DFHRPL) data sets to be added to the very top of the list.
         required: false
         type: list
         elements: str
       data_sets:
         description:
-          - The DFHRPL data sets to be appended to the bottom of the list.
+          - The C(DFHRPL) data sets to be added to the bottom of the list.
         type: list
         required: false
         elements: str
