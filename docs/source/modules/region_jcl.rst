@@ -844,7 +844,7 @@ region_data_sets
 
      
   dfhstart
-    Overrides the templated location for the JCL data set.
+    Overrides the templated location for the CICS startup JCL data set.
 
 
     | **required**: False
@@ -853,9 +853,9 @@ region_data_sets
 
      
     dsn
-      The data set name of the JCL data set to override the template.
+      The data set name of the CICS startup JCL data set to override the template.
 
-      The data set name can also be set to a member of an existing PDS/E
+      The data set name can also be set to a member of an existing PDS or PDSE.
 
 
       | **required**: False
@@ -3446,7 +3446,7 @@ space_primary
 
   If this option is not set, the primary space is dynamically calculated based on the size of the generated CICS startup JCL.
 
-  If the target data set is a member in a PDSE, then this value does not have any effect.
+  If the target data set is a member in a PDS or PDSE, then this value does not have any effect.
 
 
   | **required**: False
@@ -3461,7 +3461,7 @@ space_secondary
 
   If this option is not set, the secondary space is dynamically calculated as 10% of the total size of the generated CICS startup JCL.
 
-  If the target data set is a member in a PDSE, then this value does not have any effect.
+  If the target data set is a member in a PDS or PDSE, then this value does not have any effect.
 
 
   | **required**: False
@@ -3478,7 +3478,7 @@ space_type
 
   If neither \ :literal:`space\_secondary`\  nor \ :literal:`space\_primary`\  is set, then this value does not have any effect.
 
-  If the target data set is a member in a PDSE, then this value does not have any effect.
+  If the target data set is a member in a PDS or PDSE, then this value does not have any effect.
 
 
   | **required**: False
@@ -3535,7 +3535,7 @@ steplib
 volumes
   The volume(s) where the data set is created. Use a string to define a singular volume or a list of strings for multiple volumes.
 
-  If the target data set is a member in a PDS/E, then this value will not have any effect
+  If the target data set is a member in a PDS or PDSE, then this value does not have any effect.
 
 
   | **required**: False
