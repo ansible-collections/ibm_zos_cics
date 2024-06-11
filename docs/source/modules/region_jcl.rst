@@ -3446,7 +3446,7 @@ space_primary
 
   If this option is not set, the primary space is dynamically calculated based on the size of the generated CICS startup JCL.
 
-  If the target data set is a member in a PDS/E, then this value will not have any effect.
+  If the target data set is a member in a PDSE, then this value does not have any effect.
 
 
   | **required**: False
@@ -3461,7 +3461,7 @@ space_secondary
 
   If this option is not set, the secondary space is dynamically calculated as 10% of the total size of the generated CICS startup JCL.
 
-  If the target data set is a member in a PDS/E, then this value will not have any effect.
+  If the target data set is a member in a PDSE, then this value does not have any effect.
 
 
   | **required**: False
@@ -3478,7 +3478,7 @@ space_type
 
   If neither \ :literal:`space\_secondary`\  nor \ :literal:`space\_primary`\  is set, then this value does not have any effect.
 
-  If the target data set is a member in a PDS/E, then this value will not have any effect.
+  If the target data set is a member in a PDSE, then this value does not have any effect.
 
 
   | **required**: False
