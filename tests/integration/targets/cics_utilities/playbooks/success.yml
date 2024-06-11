@@ -1,0 +1,72 @@
+# (c) Copyright IBM Corp. 2023,2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: CICS Version Success Case
+  hosts: "all"
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+
+  tasks:
+    ############################################################################
+    # Get CICS version for dev version 
+    ############################################################################
+    - name: Retrieve CICS version information (Dev)
+      cics_version:
+        CICS_HLQ: 'ANTZ.CICS.TS.DEV.INTEGRAT'
+      register: result
+
+    - name: Assert dev
+      ansible.builtin.assert:
+        that:
+          - result is not changed
+          - result.cics_version == '7.5.0'
+          - result.rc == 0
+          - "'exception' not in result"
+
+    ############################################################################
+    # Get CICS version for 6.1
+    ############################################################################
+    - name: Retrieve CICS version information (6.1)
+      cics_version:
+        CICS_HLQ: 'CTS610.CICS740'
+      register: result
+      
+    - name: Assert 6.1
+      ansible.builtin.assert:
+        that:
+          - result is not changed
+          - result.cics_version == '7.4.0'
+          - result.rc == 0
+          - "'exception' not in result"
+
+    ############################################################################
+    # Get CICS version for 5.6
+    ############################################################################
+    - name: Retrieve CICS version information (5.6)
+      cics_version:
+        CICS_HLQ: 'CTS560.CICS730'
+      register: result
+      
+    - name: Assert 5.6
+      ansible.builtin.assert:
+        that:
+          - result is not changed
+          - result.cics_version == '7.3.0'
+          - result.rc == 0
+          - "'exception' not in result"
+
+    ############################################################################
+    # Get CICS version for 5.4
+    ############################################################################
+    - name: Retrieve CICS version information (5.4)
+      cics_version:
+        CICS_HLQ: 'CTS540.CICS710'
+      register: result
+      
+    - name: Assert 5.4
+      ansible.builtin.assert:
+        that:
+          - result is not changed
+          - result.cics_version == '7.1.0'
+          - result.rc == 0
+          - "'exception' not in result"

@@ -1,0 +1,94 @@
+- name: Create data set lock if it doesn't exist to indicate console is in use
+  ibm.ibm_zos_core.zos_data_set:
+    name: "{{ ansible_user }}.AN{{ build_number }}.STOPCICS.LOCK"
+    type: seq
+    state: present
+    replace: false
+  register: ds_status
+  until: ds_status.changed
+  retries: 180
+  delay: 10
+
+- name: Stop Region
+  block:
+    - name: Issue shutdown command (with job_id)
+      when:
+        - jobname is not defined or jobname is false
+        - jobid is not defined or jobid is true
+      ibm.ibm_zos_cics.stop_region:
+        job_id: "{{ start_result.stdout }}"
+        mode: "{{ mode }}"
+      register: stop_result
+      timeout: 300
+
+    - name: Set stop_output
+      ansible.builtin.set_fact: stop_output="{{ stop_result }}"
+      when: "'skip_reason' not in {{ stop_result }}"
+
+    - name: Issue shutdown command (with job_name)
+      when:
+        - jobname is true
+        - jobid is false
+      ibm.ibm_zos_cics.stop_region:
+        job_name: "{{ start_region_applid }}"
+        mode: "{{ mode }}"
+      register: stop_result
+      timeout: 300
+
+    - name: Set stop_output
+      ansible.builtin.set_fact: stop_output="{{ stop_result }}"
+      when: stop_result.changed
+
+    - name: Issue shutdown command (with job_id and job_name)
+      when:
+        - jobname is true
+        - jobid is not defined or jobid is true
+      ibm.ibm_zos_cics.stop_region:
+        job_name: "{{ start_region_applid }}"
+        job_id: "{{ start_result.stdout }}"
+        mode: "{{ mode }}"
+      register: stop_result
+      timeout: 300
+
+    - name: Set stop_output
+      ansible.builtin.set_fact: stop_output="{{ stop_result }}"
+      when: stop_result.changed
+
+  always:
+    - name: Log output of stop
+      ansible.builtin.debug:
+        msg: "{{ stop_output }}"
+    - name: Remove data set to indicate console is not in use
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ ansible_user }}.AN{{ build_number }}.STOPCICS.LOCK"
+        state: absent
+      register: ds_status
+      until: ds_status.changed
+      retries: 3
+      delay: 10
+
+- name: Assert CICS stop did not fail
+  when: expect_failure is not defined or expect_failure is false
+  ansible.builtin.assert:
+    that:
+      - stop_output.failed != True
+      - stop_output.msg == ""
+      - stop_output.executions[-1].return.failed == False
+      - stop_output.executions[-1].return.output[0].content | length == 2
+      - "'ON OUTPUT QUEUE' in '{{ stop_output.executions[-1].return.output[0].content | join(' ') }}'"
+    fail_msg: "CICS Region did not stop successfully"
+
+- name: Assert execution RCs are 0
+  when: expect_failure is not defined or expect_failure is false
+  ansible.builtin.assert:
+    that:
+      - item.rc == 0
+    msg: Job failed with RC != 0
+  loop: "{{ stop_output.executions }}"
+
+- name: Execute a command to delete job
+  when: expect_failure is not defined or expect_failure is false
+  ansible.builtin.command:
+    cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
+  register: delete_result
+  changed_when: delete_result.rc == 0

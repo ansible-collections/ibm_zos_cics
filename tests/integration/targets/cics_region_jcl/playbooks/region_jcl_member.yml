@@ -1,0 +1,285 @@
+# (c) Copyright IBM Corp. 2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Test lifecycle of Member data set for region_jcl module
+
+  hosts: "all"
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+  vars:
+    base_data_set_name: START
+    member_name: STRTMEMB
+    data_set_path: "{{ region_data_set_path }}.{{ base_data_set_name }}({{ member_name }})"
+    base_data_set_path: "{{ region_data_set_path }}.{{ base_data_set_name }}"
+
+  module_defaults:
+    ibm.ibm_zos_cics.region_jcl:
+      region_data_sets:
+        template: "{{ region_data_set_path }}.<< data_set_name >>"
+        dfhstart:
+          dsn: "{{ data_set_path }}"
+      cics_data_sets:
+        template: "{{ cics_install_path }}.<< lib_name >>"
+        sdfhlic: "{{ cics_install_path }}.LIC.SDFHLIC"
+      le_data_sets:
+        template: "{{ le_path }}.<< lib_name >>"
+      applid: "{{ start_region_applid }}"
+
+  tasks:
+    # #############################################################################
+    # ############################## Initial Cleanup ##############################
+    # #############################################################################
+
+    - name: Delete base data set {{ base_data_set_path }}
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ base_data_set_path }}"
+        state: absent
+      register: result
+      retries: 3
+      until: result is not failed
+
+    # #############################################################################
+    # ############################## Module Testing ###############################
+    # #############################################################################
+
+    - name: Wrap test in block so cleanup always runs
+      block:
+        - name: Run region_jcl module with initial state for non-exisitng PDS
+          ibm.ibm_zos_cics.region_jcl:
+            state: initial
+          ignore_errors: true
+          register: result
+
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert initial state failed as {{ base_data_set_path }} does not exist
+          ansible.builtin.assert:
+            that:
+              - result.failed == true
+              - result.changed == false
+              - result.start_state.exists == false
+              - result.end_state.exists == false
+              - result.msg == "Base data set {{ base_data_set_path }} does not exist. Can only create a member in an existing PDS/E"
+
+        # #############################################################################
+
+        - name: Create base data set {{ base_data_set_path }}
+          ibm.ibm_zos_core.zos_data_set:
+            name: "{{ base_data_set_path }}"
+            state: present
+            type: PDS
+          register: result
+          retries: 3
+          until: result is not failed
+
+        - name: Run region_jcl module with initial state for exisitng PDS
+          ibm.ibm_zos_cics.region_jcl:
+            state: initial
+          register: result
+
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert {{ data_set_path }} created
+          ansible.builtin.assert:
+            that:
+              - result.failed == false
+              - result.changed == true
+              - result.start_state.exists == false
+              - result.end_state.exists == true
+              - result.msg == ""
+
+        # #############################################################################
+
+        - name: Run region_jcl module with initial state when member already exists
+          ibm.ibm_zos_cics.region_jcl:
+            state: initial
+          register: result
+
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert {{ data_set_path }} already existed but now recreated
+          ansible.builtin.assert:
+            that:
+              - result.failed == false
+              - result.changed == true
+              - result.start_state.exists == true
+              - result.end_state.exists == true
+              - result.msg == ""
+
+        # #############################################################################
+
+        - name: Run region_jcl module with warm state for matching data set content
+          ibm.ibm_zos_cics.region_jcl:
+            state: warm
+          register: result
+
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert {{ data_set_path }} in warm state
+          ansible.builtin.assert:
+            that:
+              - result.failed == false
+              - result.changed == false
+              - result.start_state.exists == true
+              - result.end_state.exists == true
+              - result.msg == ""
+
+        # #############################################################################
+
+        - name: Run region_jcl module with absent state
+          ibm.ibm_zos_cics.region_jcl:
+            state: absent
+          register: result
+
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert {{ data_set_path }} in absent state
+          ansible.builtin.assert:
+            that:
+              - result.failed == false
+              - result.changed == true
+              - result.start_state.exists == true
+              - result.end_state.exists == false
+              - result.msg == ""
+
+        # #############################################################################
+
+        - name: Run region_jcl module with warm state for non-exisitng member
+          ibm.ibm_zos_cics.region_jcl:
+            state: warm
+          ignore_errors: true
+          register: result
+
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert warm state failed for {{ data_set_path }}
+          ansible.builtin.assert:
+            that:
+              - result.failed == true
+              - result.changed == false
+              - result.start_state.exists == false
+              - result.end_state.exists == false
+              - result.msg == "Data set {{ data_set_path }} does not exist."
+
+        # #############################################################################
+
+        - name: Create dummy member {{ data_set_path }}
+          ibm.ibm_zos_core.zos_data_set:
+            name: "{{ data_set_path }}"
+            state: present
+            type: member
+          register: result
+          retries: 3
+          until: result is not failed
+
+        - name: Run region_jcl module with warm state for non-matching data set content
+          ibm.ibm_zos_cics.region_jcl:
+            state: warm
+          ignore_errors: true
+          register: result
+
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert warm state failed for {{ data_set_path }}
+          ansible.builtin.assert:
+            that:
+              - result.failed == true
+              - result.changed == false
+              - result.start_state.exists == true
+              - result.end_state.exists == true
+              - result.msg == "Data set {{ data_set_path }} does not contain the expected Region JCL."
+
+        # #############################################################################
+
+        - name: Run region_jcl module with absent state
+          ibm.ibm_zos_cics.region_jcl:
+            state: absent
+          register: result
+
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert {{ data_set_path }} in absent state
+          ansible.builtin.assert:
+            that:
+              - result.failed == false
+              - result.changed == true
+              - result.start_state.exists == true
+              - result.end_state.exists == false
+              - result.msg == ""
+
+        # #############################################################################
+
+        - name: Run region_jcl module with absent state for non-existing member
+          ibm.ibm_zos_cics.region_jcl:
+            state: absent
+          register: result
+
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert {{ data_set_path }} in absent state
+          ansible.builtin.assert:
+            that:
+              - result.failed == false
+              - result.changed == false
+              - result.start_state.exists == false
+              - result.end_state.exists == false
+              - result.msg == ""
+
+        # #############################################################################
+
+        - name: Delete base data set {{ base_data_set_path }}
+          ibm.ibm_zos_core.zos_data_set:
+            name: "{{ base_data_set_path }}"
+            state: absent
+          register: result
+          retries: 3
+          until: result is not failed
+
+        - name: Run region_jcl module with absent state for non-existing base data set
+          ibm.ibm_zos_cics.region_jcl:
+            state: absent
+          register: result
+
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert {{ data_set_path }} in absent state
+          ansible.builtin.assert:
+            that:
+              - result.failed == false
+              - result.changed == false
+              - result.start_state.exists == false
+              - result.end_state.exists == false
+              - result.msg == ""
+
+        # #############################################################################
+        # ################################## Cleanup ##################################
+        # #############################################################################
+
+      always:
+        - name: Delete base data set {{ base_data_set_path }}
+          ibm.ibm_zos_core.zos_data_set:
+            name: "{{ base_data_set_path }}"
+            state: absent
+          register: result
+          retries: 3
+          until: result is not failed

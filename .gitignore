@@ -5,7 +5,12 @@ docs/build/
 __pycache__
 venv*
 .venv
+core
 tests/output
 ibm-ibm_zos_cics-*.tar.gz
 tests/integration/inventory
+tests/integration/inventory_zos.yml
 tests/integration/variables/cmci.yml
+tests/integration/variables/provisioning.yml
+tests/integration/variables/utilities.yml
+tests/integration/variables/zos.yml

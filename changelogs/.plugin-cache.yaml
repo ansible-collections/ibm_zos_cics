@@ -11,6 +11,11 @@ plugins:
   inventory: {}
   lookup: {}
   module:
+    auxiliary_temp:
+      description: Create and remove the CICS auxiliary temporary storage data set
+      name: auxiliary_temp
+      namespace: ''
+      version_added: 1.1.0-beta.4
     cmci_action:
       description: Perform actions on CICS and CICSPlex SM resources
       name: cmci_action
@@ -36,9 +41,54 @@ plugins:
       name: cmci_update
       namespace: ''
       version_added: 1.0.0
+    csd:
+      description: Create, remove, and manage the CICS CSD
+      name: csd
+      namespace: ''
+      version_added: 1.1.0-beta.4
+    global_catalog:
+      description: Create, remove, and manage the CICS global catalog
+      name: global_catalog
+      namespace: ''
+      version_added: 1.1.0-beta.1
+    intrapartition:
+      description: Create and remove the CICS transient data intrapartition data set
+      name: intrapartition
+      namespace: ''
+      version_added: 1.1.0-beta.4
+    local_catalog:
+      description: Create, remove, and manage the CICS local catalog
+      name: local_catalog
+      namespace: ''
+      version_added: 1.1.0-beta.2
+    local_request_queue:
+      description: Create and remove the CICS local request queue
+      name: local_request_queue
+      namespace: ''
+      version_added: 1.1.0-beta.3
+    start_cics:
+      description: Start a CICS region
+      name: start_cics
+      namespace: ''
+      version_added: 1.1.0-beta.5
+    stop_cics:
+      description: Stop a CICS Region
+      name: stop_cics
+      namespace: ''
+      version_added: 1.1.0-beta.5
+    trace:
+      description: Allocate auxiliary trace data sets
+      name: trace
+      namespace: ''
+      version_added: 1.1.0-beta.4
+    transaction_dump:
+      description: Allocate transaction dump data sets
+      name: transaction_dump
+      namespace: ''
+      version_added: 1.1.0-beta.4
   netconf: {}
   shell: {}
   strategy: {}
   test: {}
   vars: {}
-version: 2.0.0
+version: 1.1.0-beta.5

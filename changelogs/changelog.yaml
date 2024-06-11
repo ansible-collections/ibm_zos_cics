@@ -85,3 +85,104 @@ releases:
     fragments:
     - 2.0.0.yml
     release_date: '2024-05-08'
+  1.1.0-beta.1:
+    changes:
+      release_summary: This release contains a new Global Catalog module
+    fragments:
+    - beta.yml
+    modules:
+    - description: Create and initialize CICS global catalog.
+      name: global_catalog
+      namespace: ''
+    release_date: '2023-06-14'
+  1.1.0-beta.2:
+    changes:
+      bugfixes:
+      - Input parameters for ``global_catalog`` failed when lowercase. Now these parameters
+        are not case sensitive.
+      - The ``changed`` flag did not always correspond with actions taken during the
+        ``global_catalog`` execution. Now this flag represents if changes were made.
+      minor_changes:
+      - Return values for ``global_catalog`` - changes the values returned to include
+        ``start_state``, ``end_state``, and ``executions``.
+      release_summary: This release improves the return values for the ``global_catalog``
+        module, fixes bugs related to its input parameters, and includes a new ``local_catalog``
+        module for provisioning a local catalog data set.
+    fragments:
+    - beta.yml
+    modules:
+    - description: Create, remove, and manage the CICS local catalog
+      name: local_catalog
+      namespace: ''
+    release_date: '2023-07-20'
+  1.1.0-beta.3:
+    changes:
+      breaking_changes:
+      - Introduction of ``region_data_sets`` and ``cics_data_sets`` defaults group
+      release_summary: 'This release introduces changes to the global and local catalog
+        modules by adding support for the ``region_data_sets`` and ``cics_data_sets``
+        defaults groups. This changes the way you specifiy the data set location for
+        these modules. A new ``local_request_queue`` module is also included to support
+        provisioning a local request queue data set. '
+    fragments:
+    - beta.yml
+    modules:
+    - description: Create and remove the CICS local request queue
+      name: local_request_queue
+      namespace: ''
+    release_date: '2023-11-21'
+  1.1.0-beta.4:
+    changes:
+      bugfixes:
+      - Additional ``state`` input parameter option ``warm`` added to ``local_request_queue``
+        module
+      - Behaviour of ``local_catalog`` and ``local_request_queue`` module with ``state``
+        set to ``initial`` updated to match documentation
+      release_summary: This release delivers new modules for provisioning the CICS
+        auxiliary temporary storage data set, the CICS system definition data set,
+        the CICS transient data intrapartition data set, the CICS auxiliary trace
+        data sets and the CICS transaction dump data sets. This release also contains
+        fixes to the CICS local request queue data set module and the CICS local catalog
+        data set module.
+    fragments:
+    - beta.yml
+    modules:
+    - description: Create and remove the CICS auxiliary temporary storage data set
+      name: auxiliary_temp
+      namespace: ''
+    - description: Create, remove, and manage the CICS CSD
+      name: csd
+      namespace: ''
+    - description: Create and remove the CICS transient data intrapartition data set
+      name: intrapartition
+      namespace: ''
+    - description: Allocate auxiliary trace data sets
+      name: trace
+      namespace: ''
+    - description: Allocate transaction dump data sets
+      name: transaction_dump
+      namespace: ''
+    release_date: '2024-02-05'
+  1.1.0-beta.5:
+    changes:
+      major_changes:
+      - A new ``state`` option for the ``csd`` module that alllows a user to supply
+        a script as either a data set or a z/OS Unix file containing ``CSDUP`` commands
+      - Data set modules now support a ``space_secondary`` option to specify size
+        of the secondary extent
+      - Return values for all data set modules now use ``data_set_organization`` to
+        indicate the organization of the data set. The ``vsam`` field has been removed
+        from the return structure.
+      release_summary: This release contains new modules for starting and stopping
+        standalone CICS regions. The ``csd`` module now supports executing a ``CSDUP``
+        script against an existing ``CSD`` data set.
+    fragments:
+    - beta.yaml
+    modules:
+    - description: Start a CICS region
+      name: start_cics
+      namespace: ''
+    - description: Stop a CICS Region
+      name: stop_cics
+      namespace: ''
+    release_date: '2024-03-27'

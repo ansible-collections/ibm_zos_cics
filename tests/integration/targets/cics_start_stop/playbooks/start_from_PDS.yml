@@ -1,0 +1,103 @@
+# (c) Copyright IBM Corp. 2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Provision and Deprovision CICS Region
+  hosts: 'all'
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+
+  module_defaults:
+    group/ibm.ibm_zos_cics.region:
+      cics_data_sets:
+        template: "{{ cics_install_path }}.<< lib_name >>"
+      region_data_sets:
+        template: "{{ region_data_set_path }}.<< data_set_name >>"
+        dfhstart:
+          dsn: "{{ region_data_set_path }}.LIB(DFHSTART)"
+      space_primary: 5
+      space_secondary: 2
+      space_type: "M"
+
+  tasks:
+    - name: Normal Start Stop
+      block:
+      - name: Initial normal
+        block:
+        - name: Create PDS for region JCL data set member
+          ibm.ibm_zos_core.zos_data_set:
+            name: "{{ region_data_set_path }}.LIB"
+            state: present
+            type: PDS
+          register: result
+          retries: 3
+          until: result is not failed
+
+        - name: Create data sets
+          ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
+          vars:
+            data_set_state: initial
+
+        - name: Start CICS
+          ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
+
+        - name: Stop CICS Region
+          ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
+          vars:
+            mode: normal
+
+        always:
+          - name: Delete job
+            ansible.builtin.command:
+              cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
+            ignore_errors: true
+
+      - name: Warm Immediate
+        block:
+        - name: Warm CICS data sets
+          ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
+          vars:
+            data_set_state: warm
+
+        - name: Start CICS
+          ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
+
+        - name: Stop CICS Region
+          ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
+          vars:
+            mode: immediate
+
+        always:
+          - name: Delete job
+            ansible.builtin.command:
+              cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
+            ignore_errors: true
+
+      - name: Normal Cancel
+        block:
+        - name: Start CICS
+          ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
+
+        - name: Stop CICS Region
+          ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
+          vars:
+            mode: cancel
+
+        always:
+          - name: Delete job
+            ansible.builtin.command:
+              cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
+            ignore_errors: true
+
+      always:
+        - name: Delete data sets
+          ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
+          vars:
+            data_set_state: absent
+
+        - name: Delete PDS for region JCL data set member
+          ibm.ibm_zos_core.zos_data_set:
+            name: "{{ region_data_set_path }}.LIB"
+            state: absent
+          register: result
+          retries: 3
+          until: result is not failed
