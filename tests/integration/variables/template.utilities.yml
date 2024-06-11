@@ -1,0 +1,2 @@
+zos_user: "{{ ansible_user }}"
+uniquename:

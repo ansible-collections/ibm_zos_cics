@@ -1,4 +1,4 @@
-# (c) Copyright IBM Corp. 2020,2021
+# (c) Copyright IBM Corp. 2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
 - name: CMCI Group Module_Default Integration Tests
@@ -14,7 +14,7 @@
     error_msg: "{{ error_msg_27 if ansible_version.minor <= 11 else error_msg_38 }}"
 
   module_defaults:
-    group/ibm.ibm_zos_cics.cmci_group:
+    group/ibm.ibm_zos_cics.cmci:
       cmci_host: "{{ cmci_host }}"
       cmci_port: "{{ cmci_port }}"
       cmci_user: "{{ cmci_user }}"

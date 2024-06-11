@@ -1,0 +1,33 @@
+- name: Start CICS Region
+  ansible.builtin.command:
+    cmd: jsub "{{ region_data_set_path }}.DFHSTART"
+  register: start_result
+  changed_when: true
+
+- name: Log output of start
+  ansible.builtin.debug:
+    msg: "{{ start_result }}"
+
+- name: Wait for the region to start
+  ansible.builtin.pause:
+    seconds: 10
+
+- name: Assert Start CICS Module did not fail
+  ansible.builtin.assert:
+    that:
+      - start_result.rc == 0
+      - start_result.failed == False
+      - start_result.changed == True
+    fail_msg: "Start CICS module failed"
+
+- name: Check jobs running
+  ibm.ibm_zos_core.zos_job_query:
+    job_id: "{{ start_result.stdout }}"
+  register: running_result
+
+- name: Assert CICS started
+  ansible.builtin.assert:
+    that:
+      - running_result.jobs | selectattr("ret_code", 'equalto', None) | list | length > 0
+      - running_result.failed != True
+    fail_msg: "CICS Region did not start successfully"

@@ -1,0 +1,61 @@
+# (c) Copyright IBM Corp. 2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Validate console not defined
+  hosts: 'all'
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+
+  vars:
+    UNDEFINED_CONSOLE_MSG: "Shutdown command failed because the console used was not defined. See executions for full command output."
+
+  module_defaults:
+    group/ibm.ibm_zos_cics.region:
+      cics_data_sets:
+        template: "{{ cics_install_path }}.<< lib_name >>"
+      region_data_sets:
+        template: "{{ region_data_set_path }}.<< data_set_name >>"
+      space_primary: 1
+      space_secondary: 1
+      space_type: "M"
+
+  tasks:
+    - name: Failed stop
+      block:
+        - name: Create data sets (not CSD)
+          ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
+          vars:
+            data_set_state: initial
+            ignore_csd_script: true
+            aicons_val: "NO"
+
+        - name: Start CICS
+          ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
+
+        - name: Delay
+          ansible.builtin.pause:
+            seconds: 5
+
+        - name: Stop CICS Region
+          ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
+          ignore_errors: true
+          vars:
+            mode: normal
+            expect_failure: true
+
+        - name: Assert failure with message
+          ansible.builtin.assert:
+            that:
+              - stop_output.failed is true
+              - stop_output.msg == "{{ UNDEFINED_CONSOLE_MSG }}"
+              - stop_output.changed is false
+              - "'executions' in stop_output"
+      always:
+        - name: Cancel and Delete job
+          ansible.builtin.command:
+            cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
+          ignore_errors: true
+        - name: Delete data sets
+          ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
+          vars:
+            data_set_state: absent

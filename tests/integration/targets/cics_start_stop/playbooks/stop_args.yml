@@ -1,0 +1,249 @@
+# (c) Copyright IBM Corp. 2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Deprovision with job name
+  hosts: 'all'
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+
+  module_defaults:
+    group/ibm.ibm_zos_cics.region:
+      cics_data_sets:
+        template: "{{ cics_install_path }}.<< lib_name >>"
+      region_data_sets:
+        template: "{{ region_data_set_path }}.<< data_set_name >>"
+      space_primary: 2
+      space_secondary: 1
+      space_type: "M"
+
+  tasks:
+    - name: Stop no args and job name
+      block:
+        - name: Create data sets
+          ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
+          vars:
+            data_set_state: initial
+
+        - name: Start CICS (1)
+          ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
+
+        - name: Stop with no args
+          ibm.ibm_zos_cics.stop_region:
+          register: stop_result
+          timeout: 300
+          ignore_errors: true
+
+        - name: Assert stop with no args failed
+          ansible.builtin.assert:
+            that:
+              - stop_result.failed is true
+              - stop_result.changed is false
+              - "{{ stop_result.executions | length }} == 0"
+              - stop_result.msg == "one of the following is required: job_id, job_name"
+
+        - name: Stop CICS using job name
+          ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
+          vars:
+            mode: normal
+            jobid: false
+            jobname: true
+
+    - name: Stop job name and job id
+      block:
+        - name: Start CICS (2)
+          ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
+
+        - name: Stop CICS with both name and ID
+          ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
+          vars:
+            mode: normal
+            jobname: true
+            job_id: true
+
+    - name: Stop job timeout
+      block:
+        - name: Start CICS (3)
+          ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
+
+        - name: Issue shutdown command (with job_id and job_name)
+          ibm.ibm_zos_cics.stop_region:
+            job_name: "{{ start_region_applid }}"
+            job_id: "{{ start_result.stdout }}"
+            mode: normal
+            timeout: 120
+          register: stop_result
+
+        - name: Log output of stop
+          ansible.builtin.debug:
+            msg: "{{ stop_result }}"
+
+        - name: Assert CICS stop did not fail
+          ansible.builtin.assert:
+            that:
+              - stop_result.failed == false
+              - stop_result.msg == ""
+              - stop_result.executions[-1].return.failed == False
+              - stop_result.executions[-1].return.output[0].content | length == 2
+              - "'ON OUTPUT QUEUE' in '{{ stop_result.executions[-1].return.output[0].content | join(' ') }}'"
+            fail_msg: "CICS Region did not stop successfully"
+        - name: Assert execution RCs are 0
+          ansible.builtin.assert:
+            that:
+              - item.rc == 0
+            msg: Job failed with RC != 0
+          loop: "{{ stop_result.executions }}"
+
+      always:
+        - name: Delete job
+          ansible.builtin.command:
+            cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
+          ignore_errors: true
+
+    - name: Stop job no timeout
+      block:
+        - name: Start CICS (4)
+          ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
+
+        - name: Issue shutdown command (with job_id and job_name)
+          ibm.ibm_zos_cics.stop_region:
+            job_name: "{{ start_region_applid }}"
+            job_id: "{{ start_result.stdout }}"
+            mode: normal
+            timeout: -1
+          register: stop_result
+          timeout: 300
+
+        - name: Log output of stop
+          ansible.builtin.debug:
+            msg: "{{ stop_result }}"
+
+        - name: Assert CICS stop did not fail
+          ansible.builtin.assert:
+            that:
+              - stop_result.failed != True
+              - stop_result.msg == ""
+              - stop_result.executions[-1].return.failed == False
+              - stop_result.executions[-1].return.output[0].content | length == 2
+              - "'ON OUTPUT QUEUE' in '{{ stop_result.executions[-1].return.output[0].content | join(' ') }}'"
+            fail_msg: "CICS Region did not stop successfully"
+        - name: Assert execution RCs are 0
+          ansible.builtin.assert:
+            that:
+              - item.rc == 0
+            msg: Job failed with RC != 0
+          loop: "{{ stop_result.executions }}"
+
+    - name: Stop job mismatched name and ID
+      block:
+        - name: Start CICS (5)
+          ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
+
+        - name: Issue shutdown command (wrong id)
+          ibm.ibm_zos_cics.stop_region:
+            job_name: "{{ start_region_applid }}"
+            job_id: "NONJOB"
+          register: stop_result
+          timeout: 300
+          ignore_errors: true
+
+        - name: Log output of stop
+          ansible.builtin.debug:
+            msg: "{{ stop_result }}"
+
+        - name: Assert CICS stop did not fail
+          ansible.builtin.assert:
+            that:
+              - stop_result.failed == true
+              - stop_result.msg == "No jobs found with name {{ start_region_applid }} and ID NONJOB"
+        
+        - name: Issue shutdown command (wrong name)
+          ibm.ibm_zos_cics.stop_region:
+            job_name: "NONJOB"
+            job_id: "{{ start_result.stdout }}"
+          register: stop_result
+          timeout: 300
+          ignore_errors: true
+
+        - name: Log output of stop
+          ansible.builtin.debug:
+            msg: "{{ stop_result }}"
+
+        - name: Assert CICS stop did not fail
+          ansible.builtin.assert:
+            that:
+              - stop_result.failed == true
+              - stop_result.msg == "No jobs found with name NONJOB and ID {{ start_result.stdout }}"
+      always:
+        - name: Delete job
+          ansible.builtin.command:
+            cmd: "jcan C {{ start_region_applid }} {{ start_result.stdout }}"
+          ignore_errors: true
+
+    - name: Stop job already stopped
+      block:
+        - name: Issue shutdown command with name
+          ibm.ibm_zos_cics.stop_region:
+            job_name: "{{ start_region_applid }}"
+          register: stop_result
+        - name: Assert CICS stop did not fail
+          ansible.builtin.assert:
+            that:
+              - stop_result.failed == false
+              - stop_result.changed == false
+              - stop_result.msg == ""
+        - name: Issue shutdown command with ID
+          ibm.ibm_zos_cics.stop_region:
+            job_id: "{{ start_result.stdout }}"
+          register: stop_result
+        - name: Assert CICS stop did not fail
+          ansible.builtin.assert:
+            that:
+              - stop_result.failed == false
+              - stop_result.changed == false
+              - stop_result.msg == ""
+        - name: Issue shutdown command with ID and name
+          ibm.ibm_zos_cics.stop_region:
+            job_id: "{{ start_result.stdout }}"
+            job_name: "{{ start_region_applid }}"
+          register: stop_result
+        - name: Assert CICS stop did not fail
+          ansible.builtin.assert:
+            that:
+              - stop_result.failed == false
+              - stop_result.changed == false
+              - stop_result.msg == ""
+        
+        - name: Issue shutdown command with mismatched name and id (wrong name)
+          ibm.ibm_zos_cics.stop_region:
+            job_id: "{{ start_result.stdout }}"
+            job_name: "NONJOB"
+          register: stop_result
+          ignore_errors: true
+        - name: Assert CICS stop did not fail
+          ansible.builtin.assert:
+            that:
+              - stop_result.failed == true
+              - stop_result.changed == false
+              - stop_result.msg == "No jobs found with name NONJOB and ID {{ start_result.stdout }}"
+        - name: Issue shutdown command with mismatched name and id  (wrong id)
+          ibm.ibm_zos_cics.stop_region:
+            job_id: "NONJOB"
+            job_name: "{{ start_region_applid }}"
+          register: stop_result
+          ignore_errors: true
+        - name: Assert CICS stop did not fail
+          ansible.builtin.assert:
+            that:
+              - stop_result.failed == true
+              - stop_result.changed == false
+              - stop_result.msg == "No jobs found with name {{ start_region_applid }} and ID NONJOB"
+
+      always:
+        - name: Delete job
+          ansible.builtin.command:
+            cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
+          ignore_errors: true
+        - name: Delete data sets
+          ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
+          vars:
+            data_set_state: absent
