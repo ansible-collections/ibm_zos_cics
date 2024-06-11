@@ -33,7 +33,7 @@ except ImportError:
 CMCI_HOST = 'cmci_host'
 CMCI_PORT = 'cmci_port'
 CMCI_USER = 'cmci_user'
-CMCI_PASSWORD = 'cmci_password'  # nosec B105
+CMCI_PASSWORD = 'cmci_password'
 CMCI_CERT = 'cmci_cert'
 CMCI_KEY = 'cmci_key'
 CONTEXT = 'context'
