@@ -22,7 +22,7 @@ description:
     global catalog to C(AUTOINIT). In either case, a CICS region that is using this global catalog and set with the
     C(START=AUTO) system initialization parameter performs an initial start.
 author: Andrew Twydell (@AndrewTwydell)
-version_added: 1.1.0-beta.1
+version_added: 2.1.0
 seealso:
   - module: local_catalog
 extends_documentation_fragment:

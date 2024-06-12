@@ -5,6 +5,47 @@ ibm.ibm_zos_cics Release Notes
 .. contents:: Topics
 
 
+v2.1.0
+======
+
+Release Summary
+---------------
+
+General Availability of CICS provisioning modules. You can use these Ansible modules to create automation tasks that provision or deprovision, and start or stop a CICS region. Sample playbooks show you how to do this with the latest version of the Ansible IBM z/OS CICS collection. All modules were initially released with Version 1.1.0-beta as noted below. Subsequent Version 1.1.0-beta releases may include enhancements and bugfixes for these modules. Refer to the What's new of Version 1.1.0-beta releases for details.
+This release replaces all the previous 1.1.0-beta* releases.
+You can use the following modules for provisioning and managing CICS TS data sets
+``aux_temp_storage`` for the CICS auxiliary temporary storage data set. This module was initially released as ``auxiliary_temp`` with Version 1.1.0-beta.4. The module is changed to ``aux_temp_storage`` in Version 2.1.0.
+``aux_trace`` for the CICS auxiliary trace data sets. This module was initially released as ``trace`` with Version 1.1.0-beta.4. The module is changed to ``aux_trace`` in Version 2.1.0.
+``csd`` for the CICS system definition data set. This module was initially released with Version 1.1.0-beta.4.
+``global_catalog`` for the CICS global catalog data set. This module was initially released with Version 1.1.0-beta.4.
+``local_request_queue`` for the CICS local request queue data set. This module was initially released with Version 1.1.0-beta.3.
+``td_intrapartition`` for the CICS transient data intrapartition data set. This module was initially released as ``intrapartition`` with Version 1.1.0-beta.4. The module is changed to ``td_intrapartition`` in Version 2.1.0.
+``transaction_dump`` for the CICS transaction dump data sets. This module was initially released with Version 1.1.0-beta.4.
+You can use the following modules for CICS startup and shutdown operations
+``region_jcl`` - Create a CICS startup JCL data set. This module replaces ``start_cics``, which was released with Version 1.1.0-beta.5. ``region_jcl`` is significantly different from ``start_cics`` in function. ``region_jcl`` creates a data set that contains the startup JCL, but doesn't perform the actual startup processing. ``region_jcl`` also supports definition and allocation of user data sets with the ``user_data_sets`` parameter.
+``stop_region`` - Stop a CICS region. This module was initially released as ``stop_cics`` with Version 1.1.0-beta.5. The module is changed to ``stop_region`` in Version 2.1.0. In Version 2.1.0, ``stop_region`` supports a new input parameter, ``job_name`` so that you can use the job name, which is typically the CICS's APPLID, to identify a running CICS region.
+The group name for the CICS provisioning modules is ``region``. However, in the Version 1.1.0-beta releases, the group name was ``region_group``.
+CICS provisioning modules provide support for all in-service CICS TS releases including the latest CICS TS 6.2.
+
+Deprecated Features
+-------------------
+
+- The group name for the CMCI modules is changed to ``cmci`` instead of ``cmci_group``. ``cmci_group`` is deprecated.
+
+New Modules
+-----------
+
+- ibm.ibm_zos_cics.aux_temp_storage - Create and remove the CICS auxiliary temporary storage data set
+- ibm.ibm_zos_cics.aux_trace - Allocate auxiliary trace data sets
+- ibm.ibm_zos_cics.csd - Create, remove, and manage the CICS CSD
+- ibm.ibm_zos_cics.global_catalog - Create, remove, and manage the CICS global catalog
+- ibm.ibm_zos_cics.local_catalog - Create, remove, and manage the CICS local catalog
+- ibm.ibm_zos_cics.local_request_queue - Create and remove the CICS local request queue
+- ibm.ibm_zos_cics.region_jcl - Create CICS startup JCL data set
+- ibm.ibm_zos_cics.stop_region - Stop a CICS region
+- ibm.ibm_zos_cics.td_intrapartition - Create and remove the CICS transient data intrapartition data set
+- ibm.ibm_zos_cics.transaction_dump - Allocate transaction dump data sets
+
 v2.0.0
 ======
 
@@ -30,105 +71,6 @@ Bugfixes
 --------
 
 - Allows CPSM Scope and Context to contain the following special characters '$', '@', and '#'
-
-v1.1.0-beta.5
-=============
-
-Release Summary
----------------
-
-This release contains new modules for starting and stopping standalone CICS regions. The ``csd`` module now supports executing a ``CSDUP`` script against an existing ``CSD`` data set.
-
-Major Changes
--------------
-
-- A new ``state`` option for the ``csd`` module that alllows a user to supply a script as either a data set or a z/OS Unix file containing ``CSDUP`` commands
-- Data set modules now support a ``space_secondary`` option to specify size of the secondary extent
-- Return values for all data set modules now use ``data_set_organization`` to indicate the organization of the data set. The ``vsam`` field has been removed from the return structure.
-
-New Modules
------------
-
-- ibm.ibm_zos_cics.start_cics - Start a CICS region
-- ibm.ibm_zos_cics.stop_cics - Stop a CICS Region
-
-v1.1.0-beta.4
-=============
-
-Release Summary
----------------
-
-This release delivers new modules for provisioning the CICS auxiliary temporary storage data set, the CICS system definition data set, the CICS transient data intrapartition data set, the CICS auxiliary trace data sets and the CICS transaction dump data sets. This release also contains fixes to the CICS local request queue data set module and the CICS local catalog data set module.
-
-Bugfixes
---------
-
-- Additional ``state`` input parameter option ``warm`` added to ``local_request_queue`` module
-- Behaviour of ``local_catalog`` and ``local_request_queue`` module with ``state`` set to ``initial`` updated to match documentation
-
-New Modules
------------
-
-- ibm.ibm_zos_cics.auxiliary_temp - Create and remove the CICS auxiliary temporary storage data set
-- ibm.ibm_zos_cics.csd - Create, remove, and manage the CICS CSD
-- ibm.ibm_zos_cics.intrapartition - Create and remove the CICS transient data intrapartition data set
-- ibm.ibm_zos_cics.trace - Allocate auxiliary trace data sets
-- ibm.ibm_zos_cics.transaction_dump - Allocate transaction dump data sets
-
-v1.1.0-beta.3
-=============
-
-Release Summary
----------------
-
-This release introduces changes to the global and local catalog modules by adding support for the ``region_data_sets`` and ``cics_data_sets`` defaults groups. This changes the way you specifiy the data set location for these modules. A new ``local_request_queue`` module is also included to support provisioning a local request queue data set. 
-
-Breaking Changes / Porting Guide
---------------------------------
-
-- Introduction of ``region_data_sets`` and ``cics_data_sets`` defaults group
-
-New Modules
------------
-
-- ibm.ibm_zos_cics.local_request_queue - Create and remove the CICS local request queue
-
-v1.1.0-beta.2
-=============
-
-Release Summary
----------------
-
-This release improves the return values for the ``global_catalog`` module, fixes bugs related to its input parameters, and includes a new ``local_catalog`` module for provisioning a local catalog data set.
-
-Minor Changes
--------------
-
-- Return values for ``global_catalog`` - changes the values returned to include ``start_state``, ``end_state``, and ``executions``.
-
-Bugfixes
---------
-
-- Input parameters for ``global_catalog`` failed when lowercase. Now these parameters are not case sensitive.
-- The ``changed`` flag did not always correspond with actions taken during the ``global_catalog`` execution. Now this flag represents if changes were made.
-
-New Modules
------------
-
-- ibm.ibm_zos_cics.local_catalog - Create, remove, and manage the CICS local catalog
-
-v1.1.0-beta.1
-=============
-
-Release Summary
----------------
-
-This release contains a new Global Catalog module
-
-New Modules
------------
-
-- ibm.ibm_zos_cics.global_catalog - Create and initialize CICS global catalog.
 
 v1.0.5
 ======

@@ -21,7 +21,7 @@ description:
     For example, use O(state=initial) to create and initialize a local catalog data set if it doesn't exist,
     or empty an existing local catalog of all records.
 author: Enam Khan (@enam-khan)
-version_added: 1.1.0-beta.2
+version_added: 2.1.0
 seealso:
   - module: global_catalog
 extends_documentation_fragment:
