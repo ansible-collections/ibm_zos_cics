@@ -1,0 +1,11 @@
+cics_install_path:
+cpsm_data_set_path:
+region_data_set_common: "{{ ansible_user }}.CICS.TESTS"
+region_data_set_unique:
+region_data_set_path: "{{ region_data_set_common }}.{{ region_data_set_unique }}"
+uss_path: "/u/{{ ansible_user | lower }}/{{ region_data_set_unique }}"
+cics_applid:
+le_path:
+start_region_applid:
+usshome:
+build_number: 1230

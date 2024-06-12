@@ -1,4 +1,4 @@
-# (c) Copyright IBM Corp. 2020
+# (c) Copyright IBM Corp. 2020,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 # Configuration file for the Sphinx documentation builder.
 #
@@ -20,11 +20,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'IBM Z CICS Collection'
-copyright = '2020, IBM'
+copyright = '2024, IBM'
 author = 'IBM'
 
 # The full version, including alpha/beta/rc tags
-release = '2.0.0'
+release = '2.1.0'
 
 
 # -- General configuration ---------------------------------------------------

@@ -1,0 +1,57 @@
+# (c) Copyright IBM Corp. 2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Stop missing jobs
+  hosts: 'all'
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+
+  tasks:
+    - name: Issue shutdown command on missing job ID
+      ibm.ibm_zos_cics.stop_region:
+        job_id: NONJOB
+      register: stop_result
+      ignore_errors: true
+
+    - name: Log output of stop
+      ansible.builtin.debug:
+        msg: "{{ stop_result }}"
+
+    - name: Assert CICS stop failed
+      ansible.builtin.assert:
+        that:
+          - stop_result.failed == true
+          - stop_result.msg == "No jobs found with id NONJOB"
+
+    - name: Issue shutdown command on missing job name
+      ibm.ibm_zos_cics.stop_region:
+        job_name: NONJOB
+      register: stop_result
+      ignore_errors: true
+
+    - name: Log output of stop
+      ansible.builtin.debug:
+        msg: "{{ stop_result }}"
+
+    - name: Assert CICS stop failed
+      ansible.builtin.assert:
+        that:
+          - stop_result.failed == true
+          - stop_result.msg == "Job with name NONJOB not found"
+
+    - name: Issue shutdown command on missing job name and ID
+      ibm.ibm_zos_cics.stop_region:
+        job_name: NONJOB
+        job_id: NONJOB
+      register: stop_result
+      ignore_errors: true
+
+    - name: Log output of stop
+      ansible.builtin.debug:
+        msg: "{{ stop_result }}"
+
+    - name: Assert CICS stop failed
+      ansible.builtin.assert:
+        that:
+          - stop_result.failed == true
+          - stop_result.msg == "No jobs found with name NONJOB and ID NONJOB"

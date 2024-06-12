@@ -1,0 +1,7 @@
+source_system:
+  hosts:
+    zos_host:
+      ansible_host: __ANSIBLE_TEST_HOST__
+      ansible_user: __ANSIBLE_TEST_USER__
+      ansible_python_interpreter: __ANSIBLE_TEST_PYTHON__/bin/python3
+      ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"

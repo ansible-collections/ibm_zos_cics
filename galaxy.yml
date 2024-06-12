@@ -1,5 +1,5 @@
 ---
-# (c) Copyright IBM Corp. 2020,2021
+# (c) Copyright IBM Corp. 2020,2024
 
 # IBM collection namespace
 namespace: ibm
@@ -8,7 +8,7 @@ namespace: ibm
 name: ibm_zos_cics
 
 # The collection version
-version: 2.0.0
+version: 2.1.0
 
 # Collection README file
 readme: README.md
@@ -19,6 +19,7 @@ authors:
   - Tom Latham
   - Sophie Green
   - Ya Qing Chen
+  - Andrew Twydell
 # Description
 description:
   The Red Hat Ansible Certified Content for IBM Z CICS collection includes connection plugins, action plugins,
@@ -28,6 +29,7 @@ description:
 license: [Apache-2.0]
 # Tags
 tags: [ibm, z, zos, z_os, cics, cmci, infrastructure]
+
 # Collections that this collection requires to be installed for it to be usable.
 # dependencies: {} # This collection depends on no other collections
 
@@ -69,3 +71,6 @@ build_ignore:
   - .whitesource
   - ibm-ibm_zos_cics-*.tar.gz
   - changelogs
+  - .devcontainer
+  - .vscode
+  - .secrets.baseline

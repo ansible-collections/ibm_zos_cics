@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# (c) Copyright IBM Corp. 2020,2021
+# (c) Copyright IBM Corp. 2020,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import (absolute_import, division, print_function)
 
@@ -33,7 +33,7 @@ except ImportError:
 CMCI_HOST = 'cmci_host'
 CMCI_PORT = 'cmci_port'
 CMCI_USER = 'cmci_user'
-CMCI_PASSWORD = 'cmci_password'  # nosec B105
+CMCI_PASSWORD = 'cmci_password'
 CMCI_CERT = 'cmci_cert'
 CMCI_KEY = 'cmci_key'
 CONTEXT = 'context'
