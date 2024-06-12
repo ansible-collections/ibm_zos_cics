@@ -17,7 +17,7 @@ description:
     These data sets can hold large amounts of trace data.
   - The two data sets are referred to as auxiliary trace data set A (DFHAUXT) and auxiliary trace data set B (DFHBUXT).
 author: Kye Maloy (@KyeMaloy97)
-version_added: 1.1.0-beta.4
+version_added: 2.1.0
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.aux_trace
 '''

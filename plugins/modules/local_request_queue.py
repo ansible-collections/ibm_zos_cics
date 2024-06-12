@@ -19,7 +19,7 @@ description:
     For example, use O(state=initial) to create a local request queue data set if it doesn't yet exist,
     or empty an existing local request queue of all records.
 author: Drew Hughes (@andrewhughes101)
-version_added: 1.1.0-beta.3
+version_added: 2.1.0
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.local_request_queue
 '''

@@ -27,7 +27,7 @@ description:
   - You can specify a timeout, in seconds, for CICS shutdown processing. After a request to stop CICS is issued, if CICS shutdown processing is not
     completed when this timeout is reached, the module completes in a failed state. By default, the stop_region module does not use a timeout, that is,
     the O(timeout) parameter assumes a value of -1.
-version_added: 1.1.0-beta.5
+version_added: 2.1.0
 author:
   - Kiera Bennett (@KieraBennett)
 options:

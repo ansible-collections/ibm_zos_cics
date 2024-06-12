@@ -22,7 +22,7 @@ description:
     For example, use O(state=initial) to create and initialize a CSD
     if it doesn't exist, or empty an existing CSD of all records.
 author: Thomas Latham (@Thomas-Latham3)
-version_added: 1.1.0-beta.4
+version_added: 2.1.0
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.csd
 '''

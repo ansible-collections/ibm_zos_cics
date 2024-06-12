@@ -16,7 +16,7 @@ description:
     data sets used by a CICS® region.
   - The two data sets are referred to as transaction dump data set A (DFHDMPA) and transaction dump data set B (DFHDMPB).
 author: Thomas Foyle (@tom-foyle)
-version_added: 1.1.0-beta.4
+version_added: 2.1.0
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.transaction_dump
 '''

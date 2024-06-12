@@ -20,7 +20,7 @@ description:
     temporary storage data set. For example, use O(state=initial) to create an auxiliary temporary storage
     data set if it doesn't exist.
 author: Andrew Twydell (@andrewtwydell)
-version_added: 1.1.0-beta.4
+version_added: 2.1.0
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.aux_temp_storage
 """
