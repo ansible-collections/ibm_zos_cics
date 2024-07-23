@@ -141,6 +141,12 @@ What's New
 
 * ``global_catalog`` - Create, initialize, and manage the CICS global catalog data set.
 
+Version 1.0.6
+=============
+What's New
+-------------------
+* Bug fix that allows the CICSPlex SM Scope and Context to contain special characters '$', '@', and '#'.
+
 
 Version 1.0.5
 =============
