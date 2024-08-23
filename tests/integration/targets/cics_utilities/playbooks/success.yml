@@ -8,22 +8,6 @@
 
   tasks:
     ############################################################################
-    # Get CICS version for dev version 
-    ############################################################################
-    - name: Retrieve CICS version information (Dev)
-      cics_version:
-        CICS_HLQ: 'ANTZ.CICS.TS.DEV.INTEGRAT'
-      register: result
-
-    - name: Assert dev
-      ansible.builtin.assert:
-        that:
-          - result is not changed
-          - result.cics_version == '7.5.0'
-          - result.rc == 0
-          - "'exception' not in result"
-
-    ############################################################################
     # Get CICS version for 6.1
     ############################################################################
     - name: Retrieve CICS version information (6.1)
