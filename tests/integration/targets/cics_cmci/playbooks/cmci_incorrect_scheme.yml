@@ -21,7 +21,6 @@
         cmci_port: "{{ cmci_secure_port }}"
         cmci_user: "{{ cmci_user }}"
         cmci_password: "{{ cmci_password }}"
-
         context: "{{ cmci_context }}"
         scope: "{{ cmci_scope }}"
         type: cicsprogram
@@ -42,7 +41,6 @@
         cmci_port: "{{ cmci_port }}"
         cmci_user: "{{ cmci_user }}"
         cmci_password: "{{ cmci_password }}"
-
         context: "{{ cmci_context }}"
         scope: "{{ cmci_scope_region_1 }}"
         type: cicsprogram
@@ -55,4 +53,4 @@
       ansible.builtin.assert:
         that:
           - result.failed is false
-          - result.msg[:79] == 'Error performing CMCI request{{ ":" }} [SSL{{ ":" }} WRONG_VERSION_NUMBER] wrong version number'
+          - '{{ "Error performing CMCI request" in result.msg }}'

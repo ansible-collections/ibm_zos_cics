@@ -232,6 +232,10 @@
       register: result
       failed_when: false
 
+    - name: Debug result
+      ansible.builtin.debug:
+        msg: "{{ result }}"
+
     - name: Assert 4 2.12
       when: ansible_version.minor >= 12
       ansible.builtin.assert:

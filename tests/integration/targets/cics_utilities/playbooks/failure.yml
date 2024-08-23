@@ -134,9 +134,7 @@
       ############################################################################
 
       - name: Write data to the data set to test for STATUS field
-        ansible.builtin.shell:
-        args:
-          executable: /rocket/bin/bash
+        ansible.builtin.command:
           cmd: decho 'STATUS = TEST' "{{ ds_name }}.SDFHSAMP(DFH0SINX)"
 
       - name: Wait until written
@@ -176,9 +174,7 @@
       ############################################################################
           
       - name: Write data to the data set to test for no data after STATUS
-        ansible.builtin.shell:
-        args:
-          executable: /rocket/bin/bash
+        ansible.builtin.command:
           cmd: decho 'STATUS =' "{{ ds_name }}.SDFHSAMP(DFH0SINX)"
         register: res
 
@@ -277,9 +273,7 @@
           msg: "{{ datasets }}"
 
       - name: Write data to SEQ data set
-        ansible.builtin.shell:
-        args:
-          executable: /rocket/bin/bash
+        ansible.builtin.command:
           cmd: decho 'STATUS = 1.0.0' "{{ ds_name }}.SEQ"
 
       - name: Wait until created
