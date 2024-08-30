@@ -6,7 +6,7 @@ set -eux # This is important to ensure that return codes from failing tests are 
 if pip show xmltodict 2>&1 | grep -q 'Package(s) not found'; then 
     ansible-playbook playbooks/cmci_missing_xmltodict.yml
 else
-    CURRENT_PKG=$(pip freeze | grep xmltodict)
+    CURRENT_PKG=$(pip freeze | grep xmltodict=)
     pip uninstall xmltodict -y
     ansible-playbook playbooks/cmci_missing_xmltodict.yml
     pip install "$CURRENT_PKG"

@@ -6,7 +6,7 @@ set -eux # This is important to ensure that return codes from failing tests are 
 if pip show requests 2>&1 | grep -q 'Package(s) not found'; then 
     ansible-playbook playbooks/cmci_missing_requests.yml
 else
-    CURRENT_PKG=$(pip freeze | grep requests)
+    CURRENT_PKG=$(pip freeze | grep requests=)
     pip uninstall requests -y
     ansible-playbook playbooks/cmci_missing_requests.yml
     pip install "$CURRENT_PKG"
