@@ -4,7 +4,6 @@ zoau: "__ZOAU_PATH__"
 environment_vars:
   _BPXK_AUTOCVT: "ON"
   ZOAU_HOME: "{{ zoau }}"
-  PYTHONPATH: "{{ zoau }}/lib"
   LIBPATH: "{{ zoau }}/lib:{{ pyz }}/lib:/lib:/usr/lib:."
   PATH: "{{ zoau }}/bin:{{ pyz }}/bin:/bin:/var/bin"
   _CEE_RUNOPTS: "FILETAG(AUTOCVT,AUTOTAG) POSIX(ON)"
