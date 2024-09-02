@@ -6,12 +6,16 @@
   gather_facts: false
   environment: "{{ environment_vars }}"
   vars:
-    ds_name: "{{ zos_user }}.{{ uniquename }}"
+    ds_name: "{{ ansible_user | upper }}.TEST.UTIL.A{{ range(100, 999) | random }}B"
 
   tasks:
     # #############################################################################
     # ############################## Initial cleanup ##############################
     # #############################################################################
+
+    - name: Set random ds path for test runs
+      ansible.builtin.set_fact:
+        ds_name: "{{ ds_name }}"
 
     - name: Delete data set if it exists
       ibm.ibm_zos_core.zos_data_set:
@@ -54,7 +58,7 @@
       - name: Create PDS data set
         ibm.ibm_zos_core.zos_data_set:
           name: "{{ ds_name }}.SDFHSAMP"
-          type: PDS
+          type: pds
         retries: 10
         register: created_result
         until: created_result.failed is false
@@ -83,7 +87,7 @@
       - name: Create PDS Member
         ibm.ibm_zos_core.zos_data_set:
           name: "{{ ds_name }}.SDFHSAMP(DFH0SINX)"
-          type: MEMBER
+          type: member
         retries: 10
         register: created_result
         until: created_result.failed is false
@@ -246,7 +250,7 @@
       - name: Create SEQ data set
         ibm.ibm_zos_core.zos_data_set:
           name: "{{ ds_name }}.SEQ"
-          type: SEQ
+          type: seq
         retries: 10
         register: created_result
         until: created_result.failed is false
