@@ -14,6 +14,8 @@ ssh-add
 
 python_ver=$(python -c 'import platform; major, minor, patch = platform.python_version_tuple(); print("{0}.{1}".format(major,minor))')
 
+python3 -m pip install --user ansible-core==2.17.4
+
 ansible-galaxy collection install ibm.ibm_zos_core:==1.9.1 -p /workspace/collections
 ansible-galaxy collection install community.general -p /workspace/collections
 
@@ -29,6 +31,12 @@ mkdir -p /commandhistory
 touch /commandhistory/.zsh_history
 chown -R root /commandhistory
 echo "export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.zsh_history" >> "/root/.zshrc"
+
+#Make this ansible_cics_collection repo the default repo when opening a new zsh terminal or running 'cd'
+echo "cd /workspace/collections/ansible_collections/ibm/ibm_zos_cics/" >> "/root/.zshrc"
+echo "export HOME=/workspace/collections/ansible_collections/ibm/ibm_zos_cics/"
+
+
 
 # .zshrc file configuration - Use default zsh_theme
 sed -i '/^ZSH_THEME/c\ZSH_THEME="robbyrussell"' ~/.zshrc
