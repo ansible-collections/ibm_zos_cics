@@ -9,7 +9,7 @@
 	"remoteUser": "root",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace/collections/ansible_collections/ibm/ibm_zos_cics,type=bind",
 	"workspaceFolder": "/workspace/collections",
-    "postAttachCommand": "bash /workspace/collections/ansible_collections/ibm/ibm_zos_cics/.devcontainer/setup.sh",
+	"postAttachCommand": "bash /workspace/collections/ansible_collections/ibm/ibm_zos_cics/.devcontainer/setup.sh",
 	"postCreateCommand": {
         "gitMarkSafe": "git config --global --add safe.directory /workspaces/collections/ansible_collections/ibm/ibm_zos_cics"
     },
