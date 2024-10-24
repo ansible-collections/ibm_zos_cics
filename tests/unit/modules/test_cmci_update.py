@@ -41,7 +41,7 @@ def test_csd_update(cmci_module):  # type: (cmci_module) -> None
     )
 
     cmci_module.expect(result(
-        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram'
+        'https://example.com:12345/CICSSystemManagement/cicsdefinitionprogram'
         '/CICSEX56/IYCWEMW2?CRITERIA=%28NAME%3D%27DUMMY%27%29&PARAMETER=CSDGROUP%28DUMMY%29',
         record,
         '<request><update>'
@@ -96,7 +96,7 @@ def test_bas_update(cmci_module):  # type: (CMCITestHelper) -> None
     )
 
     cmci_module.expect(result(
-        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsresourcedefinition'
+        'https://example.com:12345/CICSSystemManagement/cicsresourcedefinition'
         '/CICSEX56/IYCWEMW2?CRITERIA=%28RESDESC%3D%27BASICB1%27%29',
         record,
         '<request><update>'
@@ -147,7 +147,7 @@ def test_resource_update(cmci_module):  # type: (CMCITestHelper) -> None
     )
 
     cmci_module.expect(result(
-        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionprogram'
+        'https://example.com:12345/CICSSystemManagement/cicsdefinitionprogram'
         '/CICSEX56/IYCWEMW2?CRITERIA=%28NAME%3D%27DUMMY%27%29%20AND%20%28DEFVER%3D%271%27%29',
         record,
         '<request><update>'

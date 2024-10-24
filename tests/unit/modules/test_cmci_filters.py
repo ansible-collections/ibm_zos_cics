@@ -24,7 +24,7 @@ def test_query_criteria(cmci_module):  # type: (cmci_module) -> None
     cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE, parameters='?CRITERIA=%28FOO%3D%27BAR%27%29')
 
     cmci_module.expect(result(
-        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'https://example.com:12345/CICSSystemManagement/'
         'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=%28FOO%3D%27BAR%27%29',
         records=records
     ))
@@ -53,7 +53,7 @@ def test_filter_multi(cmci_module):  # type: (CMCITestHelper) -> None
                              parameters='?CRITERIA=%28GOO%3D%27LAR%27%29%20AND%20%28FOO%3D%27BAR%27%29')
 
     cmci_module.expect(result(
-        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'https://example.com:12345/CICSSystemManagement/'
         'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=%28GOO%3D%27LAR%27%29%20AND%20%28FOO%3D%27BAR%27%29',
         records=records
     ))
@@ -76,7 +76,7 @@ def test_complex_filter_and(cmci_module):  # type: (CMCITestHelper) -> None
                              parameters='?CRITERIA=%28FOO%3D%27BAR%27%29%20AND%20%28GOO%3D%27LAR%27%29')
 
     cmci_module.expect(result(
-        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'https://example.com:12345/CICSSystemManagement/'
         'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=%28FOO%3D%27BAR%27%29%20AND%20%28GOO%3D%27LAR%27%29',
         records=records
     ))
@@ -109,7 +109,7 @@ def test_complex_filter_or(cmci_module):  # type: (CMCITestHelper) -> None
                              parameters='?CRITERIA=%28FOO%3D%27BAR%27%29%20OR%20%28GOO%3D%27LAR%27%29')
 
     cmci_module.expect(result(
-        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'https://example.com:12345/CICSSystemManagement/'
         'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=%28FOO%3D%27BAR%27%29%20OR%20%28GOO%3D%27LAR%27%29',
         records=records
     ))
@@ -142,7 +142,7 @@ def test_complex_filter_operator(cmci_module):  # type: (CMCITestHelper) -> None
                              parameters='?CRITERIA=NOT%28FOO%3D%3D%27BAR%27%29')
 
     cmci_module.expect(result(
-        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'https://example.com:12345/CICSSystemManagement/'
         'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=NOT%28FOO%3D%3D%27BAR%27%29',
         records=records
     ))
@@ -170,7 +170,7 @@ def test_complex_filter_and_or(cmci_module):  # type: (CMCITestHelper) -> None
                                         '%28BING%3D%271%27%29%20OR%20%28BING%3D%272%27%29%29')
 
     cmci_module.expect(result(
-        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'https://example.com:12345/CICSSystemManagement/'
         'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=%28FOO%3D%27BAR%27%29%20AND%20%28BAT%3D%27BAZ%27%29%20AND%20%28'
         '%28BING%3D%271%27%29%20OR%20%28BING%3D%272%27%29%29',
         records=records
@@ -212,7 +212,7 @@ def test_complex_filter_and_and(cmci_module):  # type: (CMCITestHelper) -> None
                                         '%28BING%3D%271%27%29%20AND%20%28BING%3D%272%27%29%29')
 
     cmci_module.expect(result(
-        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'https://example.com:12345/CICSSystemManagement/'
         'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=%28FOO%3D%27BAR%27%29%20AND%20%28BAT%3D%3D%27BAZ%27%29%20AND%20%28'
         '%28BING%3D%271%27%29%20AND%20%28BING%3D%272%27%29%29',
         records=records
@@ -254,7 +254,7 @@ def test_complex_filter_or_or(cmci_module):  # type: (CMCITestHelper) -> None
                                         '%28BING%3D%272%27%29%29')
 
     cmci_module.expect(result(
-        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'https://example.com:12345/CICSSystemManagement/'
         'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=%28FOO%3E%3D%27BAR%27%29%20OR%20%28%28BING%3D%3D%271%27%29%20OR%20'
         '%28BING%3D%272%27%29%29',
         records=records
@@ -403,7 +403,7 @@ def test_complex_filter_operator_letters(cmci_module):  # type: (CMCITestHelper)
     cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE, parameters='?CRITERIA=FOO%3E%27BAR%27')
 
     cmci_module.expect(result(
-        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'https://example.com:12345/CICSSystemManagement/'
         'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=FOO%3E%27BAR%27',
         records=records
     ))
@@ -521,7 +521,7 @@ def test_complex_filter_default_operator_root(cmci_module):
                              parameters='?CRITERIA=FOO%3D%27BAR%27')
 
     cmci_module.expect(result(
-        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'https://example.com:12345/CICSSystemManagement/'
         'cicslocalfile/CICSEX56/IYCWEMW2?CRITERIA=FOO%3D%27BAR%27',
         records=records
     ))
@@ -1264,7 +1264,7 @@ def test_sanitise_complex_filter_value(cmci_module):  # type: (CMCITestHelper) -
                              parameters=encoded_criteria)
 
     cmci_module.expect(result(
-        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+        'https://example.com:12345/CICSSystemManagement/'
         'cicslocalfile/CICSEX56/IYCWEMW2' + encoded_criteria,
         records=records
     ))
