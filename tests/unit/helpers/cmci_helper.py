@@ -22,8 +22,8 @@ import pprint
 
 CONTEXT = 'CICSEX56'
 SCOPE = 'IYCWEMW2'
-HOST = 'winmvs2c.hursley.ibm.com'
-PORT = '26040'
+HOST = 'example.com'
+PORT = '12345'
 
 
 class CMCITestHelper:
@@ -296,7 +296,7 @@ def create_cmci_response(*args):  # type () -> OrderedDict
     return od(
         ('response', od(
             ('@schemaLocation', 'http://www.ibm.com/xmlns/prod/CICS/smw2int '
-                                'http://winmvs28.hursley.ibm.com:26040/CICSSystemManagement/schema/'
+                                'http://example.com:12345/CICSSystemManagement/schema/'
                                 'CICSSystemManagement.xsd'),
             ('@version', '3.0'),
             ('@connect_version', '0560'),
