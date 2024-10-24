@@ -155,7 +155,7 @@ def _template_dsn(_templar, task_vars, var_name, replace_val, template):
         variable_start_string="<<",
         variable_end_string=">>",
         available_variables=cpy,
-    ).template(template)
+    ).do_template(template, overrides=dict(variable_start_string="<<", variable_end_string=">>"))
 
 
 def _check_template(module_args, arg_dict):
