@@ -60,9 +60,9 @@ options:
 EXAMPLES = r"""
 - name: update a bundle definition in a CICS region
   cmci_update:
-    cmci_host: "winmvs2c.hursley.ibm.com"
-    cmci_port: "10080"
-    context: "iyk3z0r9"
+    cmci_host: "example.com"
+    cmci_port: "12345"
+    context: "applid"
     type: "CICSDefinitionBundle"
     attributes:
       description: "New description"

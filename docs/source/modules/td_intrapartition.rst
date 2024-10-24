@@ -20,9 +20,9 @@ td_intrapartition -- Create and remove the CICS transient data intrapartition da
 
 Synopsis
 --------
-- Create and remove the \ `transient data intrapartition <https://www.ibm.com/docs/en/cics-ts/latest?topic=data-defining-intrapartition-set>`__\  data set used by a CICS® region. This data set holds all the data for intrapartition queues.
+- Create and remove the \ `transient data intrapartition <https://www.ibm.com/docs/en/cics-ts/latest?topic=data-defining-intrapartition-set>`__ data set used by a CICS® region. This data set holds all the data for intrapartition queues.
 - You can use this module when provisioning or de-provisioning a CICS region.
-- Use the \ :literal:`state`\  option to specify the intended state for the transient data intrapartition data set. For example, use \ :literal:`state=initial`\  to create a transient data intrapartition data set if it doesn't exist.
+- Use the :literal:`state` option to specify the intended state for the transient data intrapartition data set. For example, use :literal:`state=initial` to create a transient data intrapartition data set if it doesn't exist.
 
 
 
@@ -34,7 +34,7 @@ Parameters
 
      
 region_data_sets
-  The location of the region data sets to be created by using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
+  The location of the region data sets to be created by using a template, for example, :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`.
 
   If you want to use a data set that already exists, ensure that the data set is a transient data intrapartition data set.
 
@@ -74,7 +74,7 @@ region_data_sets
 
      
 space_primary
-  The size of the primary space allocated to the transient data intrapartition data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+  The size of the primary space allocated to the transient data intrapartition data set. Note that this is just the value; the unit is specified with :literal:`space\_type`.
 
   This option takes effect only when the transient data intrapartition data set is being created. If the data set already exists, the option has no effect.
 
@@ -86,7 +86,7 @@ space_primary
 
      
 space_secondary
-  The size of the secondary space allocated to the transient data intrapartition data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+  The size of the secondary space allocated to the transient data intrapartition data set. Note that this is just the value; the unit is specified with :literal:`space\_type`.
 
   This option takes effect only when the transient data intrapartition data set is being created. If the data set already exists, the option has no effect.
 
@@ -98,7 +98,7 @@ space_secondary
 
      
 space_type
-  The unit portion of the transient data intrapartition data set size. Note that this is just the unit; the value for the primary space is specified with \ :literal:`space\_primary`\  and the value for the secondary space is specified with \ :literal:`space\_secondary`\ .
+  The unit portion of the transient data intrapartition data set size. Note that this is just the unit; the value for the primary space is specified with :literal:`space\_primary` and the value for the secondary space is specified with :literal:`space\_secondary`.
 
   This option takes effect only when the transient data intrapartition data set is being created. If the data set already exists, the option has no effect.
 
@@ -115,11 +115,11 @@ space_type
 state
   The intended state for the transient data intrapartition data set, which the module aims to achieve.
 
-  Specify \ :literal:`absent`\  to remove the transient data intrapartition data set entirely, if it exists.
+  Specify :literal:`absent` to remove the transient data intrapartition data set entirely, if it exists.
 
-  Specify \ :literal:`initial`\  to create the transient data intrapartition data set if it does not exist. If the specified data set exists but is empty, the module leaves the data set as is. If the specified data set exists and has contents, the module deletes the data set and then creates a new, empty one.
+  Specify :literal:`initial` to create the transient data intrapartition data set if it does not exist. If the specified data set exists but is empty, the module leaves the data set as is. If the specified data set exists and has contents, the module deletes the data set and then creates a new, empty one.
 
-  Specify \ :literal:`warm`\  to retain an existing transient data intrapartition data set in its current state. The module verifies whether the specified data set exists and whether it contains any records. If both conditions are met, the module leaves the data set as is. If the data set does not exist or if it is empty, the operation fails.
+  Specify :literal:`warm` to retain an existing transient data intrapartition data set in its current state. The module verifies whether the specified data set exists and whether it contains any records. If both conditions are met, the module leaves the data set as is. If the data set does not exist or if it is empty, the operation fails.
 
 
   | **required**: True

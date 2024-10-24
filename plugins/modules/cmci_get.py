@@ -56,11 +56,11 @@ options:
 EXAMPLES = r"""
 - name: get 2 LOCFILEs from a CICSplex
   cmci_get:
-    cmci_host: "winmvs2c.hursley.ibm.com"
-    cmci_port: 10080
+    cmci_host: "example.com"
+    cmci_port: 12345
     cmci_user: "ibmuser"
     cmci_password: "123456"
-    context: "iyk3z0r9"
+    context: "applid"
     type: CICSLocalFile
     record_count: 2
     resource:
@@ -69,11 +69,11 @@ EXAMPLES = r"""
 
 - name: get a localfile in a CICS region
   cmci_get:
-    cmci_host: "winmvs2c.hursley.ibm.com"
-    cmci_port: 10080
+    cmci_host: "example.com"
+    cmci_port: 12345
     cmci_cert: "./sec/ansible.pem"
     cmci_key: "./sec/ansible.key"
-    context: "iyk3z0r9"
+    context: "applid"
     type: "CICSLocalFile"
     resources:
       filter:
@@ -83,11 +83,11 @@ EXAMPLES = r"""
 
 - name: get a progdef from a CSD
   cmci_get:
-    cmci_host: "winmvs2c.hursley.ibm.com"
-    cmci_port: 10080
+    cmci_host: "example.com"
+    cmci_port: 12345
     cmci_cert: "./sec/ansible.pem"
     cmci_key: "./sec/ansible.key"
-    context: "iyk3z0r9"
+    context: "applid"
     type: cicsdefinitionprogram
     resources:
       filter:
@@ -99,11 +99,11 @@ EXAMPLES = r"""
 
 - name: pass module even if bundle definition is not found
   cmci_get:
-    cmci_host: "winmvs2c.hursley.ibm.com"
-    cmci_port: 10080
+    cmci_host: "example.com"
+    cmci_port: 12345
     cmci_cert: "./sec/ansible.pem"
     cmci_key: "./sec/ansible.key"
-    context: "iyk3z0r9"
+    context: "applid"
     type: cicsdefinitionbundle
     resources:
       filter:
@@ -116,11 +116,11 @@ EXAMPLES = r"""
 
 - name: Using complex_filter to combine filter expressions and change operators
   cmci_get:
-    cmci_host: "winmvs2c.hursley.ibm.com"
-    cmci_port: 10080
+    cmci_host: "example.com"
+    cmci_port: 12345
     cmci_cert: "./sec/ansible.pem"
     cmci_key: "./sec/ansible.key"
-    context: "iyk3z0r9"
+    context: "applid"
     type: "CICSRegion"
     resources:
       complex_filter:

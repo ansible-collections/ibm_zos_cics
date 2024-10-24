@@ -20,11 +20,11 @@ stop_region -- Stop a CICS region
 
 Synopsis
 --------
-- Stop a CICS region by issuing a CEMT PERFORM SHUTDOWN command, or by canceling the job through the \ :literal:`jobs.cancel`\  utility provided by Z Open Automation Utilities (ZOAU). You can choose the shutdown mode from NORMAL, IMMEDIATE, or CANCEL.
-- The \ :literal:`job\_id`\ , \ :literal:`job\_name`\ , or both can be used to shut down a CICS region. If mulitple jobs are running with the same name, the \ :literal:`job\_id`\  is required.
+- Stop a CICS region by issuing a CEMT PERFORM SHUTDOWN command, or by canceling the job through the :literal:`jobs.cancel` utility provided by Z Open Automation Utilities (ZOAU). You can choose the shutdown mode from NORMAL, IMMEDIATE, or CANCEL.
+- The :literal:`job\_id`\ , :literal:`job\_name`\ , or both can be used to shut down a CICS region. If mulitple jobs are running with the same name, the :literal:`job\_id` is required.
 - During a NORMAL or IMMEDIATE shutdown, a shutdown assist transaction should run to enable CICS to shut down in a controlled manner. By default, the CICS-supplied shutdown assist transaction, CESD is used. You can specify a custom shutdown assist transaction in the SDTRAN system initialization parameter. The task runs until the region has successfully shut down, or until the shutdown fails.
-- You must have a console installed in the CICS region so that the stop\_region module can communicate with CICS. To define a console, you must install a terminal with the CONSNAME attribute set to your TSO user ID. For detailed instructions, see \ `Defining TSO users as console devices <https://www.ibm.com/docs/en/cics-ts/latest?topic=cics-defining-tso-users-as-console-devices>`__\ . Add your console definition into one of the resource lists defined on the GRPLIST system initialization parameter so that it gets installed into the CICS region. Alternatively, you can use a DFHCSDUP script to update an existing CSD. This function is provided by the csd module.
-- You can specify a timeout, in seconds, for CICS shutdown processing. After a request to stop CICS is issued, if CICS shutdown processing is not completed when this timeout is reached, the module completes in a failed state. By default, the stop\_region module does not use a timeout, that is, the \ :literal:`timeout`\  parameter assumes a value of -1.
+- You must have a console installed in the CICS region so that the stop\_region module can communicate with CICS. To define a console, you must install a terminal with the CONSNAME attribute set to your TSO user ID. For detailed instructions, see \ `Defining TSO users as console devices <https://www.ibm.com/docs/en/cics-ts/latest?topic=cics-defining-tso-users-as-console-devices>`__. Add your console definition into one of the resource lists defined on the GRPLIST system initialization parameter so that it gets installed into the CICS region. Alternatively, you can use a DFHCSDUP script to update an existing CSD. This function is provided by the csd module.
+- You can specify a timeout, in seconds, for CICS shutdown processing. After a request to stop CICS is issued, if CICS shutdown processing is not completed when this timeout is reached, the module completes in a failed state. By default, the stop\_region module does not use a timeout, that is, the :literal:`timeout` parameter assumes a value of -1.
 
 
 
@@ -51,7 +51,7 @@ job_name
 
   The stop\_region module uses this job name to identify the state of the CICS region and shut it down.
 
-  The \ :literal:`job\_name`\  must be unique; if multiple jobs with the same name are running, use \ :literal:`job\_id`\ .
+  The :literal:`job\_name` must be unique; if multiple jobs with the same name are running, use :literal:`job\_id`.
 
 
   | **required**: False
@@ -62,11 +62,11 @@ job_name
 mode
   Specify the type of shutdown to be executed on the CICS region.
 
-  Specify \ :literal:`normal`\  to perform a normal shutdown. This instructs the stop\_region module to issue a CEMT PERFORM SHUTDOWN command.
+  Specify :literal:`normal` to perform a normal shutdown. This instructs the stop\_region module to issue a CEMT PERFORM SHUTDOWN command.
 
-  Specify \ :literal:`immediate`\  to perform an immediate shutdown. This instructs the stop\_region module to issue a CEMT PERFORM SHUTDOWN IMMEDIATE command.
+  Specify :literal:`immediate` to perform an immediate shutdown. This instructs the stop\_region module to issue a CEMT PERFORM SHUTDOWN IMMEDIATE command.
 
-  Specify \ :literal:`cancel`\  to cancel the CICS region. This instructs the stop\_region module to use ZOAU's \ :literal:`jobs.cancel`\  utility to process the request.
+  Specify :literal:`cancel` to cancel the CICS region. This instructs the stop\_region module to use ZOAU's :literal:`jobs.cancel` utility to process the request.
 
 
   | **required**: False

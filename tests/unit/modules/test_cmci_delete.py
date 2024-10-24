@@ -17,7 +17,7 @@ def test_delete_context(cmci_module):  # type: (cmci_module) -> None
 
     cmci_module.expect(
         result(
-            'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/',
+            'https://example.com:12345/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/',
             1
         )
     )
@@ -35,7 +35,7 @@ def test_delete_context_scope(cmci_module):  # type: (CMCITestHelper) -> None
 
     cmci_module.expect(
         result(
-            'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/IYCWEMW2',
+            'https://example.com:12345/CICSSystemManagement/cicsdefinitionbundle/CICSEX56/IYCWEMW2',
             1
         )
     )
@@ -54,7 +54,7 @@ def test_delete_criteria(cmci_module):  # type: (CMCITestHelper) -> None
 
     cmci_module.expect(
         result(
-            'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+            'https://example.com:12345/CICSSystemManagement/'
             'cicsdefinitionbundle/CICSEX56/?CRITERIA=%28FOO%3D%27BAR%27%29',
             1
         )
@@ -78,7 +78,7 @@ def test_delete_parameter(cmci_module):  # type: (CMCITestHelper) -> None
 
     cmci_module.expect(
         result(
-            'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+            'https://example.com:12345/CICSSystemManagement/'
             'cicsdefinitionbundle/CICSEX56/?PARAMETER=CSDGROUP%28%2A%29',
             1
         )
@@ -104,7 +104,7 @@ def test_delete_criteria_parameter(cmci_module):  # type: (CMCITestHelper) -> No
 
     cmci_module.expect(
         result(
-            'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+            'https://example.com:12345/CICSSystemManagement/'
             'cicsdefinitionbundle/CICSEX56/?CRITERIA=%28FOO%3D%27BAR%27%29&PARAMETER=CSDGROUP%28%2A%29',
             1
         )
@@ -133,7 +133,7 @@ def test_delete_bas(cmci_module):  # type: (CMCITestHelper) -> None
 
     cmci_module.expect(
         result(
-            'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+            'https://example.com:12345/CICSSystemManagement/'
             'cicsresourceingroup/CICSEX56/?CRITERIA=%28RESGROUP%3D%27BASGRP1%27%29',
             1
         )
@@ -161,7 +161,7 @@ def test_delete_csd(cmci_module):  # type: (CMCITestHelper) -> None
 
     cmci_module.expect(
         result(
-            'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+            'https://example.com:12345/CICSSystemManagement/'
             'cicscsdgroup/CICSEX56/?CRITERIA=%28NAME%3D%27CSDGRP1%27%29',
             1
         )
@@ -188,7 +188,7 @@ def test_non_ok_delete(cmci_module):
     )
 
     cmci_module.expect(fail_result(
-        'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/cicsresourcedescription/'
+        'https://example.com:12345/CICSSystemManagement/cicsresourcedescription/'
         'CICSEX56/?CRITERIA=%28RESDESC%3D%27BASICB1%27%29',
         'TABLEERROR',
         1038,

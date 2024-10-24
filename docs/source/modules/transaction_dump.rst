@@ -20,7 +20,7 @@ transaction_dump -- Allocate transaction dump data sets
 
 Synopsis
 --------
-- Allocates the two \ `transaction dump <https://www.ibm.com/docs/en/cics-ts/latest?topic=sets-defining-transaction-dump-data>`__\  data sets used by a CICS® region.
+- Allocates the two \ `transaction dump <https://www.ibm.com/docs/en/cics-ts/latest?topic=sets-defining-transaction-dump-data>`__ data sets used by a CICS® region.
 - The two data sets are referred to as transaction dump data set A (DFHDMPA) and transaction dump data set B (DFHDMPB).
 
 
@@ -35,9 +35,9 @@ Parameters
 destination
   Identifies which one of the transaction dump data sets is the target of the operation. If the value is left blank, A is implied, but you can specify A or B.
 
-  Specify \ :literal:`A`\  to create or delete the A data set.
+  Specify :literal:`A` to create or delete the A data set.
 
-  Specify \ :literal:`B`\  to create or delete the B data set. This MUST be set for the creation of the B data set.
+  Specify :literal:`B` to create or delete the B data set. This MUST be set for the creation of the B data set.
 
 
   | **required**: False
@@ -48,7 +48,7 @@ destination
 
      
 region_data_sets
-  The location of the region data sets to be created by using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
+  The location of the region data sets to be created by using a template, for example, :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`.
 
 
   | **required**: True
@@ -105,7 +105,7 @@ region_data_sets
 
      
 space_primary
-  The size of the primary space allocated to the transaction dump data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+  The size of the primary space allocated to the transaction dump data set. Note that this is just the value; the unit is specified with :literal:`space\_type`.
 
   This option takes effect only when the transaction dump data set is being created. If the data set already exists, the option has no effect.
 
@@ -117,7 +117,7 @@ space_primary
 
      
 space_secondary
-  The size of the secondary space allocated to the transaction dump data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+  The size of the secondary space allocated to the transaction dump data set. Note that this is just the value; the unit is specified with :literal:`space\_type`.
 
   This option takes effect only when the transaction dump data set is being created. If the data set already exists, the option has no effect.
 
@@ -129,7 +129,7 @@ space_secondary
 
      
 space_type
-  The unit portion of the transaction dump data set size. Note that this is just the unit; the value for the primary space is specified with \ :literal:`space\_primary`\  and the value for the secondary space is specified with \ :literal:`space\_secondary`\ .
+  The unit portion of the transaction dump data set size. Note that this is just the unit; the value for the primary space is specified with :literal:`space\_primary` and the value for the secondary space is specified with :literal:`space\_secondary`.
 
   This option takes effect only when the transaction dump data set is being created. If the data set already exists, the option has no effect.
 
@@ -146,11 +146,11 @@ space_type
 state
   The intended state for the transaction dump data set, which the module aims to achieve.
 
-  Specify \ :literal:`absent`\  to remove the transaction dump data set entirely, if it exists.
+  Specify :literal:`absent` to remove the transaction dump data set entirely, if it exists.
 
-  Specify \ :literal:`initial`\  to create the transaction dump data set if it does not exist. If the specified data set exists but is empty, the module leaves the data set as is. If the specified data set exists and has contents, the module deletes the data set and then creates a new, empty one.
+  Specify :literal:`initial` to create the transaction dump data set if it does not exist. If the specified data set exists but is empty, the module leaves the data set as is. If the specified data set exists and has contents, the module deletes the data set and then creates a new, empty one.
 
-  Specify \ :literal:`warm`\  to retain an existing transaction dump data set in its current state. The module verifies whether the specified data set exists and whether it contains any records. If both conditions are met, the module leaves the data set as is. If the data set does not exist or if it is empty, the operation fails.
+  Specify :literal:`warm` to retain an existing transaction dump data set in its current state. The module verifies whether the specified data set exists and whether it contains any records. If both conditions are met, the module leaves the data set as is. If the data set does not exist or if it is empty, the operation fails.
 
 
   | **required**: True

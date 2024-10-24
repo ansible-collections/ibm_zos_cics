@@ -42,7 +42,7 @@ def test_csd_create(cmci_module):  # type: (cmci_module) -> None
 
     cmci_module.expect(
         result(
-            'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+            'https://example.com:12345/CICSSystemManagement/'
             'cicsdefinitionbundle/CICSEX56/IYCWEMW2',
             record,
             '<request><create>'
@@ -94,7 +94,7 @@ def test_bas_create(cmci_module):  # type: (CMCITestHelper) -> None
 
     cmci_module.expect(
         result(
-            'https://winmvs2c.hursley.ibm.com:26040/CICSSystemManagement/'
+            'https://example.com:12345/CICSSystemManagement/'
             'cicsdefinitionbundle/CICSEX56/IYCWEMW2',
             record,
             '<request><create>'

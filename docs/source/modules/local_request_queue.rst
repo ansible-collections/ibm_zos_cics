@@ -20,9 +20,9 @@ local_request_queue -- Create and remove the CICS local request queue
 
 Synopsis
 --------
-- Create and remove the \ `local request queue <https://www.ibm.com/docs/en/cics-ts/latest?topic=sets-local-request-queue-data-set>`__\  data set used by a CICS® region. The local request queue data set stores pending BTS requests. It ensures that, if CICS fails, no pending requests are lost.
+- Create and remove the \ `local request queue <https://www.ibm.com/docs/en/cics-ts/latest?topic=sets-local-request-queue-data-set>`__ data set used by a CICS® region. The local request queue data set stores pending BTS requests. It ensures that, if CICS fails, no pending requests are lost.
 - You can use this module when provisioning or de-provisioning a CICS region.
-- Use the \ :literal:`state`\  option to specify the intended state for the local request queue. For example, use \ :literal:`state=initial`\  to create a local request queue data set if it doesn't yet exist, or empty an existing local request queue of all records.
+- Use the :literal:`state` option to specify the intended state for the local request queue. For example, use :literal:`state=initial` to create a local request queue data set if it doesn't yet exist, or empty an existing local request queue of all records.
 
 
 
@@ -34,7 +34,7 @@ Parameters
 
      
 region_data_sets
-  The location of the region data sets to be created by using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
+  The location of the region data sets to be created by using a template, for example, :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`.
 
   If you want to use a data set that already exists, ensure that the data set is a local request queue data set.
 
@@ -74,7 +74,7 @@ region_data_sets
 
      
 space_primary
-  The size of the primary space allocated to the local request queue data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+  The size of the primary space allocated to the local request queue data set. Note that this is just the value; the unit is specified with :literal:`space\_type`.
 
   This option takes effect when the local request queue data set is being created. If the data set already exists, the option has no effect.
 
@@ -86,7 +86,7 @@ space_primary
 
      
 space_secondary
-  The size of the secondary space allocated to the local request queue data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+  The size of the secondary space allocated to the local request queue data set. Note that this is just the value; the unit is specified with :literal:`space\_type`.
 
   This option takes effect when the local request queue data set is being created. If the data set already exists, the option has no effect.
 
@@ -98,7 +98,7 @@ space_secondary
 
      
 space_type
-  The unit portion of the local request queue data set size. Note that this is just the unit; the value for the primary space is specified with \ :literal:`space\_primary`\  and the value for the secondary space is specified with \ :literal:`space\_secondary`\ .
+  The unit portion of the local request queue data set size. Note that this is just the unit; the value for the primary space is specified with :literal:`space\_primary` and the value for the secondary space is specified with :literal:`space\_secondary`.
 
   This option takes effect only when the local request queue data set is being created. If the data set already exists, the option has no effect.
 
@@ -115,11 +115,11 @@ space_type
 state
   The intended state for the local request queue, which the module aims to achieve.
 
-  Specify \ :literal:`absent`\  to remove the local request queue data set entirely, if it exists.
+  Specify :literal:`absent` to remove the local request queue data set entirely, if it exists.
 
-  Specify \ :literal:`initial`\  to create the local request queue data set if it does not exist, or empty this existing local request queue of all records.
+  Specify :literal:`initial` to create the local request queue data set if it does not exist, or empty this existing local request queue of all records.
 
-  Specify \ :literal:`warm`\  to retain an existing local request queue data set in its current state. The module checks whether the specified data set exists, and if it does, leaves the data set as is. If the data set does not exist, the operation fails.
+  Specify :literal:`warm` to retain an existing local request queue data set in its current state. The module checks whether the specified data set exists, and if it does, leaves the data set as is. If the data set does not exist, the operation fails.
 
 
   | **required**: True

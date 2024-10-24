@@ -20,7 +20,7 @@ aux_trace -- Allocate auxiliary trace data sets
 
 Synopsis
 --------
-- Allocates the two \ `auxiliary trace <https://www.ibm.com/docs/en/cics-ts/latest?topic=sets-setting-up-auxiliary-trace-data>`__\  data sets used by a CICS® region. When CICS auxiliary trace is activated, trace entries produced by CICS are written to the auxiliary trace data sets. These data sets can hold large amounts of trace data.
+- Allocates the two \ `auxiliary trace <https://www.ibm.com/docs/en/cics-ts/latest?topic=sets-setting-up-auxiliary-trace-data>`__ data sets used by a CICS® region. When CICS auxiliary trace is activated, trace entries produced by CICS are written to the auxiliary trace data sets. These data sets can hold large amounts of trace data.
 - The two data sets are referred to as auxiliary trace data set A (DFHAUXT) and auxiliary trace data set B (DFHBUXT).
 
 
@@ -35,9 +35,9 @@ Parameters
 destination
   Identify which one of the auxiliary trace data sets is the target of the operation. If the value is left blank, A is implied, but you can specify A or B.
 
-  Specify \ :literal:`A`\  to create or delete the A data set.
+  Specify :literal:`A` to create or delete the A data set.
 
-  Specify \ :literal:`B`\  to create or delete the B data set. This MUST be set for the creation of the B data set.
+  Specify :literal:`B` to create or delete the B data set. This MUST be set for the creation of the B data set.
 
 
   | **required**: False
@@ -48,7 +48,7 @@ destination
 
      
 region_data_sets
-  The location of the region data sets to be created by using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
+  The location of the region data sets to be created by using a template, for example, :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`.
 
   If you want to use a data set that already exists, ensure that the data set is an auxiliary trace data set.
 
@@ -107,7 +107,7 @@ region_data_sets
 
      
 space_primary
-  The size of the primary space allocated to the auxiliary trace data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+  The size of the primary space allocated to the auxiliary trace data set. Note that this is just the value; the unit is specified with :literal:`space\_type`.
 
   This option takes effect only when the auxiliary trace data set is being created. If the data set already exists, the option has no effect.
 
@@ -119,7 +119,7 @@ space_primary
 
      
 space_secondary
-  The size of the secondary space allocated to the auxiliary trace data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+  The size of the secondary space allocated to the auxiliary trace data set. Note that this is just the value; the unit is specified with :literal:`space\_type`.
 
   This option takes effect only when the auxiliary trace data set is being created. If the data set already exists, the option has no effect.
 
@@ -131,7 +131,7 @@ space_secondary
 
      
 space_type
-  The unit portion of the auxiliary trace data set size. Note that this is just the unit; the value for the primary space is specified with \ :literal:`space\_primary`\  and the value for the secondary space is specified with \ :literal:`space\_secondary`\ .
+  The unit portion of the auxiliary trace data set size. Note that this is just the unit; the value for the primary space is specified with :literal:`space\_primary` and the value for the secondary space is specified with :literal:`space\_secondary`.
 
   This option takes effect only when the auxiliary trace data set is being created. If the data set already exists, the option has no effect.
 
@@ -148,11 +148,11 @@ space_type
 state
   The intended state for the auxiliary trace data set, which the module aims to achieve.
 
-  Specify \ :literal:`absent`\  to remove the auxiliary trace data set data set entirely, if it exists.
+  Specify :literal:`absent` to remove the auxiliary trace data set data set entirely, if it exists.
 
-  Specify \ :literal:`initial`\  to create the auxiliary trace data set if it does not exist. If the specified data set exists but is empty, the module leaves the data set as is. If the specified data set exists and has contents, the module deletes the data set and then creates a new, empty one.
+  Specify :literal:`initial` to create the auxiliary trace data set if it does not exist. If the specified data set exists but is empty, the module leaves the data set as is. If the specified data set exists and has contents, the module deletes the data set and then creates a new, empty one.
 
-  Specify \ :literal:`warm`\  to retain an existing auxiliary trace data set in its current state. The module checks whether the specified data set exists, and if it does, leaves the data set as is. If the data set does not exist, the operation fails.
+  Specify :literal:`warm` to retain an existing auxiliary trace data set in its current state. The module checks whether the specified data set exists, and if it does, leaves the data set as is. If the data set does not exist, the operation fails.
 
 
   | **required**: True

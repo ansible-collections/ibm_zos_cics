@@ -20,9 +20,9 @@ aux_temp_storage -- Create and remove the CICS auxiliary temporary storage data 
 
 Synopsis
 --------
-- Create and remove the \ `auxiliary temporary storage <https://www.ibm.com/docs/en/cics-ts/latest?topic=sets-defining-auxiliary-temporary-storage-data-set>`__\  data set used by a CICS® region.
+- Create and remove the \ `auxiliary temporary storage <https://www.ibm.com/docs/en/cics-ts/latest?topic=sets-defining-auxiliary-temporary-storage-data-set>`__ data set used by a CICS® region.
 - You can use this module when provisioning or de-provisioning a CICS region.
-- Use the \ :literal:`state`\  option to specify the intended state for the auxiliary temporary storage data set. For example, use \ :literal:`state=initial`\  to create an auxiliary temporary storage data set if it doesn't exist.
+- Use the :literal:`state` option to specify the intended state for the auxiliary temporary storage data set. For example, use :literal:`state=initial` to create an auxiliary temporary storage data set if it doesn't exist.
 
 
 
@@ -34,7 +34,7 @@ Parameters
 
      
 region_data_sets
-  The location of the region data sets to be created by using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
+  The location of the region data sets to be created by using a template, for example, :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`.
 
   If you want to use a data set that already exists, ensure that the data set is an auxiliary temporary storage data set.
 
@@ -74,7 +74,7 @@ region_data_sets
 
      
 space_primary
-  The size of the primary space allocated to the auxiliary temporary storage data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+  The size of the primary space allocated to the auxiliary temporary storage data set. Note that this is just the value; the unit is specified with :literal:`space\_type`.
 
   This option takes effect only when the auxiliary temporary storage data set is being created. If the data set already exists, the option has no effect.
 
@@ -86,7 +86,7 @@ space_primary
 
      
 space_secondary
-  The size of the secondary space allocated to the auxiliary temporary storage data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+  The size of the secondary space allocated to the auxiliary temporary storage data set. Note that this is just the value; the unit is specified with :literal:`space\_type`.
 
   This option takes effect only when the auxiliary temporary storage data set is being created. If the data set already exists, the option has no effect.
 
@@ -98,7 +98,7 @@ space_secondary
 
      
 space_type
-  The unit portion of the auxiliary temporary storage data set size. Note that this is just the unit; the value for the primary space is specified with \ :literal:`space\_primary`\  and the value for the secondary space is specified with \ :literal:`space\_secondary`\ .
+  The unit portion of the auxiliary temporary storage data set size. Note that this is just the unit; the value for the primary space is specified with :literal:`space\_primary` and the value for the secondary space is specified with :literal:`space\_secondary`.
 
   This option takes effect only when the auxiliary temporary storage data set is being created. If the data set already exists, the option has no effect.
 
@@ -115,11 +115,11 @@ space_type
 state
   The intended state for the auxiliary temporary storage data set, which the module aims to achieve.
 
-  Specify \ :literal:`absent`\  to remove the auxiliary temporary storage data set entirely, if it already exists.
+  Specify :literal:`absent` to remove the auxiliary temporary storage data set entirely, if it already exists.
 
-  Specify \ :literal:`initial`\  to create the auxiliary temporary storage data set, if it does not exist. If the specified data set exists but is empty, the module leaves the data set as is. If the specified data set exists and has contents, the module deletes the data set and then creates a new, empty data set.
+  Specify :literal:`initial` to create the auxiliary temporary storage data set, if it does not exist. If the specified data set exists but is empty, the module leaves the data set as is. If the specified data set exists and has contents, the module deletes the data set and then creates a new, empty data set.
 
-  Specify \ :literal:`warm`\  to retain an existing auxiliary temporary storage data set in its current state. The module checks whether the specified data set exists, and if it does, leaves the data set as is. If the data set does not exist, the operation fails.
+  Specify :literal:`warm` to retain an existing auxiliary temporary storage data set in its current state. The module checks whether the specified data set exists, and if it does, leaves the data set as is. If the data set does not exist, the operation fails.
 
 
   | **required**: True
