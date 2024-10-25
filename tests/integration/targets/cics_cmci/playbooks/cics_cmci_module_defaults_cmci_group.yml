@@ -227,8 +227,8 @@
         resources:
           filter:
             PROGRAM: "{{ program }}"
-      retries: 3 # May take a while to install, so give it a chance!
-      until: result is not failed
+      retries: 5 # May take a while to install, so give it a chance!
+      until: result.cpsm_response != "NODATA"
       register: result
       failed_when: false
 
