@@ -9,11 +9,10 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd, MVSCmdResponse
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException, _execution
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import MVS_CMD_RETRY_ATTEMPTS
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import MVS_CMD_RETRY_ATTEMPTS, _submit_jcl, _get_job_output
 import tempfile
+from time import sleep
 
 def _get_value_from_line(line):  # type: (list[str]) -> str | None
     val = None
@@ -24,18 +23,6 @@ def _get_value_from_line(line):  # type: (list[str]) -> str | None
 
 def _get_filtered_list(elements, target):  # type: (list[str],str) -> list[str]
     return list(filter(lambda x: target in x, elements))
-
-
-def _get_rmutl_dds(
-        location,
-        sdfhload,
-        cmd):  # type: (str, str, str) -> list[DDStatement]
-    return [
-        DDStatement('steplib', DatasetDefinition(sdfhload)),
-        DDStatement('dfhgcd', DatasetDefinition(location)),
-        DDStatement('sysin', InputDefinition(content=cmd)),
-        DDStatement('sysprint', StdoutDefinition()),
-    ]
 
 
 def _get_reason_code(stdout_lines_arr):  # type: (list[str]) -> str | None
@@ -74,16 +61,27 @@ def _create_dfhrmutl_jcl(location, sdfhload, cmd=""):
     _validate_line_length(steplib_line, sdfhload)
     _validate_line_length(dfhgcd_line, location)
     
-    jcl = f'''
-//RMUTL1 JOB
+    jcl = ""
+    if (cmd ==""):
+        jcl = f'''
+//DFHRMUTL JOB
 //RMUTL    EXEC PGM=DFHRMUTL,REGION=1M
 {steplib_line}
-//SYSPRINT DD SYSOUT=A
+//SYSPRINT DD SYSOUT=*
+{dfhgcd_line}
+//SYSIN    DD *
+/*
+'''
+    else:
+        jcl = f'''
+//DFHRMUTL JOB
+//RMUTL    EXEC PGM=DFHRMUTL,REGION=1M
+{steplib_line}
+//SYSPRINT DD SYSOUT=*
 {dfhgcd_line}
 //SYSIN    DD *
     {cmd}
 /*
-//
 '''
 
     # Create a temporary file
@@ -127,22 +125,35 @@ def _run_dfhrmutl(
     executions = []
 
     for x in range(MVS_CMD_RETRY_ATTEMPTS):
-        dfhrmutl_response = _execute_dfhrmutl(location, sdfhload, cmd)
+        dfhrmutl_response, jcl_executions = _execute_dfhrmutl(qualified_file_path)
+        dfhrmutl_rc = dfhrmutl_response.get("ret_code").get("code")
+
+        allContent = []
+        for ddname in dfhrmutl_response.get("ddnames"):
+                allContent += ddname.get("content")
+        stdout_raw = "".join(allContent)
+
+        executions.append(jcl_executions)
         executions.append(
             _execution(
                 name="DFHRMUTL - {0} - Run {1}".format(
                     "Get current catalog" if cmd == "" else "Updating autostart override",
                     x + 1),
-                rc=dfhrmutl_response.rc,
-                stdout=dfhrmutl_response.stdout,
-                stderr=dfhrmutl_response.stderr))
+                rc=dfhrmutl_rc,
+                stdout=stdout_raw,
+                stderr=dfhrmutl_response.get("ret_code").get("msg_txt", "")))
+        
+        if dfhrmutl_rc not in (0, 16):
+            raise MVSExecutionException(
+                "DFHRMUTL failed with RC {0}".format(
+                    dfhrmutl_rc), executions)
 
-        if dfhrmutl_response.rc == 0:
+        if dfhrmutl_rc == 0:
             break
-        if dfhrmutl_response.rc == 16:
+        if dfhrmutl_rc == 16:
             formatted_stdout_lines = [
                 "{0}".format(element.replace(" ", "").upper())
-                for element in dfhrmutl_response.stdout.split("\n")
+                for element in stdout_raw.split("\n")
             ]
             stdout_with_rc = list(filter(lambda x: "REASON:X" in x, formatted_stdout_lines))
 
@@ -157,23 +168,23 @@ def _run_dfhrmutl(
                     executions,
                 )
 
-        else:
-            raise MVSExecutionException(
-                "DFHRMUTL failed with RC {0}".format(
-                    dfhrmutl_response.rc), executions)
-
     if cmd != "":
         return executions
 
-    return executions, _get_catalog_records(dfhrmutl_response.stdout)
+    return executions, _get_catalog_records(stdout_raw)
 
 
-def _execute_dfhrmutl(location, sdfhload, cmd=""):   # type: (str, str, str) -> MVSCmdResponse
-    return MVSCmd.execute(
-        pgm="DFHRMUTL",
-        dds=_get_rmutl_dds(location=location, sdfhload=sdfhload, cmd=cmd),
-        verbose=True,
-        debug=False)
+def _execute_dfhrmutl(rmutl_jcl_path, job_name="DFHRMUTL"):
+    executions = _submit_jcl(rmutl_jcl_path, job_name)
+    job_id = executions[0].get("stdout").strip()
+
+    #Give RMUTL a second to run
+    sleep(1)
+
+    job, job_executions = _get_job_output(job_id, job_name)
+    executions.append(job_executions)
+
+    return job, executions
 
 
 def _get_idcams_cmd_gcd(dataset):   # type: (dict) -> dict
