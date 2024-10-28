@@ -765,7 +765,24 @@ def test_validate_parameters_applid_too_long():
     with pytest.raises(AnsibleFailJson) as exec_info:
         module = setup_and_update_parms({"applid": applid})
         assert module.result["failed"]
-    assert exec_info.value.args[0]['msg'] == 'Invalid argument "{0}" for type "qualifier".'.format(applid)
+    assert exec_info.value.args[0]['msg'] == 'Invalid argument "{0}" for type "dd".'.format(applid)
+
+
+def test_validate_parameters_applid_with_special_chars():
+    prepare_for_exit()
+    applid = "APP$@#"
+    module = setup_and_update_parms({"applid": applid})
+    module._exit()
+    assert not module.result["failed"]
+
+
+def test_validate_parameters_applid_with_unacceptable_special_chars():
+    prepare_for_fail()
+    applid = "AP$@#!£%"
+    with pytest.raises(AnsibleFailJson) as exec_info:
+        module = setup_and_update_parms({"applid": applid})
+        assert module.result["failed"]
+    assert exec_info.value.args[0]['msg'] == 'Invalid argument "{0}" for type "dd".'.format(applid)
 
 
 def test_validate_parameters_steplib_library_too_long():

@@ -300,7 +300,7 @@ class AnsibleRegionJCLModule(DataSet):
         defs[STEPLIB]["options"][DATA_SETS].update({"elements": "data_set_base"})
         defs[DFHRPL]["options"][TOP_DATA_SETS].update({"elements": "data_set_base"})
         defs[DFHRPL]["options"][DATA_SETS].update({"elements": "data_set_base"})
-        self.update_arg_def(defs[APPLID], "qualifier")
+        self.update_arg_def(defs[APPLID], "dd")
         if defs.get(JOB_PARAMETERS) and defs[JOB_PARAMETERS]["options"].get(JOB_NAME):
             # If they've provided a job_name we need to validate this too
             self.update_arg_def(defs[JOB_PARAMETERS]["options"][JOB_NAME], "qualifier")
