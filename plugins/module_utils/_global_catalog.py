@@ -13,7 +13,7 @@ from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw impor
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException, _execution
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import MVS_CMD_RETRY_ATTEMPTS
-
+import tempfile
 
 def _get_value_from_line(line):  # type: (list[str]) -> str | None
     val = None
@@ -67,14 +67,63 @@ def _get_catalog_records(stdout):  # type: (str) -> tuple[str | None, str | None
 
     return (autostart_override, nextstart)
 
+def _create_dfhrmutl_jcl(location, sdfhload, cmd=""):
+    steplib_line = f"//STEPLIB  DD DSNAME={sdfhload},DISP=SHR"
+    dfhgcd_line = f"//DFHGCD   DD DSNAME={location},DISP=OLD"
+    # Validate line lengths
+    _validate_line_length(steplib_line, sdfhload)
+    _validate_line_length(dfhgcd_line, location)
+    
+    jcl = f'''
+//RMUTL1 JOB
+//RMUTL    EXEC PGM=DFHRMUTL,REGION=1M
+{steplib_line}
+//SYSPRINT DD SYSOUT=A
+{dfhgcd_line}
+//SYSIN    DD *
+    {cmd}
+/*
+//
+'''
+
+    # Create a temporary file
+    with tempfile.NamedTemporaryFile(mode='w+', delete=False) as fp:
+        fp.write(jcl)
+        fp.flush()
+
+        # Get the temporary file's name
+        qualified_file_path = fp.name
+    return qualified_file_path
+
+def _validate_line_length(line, name):
+    """
+    Validates that the JCL line does not exceed MAX_LINE_LENGTH.
+    Raises ValueError if validation fails.
+    """
+    if len(line) > MAX_LINE_LENGTH:
+        raise ValueError(f"{name} line exceeds {MAX_LINE_LENGTH} characters: {len(line)}")
+
+def _validate_name_params(param):
+    if any(len(part) > MAX_NAME_LENGTH for part in param.split('.')):
+        raise ValueError(f"One or more parts of {param} exceeds MAX_NAME_LENGTH:{MAX_NAME_LENGTH}")
+    return True
 
 def _run_dfhrmutl(
         location,  # type: str
         sdfhload,  # type: str
         cmd=""  # type: str
 ):
-    # type: (...) -> tuple[list[dict[str, str| int]], tuple[str | None, str | None]] | list[dict[str, str| int]]
+   # type: (...) -> tuple[list[dict[str, str| int]], tuple[str | None, str | None]] | list[dict[str, str| int]]
+    _validate_name_params(location)
+    _validate_name_params(sdfhload)
 
+    qualified_file_path = _create_dfhrmutl_jcl(
+        location,
+        sdfhload,
+        cmd
+    )
+    #Use job submit to submit the above jcl
+    #After execution delete file os.remove(qualified_file_path)
     executions = []
 
     for x in range(MVS_CMD_RETRY_ATTEMPTS):
@@ -156,3 +205,5 @@ KEY_OFFSET = 0
 CI_PERCENT = 10
 CA_PERCENT = 10
 SHARE_CROSSREGION = 2
+MAX_LINE_LENGTH = 72
+MAX_NAME_LENGTH = 8
