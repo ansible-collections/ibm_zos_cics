@@ -6,6 +6,7 @@ import json
 from textwrap import dedent
 from ansible.module_utils.common.text.converters import to_bytes
 from ansible.module_utils import basic
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import _execution
 
 PYTHON_LANGUAGE_FEATURES_MESSAGE = "Requires python 3 language features"
 
@@ -418,6 +419,32 @@ def CSDUP_add_group_stdout(data_set_name):
         DFH5109 I END OF DFHCSDUP UTILITY JOB. HIGHEST RETURN CODE WAS: 0
     """.format(data_set_name)
 
+def get_job_output_execution(rc=0):
+    job = get_sample_job_output()
+    return _execution(
+        name="Get job output for {0}".format(job["job_id"]),
+        rc=rc,
+        stdout=job.get("ret_code").get("msg"),
+        stderr=job.get("ret_code").get("msg_txt")
+    )
+
+def _get_job_dd_output(ddname, job_id):
+    return (
+        _get_job_dd_output_execution(rc=0, ddname=ddname, job_id=job_id),
+        RMUTL_stdout("AUTOINIT", job_id)
+    )
+
+def _get_job_dd_output_execution(rc = 0, ddname="", job_id=""):
+    return _execution(
+        name=JOB_DD_return_name(ddname, job_id),
+        rc=rc,
+        stdout=RMUTL_stdout("AUTOINIT", job_id),
+        stderr="CC"
+    )
+
+def JOB_DD_return_name(ddname, job_id):
+    return "Get job dd {0} output for {1}".format(ddname, job_id)
+
 def get_sample_job_output(content="", rc=0, err="CC"):
     return {
         "class": "",
@@ -482,6 +509,12 @@ def get_sample_job_output(content="", rc=0, err="CC"):
         "subsystem": "",
         "system": ""
     }
+
+def _get_sample_job_output_with_content():
+    job = get_sample_job_output()
+    for dd in job.get("ddnames"):
+        dd["content"] = RMUTL_stdout("AUTOINIT", job.get("job_id"))
+    return job
 
 
 def read_data_set_content_run_name(data_set_name):

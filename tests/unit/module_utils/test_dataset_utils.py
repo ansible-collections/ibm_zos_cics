@@ -15,7 +15,15 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     LISTDS_data_set,
     LISTDS_data_set_doesnt_exist,
     LISTDS_member_doesnt_exist,
-    LISTDS_run_name
+    LISTDS_run_name,
+    get_sample_job_output as JOB_OUTPUT,
+    get_job_output_execution as JOB_EXECUTION,
+    JOB_DD_return_name,
+    RMUTL_stdout,
+    _get_job_dd_output,
+    _get_job_dd_output_execution,
+    _get_sample_job_output_with_content
+
 )
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
@@ -700,3 +708,147 @@ def test__write_jcl_to_data_set_fail():
 
     assert e.value.message == "Failed to copy JCL content to data set"
     assert e.value.executions == expected_executions
+
+def test_data_set_utils_submit_jcl():
+    jcl_uss_path = "jcl/uss/path"
+    job_name = "Job_Name"
+    rc = 0
+    stdout = ""
+    stderr = ""
+    data_set_utils._execute_command = MagicMock(return_value=(rc, stdout, stderr))
+
+    expected_executions = [{
+        "name": "Submit jcl job {0} for {1}".format(jcl_uss_path, job_name),
+        "rc": 0,
+        "stdout": "",
+        "stderr": ""
+    }]
+
+    executions= data_set_utils._submit_jcl(jcl_uss_path, job_name)
+    assert expected_executions == executions
+
+def test_data_set_utils_submit_jcl_failed():
+    jcl_uss_path = "jcl/uss/path"
+    job_name = "Job_Name"
+    rc = 16
+    stdout = "CC"
+    stderr = "CC"
+    data_set_utils._execute_command = MagicMock(return_value=(rc, stdout, stderr))
+
+    expected_executions = [{
+        "name": "Submit jcl job {0} for {1}".format(jcl_uss_path, job_name),
+        "rc": 16,
+        "stdout": "CC",
+        "stderr": "CC"
+    }]
+    with pytest.raises(MVSExecutionException) as e:
+        data_set_utils._submit_jcl(jcl_uss_path, job_name)
+    assert e.value.message == "RC {0} when submitting jcl from {1}".format(rc, jcl_uss_path)
+    assert e.value.executions ==  expected_executions
+
+
+
+def test_data_set_utils_get_job_output():
+    job_id = "JOB12345"
+    expected_execution=[
+        JOB_EXECUTION(),
+         _execution(
+            name=JOB_DD_return_name("JESMSGLG", job_id),
+            rc=0,
+            stdout=RMUTL_stdout("AUTOINIT", job_id),
+            stderr="CC",
+        ),
+        _execution(
+            name=JOB_DD_return_name("JESJCL", job_id),
+            rc=0,
+            stdout=RMUTL_stdout("AUTOINIT", job_id),
+            stderr="CC",
+        ),
+        _execution(
+            name=JOB_DD_return_name("JESSYSMSG", job_id),
+            rc=0,
+            stdout=RMUTL_stdout("AUTOINIT", job_id),
+            stderr="CC",
+        ),
+        _execution(
+            name=JOB_DD_return_name("SYSPRINT", job_id),
+            rc=0,
+            stdout=RMUTL_stdout("AUTOINIT", job_id),
+            stderr="CC",
+        )
+    ]
+    expected_result = _get_sample_job_output_with_content()
+    data_set_utils.job_output =  MagicMock(return_value=[JOB_OUTPUT()])
+    job_id= JOB_OUTPUT().get("job_id")
+    data_set_utils._get_job_dd = MagicMock(side_effect=[
+        _get_job_dd_output("JESMSGLG", job_id),
+        _get_job_dd_output("JESJCL", job_id),
+        _get_job_dd_output("JESSYSMSG", job_id),
+        _get_job_dd_output("SYSPRINT", job_id)
+    ])
+    result, executions = data_set_utils._get_job_output(job_id=job_id, job_name="DFHRMUTL")
+
+    assert result == expected_result
+    assert executions == expected_execution
+
+def test_data_set_utils_get_job_output_multiple_jobs_failure():
+    job_id = JOB_OUTPUT()["job_id"]
+    job_name = JOB_OUTPUT()["job_name"]
+    
+    mock_jobs = [
+        JOB_OUTPUT(),
+        {"ret_code": {"code": 1, "msg": "Error", "msg_txt": "Job failed"}}
+    ]
+    expected_executions = []
+    data_set_utils.job_output = MagicMock(return_value = mock_jobs)
+    
+    with pytest.raises(MVSExecutionException) as e:
+        data_set_utils._get_job_output(job_id, job_name)
+    
+    assert e.value.executions == expected_executions
+    assert f"Query for {job_name} job submitted under Job ID {job_id} failed" in e.value.message
+    
+def test_data_set_utils_get_job_output_get_dd_failure():
+    job_id = JOB_OUTPUT()["job_id"]
+    job_name = JOB_OUTPUT()["job_name"]
+    
+    expected_executions = [JOB_EXECUTION()]
+    expected_exception = TypeError("Failed to get DD content")
+    data_set_utils.job_output = MagicMock(return_value=[JOB_OUTPUT()])
+    data_set_utils._get_job_dd = MagicMock(return_value=expected_exception)
+    
+    with pytest.raises(MVSExecutionException) as e:
+        data_set_utils._get_job_output(job_id, job_name)
+    
+    assert e.value.executions == expected_executions
+    assert f"Could not get all job DDs for {job_name}. An exception occured: " in str(e.value.message)
+
+def test_data_set_utils_get_job_dd():
+    job_id = "JOB12345"
+    dd_name = "DD Name"
+    rc = 0
+    stdout = RMUTL_stdout("AUTOINIT", job_id)
+    stderr = "CC"
+    mock_dd_execution = [_get_job_dd_output_execution(rc, dd_name, job_id)]
+    data_set_utils._execute_command = MagicMock(return_value=(rc, stdout, stderr))
+    result_execution, result = data_set_utils._get_job_dd(job_id, dd_name)
+
+    assert result == stdout
+    assert result_execution == mock_dd_execution
+
+def test_data_set_utils_get_job_dd_failure():
+    job_id = "JOB12345"
+    dd_name = "DD Name"
+    rc = 8
+    stdout = RMUTL_stdout("AUTOINIT", job_id)
+    stderr = "CC"
+
+    mock_dd_execution = [_get_job_dd_output_execution(rc, dd_name, job_id)]
+    data_set_utils._execute_command = MagicMock(return_value=(rc, stdout, stderr))
+    
+    with pytest.raises(Exception) as e:
+        data_set_utils._get_job_dd(job_id, dd_name)
+
+    assert e.type == MVSExecutionException
+    assert f"RC 8 when getting job output for DD Name from {job_id}" in str(e.value)
+    assert e.value.executions == mock_dd_execution
