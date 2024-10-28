@@ -26,9 +26,10 @@ from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw impor
 )
 import pytest
 import sys
+import tempfile
 
 try:
-    from unittest.mock import MagicMock
+    from unittest.mock import MagicMock, patch
 except ImportError:
     from mock import MagicMock
 
@@ -202,6 +203,41 @@ def test_global_catalog_get_records_autocold_emergency():
     resp = global_catalog._get_catalog_records(stdout=stdout)
     assert resp == ("AUTOCOLD", "EMERGENCY")
 
+def test_global_catalog_create_dfhrmutl_jcl():
+    location = "DATA.SET"
+    sdfhload = "SDFH.LOAD"
+    cmd = "HI"
+
+    mock_file = MagicMock()
+    mock_file.name = '/mocked/path/to/tempfile'
+    mock_file.__enter__.return_value = mock_file
+    with patch('tempfile.NamedTemporaryFile', return_value=mock_file) as mock_tempfile:
+        result = global_catalog._create_dfhrmutl_jcl(location, sdfhload, cmd)
+
+        mock_tempfile.assert_called_once_with(mode='w+', delete=False)
+        assert result == '/mocked/path/to/tempfile'
+
+def test_global_catalog_validate_line_length():
+    line = "//STEPLIB  DD DSNAME=CTS560.CICS730.SDFHLOAD,DISP=SHR"
+    name = "SDFHLOAD"
+    result = global_catalog._validate_line_length(line, name)
+    assert result is True
+
+def test_global_catalog_validate_line_length_failed():
+    line = "//STEPLIB  DD DSNAME=CTS560.CICS730.SDFHLOAD,DISP=SHR this is inavlid line with more the 72 chars"
+    name = "SDFHLOAD"
+    with pytest.raises(ValueError):
+        global_catalog._validate_line_length(line, name)
+
+def test_global_catalog_validate_name_params():
+    name = "CTS560.CICS730.SDFHLOAD"
+    result = global_catalog._validate_name_params(name)
+    assert result is True
+
+def test_global_catalog_validate_name_params_failed():
+    name = "CTS560.CICS730.SDFHLOAD1"
+    with pytest.raises(ValueError):
+        global_catalog._validate_name_params(name)
 
 def test_global_catalog_run_rmutl_with_cmd():
     executions = [

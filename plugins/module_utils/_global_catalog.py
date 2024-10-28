@@ -6,6 +6,7 @@
 # FOR INTERNAL USE IN THE COLLECTION ONLY.
 
 from __future__ import (absolute_import, division, print_function)
+import os
 __metaclass__ = type
 
 
@@ -100,6 +101,7 @@ def _validate_line_length(line, name):
     """
     if len(line) > MAX_LINE_LENGTH:
         raise ValueError(f"{name} line exceeds {MAX_LINE_LENGTH} characters: {len(line)}")
+    return True
 
 def _validate_name_params(param):
     if any(len(part) > MAX_NAME_LENGTH for part in param.split('.')):
@@ -114,63 +116,62 @@ def _run_dfhrmutl(
    # type: (...) -> tuple[list[dict[str, str| int]], tuple[str | None, str | None]] | list[dict[str, str| int]]
     _validate_name_params(location)
     _validate_name_params(sdfhload)
-
+    
     qualified_file_path = _create_dfhrmutl_jcl(
         location,
         sdfhload,
         cmd
     )
-    #Use job submit to submit the above jcl
-    #After execution delete file os.remove(qualified_file_path)
     executions = []
+    try:
+        for x in range(MVS_CMD_RETRY_ATTEMPTS):
+            dfhrmutl_response, jcl_executions = _execute_dfhrmutl(qualified_file_path)
+            dfhrmutl_rc = dfhrmutl_response.get("ret_code").get("code")
 
-    for x in range(MVS_CMD_RETRY_ATTEMPTS):
-        dfhrmutl_response, jcl_executions = _execute_dfhrmutl(qualified_file_path)
-        dfhrmutl_rc = dfhrmutl_response.get("ret_code").get("code")
+            allContent = []
+            for ddname in dfhrmutl_response.get("ddnames"):
+                    allContent += ddname.get("content")
+            stdout_raw = "".join(allContent)
 
-        allContent = []
-        for ddname in dfhrmutl_response.get("ddnames"):
-                allContent += ddname.get("content")
-        stdout_raw = "".join(allContent)
-
-        executions.append(jcl_executions)
-        executions.append(
-            _execution(
-                name="DFHRMUTL - {0} - Run {1}".format(
-                    "Get current catalog" if cmd == "" else "Updating autostart override",
-                    x + 1),
-                rc=dfhrmutl_rc,
-                stdout=stdout_raw,
-                stderr=dfhrmutl_response.get("ret_code").get("msg_txt", "")))
-        
-        if dfhrmutl_rc not in (0, 16):
-            raise MVSExecutionException(
-                "DFHRMUTL failed with RC {0}".format(
-                    dfhrmutl_rc), executions)
-
-        if dfhrmutl_rc == 0:
-            break
-        if dfhrmutl_rc == 16:
-            formatted_stdout_lines = [
-                "{0}".format(element.replace(" ", "").upper())
-                for element in stdout_raw.split("\n")
-            ]
-            stdout_with_rc = list(filter(lambda x: "REASON:X" in x, formatted_stdout_lines))
-
-            reason_code = _get_reason_code(stdout_with_rc)
-            if reason_code and reason_code != "A8":
+            executions.append(jcl_executions)
+            executions.append(
+                _execution(
+                    name="DFHRMUTL - {0} - Run {1}".format(
+                        "Get current catalog" if cmd == "" else "Updating autostart override",
+                        x + 1),
+                    rc=dfhrmutl_rc,
+                    stdout=stdout_raw,
+                    stderr=dfhrmutl_response.get("ret_code").get("msg_txt", "")))
+            
+            if dfhrmutl_rc not in (0, 16):
                 raise MVSExecutionException(
-                    "DFHRMUTL failed with RC 16 - {0}".format(stdout_with_rc[0]), executions
-                )
-            elif reason_code is None:
-                raise MVSExecutionException(
-                    "DFHRMUTL failed with RC 16 but no reason code was found",
-                    executions,
-                )
+                    "DFHRMUTL failed with RC {0}".format(
+                        dfhrmutl_rc), executions)
 
-    if cmd != "":
-        return executions
+            if dfhrmutl_rc == 0:
+                break
+            if dfhrmutl_rc == 16:
+                formatted_stdout_lines = [
+                    "{0}".format(element.replace(" ", "").upper())
+                    for element in stdout_raw.split("\n")
+                ]
+                stdout_with_rc = list(filter(lambda x: "REASON:X" in x, formatted_stdout_lines))
 
+                reason_code = _get_reason_code(stdout_with_rc)
+                if reason_code and reason_code != "A8":
+                    raise MVSExecutionException(
+                        "DFHRMUTL failed with RC 16 - {0}".format(stdout_with_rc[0]), executions
+                    )
+                elif reason_code is None:
+                    raise MVSExecutionException(
+                        "DFHRMUTL failed with RC 16 but no reason code was found",
+                        executions,
+                    )
+
+        if cmd != "":
+            return executions
+    finally:
+        os.remove(qualified_file_path)
     return executions, _get_catalog_records(stdout_raw)
 
 
