@@ -496,7 +496,7 @@
           - result.cpsm_response == 'OK'
           - result.record_count == 1
           - result.records[0].group == target_scope_special_char
-          - result.records[0].changeusrid == cmci_user
+          - result.records[0].changeusrid == cmci_user | upper
 
     - name: Delete System group with special chars
       delegate_to: localhost

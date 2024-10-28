@@ -418,6 +418,71 @@ def CSDUP_add_group_stdout(data_set_name):
         DFH5109 I END OF DFHCSDUP UTILITY JOB. HIGHEST RETURN CODE WAS: 0
     """.format(data_set_name)
 
+def get_sample_job_output(content="", rc=0, err="CC"):
+    return {
+        "class": "",
+        "content_type": "",
+        "ddnames": [
+            {
+                "byte_count": 0,
+                "content": [
+                    "{0}".format(content)
+                ],
+                "ddname": "JESMSGLG",
+                "id": "?",
+                "proctep": "",
+                "record_count": "",
+                "stepname": "JES2"
+            },
+            {
+                "byte_count": 0,
+                "content": [
+                    ""
+                ],
+                "ddname": "JESJCL",
+                "id": "?",
+                "proctep": "",
+                "record_count": "",
+                "stepname": "JES2"
+            },
+            {
+                "byte_count": 0,
+                "content": [
+                    ""
+                ],
+                "ddname": "JESYSMSG",
+                "id": "?",
+                "proctep": "",
+                "record_count": "",
+                "stepname": "JES2"
+            },
+            {
+                "byte_count": 0,
+                "content": [
+                    ""
+                ],
+                "ddname": "SYSPRINT",
+                "id": "?",
+                "proctep": "",
+                "record_count": "",
+                "stepname": "RMUTL"
+            }
+        ],
+        "duration": 0,
+        "job_id": "JOB12345",
+        "job_name": "DFHRMUTL",
+        "owner": "IBMUSER",
+        "ret_code": {
+            "code": rc,
+            "msg": "CC",
+            "msg_code": "0000",
+            "msg_txt": err,
+            "steps": []
+        },
+        "subsystem": "",
+        "system": ""
+    }
+
 
 def read_data_set_content_run_name(data_set_name):
     return "Read data set {0}".format(data_set_name)

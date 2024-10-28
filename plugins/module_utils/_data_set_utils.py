@@ -13,7 +13,8 @@ import tempfile
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.ansible_module import AnsibleModuleHelper
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import _execution, MVSExecutionException
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DDStatement, StdoutDefinition, DatasetDefinition, StdinDefinition
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DDStatement, StdoutDefinition, StdinDefinition
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.job import job_output
 
 MVS_CMD_RETRY_ATTEMPTS = 10
 
@@ -272,6 +273,85 @@ def _execute_iefbr14(ddname, definition):
 def _execute_command(command):
     module = AnsibleModuleHelper(argument_spec={})
     return module.run_command(command)
+
+def _submit_jcl(jcl_uss_path, job_name):
+    executions =[]
+    command = "jsub -f '{0}'".format(jcl_uss_path)
+
+    rc, stdout,stderr = _execute_command(command)
+    executions.append(
+    _execution(
+        name="Submit jcl job {0} for {1}".format(jcl_uss_path, job_name),
+        rc=rc,
+        stdout=stdout,
+        stderr=stderr))
+    if rc != 0:
+        raise MVSExecutionException(
+            "RC {0} when submitting jcl from {1}".format(
+                rc, jcl_uss_path), executions)
+    return executions
+
+
+def _get_job_output(job_id, job_name):
+    executions = []
+
+    try:
+        jobs = job_output(job_id=job_id, job_name=job_name)
+        
+        #There should only be one job found for the JCL submitted
+        if (len(jobs) != 1):
+            raise MVSExecutionException(
+                "Query for job status for {0} with job id {1} returned more than one result. Jobs returned: {2}".format(
+                    job_name,
+                    job_id, 
+                    jobs), executions)
+        
+        executions.append(
+            _execution(
+                name="Get job output for {0}".format(job_id),
+                rc=jobs[0].get("ret_code").get("code"),
+                stdout=jobs[0].get("ret_code").get("msg", ""),
+                stderr=jobs[0].get("ret_code").get("msg_txt", "")))
+    except Exception as e:
+        raise MVSExecutionException(
+            "Query for {0} job submitted under Job ID {1} failed. An exception occured: {2}".format(
+            job_name, 
+            job_id,
+            e), executions)
+    
+    try:
+        # job output fails to get the ddname content in its response. Call direct into zoau to do it
+        for i in range(len(jobs[0].get("ddnames"))):
+            dd_executions, job_stdout = _get_job_dd(job_id, jobs[0]["ddnames"][i]["ddname"])
+
+            #Put the content back in the job response object
+            jobs[0]["ddnames"][i]["content"] = job_stdout
+            executions.append(dd_executions)
+
+        return jobs[0], executions
+    except Exception as e:
+        raise MVSExecutionException(
+            "Could not get all job DDs for {0}. An exception occured: {1}".format(
+            job_name, 
+            e), executions)
+
+
+def _get_job_dd(job_id, dd_name):
+    executions = []
+    command = "pjdd {0} {1}".format(job_id, dd_name)
+
+    rc, stdout, stderr = _execute_command(command)
+    executions.append(
+        _execution(
+            name="Get job dd {0} output for {1}".format(dd_name, job_id),
+            rc=rc,
+            stdout=stdout,
+            stderr=stderr))
+    if rc != 0:
+        raise MVSExecutionException(
+            "RC {0} when getting job output for {1} from {2}".format(
+                rc, dd_name, job_id), executions)
+    return executions, stdout
 
 
 def _read_data_set_content(data_set_name):
