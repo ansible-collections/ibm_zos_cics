@@ -11,7 +11,8 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     RMUTL_get_run_name,
     RMUTL_stdout,
     RMUTL_update_run_name,
-    get_sample_job_output as JOB_OUTPUT
+    get_sample_job_output as JOB_OUTPUT,
+    get_rmutl_executions as RMUTL_EXECUTIONS
 )
 __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _data_set_utils as data_set_utils
@@ -21,15 +22,12 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import 
     _execution,
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.global_catalog import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import (
-    MVSCmdResponse,
-)
 import pytest
 import sys
-import tempfile
+from os import remove
 
 try:
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import MagicMock
 except ImportError:
     from mock import MagicMock
 
@@ -186,62 +184,61 @@ def test_get_idcams_cmd_multiple_volumes():
     )
 
 
-def test_global_catalog_get_records_autoinit_unknown():
+def test_get_records_autoinit_unknown():
     stdout = RMUTL_stdout("AUTOINIT", "UNKNOWN")
     resp = global_catalog._get_catalog_records(stdout=stdout)
     assert resp == ("AUTOINIT", "UNKNOWN")
 
 
-def test_global_catalog_get_records_autoasis_emergency():
+def test_get_records_autoasis_emergency():
     stdout = RMUTL_stdout("AUTOASIS", "EMERGENCY")
     resp = global_catalog._get_catalog_records(stdout=stdout)
     assert resp == ("AUTOASIS", "EMERGENCY")
 
 
-def test_global_catalog_get_records_autocold_emergency():
+def test_get_records_autocold_emergency():
     stdout = RMUTL_stdout("AUTOCOLD", "EMERGENCY")
     resp = global_catalog._get_catalog_records(stdout=stdout)
     assert resp == ("AUTOCOLD", "EMERGENCY")
 
-def test_global_catalog_create_dfhrmutl_jcl():
+
+def test_create_dfhrmutl_jcl():
     location = "DATA.SET"
     sdfhload = "SDFH.LOAD"
     cmd = "HI"
 
-    mock_file = MagicMock()
-    mock_file.name = '/mocked/path/to/tempfile'
-    mock_file.__enter__.return_value = mock_file
-    with patch('tempfile.NamedTemporaryFile', return_value=mock_file) as mock_tempfile:
-        result = global_catalog._create_dfhrmutl_jcl(location, sdfhload, cmd)
+    result = global_catalog._create_dfhrmutl_jcl(location, sdfhload, cmd)
 
-        mock_tempfile.assert_called_once_with(mode='w+', delete=False)
-        assert result == '/mocked/path/to/tempfile'
+    # Check that the file create has the content we expect in it
+    with open(result, 'r') as file:
+        content = file.read()
+        assert location in content
+        assert sdfhload in content
+        assert cmd in content
 
-def test_global_catalog_validate_line_length():
-    line = "//STEPLIB  DD DSNAME=CTS560.CICS730.SDFHLOAD,DISP=SHR"
+    # Remove the file once we're finished with it
+    remove(result)
+
+
+def test_validate_line_length():
+    sdfhload = "CTS560.CICS730.SDFHLOAD"
+    line = f"//STEPLIB  DD DSNAME={sdfhload},DISP=SHR"
     name = "SDFHLOAD"
-    result = global_catalog._validate_line_length(line, name)
+    result = global_catalog._validate_line_length(line, sdfhload, name)
     assert result is True
 
-def test_global_catalog_validate_line_length_failed():
-    line = "//STEPLIB  DD DSNAME=CTS560.CICS730.SDFHLOAD,DISP=SHR this is inavlid line with more the 72 chars"
+
+def test_validate_line_length_failed():
+    sdfhload = "CTS560.CICS730.SDFHLOAD"
+    line = f"//STEPLIB  DD DSNAME={sdfhload},DISP=SHR this is invalid line with more the 72 chars"
     name = "SDFHLOAD"
     with pytest.raises(ValueError):
-        global_catalog._validate_line_length(line, name)
+        global_catalog._validate_line_length(line, sdfhload, name)
 
-def test_global_catalog_validate_name_params():
-    name = "CTS560.CICS730.SDFHLOAD"
-    result = global_catalog._validate_name_params(name)
-    assert result is True
 
-def test_global_catalog_validate_name_params_failed():
-    name = "CTS560.CICS730.SDFHLOAD1"
-    with pytest.raises(ValueError):
-        global_catalog._validate_name_params(name)
-
-def test_global_catalog_run_rmutl_with_cmd():
+def test_run_rmutl_with_cmd():
     executions = [
-        [],
+        RMUTL_EXECUTIONS(),
         _execution(
             name=RMUTL_update_run_name(1),
             rc=0,
@@ -253,7 +250,7 @@ def test_global_catalog_run_rmutl_with_cmd():
     global_catalog._execute_dfhrmutl = MagicMock(
         return_value=(
             JOB_OUTPUT(),
-            []
+            RMUTL_EXECUTIONS()
         ))
 
     result = global_catalog._run_dfhrmutl(
@@ -263,16 +260,16 @@ def test_global_catalog_run_rmutl_with_cmd():
     assert result == executions
 
 
-def test_global_catalog_run_rmutl_with_cmd_and_failure():
+def test_run_rmutl_with_cmd_and_failure():
     executions = [
-        [],
+        RMUTL_EXECUTIONS(),
         _execution(
             name=RMUTL_update_run_name(1),
             rc=16,
             stdout=" ABC \n REASON: X'A8'",
             stderr="CC",
         ),
-        [],
+        RMUTL_EXECUTIONS(),
         _execution(
             name=RMUTL_update_run_name(2),
             rc=0,
@@ -282,8 +279,8 @@ def test_global_catalog_run_rmutl_with_cmd_and_failure():
     ]
     global_catalog._execute_dfhrmutl = MagicMock(
         side_effect=[
-            (JOB_OUTPUT(" ABC \n REASON: X'A8'", 16), []),
-            (JOB_OUTPUT(), [])
+            (JOB_OUTPUT(" ABC \n REASON: X'A8'", 16), RMUTL_EXECUTIONS()),
+            (JOB_OUTPUT(), RMUTL_EXECUTIONS())
         ])
     result = global_catalog._run_dfhrmutl(
         location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
@@ -292,17 +289,17 @@ def test_global_catalog_run_rmutl_with_cmd_and_failure():
     assert result == executions
 
 
-def test_global_catalog_run_rmutl_no_cmd():
+def test_run_rmutl_no_cmd():
     rmutl_stdout = RMUTL_stdout("AUTOASIS", "EMERGENCY")
 
     global_catalog._execute_dfhrmutl = MagicMock(
         return_value=(
             JOB_OUTPUT(rmutl_stdout),
-            []
+            RMUTL_EXECUTIONS()
         ))
 
     expected_executions = [
-        [],
+        RMUTL_EXECUTIONS(),
         _execution(
             name=RMUTL_get_run_name(1),
             rc=0,
@@ -319,18 +316,18 @@ def test_global_catalog_run_rmutl_no_cmd():
     assert actual_details == expected_details
 
 
-def test_global_catalog_run_rmutl_no_cmd_with_failure():
+def test_run_rmutl_no_cmd_with_failure():
     rmutl_stdout = RMUTL_stdout("AUTOASIS", "EMERGENCY")
 
     expected_executions = [
-        [],
+        RMUTL_EXECUTIONS(),
         _execution(
             name=RMUTL_get_run_name(1),
             rc=16,
             stdout=" ABC \n REASON: X'A8'",
             stderr="CC",
         ),
-        [],
+        RMUTL_EXECUTIONS(),
         _execution(
             name=RMUTL_get_run_name(2),
             rc=0,
@@ -341,8 +338,8 @@ def test_global_catalog_run_rmutl_no_cmd_with_failure():
     expected_details = ("AUTOASIS", "EMERGENCY")
     global_catalog._execute_dfhrmutl = MagicMock(
         side_effect=[
-            (JOB_OUTPUT(" ABC \n REASON: X'A8'", 16), []),
-            (JOB_OUTPUT(rmutl_stdout), [])
+            (JOB_OUTPUT(" ABC \n REASON: X'A8'", 16), RMUTL_EXECUTIONS()),
+            (JOB_OUTPUT(rmutl_stdout), RMUTL_EXECUTIONS())
         ]
     )
     actual_executions, actual_details = global_catalog._run_dfhrmutl(
@@ -353,46 +350,46 @@ def test_global_catalog_run_rmutl_no_cmd_with_failure():
     assert actual_details == expected_details
 
 
-def test_global_catalog_run_rmutl_no_cmd_many_failures():
+def test_run_rmutl_no_cmd_many_failures():
     rmutl_stdout = RMUTL_stdout("AUTOINIT", "UNKNOWN")
 
     expected_executions = [
-        [],
+        RMUTL_EXECUTIONS(),
         _execution(
             name=RMUTL_get_run_name(1),
             rc=16,
             stdout=" ABC \n REASON: X'A8'",
             stderr="CC",
         ),
-        [],
+        RMUTL_EXECUTIONS(),
         _execution(
             name=RMUTL_get_run_name(2),
             rc=16,
             stdout="\n\n\n REASON: X'A8'",
             stderr="CC",
         ),
-        [],
+        RMUTL_EXECUTIONS(),
         _execution(
             name=RMUTL_get_run_name(3),
             rc=16,
             stdout="REASON:X'A8'",
             stderr="CC",
         ),
-        [],
+        RMUTL_EXECUTIONS(),
         _execution(
             name=RMUTL_get_run_name(4),
             rc=16,
             stdout="\n REASON:X'A8'",
             stderr="CC",
         ),
-        [],
+        RMUTL_EXECUTIONS(),
         _execution(
             name=RMUTL_get_run_name(5),
             rc=16,
             stdout=" ABC \n REASON:   X 'A8'",
             stderr="CC",
         ),
-        [],
+        RMUTL_EXECUTIONS(),
         _execution(
             name=RMUTL_get_run_name(6),
             rc=0,
@@ -403,15 +400,15 @@ def test_global_catalog_run_rmutl_no_cmd_many_failures():
     expected_details = ("AUTOINIT", "UNKNOWN")
     global_catalog._execute_dfhrmutl = MagicMock(
         side_effect=[
-            (JOB_OUTPUT(" ABC \n REASON: X'A8'", 16), []),
-            (JOB_OUTPUT("\n\n\n REASON: X'A8'", 16), []),
-            (JOB_OUTPUT("REASON:X'A8'", 16), []),
-            (JOB_OUTPUT("\n REASON:X'A8'", 16), []),
-            (JOB_OUTPUT(" ABC \n REASON:   X 'A8'", 16), []),
-            (JOB_OUTPUT(rmutl_stdout), [])
+            (JOB_OUTPUT(" ABC \n REASON: X'A8'", 16), RMUTL_EXECUTIONS()),
+            (JOB_OUTPUT("\n\n\n REASON: X'A8'", 16), RMUTL_EXECUTIONS()),
+            (JOB_OUTPUT("REASON:X'A8'", 16), RMUTL_EXECUTIONS()),
+            (JOB_OUTPUT("\n REASON:X'A8'", 16), RMUTL_EXECUTIONS()),
+            (JOB_OUTPUT(" ABC \n REASON:   X 'A8'", 16), RMUTL_EXECUTIONS()),
+            (JOB_OUTPUT(rmutl_stdout), RMUTL_EXECUTIONS())
         ]
     )
-    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
+    global_catalog._get_rmutl_dds = MagicMock(return_value=RMUTL_EXECUTIONS())
     actual_executions, actual_details = global_catalog._run_dfhrmutl(
         location="DATA.SET", sdfhload="SDFH.LOAD"
     )
@@ -420,13 +417,13 @@ def test_global_catalog_run_rmutl_no_cmd_many_failures():
     assert actual_details == expected_details
 
 
-def test_global_catalog_run_rmutl_rc16_error():
+def test_run_rmutl_rc16_error():
     global_catalog._execute_dfhrmutl = MagicMock(
-        return_value=(JOB_OUTPUT(" ABC \n REASON: X'12'", 16), [])
+        return_value=(JOB_OUTPUT(" ABC \n REASON: X'12'", 16), RMUTL_EXECUTIONS())
     )
 
     expected_executions = [
-        [],
+        RMUTL_EXECUTIONS(),
         _execution(
             name=RMUTL_update_run_name(1),
             rc=16,
@@ -443,19 +440,19 @@ def test_global_catalog_run_rmutl_rc16_error():
         assert e.executions == expected_executions
 
 
-def test_global_catalog_run_rmutl_many_rc16_error():
+def test_run_rmutl_many_rc16_error():
     global_catalog._execute_dfhrmutl = MagicMock(
         side_effect=[
-            (JOB_OUTPUT(" ABC \n REASON: X'A8'", 16), []),
-            (JOB_OUTPUT("\n\n\n REASON: X'A8'", 16), []),
-            (JOB_OUTPUT("REASON:X'B2'", 16), [])
+            (JOB_OUTPUT(" ABC \n REASON: X'A8'", 16), RMUTL_EXECUTIONS()),
+            (JOB_OUTPUT("\n\n\n REASON: X'A8'", 16), RMUTL_EXECUTIONS()),
+            (JOB_OUTPUT("REASON:X'B2'", 16), RMUTL_EXECUTIONS())
         ]
     )
 
     expected_executions = [
-        [], _execution(name=RMUTL_update_run_name(1), rc=16, stdout=" ABC \n REASON: X'A8'", stderr="CC"),
-        [], _execution(name=RMUTL_update_run_name(2), rc=16, stdout="\n\n\n REASON: X'A8'", stderr="CC"),
-        [], _execution(name=RMUTL_update_run_name(3), rc=16, stdout="REASON:X'B2'", stderr="CC"),
+        RMUTL_EXECUTIONS(), _execution(name=RMUTL_update_run_name(1), rc=16, stdout=" ABC \n REASON: X'A8'", stderr="CC"),
+        RMUTL_EXECUTIONS(), _execution(name=RMUTL_update_run_name(2), rc=16, stdout="\n\n\n REASON: X'A8'", stderr="CC"),
+        RMUTL_EXECUTIONS(), _execution(name=RMUTL_update_run_name(3), rc=16, stdout="REASON:X'B2'", stderr="CC"),
     ]
 
     with pytest.raises(MVSExecutionException) as e:
@@ -466,19 +463,19 @@ def test_global_catalog_run_rmutl_many_rc16_error():
         assert e.executions == expected_executions
 
 
-def test_global_catalog_run_rmutl_many_rc_error():
+def test_run_rmutl_many_rc_error():
     global_catalog._execute_dfhrmutl = MagicMock(
         side_effect=[
-            (JOB_OUTPUT(" ABC \n REASON: X'A8'", 16), []),
-            (JOB_OUTPUT("\n\n\n REASON: X'A8'", 16), []),
-            (JOB_OUTPUT("REASON:X'A8'", 15), [])
+            (JOB_OUTPUT(" ABC \n REASON: X'A8'", 16), RMUTL_EXECUTIONS()),
+            (JOB_OUTPUT("\n\n\n REASON: X'A8'", 16), RMUTL_EXECUTIONS()),
+            (JOB_OUTPUT("REASON:X'A8'", 15), RMUTL_EXECUTIONS())
         ]
     )
 
     expected_executions = [
-        [], _execution(name=RMUTL_update_run_name(1), rc=16, stdout=" ABC \n REASON: X'A8'", stderr="CC"),
-        [], _execution(name=RMUTL_update_run_name(2), rc=16, stdout="\n\n\n REASON: X'A8'", stderr="CC"),
-        [], _execution(name=RMUTL_update_run_name(3), rc=15, stdout="REASON:X'A8'", stderr="CC")
+        RMUTL_EXECUTIONS(), _execution(name=RMUTL_update_run_name(1), rc=16, stdout=" ABC \n REASON: X'A8'", stderr="CC"),
+        RMUTL_EXECUTIONS(), _execution(name=RMUTL_update_run_name(2), rc=16, stdout="\n\n\n REASON: X'A8'", stderr="CC"),
+        RMUTL_EXECUTIONS(), _execution(name=RMUTL_update_run_name(3), rc=15, stdout="REASON:X'A8'", stderr="CC")
     ]
 
     with pytest.raises(MVSExecutionException) as e:
@@ -489,11 +486,11 @@ def test_global_catalog_run_rmutl_many_rc_error():
         assert e.executions == expected_executions
 
 
-def test_global_catalog_run_rmutl_rc_not_0():
+def test_run_rmutl_rc_not_0():
     global_catalog._execute_dfhrmutl = MagicMock(
-        return_value=(JOB_OUTPUT(rc=123), [])
+        return_value=(JOB_OUTPUT(rc=123), RMUTL_EXECUTIONS())
     )
-    expected_executions = [[], _execution(name=RMUTL_update_run_name(1), rc=123, stdout="", stderr="CC")]
+    expected_executions = [RMUTL_EXECUTIONS(), _execution(name=RMUTL_update_run_name(1), rc=123, stdout="", stderr="CC")]
 
     with pytest.raises(MVSExecutionException) as e:
         global_catalog._run_dfhrmutl(
