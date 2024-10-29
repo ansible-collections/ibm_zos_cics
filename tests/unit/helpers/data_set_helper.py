@@ -419,22 +419,43 @@ def CSDUP_add_group_stdout(data_set_name):
         DFH5109 I END OF DFHCSDUP UTILITY JOB. HIGHEST RETURN CODE WAS: 0
     """.format(data_set_name)
 
+
+def get_rmutl_executions():
+    job = get_sample_job_output()
+    executions = [
+        _execution(
+            name="Submit JCL job for {0}".format(job["job_id"]),
+            rc=0,
+            stdout="",
+            stderr=""
+        ),
+        get_job_output_execution()
+    ]
+
+    for dd in job.get("ddnames"):
+        executions.append(get_job_dd_output_execution(ddname=dd["content"], job_id=job["job_id"]))
+
+    return executions
+
+
 def get_job_output_execution(rc=0):
     job = get_sample_job_output()
     return _execution(
         name="Get job output for {0}".format(job["job_id"]),
         rc=rc,
-        stdout=job.get("ret_code").get("msg"),
-        stderr=job.get("ret_code").get("msg_txt")
+        stdout=job["ret_code"]["msg"],
+        stderr=job["ret_code"]["msg_txt"]
     )
 
-def _get_job_dd_output(ddname, job_id):
+
+def get_job_dd_output(ddname, job_id):
     return (
-        _get_job_dd_output_execution(rc=0, ddname=ddname, job_id=job_id),
+        get_job_dd_output_execution(rc=0, ddname=ddname, job_id=job_id),
         RMUTL_stdout("AUTOINIT", job_id)
     )
 
-def _get_job_dd_output_execution(rc = 0, ddname="", job_id=""):
+
+def get_job_dd_output_execution(rc=0, ddname="", job_id=""):
     return _execution(
         name=JOB_DD_return_name(ddname, job_id),
         rc=rc,
@@ -442,8 +463,10 @@ def _get_job_dd_output_execution(rc = 0, ddname="", job_id=""):
         stderr="CC"
     )
 
+
 def JOB_DD_return_name(ddname, job_id):
-    return "Get job dd {0} output for {1}".format(ddname, job_id)
+    return f"Get job DD {ddname} output for {job_id}"
+
 
 def get_sample_job_output(content="", rc=0, err="CC"):
     return {
@@ -453,7 +476,7 @@ def get_sample_job_output(content="", rc=0, err="CC"):
             {
                 "byte_count": 0,
                 "content": [
-                    "{0}".format(content)
+                    content
                 ],
                 "ddname": "JESMSGLG",
                 "id": "?",
@@ -510,10 +533,11 @@ def get_sample_job_output(content="", rc=0, err="CC"):
         "system": ""
     }
 
-def _get_sample_job_output_with_content():
+
+def get_sample_job_output_with_content():
     job = get_sample_job_output()
     for dd in job.get("ddnames"):
-        dd["content"] = RMUTL_stdout("AUTOINIT", job.get("job_id"))
+        dd["content"] = RMUTL_stdout("AUTOINIT", job["job_id"])
     return job
 
 
