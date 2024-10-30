@@ -9,10 +9,8 @@
 	"remoteUser": "root",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace/collections/ansible_collections/ibm/ibm_zos_cics,type=bind",
 	"workspaceFolder": "/workspace/collections",
-	"postAttachCommand": "bash /workspace/collections/ansible_collections/ibm/ibm_zos_cics/.devcontainer/setup.sh",
-	"postCreateCommand": {
-        "gitMarkSafe": "git config --global --add safe.directory /workspaces/collections/ansible_collections/ibm/ibm_zos_cics"
-    },
+    "postAttachCommand": "bash /workspace/collections/ansible_collections/ibm/ibm_zos_cics/.devcontainer/setup.sh",
+	"initializeCommand": "eval \"$(ssh-agent -s)\" > /dev/null && grep -slR \"PRIVATE\" ~/.ssh | xargs ssh-add",
 	"mounts" : [
 		"source=vscode-shell-history,target=/commandhistory,type=volume",
 		"source=${localEnv:HOME}/.ssh,target=/root/.ssh-local,type=bind,consistency=cached"
@@ -23,17 +21,8 @@
 				"redhat.ansible",
 				"ms-python.python",
 				"eamodio.gitlens",
-				"charliermarsh.ruff"
-			],
-			"settings": {
-				"extensions.verifySignature": false,
-				"ruff.format.args": [
-					"--config=/workspace/collections/ansible_collections/ibm/ibm_zos_cics/.devcontainer/pyproject.toml"
-				],
-				"ruff.lint.args": [
-					"--config=/workspace/collections/ansible_collections/ibm/ibm_zos_cics/.devcontainer/pyproject.toml"
-				]
-			}
+				"ms-vsliveshare.vsliveshare"
+			]
 		}
 	}
 }

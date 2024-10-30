@@ -9,12 +9,7 @@ if [ -e  /root/.ssh/config ]; then
     rm ~/.ssh/config-local
 fi
 
-eval "$(ssh-agent)"
-ssh-add
-
-python_ver=$(python -c 'import platform; major, minor, patch = platform.python_version_tuple(); print("{0}.{1}".format(major,minor))')
-
-python3 -m pip install --user ansible-core==2.17.4
+python3 -m pip install --user ansible-core==2.16
 
 ansible-galaxy collection install ibm.ibm_zos_core:==1.9.1 -p /workspace/collections
 ansible-galaxy collection install community.general -p /workspace/collections
@@ -24,17 +19,18 @@ echo -e "[defaults]\nstdout_callback=community.general.yaml\nCOLLECTIONS_PATHS=/
 pip install -r /workspace/collections/ansible_collections/ibm/ibm_zos_cics/dev-requirements.txt
 pip install -r /workspace/collections/ansible_collections/ibm/ibm_zos_cics/doc-requirements.txt
 
-# Remove additional pythons from bin so we can use shorthand ansible commands
-find /usr/bin/python* -type f -not -name python"${python_ver}" -exec rm -v {} +
-
 mkdir -p /commandhistory
 touch /commandhistory/.zsh_history
 chown -R root /commandhistory
-echo "export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.zsh_history" >> "/root/.zshrc"
 
-#Make this ansible_cics_collection repo the default repo when opening a new zsh terminal or running 'cd'
-echo "cd /workspace/collections/ansible_collections/ibm/ibm_zos_cics/" >> "/root/.zshrc"
-echo "export HOME=/workspace/collections/ansible_collections/ibm/ibm_zos_cics/"
+{
+    # Add history to zsh shell
+    echo "export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.zsh_history"
+
+    # Make this ansible_cics_collection repo the default repo when opening a new zsh terminal
+    echo "cd /workspace/collections/ansible_collections/ibm/ibm_zos_cics/"
+    echo "git config --global --add safe.directory /workspaces/collections/ansible_collections/ibm/ibm_zos_cics"
+}  >> "/root/.zshrc"
 
 
 
