@@ -74,26 +74,24 @@ EXAMPLES = r"""
     context: "iyk3z0r9"
     type: "CICSProgram"
     action_name: NEWCOPY
-    resource:
+    resources:
       filter:
         name: "PONGALT"
       get_parameters:
         - name: "csdgroup"
           value: "JVMGRP"
 
-- name: install a bundle in a CICS region
+- name: Enable a bundle in a CICS region
   cmci_action:
     cmci_host: "winmvs2c.hursley.ibm.com"
     cmci_port: "10080"
     context: "iyk3z0r9"
+    scope: "IYCWENW1"
     type: CICSBundle
-    action_name: install
+    action_name: ENABLE
     resource:
       filter:
         name: "PONGALT"
-    action_parameters:
-      - name: "usage"
-        value: "local"
 """
 
 
