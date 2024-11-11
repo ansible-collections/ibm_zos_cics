@@ -20,9 +20,9 @@ global_catalog -- Create, remove, and manage the CICS global catalog
 
 Synopsis
 --------
-- Create, remove, and manage the \ `global catalog <https://www.ibm.com/docs/en/cics-ts/latest?topic=catalogs-global-catalog>`__\  data set used by a CICS® region. The global catalog is used to store start type information, location of the CICS system log, installed resource definitions, terminal control information and profiles. It contains information that CICS requires on a restart.
+- Create, remove, and manage the \ `global catalog <https://www.ibm.com/docs/en/cics-ts/latest?topic=catalogs-global-catalog>`__ data set used by a CICS® region. The global catalog is used to store start type information, location of the CICS system log, installed resource definitions, terminal control information and profiles. It contains information that CICS requires on a restart.
 - You can use this module when provisioning or de-provisioning a CICS region, or when managing the state of the global catalog during upgrades or restarts.
-- Use the \ :literal:`state`\  option to specify the intended state for the global catalog. For example, use \ :literal:`state=initial`\  to create and initialize a global catalog data set if it doesn't exist, or set the autostart override record of an existing global catalog to \ :literal:`AUTOINIT`\ . In either case, a CICS region that is using this global catalog and set with the \ :literal:`START=AUTO`\  system initialization parameter performs an initial start.
+- Use the :literal:`state` option to specify the intended state for the global catalog. For example, use :literal:`state=initial` to create and initialize a global catalog data set if it doesn't exist, or set the autostart override record of an existing global catalog to :literal:`AUTOINIT`. In either case, a CICS region that is using this global catalog and set with the :literal:`START=AUTO` system initialization parameter performs an initial start.
 
 
 
@@ -34,9 +34,9 @@ Parameters
 
      
 cics_data_sets
-  The name of the \ :literal:`SDFHLOAD`\  library of the CICS installation, for example, \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
+  The name of the :literal:`SDFHLOAD` library of the CICS installation, for example, :literal:`CICSTS61.CICS.SDFHLOAD`.
 
-  This module uses the \ :literal:`DFHRMUTL`\  utility internally, which is found in the \ :literal:`SDFHLOAD`\  library.
+  This module uses the :literal:`DFHRMUTL` utility internally, which is found in the :literal:`SDFHLOAD` library.
 
 
   | **required**: True
@@ -45,7 +45,7 @@ cics_data_sets
 
      
   sdfhload
-    The location of the \ :literal:`SDFHLOAD`\  library. If \ :literal:`cics\_data\_sets.template`\  is provided, this value overrides the template.
+    The location of the :literal:`SDFHLOAD` library. If :literal:`cics\_data\_sets.template` is provided, this value overrides the template.
 
 
     | **required**: False
@@ -54,7 +54,7 @@ cics_data_sets
 
      
   template
-    The templated location of the \ :literal:`SDFHLOAD`\  library.
+    The templated location of the :literal:`SDFHLOAD` library.
 
 
     | **required**: False
@@ -64,7 +64,7 @@ cics_data_sets
 
      
 region_data_sets
-  The location of the region data sets to be created by using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
+  The location of the region data sets to be created by using a template, for example, :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`.
 
   If you want to use a data set that already exists, ensure that the data set is a global catalog data set.
 
@@ -104,7 +104,7 @@ region_data_sets
 
      
 space_primary
-  The size of the primary space allocated to the global catalog data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+  The size of the primary space allocated to the global catalog data set. Note that this is just the value; the unit is specified with :literal:`space\_type`.
 
   This option takes effect only when the global catalog data set is being created. If the global catalog data set already exists, the option has no effect.
 
@@ -116,7 +116,7 @@ space_primary
 
      
 space_secondary
-  The size of the secondary space allocated to the global catalog data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+  The size of the secondary space allocated to the global catalog data set. Note that this is just the value; the unit is specified with :literal:`space\_type`.
 
   This option takes effect only when the global catalog data set is being created. If the global catalog data set already exists, the option has no effect.
 
@@ -128,7 +128,7 @@ space_secondary
 
      
 space_type
-  The unit portion of the global catalog data set size. Note that this is just the unit; the value for the primary space is specified with \ :literal:`space\_primary`\  and the value for the secondary space is specified with \ :literal:`space\_secondary`\ .
+  The unit portion of the global catalog data set size. Note that this is just the unit; the value for the primary space is specified with :literal:`space\_primary` and the value for the secondary space is specified with :literal:`space\_secondary`.
 
   This option takes effect only when the global catalog data set is being created. If the global catalog data set already exists, the option has no effect.
 
@@ -145,13 +145,13 @@ space_type
 state
   The intended state for the global catalog data set, which the module aims to achieve.
 
-  Specify \ :literal:`absent`\  to remove the global catalog data set entirely, if it exists.
+  Specify :literal:`absent` to remove the global catalog data set entirely, if it exists.
 
-  Specify \ :literal:`initial`\  to set the autostart override record to \ :literal:`AUTOINIT`\ . If the specified global catalog data set does not already exist, the module creates the data set.
+  Specify :literal:`initial` to set the autostart override record to :literal:`AUTOINIT`. If the specified global catalog data set does not already exist, the module creates the data set.
 
-  Specify \ :literal:`cold`\  to set the autostart override record of an existing global catalog to \ :literal:`AUTOCOLD`\ . If the specified global catalog data set does not already exist, the operation fails.
+  Specify :literal:`cold` to set the autostart override record of an existing global catalog to :literal:`AUTOCOLD`. If the specified global catalog data set does not already exist, the operation fails.
 
-  Specify \ :literal:`warm`\  to set the autostart override record of an existing global catalog to \ :literal:`AUTOASIS`\ , undoing any previous setting of \ :literal:`AUTOINIT`\  or \ :literal:`AUTOCOLD`\ . The module verifies whether the specified data set exists and whether it contains any records. If either condition is not met, the operation fails.
+  Specify :literal:`warm` to set the autostart override record of an existing global catalog to :literal:`AUTOASIS`\ , undoing any previous setting of :literal:`AUTOINIT` or :literal:`AUTOCOLD`. The module verifies whether the specified data set exists and whether it contains any records. If either condition is not met, the operation fails.
 
 
   | **required**: True

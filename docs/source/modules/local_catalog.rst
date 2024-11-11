@@ -20,9 +20,9 @@ local_catalog -- Create, remove, and manage the CICS local catalog
 
 Synopsis
 --------
-- Create, remove, and manage the \ `local catalog <https://www.ibm.com/docs/en/cics-ts/latest?topic=catalogs-local-catalog>`__\  data set used by a CICS® region. CICS domains use the local catalog to save some of their information between CICS runs and to preserve this information across a cold start.
+- Create, remove, and manage the \ `local catalog <https://www.ibm.com/docs/en/cics-ts/latest?topic=catalogs-local-catalog>`__ data set used by a CICS® region. CICS domains use the local catalog to save some of their information between CICS runs and to preserve this information across a cold start.
 - You can use this module when provisioning or de-provisioning a CICS region, or when managing the state of the local catalog during upgrades or restarts.
-- Use the \ :literal:`state`\  option to specify the intended state for the local catalog. For example, use \ :literal:`state=initial`\  to create and initialize a local catalog data set if it doesn't exist, or empty an existing local catalog of all records.
+- Use the :literal:`state` option to specify the intended state for the local catalog. For example, use :literal:`state=initial` to create and initialize a local catalog data set if it doesn't exist, or empty an existing local catalog of all records.
 
 
 
@@ -34,9 +34,9 @@ Parameters
 
      
 cics_data_sets
-  The name of the \ :literal:`SDFHLOAD`\  library of the CICS installation, for example, \ :literal:`CICSTS61.CICS.SDFHLOAD`\ .
+  The name of the :literal:`SDFHLOAD` library of the CICS installation, for example, :literal:`CICSTS61.CICS.SDFHLOAD`.
 
-  This module uses the \ :literal:`DFHCCUTL`\  utility internally, which is found in the \ :literal:`SDFHLOAD`\  library.
+  This module uses the :literal:`DFHCCUTL` utility internally, which is found in the :literal:`SDFHLOAD` library.
 
 
   | **required**: True
@@ -45,7 +45,7 @@ cics_data_sets
 
      
   sdfhload
-    The location of the \ :literal:`SDFHLOAD`\  library. If \ :literal:`cics\_data\_sets.template`\  is provided, this value overrides the template.
+    The location of the :literal:`SDFHLOAD` library. If :literal:`cics\_data\_sets.template` is provided, this value overrides the template.
 
 
     | **required**: False
@@ -54,7 +54,7 @@ cics_data_sets
 
      
   template
-    The templated location of the \ :literal:`SDFHLOAD`\  library.
+    The templated location of the :literal:`SDFHLOAD` library.
 
 
     | **required**: False
@@ -64,7 +64,7 @@ cics_data_sets
 
      
 region_data_sets
-  The location of the region data sets to be created by using a template, for example, \ :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`\ .
+  The location of the region data sets to be created by using a template, for example, :literal:`REGIONS.ABCD0001.\<\< data\_set\_name \>\>`.
 
   If you want to use a data set that already exists, ensure that the data set is a local catalog data set.
 
@@ -104,7 +104,7 @@ region_data_sets
 
      
 space_primary
-  The size of the primary space allocated to the local catalog data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+  The size of the primary space allocated to the local catalog data set. Note that this is just the value; the unit is specified with :literal:`space\_type`.
 
   This option takes effect only when the local catalog data set is being created. If the local catalog data set already exists, the option has no effect.
 
@@ -116,7 +116,7 @@ space_primary
 
      
 space_secondary
-  The size of the secondary space allocated to the local catalog data set. Note that this is just the value; the unit is specified with \ :literal:`space\_type`\ .
+  The size of the secondary space allocated to the local catalog data set. Note that this is just the value; the unit is specified with :literal:`space\_type`.
 
   This option takes effect only when the local catalog data set is being created. If the local catalog data set already exists, the option has no effect.
 
@@ -128,7 +128,7 @@ space_secondary
 
      
 space_type
-  The unit portion of the local catalog data set size. Note that this is just the unit; the value for the primary space is specified with \ :literal:`space\_primary`\  and the value for the secondary space is specified with \ :literal:`space\_secondary`\ .
+  The unit portion of the local catalog data set size. Note that this is just the unit; the value for the primary space is specified with :literal:`space\_primary` and the value for the secondary space is specified with :literal:`space\_secondary`.
 
   This option takes effect only when the local catalog data set is being created. If the local catalog data set already exists, the option has no effect.
 
@@ -145,11 +145,11 @@ space_type
 state
   The intended state for the local catalog, which the module aims to achieve.
 
-  Specify \ :literal:`absent`\  to remove the local catalog data set entirely, if it already exists.
+  Specify :literal:`absent` to remove the local catalog data set entirely, if it already exists.
 
-  Specify \ :literal:`initial`\  to create the local catalog data set if it does not exist, or empty this existing local catalog of all records.
+  Specify :literal:`initial` to create the local catalog data set if it does not exist, or empty this existing local catalog of all records.
 
-  Specify \ :literal:`warm`\  to retain an existing local catalog in its current state. The module verifies whether the specified data set exists and whether it contains any records. If both conditions are met, the module leaves the data set as is. If the data set does not exist or if it is empty, the operation fails.
+  Specify :literal:`warm` to retain an existing local catalog in its current state. The module verifies whether the specified data set exists and whether it contains any records. If both conditions are met, the module leaves the data set as is. If the data set does not exist or if it is empty, the operation fails.
 
 
   | **required**: True
