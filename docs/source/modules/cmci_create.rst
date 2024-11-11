@@ -20,7 +20,7 @@ cmci_create -- Create CICS and CICSPlex SM definitions
 
 Synopsis
 --------
-- Create definitional CICS® or CICSPlex® SM resources in CSD and BAS repositories, by initiating POST requests via the CMCI REST API. The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API, see \ `CMCI REST API <https://www.ibm.com/docs/en/cics-ts/latest?topic=programming-cmci-rest-api-reference>`__\ . For information about how to compose POST requests, see \ `CMCI POST requests <https://www.ibm.com/docs/en/cics-ts/latest?topic=requests-cmci-post>`__\ .
+- Create definitional CICS® or CICSPlex® SM resources in CSD and BAS repositories, by initiating POST requests via the CMCI REST API. The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API, see \ `CMCI REST API <https://www.ibm.com/docs/en/cics-ts/latest?topic=programming-cmci-rest-api-reference>`__. For information about how to compose POST requests, see \ `CMCI POST requests <https://www.ibm.com/docs/en/cics-ts/latest?topic=requests-cmci-post>`__.
 
 
 
@@ -32,7 +32,7 @@ Parameters
 
      
 attributes
-  The resource attributes to be created or updated. Available attributes can be found in the CICSPlex® SM resource table reference for the target resource type, for example, \ `PROGDEF resource table reference <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table>`__\ .
+  The resource attributes to be created or updated. Available attributes can be found in the CICSPlex® SM resource table reference for the target resource type, for example, \ `PROGDEF resource table reference <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table>`__.
 
 
   | **required**: False
@@ -45,9 +45,9 @@ cmci_cert
 
   Can also be specified using the environment variable CMCI\_CERT.
 
-  Required if \ :emphasis:`cmci\_key`\  is specified.
+  Required if :emphasis:`cmci\_key` is specified.
 
-  Authentication prioritises certificate authentication if \ :emphasis:`cmci\_cert`\  and \ :emphasis:`cmci\_key`\  are provided, then basic authentication if \ :emphasis:`cmci\_user`\  and \ :emphasis:`cmci\_password`\  are provided, and then unauthenticated if none is provided.
+  Authentication prioritises certificate authentication if :emphasis:`cmci\_cert` and :emphasis:`cmci\_key` are provided, then basic authentication if :emphasis:`cmci\_user` and :emphasis:`cmci\_password` are provided, and then unauthenticated if none is provided.
 
 
   | **required**: False
@@ -69,9 +69,9 @@ cmci_key
 
   Can also be specified using the environment variable CMCI\_KEY.
 
-  Required if \ :emphasis:`cmci\_cert`\  is specified.
+  Required if :emphasis:`cmci\_cert` is specified.
 
-  Authentication prioritises certificate authentication if \ :emphasis:`cmci\_cert`\  and \ :emphasis:`cmci\_key`\  are provided, then basic authentication if \ :emphasis:`cmci\_user`\  and \ :emphasis:`cmci\_password`\  are provided, and then unauthenticated if none is provided.
+  Authentication prioritises certificate authentication if :emphasis:`cmci\_cert` and :emphasis:`cmci\_key` are provided, then basic authentication if :emphasis:`cmci\_user` and :emphasis:`cmci\_password` are provided, and then unauthenticated if none is provided.
 
 
   | **required**: False
@@ -80,13 +80,13 @@ cmci_key
 
      
 cmci_password
-  The password of \ :emphasis:`cmci\_user`\  to pass HTTP basic authentication.
+  The password of :emphasis:`cmci\_user` to pass HTTP basic authentication.
 
   Can also be specified using the environment variable CMCI\_PASSWORD.
 
-  Required if \ :emphasis:`cmci\_user`\  is specified.
+  Required if :emphasis:`cmci\_user` is specified.
 
-  Authentication prioritises certificate authentication if \ :emphasis:`cmci\_cert`\  and \ :emphasis:`cmci\_key`\  are provided, then basic authentication if \ :emphasis:`cmci\_user`\  and \ :emphasis:`cmci\_password`\  are provided, and then unauthenticated if none is provided.
+  Authentication prioritises certificate authentication if :emphasis:`cmci\_cert` and :emphasis:`cmci\_key` are provided, then basic authentication if :emphasis:`cmci\_user` and :emphasis:`cmci\_password` are provided, and then unauthenticated if none is provided.
 
 
   | **required**: false
@@ -108,9 +108,9 @@ cmci_user
 
   Can also be specified using the environment variable CMCI\_USER.
 
-  Required if \ :emphasis:`cmci\_password`\  is specified.
+  Required if :emphasis:`cmci\_password` is specified.
 
-  Authentication prioritises certificate authentication if \ :emphasis:`cmci\_cert`\  and \ :emphasis:`cmci\_key`\  are provided, then basic authentication if \ :emphasis:`cmci\_user`\  and \ :emphasis:`cmci\_password`\  are provided, and then unauthenticated if none is provided.
+  Authentication prioritises certificate authentication if :emphasis:`cmci\_cert` and :emphasis:`cmci\_key` are provided, then basic authentication if :emphasis:`cmci\_user` and :emphasis:`cmci\_password` are provided, and then unauthenticated if none is provided.
 
 
   | **required**: false
@@ -119,11 +119,11 @@ cmci_user
 
      
 context
-  If CMCI is installed in a CICSPlex® SM environment, \ :emphasis:`context`\  is the name of the CICSplex or CMAS associated with the request, for example, \ :literal:`PLEX1`\ . To determine whether a CMAS can be specified as \ :emphasis:`context`\ , see the \ :strong:`CMAS context`\  entry in the CICSPlex SM resource table reference of a resource. For example, according to the \ `PROGRAM resource table <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-program-resource-table>`__\ , CMAS context is not supported for PROGRAM.
+  If CMCI is installed in a CICSPlex® SM environment, :emphasis:`context` is the name of the CICSplex or CMAS associated with the request, for example, :literal:`PLEX1`. To determine whether a CMAS can be specified as :emphasis:`context`\ , see the :strong:`CMAS context` entry in the CICSPlex SM resource table reference of a resource. For example, according to the \ `PROGRAM resource table <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-program-resource-table>`__\ , CMAS context is not supported for PROGRAM.
 
-  If CMCI is installed in a single region (SMSS), \ :emphasis:`context`\  is the APPLID of the CICS region associate with the request.
+  If CMCI is installed in a single region (SMSS), :emphasis:`context` is the APPLID of the CICS region associate with the request.
 
-  The value of \ :emphasis:`context`\  must contain no spaces. \ :emphasis:`context`\  is not case-sensitive.
+  The value of :emphasis:`context` must contain no spaces. :emphasis:`context` is not case-sensitive.
 
 
   | **required**: True
@@ -132,8 +132,7 @@ context
 
      
 create_parameters
-  A list of one or more parameters that control the \ :emphasis:`create`\  operation. Eligible parameters for the CREATE operation can be found in the resource table reference for the target resource type, as listed in the CREATE operation section of the "Valid CPSM operations" table. For example, the valid parameters for a PROGDEF CREATE operation are CSD and RESGROUP, as found in the \ `PROGDEF resource table reference <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table>`__\ .
-
+  A list of one or more parameters that control the :emphasis:`create` operation. Eligible parameters for the CREATE operation can be found in the resource table reference for the target resource type, as listed in the CREATE operation section of the "Valid CPSM operations" table. For example, the valid parameters for a PROGDEF CREATE operation are CSD and RESGROUP, as found in the \ `PROGDEF resource table reference <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table>`__.
 
 
   | **required**: False
@@ -161,7 +160,7 @@ create_parameters
 
      
 insecure
-  When set to \ :literal:`true`\ , disables SSL certificate trust chain verification when using HTTPS.
+  When set to :literal:`true`\ , disables SSL certificate trust chain verification when using HTTPS.
 
 
   | **required**: False
@@ -183,11 +182,11 @@ scheme
 scope
   Specifies the name of a CICSplex, CICS region group, CICS region, or logical scope that is associated with the query.
 
-  \ :emphasis:`scope`\  is a subset of \ :emphasis:`context`\  and limits the request to particular CICS systems or resources.
+  :emphasis:`scope` is a subset of :emphasis:`context` and limits the request to particular CICS systems or resources.
 
-  \ :emphasis:`scope`\  is optional. If it's not specified, the request is limited by the value of \ :emphasis:`context`\  alone.
+  :emphasis:`scope` is optional. If it's not specified, the request is limited by the value of :emphasis:`context` alone.
 
-  The value of \ :emphasis:`scope`\  must contain no spaces. \ :emphasis:`scope`\  is not case-sensitive.
+  The value of :emphasis:`scope` must contain no spaces. :emphasis:`scope` is not case-sensitive.
 
 
   | **required**: false
@@ -206,7 +205,7 @@ timeout
 
      
 type
-  The CMCI external resource name that maps to the target CICS or CICSPlex SM resource type. For a list of CMCI external resource names, see \ `CMCI resource names <https://www.ibm.com/docs/en/cics-ts/latest?topic=reference-cmci-resource-names>`__\ .
+  The CMCI external resource name that maps to the target CICS or CICSPlex SM resource type. For a list of CMCI external resource names, see \ `CMCI resource names <https://www.ibm.com/docs/en/cics-ts/latest?topic=reference-cmci-resource-names>`__.
 
 
   | **required**: True
@@ -223,9 +222,9 @@ Examples
    
    - name: define a BUNDLE in a CSD
      cmci_create:
-       cmci_host: "winmvs2c.hursley.ibm.com"
-       cmci_port: 10080
-       context: "iyk3z0r9"
+       cmci_host: "example.com"
+       cmci_port: 12345
+       context: "plex_or_applid"
        type: "CICSDefinitionBundle"
        attributes:
          name: PONGALT

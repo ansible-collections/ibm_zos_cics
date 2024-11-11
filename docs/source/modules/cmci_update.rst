@@ -20,7 +20,7 @@ cmci_update -- Update CICS and CICSPlex resources and definitions
 
 Synopsis
 --------
-- Make changes to CICS® and CICSPlex® SM resources in CICS regions, by initiating PUT requests via the CMCI REST API. The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API, see \ `CMCI REST API <https://www.ibm.com/docs/en/cics-ts/latest?topic=programming-cmci-rest-api-reference>`__\ . For information about how to compose PUT requests, see \ `CMCI PUT requests <https://www.ibm.com/docs/en/cics-ts/latest?topic=requests-cmci-put>`__\ .
+- Make changes to CICS® and CICSPlex® SM resources in CICS regions, by initiating PUT requests via the CMCI REST API. The CMCI REST API can be configured in CICSPlex SM or stand-alone regions (SMSS). For information about the API, see \ `CMCI REST API <https://www.ibm.com/docs/en/cics-ts/latest?topic=programming-cmci-rest-api-reference>`__. For information about how to compose PUT requests, see \ `CMCI PUT requests <https://www.ibm.com/docs/en/cics-ts/latest?topic=requests-cmci-put>`__.
 
 
 
@@ -32,7 +32,7 @@ Parameters
 
      
 attributes
-  The resource attributes to be created or updated. Available attributes can be found in the CICSPlex® SM resource table reference for the target resource type, for example, \ `PROGDEF resource table reference <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table>`__\ .
+  The resource attributes to be created or updated. Available attributes can be found in the CICSPlex® SM resource table reference for the target resource type, for example, \ `PROGDEF resource table reference <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table>`__.
 
 
   | **required**: False
@@ -45,9 +45,9 @@ cmci_cert
 
   Can also be specified using the environment variable CMCI\_CERT.
 
-  Required if \ :emphasis:`cmci\_key`\  is specified.
+  Required if :emphasis:`cmci\_key` is specified.
 
-  Authentication prioritises certificate authentication if \ :emphasis:`cmci\_cert`\  and \ :emphasis:`cmci\_key`\  are provided, then basic authentication if \ :emphasis:`cmci\_user`\  and \ :emphasis:`cmci\_password`\  are provided, and then unauthenticated if none is provided.
+  Authentication prioritises certificate authentication if :emphasis:`cmci\_cert` and :emphasis:`cmci\_key` are provided, then basic authentication if :emphasis:`cmci\_user` and :emphasis:`cmci\_password` are provided, and then unauthenticated if none is provided.
 
 
   | **required**: False
@@ -69,9 +69,9 @@ cmci_key
 
   Can also be specified using the environment variable CMCI\_KEY.
 
-  Required if \ :emphasis:`cmci\_cert`\  is specified.
+  Required if :emphasis:`cmci\_cert` is specified.
 
-  Authentication prioritises certificate authentication if \ :emphasis:`cmci\_cert`\  and \ :emphasis:`cmci\_key`\  are provided, then basic authentication if \ :emphasis:`cmci\_user`\  and \ :emphasis:`cmci\_password`\  are provided, and then unauthenticated if none is provided.
+  Authentication prioritises certificate authentication if :emphasis:`cmci\_cert` and :emphasis:`cmci\_key` are provided, then basic authentication if :emphasis:`cmci\_user` and :emphasis:`cmci\_password` are provided, and then unauthenticated if none is provided.
 
 
   | **required**: False
@@ -80,13 +80,13 @@ cmci_key
 
      
 cmci_password
-  The password of \ :emphasis:`cmci\_user`\  to pass HTTP basic authentication.
+  The password of :emphasis:`cmci\_user` to pass HTTP basic authentication.
 
   Can also be specified using the environment variable CMCI\_PASSWORD.
 
-  Required if \ :emphasis:`cmci\_user`\  is specified.
+  Required if :emphasis:`cmci\_user` is specified.
 
-  Authentication prioritises certificate authentication if \ :emphasis:`cmci\_cert`\  and \ :emphasis:`cmci\_key`\  are provided, then basic authentication if \ :emphasis:`cmci\_user`\  and \ :emphasis:`cmci\_password`\  are provided, and then unauthenticated if none is provided.
+  Authentication prioritises certificate authentication if :emphasis:`cmci\_cert` and :emphasis:`cmci\_key` are provided, then basic authentication if :emphasis:`cmci\_user` and :emphasis:`cmci\_password` are provided, and then unauthenticated if none is provided.
 
 
   | **required**: false
@@ -108,9 +108,9 @@ cmci_user
 
   Can also be specified using the environment variable CMCI\_USER.
 
-  Required if \ :emphasis:`cmci\_password`\  is specified.
+  Required if :emphasis:`cmci\_password` is specified.
 
-  Authentication prioritises certificate authentication if \ :emphasis:`cmci\_cert`\  and \ :emphasis:`cmci\_key`\  are provided, then basic authentication if \ :emphasis:`cmci\_user`\  and \ :emphasis:`cmci\_password`\  are provided, and then unauthenticated if none is provided.
+  Authentication prioritises certificate authentication if :emphasis:`cmci\_cert` and :emphasis:`cmci\_key` are provided, then basic authentication if :emphasis:`cmci\_user` and :emphasis:`cmci\_password` are provided, and then unauthenticated if none is provided.
 
 
   | **required**: false
@@ -119,11 +119,11 @@ cmci_user
 
      
 context
-  If CMCI is installed in a CICSPlex® SM environment, \ :emphasis:`context`\  is the name of the CICSplex or CMAS associated with the request, for example, \ :literal:`PLEX1`\ . To determine whether a CMAS can be specified as \ :emphasis:`context`\ , see the \ :strong:`CMAS context`\  entry in the CICSPlex SM resource table reference of a resource. For example, according to the \ `PROGRAM resource table <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-program-resource-table>`__\ , CMAS context is not supported for PROGRAM.
+  If CMCI is installed in a CICSPlex® SM environment, :emphasis:`context` is the name of the CICSplex or CMAS associated with the request, for example, :literal:`PLEX1`. To determine whether a CMAS can be specified as :emphasis:`context`\ , see the :strong:`CMAS context` entry in the CICSPlex SM resource table reference of a resource. For example, according to the \ `PROGRAM resource table <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-program-resource-table>`__\ , CMAS context is not supported for PROGRAM.
 
-  If CMCI is installed in a single region (SMSS), \ :emphasis:`context`\  is the APPLID of the CICS region associate with the request.
+  If CMCI is installed in a single region (SMSS), :emphasis:`context` is the APPLID of the CICS region associate with the request.
 
-  The value of \ :emphasis:`context`\  must contain no spaces. \ :emphasis:`context`\  is not case-sensitive.
+  The value of :emphasis:`context` must contain no spaces. :emphasis:`context` is not case-sensitive.
 
 
   | **required**: True
@@ -132,7 +132,7 @@ context
 
      
 insecure
-  When set to \ :literal:`true`\ , disables SSL certificate trust chain verification when using HTTPS.
+  When set to :literal:`true`\ , disables SSL certificate trust chain verification when using HTTPS.
 
 
   | **required**: False
@@ -150,17 +150,17 @@ resources
 
      
   complex_filter
-    A dictionary representing a complex filter expression. Complex filters are composed of filter expressions, represented as dictionaries. Each dictionary can specify either an attribute expression, a list of filter expressions to be composed with the \ :literal:`and`\  operator, or a list of filter expressions to be composed with the \ :literal:`or`\  operator.
+    A dictionary representing a complex filter expression. Complex filters are composed of filter expressions, represented as dictionaries. Each dictionary can specify either an attribute expression, a list of filter expressions to be composed with the :literal:`and` operator, or a list of filter expressions to be composed with the :literal:`or` operator.
 
-    The \ :literal:`attribute`\ , \ :literal:`and`\  and \ :literal:`or`\  options are mutually exclusive with each other.
+    The :literal:`attribute`\ , :literal:`and` and :literal:`or` options are mutually exclusive with each other.
 
-    Can contain one or more filters. Multiple filters must be combined using \ :literal:`and`\  or \ :literal:`or`\  logical operators.
+    Can contain one or more filters. Multiple filters must be combined using :literal:`and` or :literal:`or` logical operators.
 
     Filters can be nested.
 
-    When supplying the \ :literal:`attribute`\  option, you must also supply a \ :literal:`value`\  for the filter. You can also override the default operator of \ :literal:`=`\  with the \ :literal:`operator`\  option.
+    When supplying the :literal:`attribute` option, you must also supply a :literal:`value` for the filter. You can also override the default operator of :literal:`=` with the :literal:`operator` option.
 
-    For examples, see "Examples" in \ :ref:`ibm.ibm\_zos\_cics.cmci\_get <ansible_collections.ibm.ibm_zos_cics.cmci_get_module>`\ .
+    For examples, see "Examples" in :ref:`ibm.ibm\_zos\_cics.cmci\_get <ansible_collections.ibm.ibm_zos_cics.cmci_get_module>`.
 
 
     | **required**: False
@@ -169,9 +169,9 @@ resources
 
      
     and
-      A list of filter expressions to be combined with an \ :literal:`and`\  operation.
+      A list of filter expressions to be combined with an :literal:`and` operation.
 
-      Filter expressions are nested \ :literal:`complex\_filter`\  elements. Each nested filter expression can be either an \ :literal:`attribute`\ , \ :literal:`and`\  or \ :literal:`or`\  complex filter expression.
+      Filter expressions are nested :literal:`complex\_filter` elements. Each nested filter expression can be either an :literal:`attribute`\ , :literal:`and` or :literal:`or` complex filter expression.
 
 
       | **required**: False
@@ -182,7 +182,7 @@ resources
     attribute
       The name of a resource table attribute on which to filter.
 
-      For supported attributes of different resource types, see their resource table reference, for example, \ `PROGDEF resource table reference <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table>`__\ .
+      For supported attributes of different resource types, see their resource table reference, for example, \ `PROGDEF resource table reference <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table>`__.
 
 
       | **required**: False
@@ -191,8 +191,7 @@ resources
 
      
     operator
-      These operators are accepted: \ :literal:`\<`\  or \ :literal:`LT`\  (less than), \ :literal:`\<=`\  or \ :literal:`LE`\  (less than or equal to), \ :literal:`=`\  or \ :literal:`EQ`\  (equal to), \ :literal:`\>`\  or \ :literal:`GT`\  (greater than), \ :literal:`\>=`\  or \ :literal:`GE`\  (greater than or equal to), \ :literal:`==`\  or \ :literal:`IS`\  (is), \ :literal:`¬=`\ , \ :literal:`!=`\ , or \ :literal:`NE`\  (not equal to). If not supplied when \ :literal:`attribute`\  is used, \ :literal:`EQ`\  is assumed.
-
+      These operators are accepted: :literal:`\<` or :literal:`LT` (less than), :literal:`\<=` or :literal:`LE` (less than or equal to), :literal:`=` or :literal:`EQ` (equal to), :literal:`\>` or :literal:`GT` (greater than), :literal:`\>=` or :literal:`GE` (greater than or equal to), :literal:`==` or :literal:`IS` (is), :literal:`¬=`\ , :literal:`!=`\ , or :literal:`NE` (not equal to). If not supplied when :literal:`attribute` is used, :literal:`EQ` is assumed.
 
 
       | **required**: False
@@ -202,9 +201,9 @@ resources
 
      
     or
-      A list of filter expressions to be combined with an \ :literal:`or`\  operation.
+      A list of filter expressions to be combined with an :literal:`or` operation.
 
-      Filter expressions are nested \ :literal:`complex\_filter`\  elements. Each nested filter expression can be either an \ :literal:`attribute`\ , \ :literal:`and`\  or \ :literal:`or`\  complex filter expression.
+      Filter expressions are nested :literal:`complex\_filter` elements. Each nested filter expression can be either an :literal:`attribute`\ , :literal:`and` or :literal:`or` complex filter expression.
 
 
       | **required**: False
@@ -215,7 +214,7 @@ resources
     value
       The value by which you are to filter the resource attributes.
 
-      The value must be a valid one for the resource table attribute as documented in the resource table reference, for example, \ `PROGDEF resource table reference <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table>`__\ .
+      The value must be a valid one for the resource table attribute as documented in the resource table reference, for example, \ `PROGDEF resource table reference <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table>`__.
 
 
       | **required**: False
@@ -227,21 +226,21 @@ resources
   filter
     A dictionary with attribute names as keys, and target values, to be used as criteria to filter the set of resources returned from CICSPlex SM.
 
-    Filters implicitly use the \ :literal:`=`\  operator.
+    Filters implicitly use the :literal:`=` operator.
 
-    Filters for \ :literal:`string`\  type attributes can use the \ :literal:`\*`\  and \ :literal:`+`\  wildcard operators.
+    Filters for :literal:`string` type attributes can use the :literal:`\*` and :literal:`+` wildcard operators.
 
-    \ :literal:`\*`\  is a wildcard representing an unknown number of characters, and must appear at the end of the value.
+    :literal:`\*` is a wildcard representing an unknown number of characters, and must appear at the end of the value.
 
-    \ :literal:`+`\  is a wildcard representing a single character, and can appear in any place in the value, potentially multiple times.
+    :literal:`+` is a wildcard representing a single character, and can appear in any place in the value, potentially multiple times.
 
-    To use more complicated filter expressions, including a range of different filter operators, and the ability to compose filters with \ :literal:`and`\  and \ :literal:`or`\  operators, see the \ :literal:`complex\_filter`\  parameter.
+    To use more complicated filter expressions, including a range of different filter operators, and the ability to compose filters with :literal:`and` and :literal:`or` operators, see the :literal:`complex\_filter` parameter.
 
-    For more details, see \ `How to build a filter expression <https://www.ibm.com/docs/en/cics-ts/latest?topic=expressions-how-build-filter-expression>`__\ .
+    For more details, see \ `How to build a filter expression <https://www.ibm.com/docs/en/cics-ts/latest?topic=expressions-how-build-filter-expression>`__.
 
-    For examples, see \ :ref:`ibm.ibm\_zos\_cics.cmci\_get <ansible_collections.ibm.ibm_zos_cics.cmci_get_module>`\ .
+    For examples, see :ref:`ibm.ibm\_zos\_cics.cmci\_get <ansible_collections.ibm.ibm_zos_cics.cmci_get_module>`.
 
-    For supported attributes of different resource types, see their resource table reference, for example, \ `PROGDEF resource table reference <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table>`__\ .
+    For supported attributes of different resource types, see their resource table reference, for example, \ `PROGDEF resource table reference <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table>`__.
 
 
     | **required**: False
@@ -250,8 +249,7 @@ resources
 
      
   get_parameters
-    A list of one or more parameters with optional values used to identify the resources for this request. Eligible parameters for identifying the target resources can be found in the resource table reference for the target resource type, as valid parameters for the GET operation in the "Valid CPSM operations" table. For example, the valid parameters for identifying a PROGDEF resource are CICSSYS, CSDGROUP and RESGROUP, as found in the \ `PROGDEF resource table reference <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table>`__\ .
-
+    A list of one or more parameters with optional values used to identify the resources for this request. Eligible parameters for identifying the target resources can be found in the resource table reference for the target resource type, as valid parameters for the GET operation in the "Valid CPSM operations" table. For example, the valid parameters for identifying a PROGDEF resource are CICSSYS, CSDGROUP and RESGROUP, as found in the \ `PROGDEF resource table reference <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table>`__.
 
 
     | **required**: False
@@ -293,11 +291,11 @@ scheme
 scope
   Specifies the name of a CICSplex, CICS region group, CICS region, or logical scope that is associated with the query.
 
-  \ :emphasis:`scope`\  is a subset of \ :emphasis:`context`\  and limits the request to particular CICS systems or resources.
+  :emphasis:`scope` is a subset of :emphasis:`context` and limits the request to particular CICS systems or resources.
 
-  \ :emphasis:`scope`\  is optional. If it's not specified, the request is limited by the value of \ :emphasis:`context`\  alone.
+  :emphasis:`scope` is optional. If it's not specified, the request is limited by the value of :emphasis:`context` alone.
 
-  The value of \ :emphasis:`scope`\  must contain no spaces. \ :emphasis:`scope`\  is not case-sensitive.
+  The value of :emphasis:`scope` must contain no spaces. :emphasis:`scope` is not case-sensitive.
 
 
   | **required**: false
@@ -316,7 +314,7 @@ timeout
 
      
 type
-  The CMCI external resource name that maps to the target CICS or CICSPlex SM resource type. For a list of CMCI external resource names, see \ `CMCI resource names <https://www.ibm.com/docs/en/cics-ts/latest?topic=reference-cmci-resource-names>`__\ .
+  The CMCI external resource name that maps to the target CICS or CICSPlex SM resource type. For a list of CMCI external resource names, see \ `CMCI resource names <https://www.ibm.com/docs/en/cics-ts/latest?topic=reference-cmci-resource-names>`__.
 
 
   | **required**: True
@@ -325,8 +323,7 @@ type
 
      
 update_parameters
-  A list of one or more parameters that control the \ :emphasis:`update`\  operation. Eligible parameters for the UPDATE operation can be found in the resource table reference for the target resource type, as listed in the UPDATE operation section of the "Valid CPSM operations" table. For example, the only valid parameter for a PROGDEF UPDATE operation is CSD, as found in the \ `PROGDEF resource table reference <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table>`__\ .
-
+  A list of one or more parameters that control the :emphasis:`update` operation. Eligible parameters for the UPDATE operation can be found in the resource table reference for the target resource type, as listed in the UPDATE operation section of the "Valid CPSM operations" table. For example, the only valid parameter for a PROGDEF UPDATE operation is CSD, as found in the \ `PROGDEF resource table reference <https://www.ibm.com/docs/en/cics-ts/latest?topic=tables-progdef-resource-table>`__.
 
 
   | **required**: False
@@ -362,9 +359,9 @@ Examples
    
    - name: update a bundle definition in a CICS region
      cmci_update:
-       cmci_host: "winmvs2c.hursley.ibm.com"
-       cmci_port: "10080"
-       context: "iyk3z0r9"
+       cmci_host: "example.com"
+       cmci_port: "12345"
+       context: "plex_or_applid"
        type: "CICSDefinitionBundle"
        attributes:
          description: "New description"
