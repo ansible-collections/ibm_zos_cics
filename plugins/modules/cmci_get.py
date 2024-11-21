@@ -104,6 +104,7 @@ EXAMPLES = r"""
     cmci_cert: "./sec/ansible.pem"
     cmci_key: "./sec/ansible.key"
     context: "plex_or_applid"
+    scope: "cics region"
     type: cicsdefinitionbundle
     resources:
       filter:

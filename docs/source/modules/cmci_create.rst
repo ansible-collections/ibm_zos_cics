@@ -226,6 +226,7 @@ Examples
        cmci_port: 12345
        context: "plex_or_applid"
        type: "CICSDefinitionBundle"
+       scope: "cics region"
        attributes:
          name: PONGALT
          bundledir: /u/ibmuser/bundle/pong/pongbundle_1.0.0

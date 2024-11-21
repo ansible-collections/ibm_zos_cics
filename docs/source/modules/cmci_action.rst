@@ -374,16 +374,15 @@ Examples
    - name: install a bundle in a CICS region
      cmci_action:
        cmci_host: "example.com"
-       cmci_port: "12345"
-       context: "plex_or_applid"
-       type: CICSBundle
-       action_name: install
-       resource:
+       scheme: "http"
+       cmci_port: 1234
+       context: "plex or applid"
+       scope: "regionName"
+       type: "CICSBundle"
+       action_name: DISABLE
+       resources:
          filter:
-           name: "PONGALT"
-       action_parameters:
-         - name: "usage"
-           value: "local"
+           name: "bundle"
 
 
 

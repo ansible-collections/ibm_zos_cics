@@ -63,12 +63,13 @@ EXAMPLES = r"""
     cmci_host: "example.com"
     cmci_port: "12345"
     context: "plex_or_applid"
+    scope: "cics region name"
     type: "CICSDefinitionBundle"
     attributes:
       description: "New description"
     update_parameters:
       - name: csd
-    resource:
+    resources:
       filter:
         name: "PONGALT"
       get_parameters:

@@ -38,7 +38,7 @@ EXAMPLES = r"""
     cmci_port: 12345
     context: "plex_or_applid"
     type: CICSBundle
-    resource:
+    resources:
       filter:
         name: "PONGALT"
 
@@ -48,6 +48,7 @@ EXAMPLES = r"""
     cmci_port: 12345
     context: "plex_or_applid"
     type: CICSDefinitionBundle
+    scope: "cics region"
     resource:
       filter:
         name: "PONGALT"
