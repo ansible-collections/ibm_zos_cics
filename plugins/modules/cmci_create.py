@@ -61,9 +61,9 @@ EXAMPLES = r"""
   cmci_create:
     cmci_host: "example.com"
     cmci_port: 12345
-    context: "plex_or_applid"
+    context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
     type: "CICSDefinitionBundle"
-    scope: "cics region"
+    scope: "CSYDEF/CSYSGRP" # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
     attributes:
       name: PONGALT
       bundledir: /u/ibmuser/bundle/pong/pongbundle_1.0.0

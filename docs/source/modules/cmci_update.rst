@@ -361,8 +361,8 @@ Examples
      cmci_update:
        cmci_host: "example.com"
        cmci_port: "12345"
-       context: "plex_or_applid"
-       scope: "cics region name"
+       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+       scope: "CSYDEF/CSYSGRP" # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
        type: "CICSDefinitionBundle"
        attributes:
          description: "New description"
