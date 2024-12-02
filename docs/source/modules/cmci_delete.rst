@@ -336,7 +336,7 @@ Examples
        cmci_port: 12345
        context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
        type: CICSDefinitionBundle
-       scope: "CSYDEF/CSYSGRP" # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
+       scope: "IJKLMNOP" # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
        resource:
          filter:
            name: "PONGALT"

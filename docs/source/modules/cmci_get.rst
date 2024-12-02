@@ -395,7 +395,7 @@ Examples
        cmci_cert: "./sec/ansible.pem"
        cmci_key: "./sec/ansible.key"
        context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
-       scope: "CSYDEF/CSYSGRP" # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
+       scope: "IJKLMNOP" # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
        type: cicsdefinitionbundle
        resources:
          filter:
