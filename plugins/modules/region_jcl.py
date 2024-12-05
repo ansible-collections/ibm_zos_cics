@@ -352,7 +352,7 @@ class AnsibleRegionJCLModule(DataSet):
                 primary_unit=self.primary_unit,
                 secondary_unit=self.secondary_unit,
                 volumes=self.volumes,
-                block_size=4096,
+                block_size=32720,
                 record_length=80,
                 record_format="FB",
                 disposition="NEW",
