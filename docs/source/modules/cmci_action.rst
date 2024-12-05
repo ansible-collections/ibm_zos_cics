@@ -361,7 +361,7 @@ Examples
      cmci_action:
        cmci_host: "example.com"
        cmci_port: 12345
-       context: "plex_or_applid"
+       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
        type: "CICSProgram"
        action_name: NEWCOPY
        resource:
@@ -374,16 +374,14 @@ Examples
    - name: install a bundle in a CICS region
      cmci_action:
        cmci_host: "example.com"
-       cmci_port: "12345"
-       context: "plex_or_applid"
-       type: CICSBundle
-       action_name: install
-       resource:
+       cmci_port: 1234
+       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+       scope: "IJKLMNOP" # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
+       type: "CICSBundle"
+       action_name: DISABLE
+       resources:
          filter:
-           name: "PONGALT"
-       action_parameters:
-         - name: "usage"
-           value: "local"
+           name: "bundle"
 
 
 

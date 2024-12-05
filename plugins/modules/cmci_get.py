@@ -54,40 +54,40 @@ options:
 
 
 EXAMPLES = r"""
-- name: get 2 LOCFILEs from a CICSplex
+- name: Get 2 LOCFILEs from a CICSplex
   cmci_get:
     cmci_host: "example.com"
     cmci_port: 12345
-    cmci_user: "ibmuser"
+    cmci_user: ibmuser
     cmci_password: "123456"
-    context: "plex_or_applid"
+    context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
     type: CICSLocalFile
     record_count: 2
-    resource:
+    resources:
       filter:
         dsname: "CTS*"
 
-- name: get a localfile in a CICS region
+- name: Get a localfile in a CICS region
   cmci_get:
     cmci_host: "example.com"
     cmci_port: 12345
     cmci_cert: "./sec/ansible.pem"
     cmci_key: "./sec/ansible.key"
-    context: "plex_or_applid"
-    type: "CICSLocalFile"
+    context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+    type: CICSLocalFile
     resources:
       filter:
         dsname: "XIAOPIN*"
         file: "DFH*"
     record_count: 1
 
-- name: get a progdef from a CSD
+- name: Get a progdef from CSD
   cmci_get:
     cmci_host: "example.com"
     cmci_port: 12345
     cmci_cert: "./sec/ansible.pem"
     cmci_key: "./sec/ansible.key"
-    context: "plex_or_applid"
+    context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
     type: cicsdefinitionprogram
     resources:
       filter:
@@ -97,13 +97,14 @@ EXAMPLES = r"""
           value: MYGRP
     record_count: 1
 
-- name: pass module even if bundle definition is not found
+- name: Ignore errors when bundle definition is not found
   cmci_get:
     cmci_host: "example.com"
     cmci_port: 12345
     cmci_cert: "./sec/ansible.pem"
     cmci_key: "./sec/ansible.key"
-    context: "plex_or_applid"
+    context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+    scope: IJKLMNOP # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
     type: cicsdefinitionbundle
     resources:
       filter:
@@ -112,7 +113,7 @@ EXAMPLES = r"""
         - name: csdgroup
           value: MYGRP
     record_count: 1
-    fail_on_nodata: "false"
+    fail_on_nodata: false
 
 - name: Using complex_filter to combine filter expressions and change operators
   cmci_get:
@@ -120,8 +121,8 @@ EXAMPLES = r"""
     cmci_port: 12345
     cmci_cert: "./sec/ansible.pem"
     cmci_key: "./sec/ansible.key"
-    context: "plex_or_applid"
-    type: "CICSRegion"
+    context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+    type: CICSRegion
     resources:
       complex_filter:
         or:
