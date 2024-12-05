@@ -78,7 +78,7 @@ EXAMPLES = r"""
       filter:
         name: PONGALT
 
-- name: install a bundle in a CICS region
+- name: Install a bundle definition from CSD in a CICS region
   cmci_action:
     cmci_host: "example.com"
     cmci_port: 1234
@@ -88,8 +88,10 @@ EXAMPLES = r"""
     action_name: CSDINSTALL
     resources:
       filter:
-        name: bundle
-        csdgroup: mygrp
+        name: mybund
+      get_parameters:
+        - name: csdgroup
+          value: mygrp
 """
 
 
