@@ -15,6 +15,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DDStatement, StdoutDefinition, StdinDefinition
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.job import job_output
+from zoautil_py import datasets
 
 MVS_CMD_RETRY_ATTEMPTS = 10
 
@@ -359,22 +360,21 @@ def _read_data_set_content(data_set_name):
                 rc, data_set_name), executions)
     return executions, stdout
 
-
 def _write_jcl_to_data_set(jcl, data_set_name):
     """Writes generated JCL content to the specified data set
     """
     executions = []
 
-    temp = tempfile.NamedTemporaryFile(delete=True)
-    with open(temp.name, "w") as f:
-        f.write(jcl)
-    rc, stdout, stderr = _execute_command("cp -O u {0} \"//'{1}'\"".format(temp.name, data_set_name))
+    response = datasets._write(data_set_name, jcl)
+
     executions.append(
         _execution(
             name="Copy JCL contents to data set",
-            rc=rc,
-            stdout=stdout,
-            stderr=stderr))
-    if rc != 0:
+            rc=response.rc,
+            stdout=response.stdout_response,
+            stderr=response.stderr_response
+        )
+    )
+    if response.rc != 0:
         raise MVSExecutionException("Failed to copy JCL content to data set", executions)
     return executions
