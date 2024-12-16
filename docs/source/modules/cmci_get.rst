@@ -351,7 +351,7 @@ Examples
        cmci_port: 12345
        cmci_user: "ibmuser"
        cmci_password: "123456"
-       context: "plex_or_applid"
+       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
        type: CICSLocalFile
        record_count: 2
        resource:
@@ -364,7 +364,7 @@ Examples
        cmci_port: 12345
        cmci_cert: "./sec/ansible.pem"
        cmci_key: "./sec/ansible.key"
-       context: "plex_or_applid"
+       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
        type: "CICSLocalFile"
        resources:
          filter:
@@ -378,7 +378,7 @@ Examples
        cmci_port: 12345
        cmci_cert: "./sec/ansible.pem"
        cmci_key: "./sec/ansible.key"
-       context: "plex_or_applid"
+       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
        type: cicsdefinitionprogram
        resources:
          filter:
@@ -394,7 +394,8 @@ Examples
        cmci_port: 12345
        cmci_cert: "./sec/ansible.pem"
        cmci_key: "./sec/ansible.key"
-       context: "plex_or_applid"
+       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+       scope: "IJKLMNOP" # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
        type: cicsdefinitionbundle
        resources:
          filter:
@@ -411,7 +412,7 @@ Examples
        cmci_port: 12345
        cmci_cert: "./sec/ansible.pem"
        cmci_key: "./sec/ansible.key"
-       context: "plex_or_applid"
+       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
        type: "CICSRegion"
        resources:
          complex_filter:
