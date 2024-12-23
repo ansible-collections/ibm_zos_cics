@@ -6,7 +6,6 @@ import json
 from textwrap import dedent
 from ansible.module_utils.common.text.converters import to_bytes
 from ansible.module_utils import basic
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import _execution
 
 PYTHON_LANGUAGE_FEATURES_MESSAGE = "Requires python 3 language features"
 
@@ -418,127 +417,6 @@ def CSDUP_add_group_stdout(data_set_name):
         DFH5108 I COMMANDS NOT EXECUTED AFTER ERROR(S): 0
         DFH5109 I END OF DFHCSDUP UTILITY JOB. HIGHEST RETURN CODE WAS: 0
     """.format(data_set_name)
-
-
-def get_rmutl_executions():
-    job = get_sample_job_output()
-    executions = [
-        _execution(
-            name="Submit JCL job for {0}".format(job["job_id"]),
-            rc=0,
-            stdout="",
-            stderr=""
-        ),
-        get_job_output_execution()
-    ]
-
-    for dd in job.get("ddnames"):
-        executions.append(get_job_dd_output_execution(ddname=dd["content"], job_id=job["job_id"]))
-
-    return executions
-
-
-def get_job_output_execution(rc=0):
-    job = get_sample_job_output()
-    return _execution(
-        name="Get job output for {0}".format(job["job_id"]),
-        rc=rc,
-        stdout=job["ret_code"]["msg"],
-        stderr=job["ret_code"]["msg_txt"]
-    )
-
-
-def get_job_dd_output(ddname, job_id):
-    return (
-        get_job_dd_output_execution(rc=0, ddname=ddname, job_id=job_id),
-        RMUTL_stdout("AUTOINIT", job_id)
-    )
-
-
-def get_job_dd_output_execution(rc=0, ddname="", job_id=""):
-    return _execution(
-        name=JOB_DD_return_name(ddname, job_id),
-        rc=rc,
-        stdout=RMUTL_stdout("AUTOINIT", job_id),
-        stderr="CC"
-    )
-
-
-def JOB_DD_return_name(ddname, job_id):
-    return f"Get job DD {ddname} output for {job_id}"
-
-
-def get_sample_job_output(content="", rc=0, err="CC"):
-    return {
-        "class": "",
-        "content_type": "",
-        "ddnames": [
-            {
-                "byte_count": 0,
-                "content": [
-                    content
-                ],
-                "ddname": "JESMSGLG",
-                "id": "?",
-                "proctep": "",
-                "record_count": "",
-                "stepname": "JES2"
-            },
-            {
-                "byte_count": 0,
-                "content": [
-                    ""
-                ],
-                "ddname": "JESJCL",
-                "id": "?",
-                "proctep": "",
-                "record_count": "",
-                "stepname": "JES2"
-            },
-            {
-                "byte_count": 0,
-                "content": [
-                    ""
-                ],
-                "ddname": "JESYSMSG",
-                "id": "?",
-                "proctep": "",
-                "record_count": "",
-                "stepname": "JES2"
-            },
-            {
-                "byte_count": 0,
-                "content": [
-                    ""
-                ],
-                "ddname": "SYSPRINT",
-                "id": "?",
-                "proctep": "",
-                "record_count": "",
-                "stepname": "RMUTL"
-            }
-        ],
-        "duration": 0,
-        "job_id": "JOB12345",
-        "job_name": "DFHRMUTL",
-        "owner": "IBMUSER",
-        "ret_code": {
-            "code": rc,
-            "msg": "CC",
-            "msg_code": "0000",
-            "msg_txt": err,
-            "steps": []
-        },
-        "subsystem": "",
-        "system": ""
-    }
-
-
-def get_sample_job_output_with_content():
-    job = get_sample_job_output()
-    for dd in job.get("ddnames"):
-        dd["content"] = RMUTL_stdout("AUTOINIT", job["job_id"])
-    return job
 
 
 def read_data_set_content_run_name(data_set_name):

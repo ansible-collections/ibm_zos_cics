@@ -6,14 +6,13 @@
 # FOR INTERNAL USE IN THE COLLECTION ONLY.
 
 from __future__ import (absolute_import, division, print_function)
-from os import remove
 __metaclass__ = type
 
 
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd, MVSCmdResponse
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException, _execution
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import MVS_CMD_RETRY_ATTEMPTS, _submit_jcl, _get_job_output
-from tempfile import NamedTemporaryFile
-from time import sleep
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import MVS_CMD_RETRY_ATTEMPTS
 
 
 def _get_value_from_line(line):  # type: (list[str]) -> str | None
@@ -25,6 +24,18 @@ def _get_value_from_line(line):  # type: (list[str]) -> str | None
 
 def _get_filtered_list(elements, target):  # type: (list[str],str) -> list[str]
     return list(filter(lambda x: target in x, elements))
+
+
+def _get_rmutl_dds(
+        location,
+        sdfhload,
+        cmd):  # type: (str, str, str) -> list[DDStatement]
+    return [
+        DDStatement('steplib', DatasetDefinition(sdfhload)),
+        DDStatement('dfhgcd', DatasetDefinition(location)),
+        DDStatement('sysin', InputDefinition(content=cmd)),
+        DDStatement('sysprint', StdoutDefinition()),
+    ]
 
 
 def _get_reason_code(stdout_lines_arr):  # type: (list[str]) -> str | None
@@ -57,132 +68,64 @@ def _get_catalog_records(stdout):  # type: (str) -> tuple[str | None, str | None
     return (autostart_override, nextstart)
 
 
-def _create_dfhrmutl_jcl(location, sdfhload, cmd=""):
-    steplib_line = f"//STEPLIB  DD DSNAME={sdfhload},DISP=SHR"
-    dfhgcd_line = f"//DFHGCD   DD DSNAME={location},DISP=OLD"
-    # Validate line lengths
-    _validate_line_length(steplib_line, sdfhload, "cics_data_sets")
-    _validate_line_length(dfhgcd_line, location, "region_data_sets")
-
-    jcl = ""
-    if (cmd == ""):
-        jcl = f'''
-//DFHRMUTL JOB
-//RMUTL    EXEC PGM=DFHRMUTL,REGION=1M
-{steplib_line}
-//SYSPRINT DD SYSOUT=*
-{dfhgcd_line}
-//SYSIN    DD *
-/*
-'''
-    else:
-        jcl = f'''
-//DFHRMUTL JOB
-//RMUTL    EXEC PGM=DFHRMUTL,REGION=1M
-{steplib_line}
-//SYSPRINT DD SYSOUT=*
-{dfhgcd_line}
-//SYSIN    DD *
-    {cmd}
-/*
-'''
-
-    # Create a temporary file
-    with NamedTemporaryFile(mode='w+', delete=False) as fp:
-        fp.write(jcl)
-        fp.flush()
-
-        # Get the temporary file's name
-        qualified_file_path = fp.name
-    return qualified_file_path
-
-
-def _validate_line_length(line, name, parameter):
-    """
-    Validates that the JCL line does not exceed MAX_LINE_LENGTH.
-    Raises ValueError if validation fails.
-    """
-    if len(line) > MAX_LINE_LENGTH:
-        raise ValueError(f"Value supplied for {parameter} ({name}) is {len(line) - MAX_LINE_LENGTH} characters too long")
-    return True
-
-
 def _run_dfhrmutl(
         location,  # type: str
         sdfhload,  # type: str
         cmd=""  # type: str
 ):
     # type: (...) -> tuple[list[dict[str, str| int]], tuple[str | None, str | None]] | list[dict[str, str| int]]
-
-    qualified_file_path = _create_dfhrmutl_jcl(
-        location,
-        sdfhload,
-        cmd
-    )
     executions = []
-    try:
-        for x in range(MVS_CMD_RETRY_ATTEMPTS):
-            dfhrmutl_response, jcl_executions = _execute_dfhrmutl(qualified_file_path)
-            dfhrmutl_rc = dfhrmutl_response["ret_code"].get("code")
 
-            allContent = []
-            for ddname in dfhrmutl_response.get("ddnames"):
-                allContent += ddname.get("content")
-            stdout_raw = "".join(allContent)
+    for x in range(MVS_CMD_RETRY_ATTEMPTS):
+        dfhrmutl_response = _execute_dfhrmutl(location, sdfhload, cmd)
+        executions.append(
+            _execution(
+                name="DFHRMUTL - {0} - Run {1}".format(
+                    "Get current catalog" if cmd == "" else "Updating autostart override",
+                    x + 1),
+                rc=dfhrmutl_response.rc,
+                stdout=dfhrmutl_response.stdout,
+                stderr=dfhrmutl_response.stderr))
 
-            executions.append(jcl_executions)
-            executions.append(
-                _execution(
-                    name="DFHRMUTL - {0} - Run {1}".format(
-                        "Get current catalog" if cmd == "" else "Updating autostart override",
-                        x + 1),
-                    rc=dfhrmutl_rc,
-                    stdout=stdout_raw,
-                    stderr=dfhrmutl_response["ret_code"].get("msg_txt", "")))
+        if dfhrmutl_response.rc == 0:
+            break
+        if dfhrmutl_response.rc == 16:
+            formatted_stdout_lines = [
+                "{0}".format(element.replace(" ", "").upper())
+                for element in dfhrmutl_response.stdout.split("\n")
+            ]
+            stdout_with_rc = list(filter(lambda x: "REASON:X" in x, formatted_stdout_lines))
 
-            if dfhrmutl_rc not in (0, 16):
+            reason_code = _get_reason_code(stdout_with_rc)
+            if reason_code and reason_code != "A8":
+                raise MVSExecutionException(
+                    "DFHRMUTL failed with RC 16 - {0}".format(stdout_with_rc[0]), executions
+                )
+            elif reason_code is None:
+                raise MVSExecutionException(
+                    "DFHRMUTL failed with RC 16 but no reason code was found",
+                    executions,
+                )
+        else:
+            # DFHRMUTL fails when running with MVSCMD so check it ran successfully
+            if DFHRMUTL_PROGRAM_HEADER not in dfhrmutl_response.stdout or SUBPROCESS_EXIT_MESSAGE not in dfhrmutl_response.stderr:
                 raise MVSExecutionException(
                     "DFHRMUTL failed with RC {0}".format(
-                        dfhrmutl_rc), executions)
+                        dfhrmutl_response.rc), executions)
+            break
 
-            if dfhrmutl_rc == 0:
-                break
-            if dfhrmutl_rc == 16:
-                formatted_stdout_lines = [
-                    "{0}".format(element.replace(" ", "").upper())
-                    for element in stdout_raw.split("\n")
-                ]
-                stdout_with_rc = list(filter(lambda x: "REASON:X" in x, formatted_stdout_lines))
+    if cmd != "":
+        return executions
 
-                reason_code = _get_reason_code(stdout_with_rc)
-                if reason_code and reason_code != "A8":
-                    raise MVSExecutionException(
-                        "DFHRMUTL failed with RC 16 - {0}".format(stdout_with_rc[0]), executions
-                    )
-                elif reason_code is None:
-                    raise MVSExecutionException(
-                        "DFHRMUTL failed with RC 16 but no reason code was found",
-                        executions,
-                    )
-
-        if cmd != "":
-            return executions
-    finally:
-        remove(qualified_file_path)
-    return executions, _get_catalog_records(stdout_raw)
+    return executions, _get_catalog_records(dfhrmutl_response.stdout)
 
 
-def _execute_dfhrmutl(rmutl_jcl_path, job_name="DFHRMUTL"):
-    executions = _submit_jcl(rmutl_jcl_path, job_name)
-    job_id = executions[0].get("stdout").strip()
-
-    # Give RMUTL a second to run
-    sleep(JOB_SUBMIT_WAIT_TIME)
-
-    job, job_executions = _get_job_output(job_id, job_name)
-    executions.append(job_executions)
-
-    return job, executions
+def _execute_dfhrmutl(location, sdfhload, cmd=""):   # type: (str, str, str) -> MVSCmdResponse
+    return MVSCmd.execute(
+        pgm="DFHRMUTL",
+        dds=_get_rmutl_dds(location=location, sdfhload=sdfhload, cmd=cmd),
+        verbose=True,
+        debug=False)
 
 
 def _get_idcams_cmd_gcd(dataset):   # type: (dict) -> dict
@@ -206,7 +149,6 @@ def _get_idcams_cmd_gcd(dataset):   # type: (dict) -> dict
     return defaults
 
 
-# IDCAMS Consts
 RECORD_COUNT_DEFAULT = 4089
 RECORD_SIZE_DEFAULT = 32760
 CONTROL_INTERVAL_SIZE_DEFAULT = 32768
@@ -216,6 +158,5 @@ CI_PERCENT = 10
 CA_PERCENT = 10
 SHARE_CROSSREGION = 2
 
-# RMUTL Consts
-MAX_LINE_LENGTH = 72
-JOB_SUBMIT_WAIT_TIME = 1
+DFHRMUTL_PROGRAM_HEADER = "===DFHRMUTL CICS RECOVERY MANAGER BATCH UTILITY==="
+SUBPROCESS_EXIT_MESSAGE = "Attach Exit code: 0 from DFHRMUTL."
