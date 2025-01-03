@@ -333,11 +333,11 @@ class AnsibleRegionJCLModule(DataSet):
         # Check if a user has passed space arguments
         if not self._module.params.get("space_primary"):
             self.primary = primary_size_kilobytes
-            self.primary_unit = "K"
+            self.primary_unit = "k"
 
         if not self._module.params.get("space_secondary"):
             self.secondary = secondary_size_kilobytes
-            self.secondary_unit = "K"
+            self.secondary_unit = "k"
 
     def create_data_set(self):  # type: () -> None
         self.calculate_size_parameters()

@@ -54,7 +54,7 @@ EXAMPLES = r"""
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
     space_primary: 500
-    space_type: "REC"
+    space_type: "rec"
     state: "initial"
 
 - name: Retain the existing local catalog defined by the template

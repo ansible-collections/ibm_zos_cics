@@ -35,7 +35,7 @@
       state: "initial"
       space_primary: 10
       space_secondary: 3
-      space_type: "M"
+      space_type: "m"
       volumes: "VOL001"
 
   tasks:

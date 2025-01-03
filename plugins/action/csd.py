@@ -22,7 +22,9 @@ class ActionModule(_DataSetActionPlugin):
     def _process_module_args(self, module_args, _templar, ds_name, task_vars, cics_data_sets_required):
         super(ActionModule, self)._process_module_args(module_args, _templar, ds_name, task_vars, cics_data_sets_required)
         input_location = module_args.get(INPUT_LOCATION)
-        if input_location == LOCAL:
-            input_src = module_args.get(INPUT_SOURCE)
-            with open(input_src, 'r') as input_file:
-                module_args[INPUT_CONTENT] = input_file.read()
+        if input_location:
+            module_args[INPUT_LOCATION] = input_location.lower()
+            if input_location.lower() == LOCAL:
+                input_src = module_args.get(INPUT_SOURCE)
+                with open(input_src, 'r') as input_file:
+                    module_args[INPUT_CONTENT] = input_file.read()
