@@ -53,7 +53,7 @@ EXAMPLES = r"""
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
     space_primary: 10
-    space_type: "M"
+    space_type: "m"
     state: "initial"
 
 - name: Delete a CSD defined by the template
@@ -97,7 +97,7 @@ EXAMPLES = r"""
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
     state: "changed"
-    input_location: "DATA_SET"
+    input_location: "data_set"
     input_src: "TESTER.DEFS.SCRIPT"
 
 - name: Run a DFHCSDUP script from a USS file
@@ -107,7 +107,7 @@ EXAMPLES = r"""
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
     state: changed
-    input_location: "USS"
+    input_location: "uss"
     input_src: "/u/tester/defs/script.csdup"
 
 - name: Run a DFHCSDUP script from a local file
@@ -117,7 +117,7 @@ EXAMPLES = r"""
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
     state: changed
-    input_location: "LOCAL"
+    input_location: "local"
     input_src: "/User/tester/defs/script.csdup"
 
 - name: Run a DFHCSDUP script inline
@@ -127,7 +127,7 @@ EXAMPLES = r"""
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
     state: changed
-    input_location: "INLINE"
+    input_location: "inline"
     input_content: |
       DEFINE PROGRAM(TESTPRG1) GROUP(TESTGRP1)
       DEFINE PROGRAM(TESTPRG2) GROUP(TESTGRP2)
@@ -238,10 +238,10 @@ STATE_OPTIONS = [ABSENT, INITIAL, WARM, CHANGED]
 INPUT_SOURCE = "input_src"
 INPUT_LOCATION = "input_location"
 INPUT_CONTENT = "input_content"
-DATA_SET = "DATA_SET"
-USS = "USS"
-LOCAL = "LOCAL"
-INLINE = "INLINE"
+DATA_SET = "data_set"
+USS = "uss"
+LOCAL = "local"
+INLINE = "inline"
 INPUT_LOCATION_OPTIONS = [DATA_SET, USS, LOCAL, INLINE]
 INPUT_LOCATION_DEFAULT = DATA_SET
 LOG = "log"
@@ -338,10 +338,12 @@ class AnsibleCSDModule(DataSet):
             "arg_type": "data_set_base"
         })
         defs[REGION_DATA_SETS]["options"][DSN]["options"]["dsn"].pop("type")
-        if INPUT_LOCATION == DATA_SET:
-            defs[INPUT_SOURCE].update({
-                "arg_type": "data_set_base"
-            })
+        if self._module.params.get(INPUT_LOCATION):
+            input_location = self._module.params.get(INPUT_LOCATION)
+            if input_location == DATA_SET:
+                defs[INPUT_SOURCE].update({
+                    "arg_type": "data_set_base"
+                })
             defs[INPUT_SOURCE].pop("type")
         return defs
 

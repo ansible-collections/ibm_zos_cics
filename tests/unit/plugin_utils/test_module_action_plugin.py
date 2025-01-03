@@ -14,6 +14,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.plugin_utils._module_action_pl
     _remove_region_data_set_args,
     _remove_cics_data_set_args,
     _process_region_data_set_args,
+    _process_data_set_unit_args,
     _validate_data_set_length,
     _validate_list_of_data_set_lengths,
     _process_libraries_args,
@@ -97,6 +98,22 @@ def test__process_region_data_set_args_without_template_or_override():
         assert e.args[0] == "No template or data set override found for dfhgcd"
     else:
         assert False
+
+
+def test__process_data_set_unit_args():
+    args_with_garbage = {"space_type": "K"}
+
+    _process_data_set_unit_args(args_with_garbage)
+
+    assert args_with_garbage["space_type"] == "k"
+
+
+def test__process_data_set_unit_args_already_lower():
+    args_with_garbage = {"space_type": "rec"}
+
+    _process_data_set_unit_args(args_with_garbage)
+
+    assert args_with_garbage["space_type"] == "rec"
 
 
 def test__validate_data_set_length():

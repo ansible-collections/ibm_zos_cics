@@ -85,7 +85,7 @@
         - name: Run csd module with a DFHCSDUP script from a data set
           ibm.ibm_zos_cics.csd:
             state: "changed"
-            input_location: "DATA_SET"
+            input_location: "data_set"
             input_src: "{{ script_data_set_path }}"
           register: result
         - name: Debug
@@ -135,7 +135,7 @@
         - name: Run csd module with a DFHCSDUP script from a local file
           ibm.ibm_zos_cics.csd:
             state: "changed"
-            input_location: "LOCAL"
+            input_location: "local"
             input_src: "{{ script_local_path }}"
           register: result
         - name: Debug

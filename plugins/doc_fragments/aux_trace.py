@@ -36,16 +36,16 @@ options:
         the value for the secondary space is specified with O(space_secondary).
       - This option takes effect only when the auxiliary trace data set is being created.
         If the data set already exists, the option has no effect.
-      - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
-        cylinders (V(CYL)), or tracks (V(TRK)).
+      - The size can be specified in megabytes (V(m)), kilobytes (V(k)),
+        cylinders (V(cyl)), or tracks (V(trk)).
     required: false
     type: str
     choices:
-      - M
-      - K
-      - CYL
-      - TRK
-    default: M
+      - m
+      - k
+      - cyl
+      - trk
+    default: m
   volumes:
     description:
       - The volume(s) where the data set is created. Use a string to define a singular volume or a list of strings for multiple volumes.

@@ -44,7 +44,7 @@ NAME = "TEST.REGIONS.CSD"
 default_arg_parms = {
     "space_primary": 5,
     "space_secondary": 3,
-    "space_type": "M",
+    "space_type": "m",
     "region_data_sets": {
         "dfhcsd": {
             "dsn": NAME
