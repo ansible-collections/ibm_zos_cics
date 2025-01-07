@@ -132,13 +132,13 @@ space_type
 
   This option takes effect only when the global catalog data set is being created. If the global catalog data set already exists, the option has no effect.
 
-  The size can be specified in megabytes (\ :literal:`M`\ ), kilobytes (\ :literal:`K`\ ), records (\ :literal:`REC`\ ), cylinders (\ :literal:`CYL`\ ), or tracks (\ :literal:`TRK`\ ).
+  The size can be specified in megabytes (\ :literal:`m`\ ), kilobytes (\ :literal:`k`\ ), records (\ :literal:`rec`\ ), cylinders (\ :literal:`cyl`\ ), or tracks (\ :literal:`trk`\ ).
 
 
   | **required**: False
   | **type**: str
-  | **default**: M
-  | **choices**: M, K, REC, CYL, TRK
+  | **default**: m
+  | **choices**: m, k, rec, cyl, trk
 
 
      
@@ -191,7 +191,7 @@ Examples
        cics_data_sets:
          template: "CICSTS61.CICS.<< lib_name >>"
        space_primary: 100
-       space_type: "M"
+       space_type: "m"
        state: "initial"
 
    - name: Initialize a large user specified global catalog
@@ -202,7 +202,7 @@ Examples
        cics_data_sets:
          sdfhload: "CICSTS61.CICS.SDFHLOAD"
        space_primary: 100
-       space_type: "M"
+       space_type: "m"
        state: "initial"
 
    - name: Set the autostart override record to AUTOASIS for a global catalog defined by the template

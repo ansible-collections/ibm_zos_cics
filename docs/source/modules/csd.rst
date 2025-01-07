@@ -73,19 +73,19 @@ input_content
 input_location
   The type of location from which to load the DFHCSDUP script.
 
-  Specify :literal:`DATA\_SET` to load from a PDS, PDSE, or sequential data set.
+  Specify :literal:`data\_set` to load from a PDS, PDSE, or sequential data set.
 
-  Specify :literal:`USS` to load from a file on UNIX System Services (USS).
+  Specify :literal:`uss` to load from a file on UNIX System Services (USS).
 
-  Specify :literal:`LOCAL` to load from a file local to the Ansible control node.
+  Specify :literal:`local` to load from a file local to the Ansible control node.
 
-  Specify :literal:`INLINE` to allow a script to be passed directly through the :literal:`input\_content` parameter.
+  Specify :literal:`inline` to allow a script to be passed directly through the :literal:`input\_content` parameter.
 
 
   | **required**: False
   | **type**: str
-  | **default**: DATA_SET
-  | **choices**: DATA_SET, USS, LOCAL, INLINE
+  | **default**: data_set
+  | **choices**: data_set, uss, local, inline
 
 
      
@@ -198,13 +198,13 @@ space_type
 
   This option takes effect only when the CSD is being created. If the CSD already exists, the option has no effect.
 
-  The size can be specified in megabytes (\ :literal:`M`\ ), kilobytes (\ :literal:`K`\ ), records (\ :literal:`REC`\ ), cylinders (\ :literal:`CYL`\ ), or tracks (\ :literal:`TRK`\ ).
+  The size can be specified in megabytes (\ :literal:`m`\ ), kilobytes (\ :literal:`k`\ ), records (\ :literal:`recgs`\ ), cylinders (\ :literal:`cyl`\ ), or tracks (\ :literal:`trk`\ ).
 
 
   | **required**: False
   | **type**: str
-  | **default**: M
-  | **choices**: M, K, REC, CYL, TRK
+  | **default**: m
+  | **choices**: m, k, rec, cyl, trk
 
 
      
@@ -266,7 +266,7 @@ Examples
        cics_data_sets:
          template: "CICSTS61.CICS.<< lib_name >>"
        space_primary: 10
-       space_type: "M"
+       space_type: "m"
        state: "initial"
 
    - name: Delete a CSD defined by the template
@@ -310,7 +310,7 @@ Examples
        cics_data_sets:
          template: "CICSTS61.CICS.<< lib_name >>"
        state: "changed"
-       input_location: "DATA_SET"
+       input_location: "data_set"
        input_src: "TESTER.DEFS.SCRIPT"
 
    - name: Run a DFHCSDUP script from a USS file
@@ -320,7 +320,7 @@ Examples
        cics_data_sets:
          template: "CICSTS61.CICS.<< lib_name >>"
        state: changed
-       input_location: "USS"
+       input_location: "uss"
        input_src: "/u/tester/defs/script.csdup"
 
    - name: Run a DFHCSDUP script from a local file
@@ -330,7 +330,7 @@ Examples
        cics_data_sets:
          template: "CICSTS61.CICS.<< lib_name >>"
        state: changed
-       input_location: "LOCAL"
+       input_location: "local"
        input_src: "/User/tester/defs/script.csdup"
 
    - name: Run a DFHCSDUP script inline
@@ -340,7 +340,7 @@ Examples
        cics_data_sets:
          template: "CICSTS61.CICS.<< lib_name >>"
        state: changed
-       input_location: "INLINE"
+       input_location: "inline"
        input_content: |
          DEFINE PROGRAM(TESTPRG1) GROUP(TESTGRP1)
          DEFINE PROGRAM(TESTPRG2) GROUP(TESTGRP2)
