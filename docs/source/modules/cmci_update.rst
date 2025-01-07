@@ -357,20 +357,20 @@ Examples
 .. code-block:: yaml+jinja
 
    
-   - name: update a bundle definition in a CICS region
+   - name: Update the description of a bundle definition in CSD
      cmci_update:
        cmci_host: "example.com"
-       cmci_port: "12345"
-       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
-       scope: "IJKLMNOP" # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
-       type: "CICSDefinitionBundle"
+       cmci_port: 12345
+       context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+       scope: IJKLMNOP # scope only applies if you're in a CPSM environment and is the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
+       type: CICSDefinitionBundle
        attributes:
-         description: "New description"
+         description: New description
        update_parameters:
          - name: csd
        resources:
          filter:
-           name: "PONGALT"
+           name: PONGALT
          get_parameters:
            - name: csdgroup
              value: JVMGRP

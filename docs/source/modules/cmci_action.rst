@@ -361,27 +361,27 @@ Examples
      cmci_action:
        cmci_host: "example.com"
        cmci_port: 12345
-       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
-       type: "CICSProgram"
+       context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+       type: CICSProgram
        action_name: NEWCOPY
-       resource:
+       resources:
          filter:
-           name: "PONGALT"
-         get_parameters:
-           - name: "csdgroup"
-             value: "JVMGRP"
+           name: PONGALT
 
-   - name: install a bundle in a CICS region
+   - name: Install a bundle definition from CSD in a CICS region
      cmci_action:
        cmci_host: "example.com"
        cmci_port: 1234
-       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
-       scope: "IJKLMNOP" # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
-       type: "CICSBundle"
-       action_name: DISABLE
+       context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+       scope: IJKLMNOP # scope only applies if you're in a CPSM environment and is the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
+       type: CICSBundle
+       action_name: CSDINSTALL
        resources:
          filter:
-           name: "bundle"
+           name: mybund
+         get_parameters:
+           - name: csdgroup
+             value: mygrp
 
 
 

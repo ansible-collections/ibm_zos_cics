@@ -324,25 +324,25 @@ Examples
      cmci_delete:
        cmci_host: "example.com"
        cmci_port: 12345
-       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+       context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
        type: CICSBundle
        resources:
          filter:
-           name: "PONGALT"
+           name: PONGALT
 
    - name: delete a bundle definition in a CICS region
      cmci_delete:
        cmci_host: "example.com"
        cmci_port: 12345
-       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+       context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
        type: CICSDefinitionBundle
-       scope: "IJKLMNOP" # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
-       resource:
+       scope: IJKLMNOP # scope only applies if you're in a CPSM environment and is the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
+       resources:
          filter:
-           name: "PONGALT"
+           name: PONGALT
          get_parameters:
-           - name: "csdgroup"
-             value: "JVMGRP"
+           - name: csdgroup
+             value: JVMGRP
 
 
 
