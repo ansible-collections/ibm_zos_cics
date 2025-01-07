@@ -132,13 +132,13 @@ space_type
 
   This option takes effect only when the local catalog data set is being created. If the local catalog data set already exists, the option has no effect.
 
-  The size can be specified in megabytes (\ :literal:`M`\ ), kilobytes (\ :literal:`K`\ ), records (\ :literal:`REC`\ ), cylinders (\ :literal:`CYL`\ ), or tracks (\ :literal:`TRK`\ ).
+  The size can be specified in megabytes (\ :literal:`m`\ ), kilobytes (\ :literal:`k`\ ), records (\ :literal:`rec`\ ), cylinders (\ :literal:`cyl`\ ), or tracks (\ :literal:`trk`\ ).
 
 
   | **required**: False
   | **type**: str
-  | **default**: REC
-  | **choices**: M, K, REC, CYL, TRK
+  | **default**: rec
+  | **choices**: m, k, rec, cyl, trk
 
 
      
@@ -198,7 +198,7 @@ Examples
        cics_data_sets:
          template: "CICSTS61.CICS.<< lib_name >>"
        space_primary: 500
-       space_type: "REC"
+       space_type: "rec"
        state: "initial"
 
    - name: Retain the existing local catalog defined by the template
