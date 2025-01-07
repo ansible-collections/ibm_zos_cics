@@ -17,7 +17,7 @@ if __name__ == '__main__':
         map(
             lambda x: relpath + '/' + x,
             filter(
-                lambda x: "__init__.py" != x,
+                lambda x: "__init__.py" != x and "__pycache__" != x,
                 os.listdir(relpath)
             )
         )
