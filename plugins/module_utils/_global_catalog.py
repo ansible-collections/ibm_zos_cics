@@ -78,41 +78,40 @@ def _run_dfhrmutl(
 
     for x in range(MVS_CMD_RETRY_ATTEMPTS):
         dfhrmutl_response = _execute_dfhrmutl(location, sdfhload, cmd)
-        executions.append(
-            _execution(
-                name="DFHRMUTL - {0} - Run {1}".format(
-                    "Get current catalog" if cmd == "" else "Updating autostart override",
-                    x + 1),
-                rc=dfhrmutl_response.rc,
-                stdout=dfhrmutl_response.stdout,
-                stderr=dfhrmutl_response.stderr))
+        execution_entry = _execution(
+            name="DFHRMUTL - {0} - Run {1}".format(
+                "Get current catalog" if cmd == "" else "Updating autostart override",
+                x + 1),
+            rc=dfhrmutl_response.rc,
+            stdout=dfhrmutl_response.stdout,
+            stderr=dfhrmutl_response.stderr
+        )
+        executions.append(execution_entry)
 
         if dfhrmutl_response.rc == 0:
             break
-        if dfhrmutl_response.rc == 16:
-            formatted_stdout_lines = [
-                "{0}".format(element.replace(" ", "").upper())
-                for element in dfhrmutl_response.stdout.split("\n")
-            ]
-            stdout_with_rc = list(filter(lambda x: "REASON:X" in x, formatted_stdout_lines))
-
-            reason_code = _get_reason_code(stdout_with_rc)
-            if reason_code and reason_code != "A8":
-                raise MVSExecutionException(
-                    "DFHRMUTL failed with RC 16 - {0}".format(stdout_with_rc[0]), executions
-                )
-            elif reason_code is None:
-                raise MVSExecutionException(
-                    "DFHRMUTL failed with RC 16 but no reason code was found",
-                    executions,
-                )
-        else:
+        if dfhrmutl_response.rc != 0:
             # DFHRMUTL fails when running with MVSCMD so check it ran successfully
             if DFHRMUTL_PROGRAM_HEADER not in dfhrmutl_response.stdout or SUBPROCESS_EXIT_MESSAGE not in dfhrmutl_response.stderr:
-                raise MVSExecutionException(
-                    "DFHRMUTL failed with RC {0}".format(
-                        dfhrmutl_response.rc), executions)
-            break
+                formatted_stdout_lines = [
+                    "{0}".format(element.replace(" ", "").upper())
+                    for element in dfhrmutl_response.stdout.split("\n")
+                ]
+                stdout_with_rc = list(filter(lambda x: "REASON:X" in x, formatted_stdout_lines))
+
+                reason_code = _get_reason_code(stdout_with_rc)
+                if reason_code and reason_code != "A8":
+                    raise MVSExecutionException(
+                        f"DFHRMUTL failed with RC {dfhrmutl_response.rc} - {stdout_with_rc[0]}", executions
+                    )
+                elif reason_code is None:
+                    raise MVSExecutionException(
+                        f"DFHRMUTL failed with RC {dfhrmutl_response.rc} but no reason code was found",
+                        executions
+                    )
+            else :
+                execution_entry["rc"] = 0
+                break
 
     if cmd != "":
         return executions

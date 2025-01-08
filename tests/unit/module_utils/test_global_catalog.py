@@ -441,7 +441,7 @@ def test_run_rmutl_many_rc_error():
         side_effect=[
             MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
             MVSCmdResponse(rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
-            MVSCmdResponse(rc=15, stdout="REASON:X'A8'", stderr=""),
+            MVSCmdResponse(rc=15, stdout="REASON:", stderr=""),
         ]
     )
     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
@@ -449,7 +449,7 @@ def test_run_rmutl_many_rc_error():
     expected_executions = [
         _execution(name=RMUTL_update_run_name(1), rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
         _execution(name=RMUTL_update_run_name(2), rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
-        _execution(name=RMUTL_update_run_name(3), rc=15, stdout="REASON:X'A8'", stderr="")
+        _execution(name=RMUTL_update_run_name(3), rc=15, stdout="REASON:", stderr="")
     ]
 
     error_raised = False
@@ -459,7 +459,7 @@ def test_run_rmutl_many_rc_error():
         )
     except MVSExecutionException as e:
         error_raised = True
-        assert e.message == "DFHRMUTL failed with RC 15"
+        assert e.message == "DFHRMUTL failed with RC 15 but no reason code was found"
         assert e.executions == expected_executions
 
     assert error_raised is True
@@ -480,7 +480,7 @@ def test_run_rmutl_rc_not_0():
         )
     except MVSExecutionException as e:
         error_raised = True
-        assert e.message == "DFHRMUTL failed with RC 123"
+        assert e.message == "DFHRMUTL failed with RC 123 but no reason code was found"
         assert e.executions == expected_executions
 
     assert error_raised is True
@@ -498,7 +498,7 @@ def test_run_rmutl_failed_while_running_mvscmd():
     expected_executions = [
         _execution(
             name=RMUTL_update_run_name(1), 
-            rc=123, stdout=global_catalog.DFHRMUTL_PROGRAM_HEADER, 
+            rc=0, stdout=global_catalog.DFHRMUTL_PROGRAM_HEADER, 
             stderr=global_catalog.SUBPROCESS_EXIT_MESSAGE
         )
     ]
