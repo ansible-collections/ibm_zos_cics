@@ -23,7 +23,7 @@
 
     - name: Set stop_output
       ansible.builtin.set_fact: stop_output="{{ stop_result }}"
-      when: "'skip_reason' not in {{ stop_result }}"
+      when: "'skip_reason' not in stop_result"
 
     - name: Issue shutdown command (with job_name)
       when:
@@ -75,7 +75,7 @@
       - stop_output.msg == ""
       - stop_output.executions[-1].return.failed == False
       - stop_output.executions[-1].return.output[0].content | length == 2
-      - "'ON OUTPUT QUEUE' in '{{ stop_output.executions[-1].return.output[0].content | join(' ') }}'"
+      - "'ON OUTPUT QUEUE' in stop_output.executions[-1].return.output[0].content | join(' ')"
     fail_msg: "CICS Region did not stop successfully"
 
 - name: Assert execution RCs are 0

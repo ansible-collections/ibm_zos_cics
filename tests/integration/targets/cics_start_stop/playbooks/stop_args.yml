@@ -38,7 +38,7 @@
             that:
               - stop_result.failed is true
               - stop_result.changed is false
-              - "{{ stop_result.executions | length }} == 0"
+              - stop_result.executions | length == 0
               - stop_result.msg == "one of the following is required: job_id, job_name"
 
         - name: Stop CICS using job name
@@ -84,7 +84,7 @@
               - stop_result.msg == ""
               - stop_result.executions[-1].return.failed == False
               - stop_result.executions[-1].return.output[0].content | length == 2
-              - "'ON OUTPUT QUEUE' in '{{ stop_result.executions[-1].return.output[0].content | join(' ') }}'"
+              - "'ON OUTPUT QUEUE' in stop_result.executions[-1].return.output[0].content | join(' ')"
             fail_msg: "CICS Region did not stop successfully"
         - name: Assert execution RCs are 0
           ansible.builtin.assert:
@@ -124,7 +124,7 @@
               - stop_result.msg == ""
               - stop_result.executions[-1].return.failed == False
               - stop_result.executions[-1].return.output[0].content | length == 2
-              - "'ON OUTPUT QUEUE' in '{{ stop_result.executions[-1].return.output[0].content | join(' ') }}'"
+              - "'ON OUTPUT QUEUE' in stop_result.executions[-1].return.output[0].content | join(' ')"
             fail_msg: "CICS Region did not stop successfully"
         - name: Assert execution RCs are 0
           ansible.builtin.assert:
@@ -154,8 +154,8 @@
           ansible.builtin.assert:
             that:
               - stop_result.failed == true
-              - stop_result.msg == "No jobs found with name {{ start_region_applid }} and ID NONJOB"
-        
+              - stop_result.msg == "No jobs found with name {} and ID NONJOB".format(start_region_applid)
+
         - name: Issue shutdown command (wrong name)
           ibm.ibm_zos_cics.stop_region:
             job_name: "NONJOB"
@@ -172,7 +172,7 @@
           ansible.builtin.assert:
             that:
               - stop_result.failed == true
-              - stop_result.msg == "No jobs found with name NONJOB and ID {{ start_result.stdout }}"
+              - stop_result.msg == "No jobs found with name NONJOB and ID {}".format(start_result.stdout)
       always:
         - name: Delete job
           ansible.builtin.command:
@@ -212,7 +212,7 @@
               - stop_result.failed == false
               - stop_result.changed == false
               - stop_result.msg == ""
-        
+
         - name: Issue shutdown command with mismatched name and id (wrong name)
           ibm.ibm_zos_cics.stop_region:
             job_id: "{{ start_result.stdout }}"
@@ -224,7 +224,7 @@
             that:
               - stop_result.failed == true
               - stop_result.changed == false
-              - stop_result.msg == "No jobs found with name NONJOB and ID {{ start_result.stdout }}"
+              - stop_result.msg == "No jobs found with name NONJOB and ID {}".format(start_result.stdout)
         - name: Issue shutdown command with mismatched name and id  (wrong id)
           ibm.ibm_zos_cics.stop_region:
             job_id: "NONJOB"
@@ -236,7 +236,7 @@
             that:
               - stop_result.failed == true
               - stop_result.changed == false
-              - stop_result.msg == "No jobs found with name {{ start_region_applid }} and ID NONJOB"
+              - stop_result.msg == "No jobs found with name {} and ID NONJOB".format(start_region_applid)
 
       always:
         - name: Delete job

@@ -72,7 +72,7 @@
           that:
             - result.failed == true
             - result.changed == false
-            - result.msg == "No template or data set override found for {{ data_set_name | lower }}"
+            - result.msg == "No template or data set override found for {}".format(data_set_name | lower)
             - "'executions' in result"
             - "'start_state' in result"
             - "'end_state' in result"
@@ -95,7 +95,7 @@
           that:
             - result.failed == true
             - result.changed == false
-            - "'Invalid argument \"{{ region_data_set_path }}...\" for type \"data_set_base\".' in result.msg"
+            - "'Invalid argument \"{}...\" for type \"data_set_base\".'.format(region_data_set_path) in result.msg"
             - "'executions' in result"
             - "'start_state' in result"
             - "'end_state' in result"
