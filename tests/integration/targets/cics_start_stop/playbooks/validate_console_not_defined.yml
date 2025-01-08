@@ -47,7 +47,7 @@
           ansible.builtin.assert:
             that:
               - stop_output.failed is true
-              - stop_output.msg == "{{ UNDEFINED_CONSOLE_MSG }}"
+              - stop_output.msg == UNDEFINED_CONSOLE_MSG
               - stop_output.changed is false
               - "'executions' in stop_output"
       always:
