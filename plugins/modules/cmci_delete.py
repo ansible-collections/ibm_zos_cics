@@ -75,28 +75,28 @@ cpsm_reason:
   description:
     - The character value of the REASON code returned by each CICSPlex SM API
       command. For a list of REASON character values, see
-      https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-reason-in-alphabetical-order.
+      https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-eyuda-values#eyup2ks__table_xnl_yky_51c.
   returned: success
   type: str
 cpsm_reason_code:
   description:
     - The numeric value of the REASON code returned by each CICSPlex SM API
       command. For a list of REASON numeric values, see
-      https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-reason-in-numerical-order.
+      https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-eyuda-values#eyup2ks__table_lqj_lky_51c.
   returned: success
   type: int
 cpsm_response:
   description:
     - The character value of the RESPONSE code returned by each CICSPlex SM API
       command. For a list of RESPONSE character values, see
-      https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-response-in-alphabetical-order.
+      https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-eyuda-values#eyup2ks__table_o33_fky_51c.
   returned: success
   type: str
 cpsm_response_code:
   description:
     - The numeric value of the RESPONSE code returned by each CICSPlex SM API
       command. For a list of RESPONSE numeric values, see
-      https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-response-in-numerical-order.
+      https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-eyuda-values#eyup2ks__table_mzv_4jy_51c.
   returned: success
   type: str
 http_status:
