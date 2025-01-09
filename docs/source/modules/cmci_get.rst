@@ -345,40 +345,40 @@ Examples
 .. code-block:: yaml+jinja
 
    
-   - name: get 2 LOCFILEs from a CICSplex
+   - name: Get 2 LOCFILEs from a CICSplex
      cmci_get:
        cmci_host: "example.com"
        cmci_port: 12345
-       cmci_user: "ibmuser"
+       cmci_user: ibmuser
        cmci_password: "123456"
-       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+       context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
        type: CICSLocalFile
        record_count: 2
-       resource:
+       resources:
          filter:
            dsname: "CTS*"
 
-   - name: get a localfile in a CICS region
+   - name: Get a localfile in a CICS region
      cmci_get:
        cmci_host: "example.com"
        cmci_port: 12345
        cmci_cert: "./sec/ansible.pem"
        cmci_key: "./sec/ansible.key"
-       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
-       type: "CICSLocalFile"
+       context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+       type: CICSLocalFile
        resources:
          filter:
            dsname: "XIAOPIN*"
            file: "DFH*"
        record_count: 1
 
-   - name: get a progdef from a CSD
+   - name: Get a progdef from CSD
      cmci_get:
        cmci_host: "example.com"
        cmci_port: 12345
        cmci_cert: "./sec/ansible.pem"
        cmci_key: "./sec/ansible.key"
-       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+       context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
        type: cicsdefinitionprogram
        resources:
          filter:
@@ -388,14 +388,14 @@ Examples
              value: MYGRP
        record_count: 1
 
-   - name: pass module even if bundle definition is not found
+   - name: Ignore errors when bundle definition is not found
      cmci_get:
        cmci_host: "example.com"
        cmci_port: 12345
        cmci_cert: "./sec/ansible.pem"
        cmci_key: "./sec/ansible.key"
-       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
-       scope: "IJKLMNOP" # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
+       context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+       scope: IJKLMNOP # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
        type: cicsdefinitionbundle
        resources:
          filter:
@@ -404,7 +404,7 @@ Examples
            - name: csdgroup
              value: MYGRP
        record_count: 1
-       fail_on_nodata: "false"
+       fail_on_nodata: false
 
    - name: Using complex_filter to combine filter expressions and change operators
      cmci_get:
@@ -412,8 +412,8 @@ Examples
        cmci_port: 12345
        cmci_cert: "./sec/ansible.pem"
        cmci_key: "./sec/ansible.key"
-       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
-       type: "CICSRegion"
+       context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+       type: CICSRegion
        resources:
          complex_filter:
            or:
@@ -462,7 +462,7 @@ Return Values
       
                               
        cpsm_reason
-        | The character value of the REASON code returned by each CICSPlex SM API command. For a list of REASON character values, see https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-reason-in-alphabetical-order.
+        | The character value of the REASON code returned by each CICSPlex SM API command. For a list of REASON character values, see https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-eyuda-values#eyup2ks__table_xnl_yky_51c.
       
         | **returned**: success
         | **type**: str
@@ -470,7 +470,7 @@ Return Values
       
                               
        cpsm_reason_code
-        | The numeric value of the REASON code returned by each CICSPlex SM API command. For a list of REASON numeric values, see https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-reason-in-numerical-order.
+        | The numeric value of the REASON code returned by each CICSPlex SM API command. For a list of REASON numeric values, see https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-eyuda-values#eyup2ks__table_lqj_lky_51c.
       
         | **returned**: success
         | **type**: int
@@ -478,7 +478,7 @@ Return Values
       
                               
        cpsm_response
-        | The character value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE character values, see https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-response-in-alphabetical-order.
+        | The character value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE character values, see https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-eyuda-values#eyup2ks__table_o33_fky_51c.
       
         | **returned**: success
         | **type**: str
@@ -486,7 +486,7 @@ Return Values
       
                               
        cpsm_response_code
-        | The numeric value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE numeric values, see https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-response-in-numerical-order.
+        | The numeric value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE numeric values, see https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-eyuda-values#eyup2ks__table_mzv_4jy_51c.
       
         | **returned**: success
         | **type**: str

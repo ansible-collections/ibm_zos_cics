@@ -361,27 +361,27 @@ Examples
      cmci_action:
        cmci_host: "example.com"
        cmci_port: 12345
-       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
-       type: "CICSProgram"
+       context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+       type: CICSProgram
        action_name: NEWCOPY
-       resource:
+       resources:
          filter:
-           name: "PONGALT"
-         get_parameters:
-           - name: "csdgroup"
-             value: "JVMGRP"
+           name: PONGALT
 
-   - name: install a bundle in a CICS region
+   - name: Install a bundle definition from CSD in a CICS region
      cmci_action:
        cmci_host: "example.com"
        cmci_port: 1234
-       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
-       scope: "IJKLMNOP" # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
-       type: "CICSBundle"
-       action_name: DISABLE
+       context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+       scope: IJKLMNOP # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
+       type: CICSBundle
+       action_name: CSDINSTALL
        resources:
          filter:
-           name: "bundle"
+           name: mybund
+         get_parameters:
+           - name: csdgroup
+             value: mygrp
 
 
 
@@ -422,7 +422,7 @@ Return Values
       
                               
        cpsm_reason
-        | The character value of the REASON code returned by each CICSPlex SM API command. For a list of REASON character values, see https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-reason-in-alphabetical-order.
+        | The character value of the REASON code returned by each CICSPlex SM API command. For a list of REASON character values, see https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-eyuda-values#eyup2ks__table_xnl_yky_51c.
       
         | **returned**: success
         | **type**: str
@@ -430,7 +430,7 @@ Return Values
       
                               
        cpsm_reason_code
-        | The numeric value of the REASON code returned by each CICSPlex SM API command. For a list of REASON numeric values, see https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-reason-in-numerical-order.
+        | The numeric value of the REASON code returned by each CICSPlex SM API command. For a list of REASON numeric values, see https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-eyuda-values#eyup2ks__table_lqj_lky_51c.
       
         | **returned**: success
         | **type**: int
@@ -438,7 +438,7 @@ Return Values
       
                               
        cpsm_response
-        | The character value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE character values, see https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-response-in-alphabetical-order.
+        | The character value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE character values, see https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-eyuda-values#eyup2ks__table_o33_fky_51c.
       
         | **returned**: success
         | **type**: str
@@ -446,7 +446,7 @@ Return Values
       
                               
        cpsm_response_code
-        | The numeric value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE numeric values, see https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-response-in-numerical-order.
+        | The numeric value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE numeric values, see https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-eyuda-values#eyup2ks__table_mzv_4jy_51c.
       
         | **returned**: success
         | **type**: str

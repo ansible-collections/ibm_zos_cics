@@ -357,20 +357,20 @@ Examples
 .. code-block:: yaml+jinja
 
    
-   - name: update a bundle definition in a CICS region
+   - name: Update the description of a bundle definition in CSD
      cmci_update:
        cmci_host: "example.com"
-       cmci_port: "12345"
-       context: "ABCDEFGH" # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
-       scope: "IJKLMNOP" # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
-       type: "CICSDefinitionBundle"
+       cmci_port: 12345
+       context: ABCDEFGH # context is the name of your CICSplex in a CPSM environment or the applid of your region in an SMSS environment
+       scope: IJKLMNOP # scope only applies if you're in a CPSM environment and is either the name of a CICS system definition (CSYSDEF) or CICS system group (CSYSGRP)
+       type: CICSDefinitionBundle
        attributes:
-         description: "New description"
+         description: New description
        update_parameters:
          - name: csd
        resources:
          filter:
-           name: "PONGALT"
+           name: PONGALT
          get_parameters:
            - name: csdgroup
              value: JVMGRP
@@ -414,7 +414,7 @@ Return Values
       
                               
        cpsm_reason
-        | The character value of the REASON code returned by each CICSPlex SM API command. For a list of REASON character values, see https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-reason-in-alphabetical-order.
+        | The character value of the REASON code returned by each CICSPlex SM API command. For a list of REASON character values, see https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-eyuda-values#eyup2ks__table_xnl_yky_51c.
       
         | **returned**: success
         | **type**: str
@@ -422,7 +422,7 @@ Return Values
       
                               
        cpsm_reason_code
-        | The numeric value of the REASON code returned by each CICSPlex SM API command. For a list of REASON numeric values, see https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-reason-in-numerical-order.
+        | The numeric value of the REASON code returned by each CICSPlex SM API command. For a list of REASON numeric values, see https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-eyuda-values#eyup2ks__table_lqj_lky_51c.
       
         | **returned**: success
         | **type**: int
@@ -430,7 +430,7 @@ Return Values
       
                               
        cpsm_response
-        | The character value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE character values, see https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-response-in-alphabetical-order.
+        | The character value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE character values, see https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-eyuda-values#eyup2ks__table_o33_fky_51c.
       
         | **returned**: success
         | **type**: str
@@ -438,7 +438,7 @@ Return Values
       
                               
        cpsm_response_code
-        | The numeric value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE numeric values, see https://www.ibm.com/docs/en/cics-ts/latest?topic=values-eyuda-response-in-numerical-order.
+        | The numeric value of the RESPONSE code returned by each CICSPlex SM API command. For a list of RESPONSE numeric values, see https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-eyuda-values#eyup2ks__table_mzv_4jy_51c.
       
         | **returned**: success
         | **type**: str
