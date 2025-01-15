@@ -22,9 +22,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     RMUTL_stderr,
     RMUTL_stdout,
     RMUTL_update_run_name,
-    set_module_args,
-    get_sample_job_output as JOB_OUTPUT,
-    get_rmutl_executions as RMUTL_EXECUTIONS
+    set_module_args
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import global_catalog
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _icetool as icetool
@@ -86,7 +84,7 @@ def test_create_an_intial_global_catalog():
         ]
     )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
-        return_value=(JOB_OUTPUT(RMUTL_stdout("AUTOINIT", "UNKNOWN"), err=RMUTL_stderr(NAME)), RMUTL_EXECUTIONS())
+        return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
     )
 
     gcd_module.main()
@@ -104,7 +102,6 @@ def test_create_an_intial_global_catalog():
                 stdout=IDCAMS_create_stdout(NAME),
                 stderr="",
             ),
-            RMUTL_EXECUTIONS(),
             _execution(
                 name=RMUTL_update_run_name(1),
                 rc=0,
@@ -117,7 +114,6 @@ def test_create_an_intial_global_catalog():
                 stdout=LISTDS_data_set(NAME, "VSAM"),
                 stderr="",
             ),
-            RMUTL_EXECUTIONS(),
             _execution(
                 name=RMUTL_get_run_name(1),
                 rc=0,
@@ -168,7 +164,7 @@ def test_delete_an_existing_global_catalog():
         )
     )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
-        return_value=(JOB_OUTPUT(RMUTL_stdout("AUTOINIT", "UNKNOWN"), err=RMUTL_stderr(NAME)), RMUTL_EXECUTIONS())
+        return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
     )
 
     gcd_module.main()
@@ -180,7 +176,6 @@ def test_delete_an_existing_global_catalog():
                 stdout=LISTDS_data_set(NAME, "VSAM"),
                 stderr="",
             ),
-            RMUTL_EXECUTIONS(),
             _execution(
                 name=RMUTL_get_run_name(1),
                 rc=0,
@@ -277,7 +272,7 @@ def test_warm_start_a_global_catalog():
         )
     )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
-        return_value=(JOB_OUTPUT(RMUTL_stdout("AUTOASIS", "UNKNOWN"), err=RMUTL_stderr(NAME)), RMUTL_EXECUTIONS())
+        return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOASIS", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
     )
     icetool._execute_icetool = MagicMock(
         return_value=MVSCmdResponse(
@@ -294,9 +289,7 @@ def test_warm_start_a_global_catalog():
                 name=LISTDS_run_name(1),
                 rc=0,
                 stdout=LISTDS_data_set(NAME, "VSAM"),
-                stderr=""
-            ),
-            RMUTL_EXECUTIONS(),
+                stderr=""),
             _execution(
                 name=RMUTL_get_run_name(1),
                 rc=0,
@@ -309,7 +302,6 @@ def test_warm_start_a_global_catalog():
                 stdout=ICETOOL_stdout(52),
                 stderr=ICETOOL_stderr()
             ),
-            RMUTL_EXECUTIONS(),
             _execution(
                 name=RMUTL_update_run_name(1),
                 rc=0,
@@ -320,9 +312,7 @@ def test_warm_start_a_global_catalog():
                 name=LISTDS_run_name(1),
                 rc=0,
                 stdout=LISTDS_data_set(NAME, "VSAM"),
-                stderr=""
-            ),
-            RMUTL_EXECUTIONS(),
+                stderr=""),
             _execution(
                 name=RMUTL_get_run_name(1),
                 rc=0,
@@ -363,7 +353,7 @@ def test_error_warm_start_a_unused_global_catalog():
         )
     )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
-        return_value=(JOB_OUTPUT(RMUTL_stdout("AUTOINIT", "UNKNOWN"), err=RMUTL_stderr(NAME)), RMUTL_EXECUTIONS())
+        return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
     )
     icetool._execute_icetool = MagicMock(
         return_value=MVSCmdResponse(
@@ -382,7 +372,6 @@ def test_error_warm_start_a_unused_global_catalog():
                 stdout=LISTDS_data_set(NAME, "VSAM"),
                 stderr=""
             ),
-            RMUTL_EXECUTIONS(),
             _execution(
                 name=RMUTL_get_run_name(1),
                 rc=0,
@@ -393,9 +382,7 @@ def test_error_warm_start_a_unused_global_catalog():
                 name=ICETOOL_name(1),
                 rc=0,
                 stdout=ICETOOL_stdout(0),
-                stderr=ICETOOL_stderr()
-            ),
-            RMUTL_EXECUTIONS(),
+                stderr=ICETOOL_stderr()),
             _execution(
                 name=RMUTL_update_run_name(1),
                 rc=0,
@@ -408,7 +395,6 @@ def test_error_warm_start_a_unused_global_catalog():
                 stdout=LISTDS_data_set(NAME, "VSAM"),
                 stderr=""
             ),
-            RMUTL_EXECUTIONS(),
             _execution(
                 name=RMUTL_get_run_name(1),
                 rc=0,
@@ -445,7 +431,7 @@ def test_error_warm_start_a_non_existent_global_catalog():
         return_value=MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), "")
     )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
-        return_value=(JOB_OUTPUT(RMUTL_stdout("AUTOINIT", "UNKNOWN"), err=RMUTL_stderr(NAME)), RMUTL_EXECUTIONS())
+        return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
     )
 
     gcd_module.main()
@@ -457,7 +443,6 @@ def test_error_warm_start_a_non_existent_global_catalog():
                 stdout=LISTDS_data_set_doesnt_exist(NAME),
                 stderr=""
             ),
-            RMUTL_EXECUTIONS(),
             _execution(
                 name=RMUTL_update_run_name(1),
                 rc=0,
@@ -500,7 +485,7 @@ def tests_cold_start_non_existent_catalog():
         return_value=MVSCmdResponse(8, LISTDS_data_set_doesnt_exist(NAME), "")
     )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
-        return_value=(JOB_OUTPUT(RMUTL_stdout("AUTOCOLD", "UNKNOWN"), err=RMUTL_stderr(NAME)), RMUTL_EXECUTIONS())
+        return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOCOLD", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
     )
 
     gcd_module.main()
@@ -512,7 +497,6 @@ def tests_cold_start_non_existent_catalog():
                 stdout=LISTDS_data_set_doesnt_exist(NAME),
                 stderr=""
             ),
-            RMUTL_EXECUTIONS(),
             _execution(
                 name=RMUTL_update_run_name(1),
                 rc=0,
@@ -555,7 +539,7 @@ def test_cold_start_unused_catalog():
         return_value=MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), "")
     )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
-        return_value=(JOB_OUTPUT(RMUTL_stdout("AUTOINIT", "UNKNOWN"), err=RMUTL_stderr(NAME)), RMUTL_EXECUTIONS())
+        return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
     )
 
     gcd_module.main()
@@ -567,14 +551,12 @@ def test_cold_start_unused_catalog():
                 stdout=LISTDS_data_set(NAME, "VSAM"),
                 stderr="",
             ),
-            RMUTL_EXECUTIONS(),
             _execution(
                 name=RMUTL_get_run_name(1),
                 rc=0,
                 stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"),
                 stderr=RMUTL_stderr(NAME)
             ),
-            RMUTL_EXECUTIONS(),
             _execution(
                 name=RMUTL_update_run_name(1),
                 rc=0,
@@ -587,7 +569,6 @@ def test_cold_start_unused_catalog():
                 stdout=LISTDS_data_set(NAME, "VSAM"),
                 stderr="",
             ),
-            RMUTL_EXECUTIONS(),
             _execution(
                 name=RMUTL_get_run_name(1),
                 rc=0,
@@ -624,7 +605,7 @@ def test_cold_start_global_catalog():
         return_value=MVSCmdResponse(0, LISTDS_data_set(NAME, "VSAM"), "")
     )
     global_catalog_utils._execute_dfhrmutl = MagicMock(
-        return_value=(JOB_OUTPUT(RMUTL_stdout("AUTOCOLD", "UNKNOWN"), err=RMUTL_stderr(NAME)), RMUTL_EXECUTIONS())
+        return_value=MVSCmdResponse(rc=0, stdout=RMUTL_stdout("AUTOCOLD", "UNKNOWN"), stderr=RMUTL_stderr(NAME))
     )
 
     gcd_module.main()
@@ -636,14 +617,12 @@ def test_cold_start_global_catalog():
                 stdout=LISTDS_data_set(NAME, "VSAM"),
                 stderr=""
             ),
-            RMUTL_EXECUTIONS(),
             _execution(
                 name=RMUTL_get_run_name(1),
                 rc=0,
                 stdout=RMUTL_stdout("AUTOCOLD", "UNKNOWN"),
                 stderr=RMUTL_stderr(NAME)
             ),
-            RMUTL_EXECUTIONS(),
             _execution(
                 name=RMUTL_update_run_name(1),
                 rc=0,
@@ -656,7 +635,6 @@ def test_cold_start_global_catalog():
                 stdout=LISTDS_data_set(NAME, "VSAM"),
                 stderr=""
             ),
-            RMUTL_EXECUTIONS(),
             _execution(
                 name=RMUTL_get_run_name(1),
                 rc=0,
