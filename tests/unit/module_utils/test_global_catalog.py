@@ -485,26 +485,24 @@ def test_run_rmutl_rc_not_0():
 
     assert error_raised is True
 
+
 def test_run_rmutl_failed_while_running_mvscmd():
     global_catalog.MVSCmd.execute = MagicMock(
-        return_value = MVSCmdResponse(
-            rc = 123, 
-            stdout = global_catalog.DFHRMUTL_PROGRAM_HEADER, 
-            stderr = global_catalog.SUBPROCESS_EXIT_MESSAGE
+        return_value=MVSCmdResponse(
+            rc=123,
+            stdout=global_catalog.DFHRMUTL_PROGRAM_HEADER,
+            stderr=global_catalog.SUBPROCESS_EXIT_MESSAGE
         )
     )
     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
 
     expected_executions = [
         _execution(
-            name=RMUTL_update_run_name(1), 
-            rc=0, stdout=global_catalog.DFHRMUTL_PROGRAM_HEADER, 
+            name=RMUTL_update_run_name(1),
+            rc=0, stdout=global_catalog.DFHRMUTL_PROGRAM_HEADER,
             stderr=global_catalog.SUBPROCESS_EXIT_MESSAGE
         )
     ]
 
-    actual_executions = global_catalog._run_dfhrmutl(
-            location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
-        )
-
+    actual_executions = global_catalog._run_dfhrmutl(location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI")
     assert actual_executions == expected_executions
