@@ -46,41 +46,10 @@ and ansible-doc to:
 
 ## Requirements
 
-The tasks in the IBM® z/OS® CICS® collection can be classified into two types, CMCI tasks and provisioning tasks, that have different requirements of the managed node.
-
-The CMCI tasks in the IBM® z/OS® CICS® collection interact with the managed node over an HTTP connection by leveraging the CMCI REST API. Therefore, an SSH connection is not required. Instead, you can delegate Ansible tasks to run on the control node, for example, by specifying delegate_to: 'localhost' for the task in the playbook. In this case, you install dependencies on your localhost instead of the managed node.
-
-The requirements of the managed node for **CMCI tasks** are as follows:
-
- * z/OS Version 2.3 or later
-
- * All IBM CICS TS releases that are in service
-
- * A CMCI connection must be set up in either a CICSplex or a stand-alone CICS region
-
- * Python module dependencies:
-
-   * requests
-
-   * xmltodict
+The tasks in the IBM® z/OS® CICS® collection can be classified into two types, CMCI tasks and provisioning tasks, and they have different requirements for the managed nodes.
 
 
-The **provisioning tasks** in the IBM® z/OS® CICS® collection interact with a z/OS managed node over SSH, and therefore have different requirements to the CMCI tasks. 
-The requirements include installation of the following components
-
- * z/OS Version 2.3 or later
-
- * z/OS OpenSSH
-
- * IBM Open Enterprise SDK for Python (previously IBM Open Enterprise Python for z/OS)
-
- * IBM Z Open Automation Utilities (ZOAU) 1.2.x
-
- * The z/OS shell
-   
-Note that you must have z/OS core collection 1.5.0 to 1.9.2 installed in the control node if you want to run the provisioning tasks.
-
-For more details on the different requirements, please see [here](https://ibm.github.io/z_ansible_collections_doc/ibm_zos_cics/docs/source/requirements_managed.html).
+For details on the different requirements, please see [here](https://ibm.github.io/z_ansible_collections_doc/ibm_zos_cics/docs/source/requirements_managed.html).
 
 
   
