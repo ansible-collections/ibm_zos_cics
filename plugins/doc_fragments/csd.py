@@ -37,7 +37,7 @@ options:
       - This option takes effect only when the CSD is being created.
         If the CSD already exists, the option has no effect.
       - The size can be specified in megabytes (V(m)), kilobytes (V(k)),
-        records (V(recgs)), cylinders (V(cyl)), or tracks (V(trk)).
+        records (V(rec)), cylinders (V(cyl)), or tracks (V(trk)).
     required: false
     type: str
     choices:
