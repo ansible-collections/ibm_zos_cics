@@ -17,7 +17,7 @@ A control node is any machine with Ansible® installed. You can run commands and
 
 The following software must be installed on the control node:
 
-* `Ansible version`_ 2.14 or later
+* `Ansible version`_ 2.15 or later
 * `Python`_ 3.9 or later
 * z/OS core collection 1.5.0 or later, if you want to use the provisioning tasks provided by the **IBM® z/OS® CICS® collection**
 

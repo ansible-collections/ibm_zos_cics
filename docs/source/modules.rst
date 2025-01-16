@@ -60,6 +60,8 @@ To override the data set location or name for a specific task, you can provide a
 additional parameter to the ``region_data_sets`` group as shown in the example 
 for a global catalog data set below.
 
+N.B. There is a known limitation with ansible-core version 2.15.0 and 2.15.1, where the custom templating may fail.
+
 .. code-block:: yaml+jinja
 
 
