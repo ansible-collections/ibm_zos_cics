@@ -1,0 +1,19 @@
+# (c) Copyright IBM Corp. 2025
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Test custom templating
+  hosts: all
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+
+  # The data set path is cretaed from {{ ansible_user }}.{{ data_set_unique }}.<< data_set_name >>
+  # e.g. USER.TEST1.DFHTEMP
+  vars:
+    data_set_unique: "{{ region_data_set_unique }}"
+
+  tasks:
+    - name: Create and delete auxiliary temporary storage data set
+      ansible.builtin.include_role:
+        name: aux_temp_storage
+      vars:
+        aux_temp_region_data_set_hlq: "{{ data_set_unique }}"

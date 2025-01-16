@@ -1,0 +1,15 @@
+# (c) Copyright IBM Corp. 2025
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+argument_specs:
+  main:
+    short_description: Templating test
+    description:
+      - Test custom templating
+    author:
+      - ibm_zos_cics
+    options:
+      aux_temp_region_data_set_hlq:
+        type: "str"
+        required: false
+        description: "HLQ to create the auxiliary temporary storage data set"
