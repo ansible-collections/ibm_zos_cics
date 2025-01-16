@@ -3583,6 +3583,7 @@ Examples
          wlmhealth: "OFF"
          wrkarea: 2048
          sysidnt: ZPY1
+       state: initial
 
    - name: Create CICS startup JCL data set with more customization
      ibm.ibm_zos_cics.region_jcl:
@@ -3636,6 +3637,7 @@ Examples
          wlmhealth: "OFF"
          wrkarea: 2048
          sysidnt: ZPY1
+       state: initial
 
 
 

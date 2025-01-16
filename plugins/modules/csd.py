@@ -106,6 +106,7 @@ EXAMPLES = r"""
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
+    state: changed
     input_location: "USS"
     input_src: "/u/tester/defs/script.csdup"
 
@@ -115,6 +116,7 @@ EXAMPLES = r"""
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
+    state: changed
     input_location: "LOCAL"
     input_src: "/User/tester/defs/script.csdup"
 
@@ -124,6 +126,7 @@ EXAMPLES = r"""
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
+    state: changed
     input_location: "INLINE"
     input_content: |
       DEFINE PROGRAM(TESTPRG1) GROUP(TESTGRP1)
