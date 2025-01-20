@@ -99,7 +99,7 @@ environment_vars:
   LANG: "C"
 ```
 
-## Use Cases
+## Use cases
 
 * Use Case Name: Provision a standalone CICS region 
   * Actors:
@@ -154,7 +154,7 @@ environment_vars:
     * Copy load module to load library
     * Use NEWCOPY PROGRAM to deploy program into CICS
 
-## Release Notes and Roadmap
+## Release notes and roadmap
 
 The collection's cumulative release notes can be reviewed [here](https://ibm.github.io/z_ansible_collections_doc/ibm_zos_cics/docs/source/release_notes.html).
 
@@ -168,7 +168,7 @@ The collection's cumulative release notes can be reviewed [here](https://ibm.git
 | 1.0.x    | Released       | [Release notes](https://ibm.github.io/z_ansible_collections_doc/ibm_zos_cics/docs/source/release_notes.html#version-1-0-6)    | [Changelogs](https://github.com/ansible-collections/ibm_zos_cics/blob/v1.0.6/CHANGELOG.rst)  |
 
 
-## Related Information 
+## Related information 
 
 Example playbooks and use cases can be be found in the [z/OS playbook repository](https://github.com/IBM/z_ansible_collections_samples).
 Supplemental content on getting started with Ansible, architecture and use cases is available [here](https://ibm.github.io/z_ansible_collections_doc/reference/helpful_links.html).
@@ -179,7 +179,7 @@ We welcome contributions! Find out how in our [contribution guide](https://githu
 
 ## Copyright 
 
-© Copyright IBM Corporation 2021, 2024.
+© Copyright IBM Corporation 2021, 2025.
 
 ## License
 
