@@ -21,7 +21,7 @@ one easy-to-use platform.
 
 The **IBM z/OS CICS collection** is following the
 **Red Hat® Ansible Certified Content for IBM Z®** method of distributing
-content. Collections will be developed in the open, and when content is ready
+content. Collections are developed in the open, and when content is ready
 for use it is released to
 [Ansible Galaxy](https://galaxy.ansible.com/search?keywords=zos_&order_by=-relevance&deprecated=false&type=collection&page=1)
 for community adoption. Once contributors review community usage, feedback,
@@ -68,7 +68,7 @@ collections:
 ```
 
 
-To install a specific version of the collection or upgrade an an existing installation to a specific version, for example installing 2.1.0, use the following syntax:
+To install a specific version of the collection or upgrade an existing installation to a specific version, for example installing 2.1.0, use the following syntax:
 ```sh
 ansible-galaxy collection install ibm.ibm_zos_cics:2.1.0
 ```
@@ -99,53 +99,53 @@ environment_vars:
   LANG: "C"
 ```
 
-## Use Cases
+## Use cases
 
-* Use Case Name: Provision a standalone CICS region 
+* Use case name: Provision a standalone CICS region 
   * Actors:
     * System Programmer
   * Description:
     * A system programmer can provision a set of region data sets and start up a standalone CICS region.
   * Flow:
-    * Create and activate a VTAM node to ensure user had a valid applid
+    * Create and activate a VTAM node to ensure user has a valid applid
     * Create region data sets
     * Update the CSD data set with a CSDUP script
     * Create CICS startup JCL data set
-    * Submit the CICS startup JCL data set as a job using zoau's jsub.
-* Use Case Name: Deprovision a standalone CICS region
+    * Submit the CICS startup JCL data set as a job using zoau's jsub
+* Use case name: Deprovision a standalone CICS region
   * Actors:
     * System Programmer
   * Description:
-    * A system programmer can stop a standalone cics region and delete the region data sets.
+    * A system programmer can stop a standalone CICS region and delete the region data sets.
   * Flow:
     * Stop the CICS region
     * Check the CICS region has been shut down
     * If it has not stopped, shut the region down with state "immediate" or cancel the job.
     * Delete the region data sets
     * Delete the CICS startup JCL data set
-* Use Case Name: Provision an SMSS CICS region
+* Use case name: Provision an SMSS CICS region
   * Actors:
     * System Programmer
   * Description:
     * A system programmer can start a SMSS CICS region.
   * Flow:
-    * Create and activate a VTAM node to ensure user had a valid applid
+    * Create and activate a VTAM node to ensure user has a valid applid
     * Ensure user has an allocated/free port available
     * Create region data sets
     * Update the CSD data with a CSDUP script which also alters the TCPIP service
     * Create CICS startup JCL data set
     * Submit the CICS startup JCL data set as a job using zoau's jsub task
- * Use Case Name: Install a bundle in a CICS region
+ * Use case name: Install a bundle in a CICS region
   * Actors:
     * Application Developer
   * Description:
     * An application developer can install a CICS bundle into a CICS region
   * Flow:
-    * Find if the CICS bundle already exists in target region
+    * Find if the CICS bundle already exists in the target region
     * Disable and discard existing CICS bundle
-    * Install bundle definition into target region
+    * Install bundle definition into the target region
     * Wait for bundle to reach enabled status
- * Use Case Name: Deploy a program to a CICS region
+ * Use case name: Deploy a program to a CICS region
   * Actors:
     * Application Developer
   * Description:
@@ -154,7 +154,7 @@ environment_vars:
     * Copy load module to load library
     * Use NEWCOPY PROGRAM to deploy program into CICS
 
-## Release Notes and Roadmap
+## Release notes and roadmap
 
 The collection's cumulative release notes can be reviewed [here](https://ibm.github.io/z_ansible_collections_doc/ibm_zos_cics/docs/source/release_notes.html).
 
@@ -168,9 +168,9 @@ The collection's cumulative release notes can be reviewed [here](https://ibm.git
 | 1.0.x    | Released       | [Release notes](https://ibm.github.io/z_ansible_collections_doc/ibm_zos_cics/docs/source/release_notes.html#version-1-0-6)    | [Changelogs](https://github.com/ansible-collections/ibm_zos_cics/blob/v1.0.6/CHANGELOG.rst)  |
 
 
-## Related Information 
+## Related information 
 
-Example playbooks and use cases can be be found in the [z/OS playbook repository](https://github.com/IBM/z_ansible_collections_samples).
+Example playbooks and use cases can be found in the [z/OS playbook repository](https://github.com/IBM/z_ansible_collections_samples).
 Supplemental content on getting started with Ansible, architecture and use cases is available [here](https://ibm.github.io/z_ansible_collections_doc/reference/helpful_links.html).
 
 ## Contributing
@@ -179,7 +179,7 @@ We welcome contributions! Find out how in our [contribution guide](https://githu
 
 ## Copyright 
 
-© Copyright IBM Corporation 2021, 2024.
+© Copyright IBM Corporation 2021, 2025.
 
 ## License
 
