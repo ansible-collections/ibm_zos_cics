@@ -3474,7 +3474,7 @@ space_type
 
   This option takes effect only when the CICS startup JCL data set is being created. If the CICS startup JCL data set already exists, the option has no effect.
 
-  The size can be specified in megabytes (\ :literal:`M`\ ), kilobytes (\ :literal:`K`\ ), cylinders (\ :literal:`CYL`\ ), or tracks (\ :literal:`TRK`\ ).
+  The size can be specified in megabytes (\ :literal:`m`\ ), kilobytes (\ :literal:`k`\ ), cylinders (\ :literal:`cyl`\ ), or tracks (\ :literal:`trk`\ ).
 
   If neither :literal:`space\_secondary` nor :literal:`space\_primary` is set, then this value does not have any effect.
 
@@ -3483,8 +3483,8 @@ space_type
 
   | **required**: False
   | **type**: str
-  | **default**: M
-  | **choices**: M, K, CYL, TRK
+  | **default**: m
+  | **choices**: m, k, cyl, trk
 
 
      

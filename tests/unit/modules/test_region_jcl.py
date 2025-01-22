@@ -864,10 +864,10 @@ def test_calculate_size_parameters_with_overrides():
     module = setup_and_update_parms({
         "space_primary": 10,
         "space_secondary": 5,
-        "space_type": "CYL"
+        "space_type": "cyl"
     })
 
-    assert module.unit == "CYL"
+    assert module.unit == "cyl"
     assert module.primary == 10
     assert module.primary_unit == ""
     assert module.secondary == 5
@@ -876,17 +876,17 @@ def test_calculate_size_parameters_with_overrides():
     module.generate_jcl()
     module.calculate_size_parameters()
 
-    assert module.unit == "CYL"
-    assert module.primary_unit == "CYL"
+    assert module.unit == "cyl"
+    assert module.primary_unit == "cyl"
     assert module.primary == 10
-    assert module.secondary_unit == "CYL"
+    assert module.secondary_unit == "cyl"
     assert module.secondary == 5
 
 
 def test_calculate_size_parameters_no_overrides():
     module = setup_and_update_parms({})
 
-    assert module.unit == "M"
+    assert module.unit == "m"
     assert module.primary == 1
     assert module.primary_unit == ""
     assert module.secondary == 1
@@ -895,17 +895,17 @@ def test_calculate_size_parameters_no_overrides():
     module.generate_jcl()
     module.calculate_size_parameters()
 
-    assert module.unit == "M"
-    assert module.primary_unit == "K"
+    assert module.unit == "m"
+    assert module.primary_unit == "k"
     assert module.primary == 2
-    assert module.secondary_unit == "K"
+    assert module.secondary_unit == "k"
     assert module.secondary == 1
 
 
 def test_calculate_size_parameters_primary_override_only():
     module = setup_and_update_parms({"space_primary": 10})
 
-    assert module.unit == "M"
+    assert module.unit == "m"
     assert module.primary == 10
     assert module.primary_unit == ""
     assert module.secondary == 1
@@ -914,17 +914,17 @@ def test_calculate_size_parameters_primary_override_only():
     module.generate_jcl()
     module.calculate_size_parameters()
 
-    assert module.unit == "M"
-    assert module.primary_unit == "M"
+    assert module.unit == "m"
+    assert module.primary_unit == "m"
     assert module.primary == 10
-    assert module.secondary_unit == "K"
+    assert module.secondary_unit == "k"
     assert module.secondary == 1
 
 
 def test_calculate_size_parameters_secondary_override_only():
     module = setup_and_update_parms({"space_secondary": 10})
 
-    assert module.unit == "M"
+    assert module.unit == "m"
     assert module.primary == 1
     assert module.primary_unit == ""
     assert module.secondary == 10
@@ -933,20 +933,20 @@ def test_calculate_size_parameters_secondary_override_only():
     module.generate_jcl()
     module.calculate_size_parameters()
 
-    assert module.unit == "M"
-    assert module.primary_unit == "K"
+    assert module.unit == "m"
+    assert module.primary_unit == "k"
     assert module.primary == 2
-    assert module.secondary_unit == "M"
+    assert module.secondary_unit == "m"
     assert module.secondary == 10
 
 
 def test_calculate_size_parameters_primary_override_and_units_only():
     module = setup_and_update_parms({
         "space_primary": 10,
-        "space_type": "CYL"
+        "space_type": "cyl"
     })
 
-    assert module.unit == "CYL"
+    assert module.unit == "cyl"
     assert module.primary == 10
     assert module.primary_unit == ""
     assert module.secondary == 1
@@ -955,10 +955,10 @@ def test_calculate_size_parameters_primary_override_and_units_only():
     module.generate_jcl()
     module.calculate_size_parameters()
 
-    assert module.unit == "CYL"
-    assert module.primary_unit == "CYL"
+    assert module.unit == "cyl"
+    assert module.primary_unit == "cyl"
     assert module.primary == 10
-    assert module.secondary_unit == "K"
+    assert module.secondary_unit == "k"
     assert module.secondary == 1
 
 
@@ -968,7 +968,7 @@ def test_calculate_size_parameters_primary_override_and_secondary_only():
         "space_secondary": "5"
     })
 
-    assert module.unit == "M"
+    assert module.unit == "m"
     assert module.primary == 10
     assert module.primary_unit == ""
     assert module.secondary == 5
@@ -977,20 +977,20 @@ def test_calculate_size_parameters_primary_override_and_secondary_only():
     module.generate_jcl()
     module.calculate_size_parameters()
 
-    assert module.unit == "M"
-    assert module.primary_unit == "M"
+    assert module.unit == "m"
+    assert module.primary_unit == "m"
     assert module.primary == 10
-    assert module.secondary_unit == "M"
+    assert module.secondary_unit == "m"
     assert module.secondary == 5
 
 
 def test_calculate_size_parameters_secondary_override_and_units_only():
     module = setup_and_update_parms({
         "space_secondary": 10,
-        "space_type": "CYL"
+        "space_type": "cyl"
     })
 
-    assert module.unit == "CYL"
+    assert module.unit == "cyl"
     assert module.primary == 1
     assert module.primary_unit == ""
     assert module.secondary == 10
@@ -999,19 +999,19 @@ def test_calculate_size_parameters_secondary_override_and_units_only():
     module.generate_jcl()
     module.calculate_size_parameters()
 
-    assert module.unit == "CYL"
-    assert module.primary_unit == "K"
+    assert module.unit == "cyl"
+    assert module.primary_unit == "k"
     assert module.primary == 2
-    assert module.secondary_unit == "CYL"
+    assert module.secondary_unit == "cyl"
     assert module.secondary == 10
 
 
 def test_calculate_size_parameters_units_override_only():
     module = setup_and_update_parms({
-        "space_type": "CYL"
+        "space_type": "cyl"
     })
 
-    assert module.unit == "CYL"
+    assert module.unit == "cyl"
     assert module.primary == 1
     assert module.primary_unit == ""
     assert module.secondary == 1
@@ -1020,10 +1020,10 @@ def test_calculate_size_parameters_units_override_only():
     module.generate_jcl()
     module.calculate_size_parameters()
 
-    assert module.unit == "CYL"
-    assert module.primary_unit == "K"
+    assert module.unit == "cyl"
+    assert module.primary_unit == "k"
     assert module.primary == 2
-    assert module.secondary_unit == "K"
+    assert module.secondary_unit == "k"
     assert module.secondary == 1
 
 

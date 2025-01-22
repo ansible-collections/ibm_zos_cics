@@ -133,13 +133,13 @@ space_type
 
   This option takes effect only when the transaction dump data set is being created. If the data set already exists, the option has no effect.
 
-  The size can be specified in megabytes (\ :literal:`M`\ ), kilobytes (\ :literal:`K`\ ), cylinders (\ :literal:`CYL`\ ), or tracks (\ :literal:`TRK`\ ).
+  The size can be specified in megabytes (\ :literal:`m`\ ), kilobytes (\ :literal:`k`\ ), cylinders (\ :literal:`cyl`\ ), or tracks (\ :literal:`trl`\ ).
 
 
   | **required**: False
   | **type**: str
-  | **default**: M
-  | **choices**: M, K, CYL, TRK
+  | **default**: m
+  | **choices**: m, k, cyl, trk
 
 
      

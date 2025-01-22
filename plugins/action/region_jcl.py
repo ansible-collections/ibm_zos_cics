@@ -12,6 +12,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.plugin_utils._module_action_pl
     CICS_DS_KEYS,
     LIBRARY_KEYS,
     _process_libraries_args,
+    _process_data_set_unit_args,
     _process_region_data_set_args,
     _set_top_libraries_key,
     _validate_list_of_data_set_lengths
@@ -76,3 +77,4 @@ def _process_module_args(module_args, _templar, task_vars):
     if module_args.get("cpsm_data_sets"):
         for cpsm_lib in CPSM_DS_KEYS:
             _process_libraries_args(module_args, _templar, task_vars, "cpsm_data_sets", cpsm_lib)
+    _process_data_set_unit_args(module_args)

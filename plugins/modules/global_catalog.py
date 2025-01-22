@@ -46,7 +46,7 @@ EXAMPLES = r"""
     cics_data_sets:
       template: "CICSTS61.CICS.<< lib_name >>"
     space_primary: 100
-    space_type: "M"
+    space_type: "m"
     state: "initial"
 
 - name: Initialize a large user specified global catalog
@@ -57,7 +57,7 @@ EXAMPLES = r"""
     cics_data_sets:
       sdfhload: "CICSTS61.CICS.SDFHLOAD"
     space_primary: 100
-    space_type: "M"
+    space_type: "m"
     state: "initial"
 
 - name: Set the autostart override record to AUTOASIS for a global catalog defined by the template

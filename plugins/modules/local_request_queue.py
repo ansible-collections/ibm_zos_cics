@@ -44,7 +44,7 @@ EXAMPLES = r"""
     region_data_sets:
       template: "REGIONS.ABCD0001.<< data_set_name >>"
     space_primary: 50
-    space_type: "M"
+    space_type: "m"
     state: "initial"
 
 - name: Retain the existing state of a local request queue data set defined by the template
