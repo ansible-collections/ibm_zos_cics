@@ -2,7 +2,7 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
 - name: CMCI Incorrect Scheme Integration Test
-  hosts: localhost
+  hosts: all
   gather_facts: true
   vars:
     python_2_message: >-
@@ -16,6 +16,7 @@
 
   tasks:
     - name: Test https with incorrect scheme
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_get:
         cmci_host: "{{ cmci_host }}"
         cmci_port: "{{ cmci_secure_port }}"
@@ -36,6 +37,7 @@
           - result.msg == error_message
 
     - name: Test http with incorrect scheme
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_get:
         cmci_host: "{{ cmci_host }}"
         cmci_port: "{{ cmci_port }}"
