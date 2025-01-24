@@ -48,5 +48,3 @@ source_system:
       start_region_applid: "AN${UNIQUE_5_CHARS}"
       usshome: "${USSHOME}"
       build_number: "${BUILD_NUMBER}"
-
-
