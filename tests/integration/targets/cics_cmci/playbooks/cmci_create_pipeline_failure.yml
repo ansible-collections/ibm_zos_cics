@@ -2,11 +2,12 @@
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 ---
 - name: CMCI Create Pipeline Failure Integration Test
-  hosts: localhost
+  hosts: all
   gather_facts: false
 
   tasks:
     - name: Test create pipeline failure
+      delegate_to: localhost
       ibm.ibm_zos_cics.cmci_create:
         cmci_host: "{{ cmci_host }}"
         cmci_port: "{{ cmci_secure_port }}"
