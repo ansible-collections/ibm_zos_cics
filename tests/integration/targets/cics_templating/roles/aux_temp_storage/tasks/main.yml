@@ -1,0 +1,44 @@
+# (c) Copyright IBM Corp. 2025
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Process Input data
+  process_input:
+  register: processed_input
+
+- name: Delete the DFHTEMP data set if it exists already
+  ibm.ibm_zos_core.zos_data_set:
+    name: "{{ processed_input.name }}.{{ aux_temp_region_data_set_hlq }}.DFHTEMP"
+    state: absent
+
+- name: Create the auxiliary temporary storage data set (DFHTEMP)
+  ibm.ibm_zos_cics.aux_temp_storage:
+    state: initial
+    region_data_sets:
+      template: "{{ processed_input.name }}.{{ aux_temp_region_data_set_hlq }}.<< data_set_name >>"
+  register: result
+
+- name: Assert data set created
+  ansible.builtin.assert:
+    that:
+      - result.failed == false
+      - result.changed == true
+      - result.start_state.exists == false
+      - result.end_state.exists == true
+      - result.msg == ""
+
+- name: Delete the auxiliary temporary storage data set (DFHTEMP)
+  ibm.ibm_zos_cics.aux_temp_storage:
+    state: absent
+    region_data_sets:
+      template: "{{ processed_input.name }}.{{ aux_temp_region_data_set_hlq }}.<< data_set_name >>"
+  register: result
+
+- name: Assert data set deleted (changed is true)
+  ansible.builtin.assert:
+    that:
+      - result.failed == false
+      - result.changed == true
+      - result.start_state.exists == true
+      - result.end_state.exists == false
+      - result.msg == ""
+      - "'executions' in result"

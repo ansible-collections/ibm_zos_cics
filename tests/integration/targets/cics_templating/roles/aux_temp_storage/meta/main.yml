@@ -1,0 +1,11 @@
+# (c) Copyright IBM Corp. 2025
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+galaxy_info:
+  author: ibm_zos_cics
+  description: Templating test
+  company: IBM
+  license: Apache-2.0
+  min_ansible_version: "2.1"
+  galaxy_tags: []
+dependencies: []
