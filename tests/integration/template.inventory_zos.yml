@@ -34,7 +34,7 @@ source_system:
       cmci_program_name_1: "${CMCI_PROGRAM_NAME}"
       cmci_program_name_2: "${CMCI_PROGRAM_NAME_2}"
       cmci_program_filter: "${CMCI_PROGRAM_FILTER}"
-      cmci_system_group_special_chars: "$@#$SPECIAL_CHAR_NUM"
+      cmci_system_group_special_chars: "$$@#$SPECIAL_CHAR_NUM"
 
       # Provisioning
       cics_install_path: "${CICS_INSTALL_PATH}"
