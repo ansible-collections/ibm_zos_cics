@@ -138,8 +138,9 @@
       ############################################################################
 
       - name: Write data to the data set to test for STATUS field
-        ansible.builtin.command:
-          cmd: decho 'STATUS = TEST' "{{ ds_name }}.SDFHSAMP(DFH0SINX)"
+        ibm.ibm_zos_core.zos_copy:
+          content: STATUS = TEST
+          dest: "{{ ds_name }}.SDFHSAMP(DFH0SINX)"
 
       - name: Wait until written
         ibm.ibm_zos_core.zos_find:
