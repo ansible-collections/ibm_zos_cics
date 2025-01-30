@@ -1,7 +1,50 @@
 source_system:
   hosts:
     zos_host:
-      ansible_host: __ANSIBLE_TEST_HOST__
-      ansible_user: __ANSIBLE_TEST_USER__
-      ansible_python_interpreter: __ANSIBLE_TEST_PYTHON__/bin/python3
+      ansible_host: "${ANSIBLE_HOST}"
+      ansible_user: "${ANSIBLE_USER}"
+      ansible_python_interpreter: "${PYZ}/bin/python3"
       ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
+      pyz: "${PYZ}"
+      zoau: "${ZOAU}"
+
+      environment_vars:
+        _BPXK_AUTOCVT: "ON"
+        ZOAU_HOME: "{{ zoau }}"
+        LIBPATH: "{{ zoau }}/lib:{{ pyz }}/lib:/lib:/usr/lib:."
+        PATH: "{{ zoau }}/bin:{{ pyz }}/bin:/bin:/var/bin"
+        _CEE_RUNOPTS: "FILETAG(AUTOCVT,AUTOTAG) POSIX(ON)"
+        _TAG_REDIR_ERR: "txt"
+        _TAG_REDIR_IN: "txt"
+        _TAG_REDIR_OUT: "txt"
+        LANG: "C"
+        TMPDIR: "/u/{{ ansible_user | lower }}/tmp"
+
+      # CMCI test vars
+      cmci_host: "${CMCI_HOST}"
+      cmci_port: "${CMCI_PORT}"
+      cmci_secure_port: "${CMCI_SECURE_PORT}"
+      cmci_user: "${CMCI_USER}"
+      cmci_password: "${CMCI_PASSWORD}"
+      cmci_context: "${CMCI_CONTEXT}"
+      cmci_scope: "${CMCI_SCOPE}"
+      cmci_scope_region_1: "${CMCI_SCOPE_REGION_1}"
+      cmci_scope_region_2: "${CMCI_SCOPE_REGION_2}"
+      cmci_program_name_1: "A${UNIQUE_5_CHARS}A"
+      cmci_program_name_2: "A${UNIQUE_5_CHARS}B"
+      cmci_program_filter: "A${UNIQUE_5_CHARS}*"
+      cmci_system_group_special_chars: "$$@#${UNIQUE_5_CHARS}"
+
+      # Provisioning
+      cics_install_path: "${CICS_INSTALL_PATH}"
+      cpsm_data_set_path: "${CPSM_DATA_SET_PATH}"
+      region_data_set_common: "{{ ansible_user | upper }}.CICS.TESTS"
+      region_data_set_unique: "A${UNIQUE_5_CHARS}"
+      region_data_set_path: "{{ region_data_set_common }}.{{ region_data_set_unique }}"
+      uss_path: "/u/{{ ansible_user | lower }}/{{ region_data_set_unique }}"
+      cics_applid: "AM${UNIQUE_5_CHARS}"
+      le_path: "CEE"
+      start_region_applid: "AN${UNIQUE_5_CHARS}"
+      usshome: "${USSHOME}"
+      build_number: "${BUILD_NUMBER}"
