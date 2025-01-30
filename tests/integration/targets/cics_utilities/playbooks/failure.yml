@@ -141,6 +141,7 @@
         ibm.ibm_zos_core.zos_copy:
           content: STATUS = TEST
           dest: "{{ ds_name }}.SDFHSAMP(DFH0SINX)"
+          force: True
 
       - name: Wait until written
         ibm.ibm_zos_core.zos_find:
