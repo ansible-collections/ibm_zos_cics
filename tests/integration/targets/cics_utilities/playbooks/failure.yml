@@ -138,8 +138,10 @@
       ############################################################################
 
       - name: Write data to the data set to test for STATUS field
-        ansible.builtin.command:
-          cmd: decho 'STATUS = TEST' "{{ ds_name }}.SDFHSAMP(DFH0SINX)"
+        ibm.ibm_zos_core.zos_copy:
+          content: STATUS = TEST
+          dest: "{{ ds_name }}.SDFHSAMP(DFH0SINX)"
+          force: True
 
       - name: Wait until written
         ibm.ibm_zos_core.zos_find:
@@ -178,8 +180,10 @@
       ############################################################################
           
       - name: Write data to the data set to test for no data after STATUS
-        ansible.builtin.command:
-          cmd: decho 'STATUS =' "{{ ds_name }}.SDFHSAMP(DFH0SINX)"
+        ibm.ibm_zos_core.zos_copy:
+          content: "STATUS ="
+          dest: "{{ ds_name }}.SDFHSAMP(DFH0SINX)"
+          force: True
         register: res
 
       - name: Debug
@@ -277,8 +281,10 @@
           msg: "{{ datasets }}"
 
       - name: Write data to SEQ data set
-        ansible.builtin.command:
-          cmd: decho 'STATUS = 1.0.0' "{{ ds_name }}.SEQ"
+        ibm.ibm_zos_core.zos_copy:
+          content: "STATUS = 1.0.0"
+          dest: "{{ ds_name }}.SEQ"
+          force: True
 
       - name: Wait until created
         ibm.ibm_zos_core.zos_find:

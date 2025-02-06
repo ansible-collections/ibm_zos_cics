@@ -4,7 +4,7 @@
 - name: CMCI BAS Link Integration Test
   # Sets Up a Basic BAS Resource Description with one Resource Group containing one program definition and then cleans up
 
-  hosts: localhost
+  hosts: all
   gather_facts: false
   vars:
     program: "{{ cmci_program_name_1 }}"

@@ -6,7 +6,7 @@
   # installs to two regions with a target scope and one related scope. Then attempts to install again and checks an error
   # occured with feedback and nested installerrors. Uninstalls and deletes everything created after
 
-  hosts: localhost
+  hosts: all
   gather_facts: false
   vars:
     file1: "{{ cmci_program_name_1 }}"
