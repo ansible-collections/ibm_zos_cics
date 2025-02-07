@@ -338,12 +338,10 @@ class AnsibleCSDModule(DataSet):
             "arg_type": "data_set_base"
         })
         defs[REGION_DATA_SETS]["options"][DSN]["options"]["dsn"].pop("type")
-        if self._module.params.get(INPUT_LOCATION):
-            input_location = self._module.params.get(INPUT_LOCATION)
-            if input_location == DATA_SET:
-                defs[INPUT_SOURCE].update({
-                    "arg_type": "data_set_base"
-                })
+        if self._module.params.get(INPUT_LOCATION) and self._module.params[INPUT_LOCATION] == DATA_SET:
+            defs[INPUT_SOURCE].update({
+                "arg_type": "data_set_base"
+            })
             defs[INPUT_SOURCE].pop("type")
         return defs
 
