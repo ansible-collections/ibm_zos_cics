@@ -14,7 +14,7 @@
         template: "{{ region_data_set_path }}.<< data_set_name >>"
       space_primary: 2
       space_secondary: 1
-      space_type: "M"
+      space_type: "m"
 
   tasks:
     - name: Stop no args and job name

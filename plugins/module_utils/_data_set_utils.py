@@ -130,7 +130,7 @@ def _build_idcams_define_cluster_parms(dataset):  # type: (dict) -> str
 
     clusterStr = " CLUSTER (NAME({0}) -\n    {1}({2} {3}){4}{5})".format(
         dataset["name"],
-        _get_dataset_size_unit(dataset["unit"]),
+        _get_dataset_size_unit(dataset["unit"].upper()),
         dataset["primary"],
         dataset["secondary"],
         _build_idcams_define_parms(dataset, "CLUSTER"),

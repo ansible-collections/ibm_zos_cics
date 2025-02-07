@@ -38,8 +38,8 @@ def test_aux_trace_definition_megabytes():
         conditional_disposition="DELETE",
         primary=SPACE_PRIMARY_DEFAULT,
         secondary=SPACE_SECONDARY_DEFAULT,
-        primary_unit="M",
-        secondary_unit="M",
+        primary_unit="m",
+        secondary_unit="m",
         type="SEQ"
     )
 
@@ -71,8 +71,8 @@ def test_aux_trace_definition_volumes():
         conditional_disposition="DELETE",
         primary=SPACE_PRIMARY_DEFAULT,
         secondary=SPACE_SECONDARY_DEFAULT,
-        primary_unit="M",
-        secondary_unit="M",
+        primary_unit="m",
+        secondary_unit="m",
         type="SEQ",
         volumes=["vserv1"]
     )

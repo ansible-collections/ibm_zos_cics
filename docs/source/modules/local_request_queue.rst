@@ -102,13 +102,13 @@ space_type
 
   This option takes effect only when the local request queue data set is being created. If the data set already exists, the option has no effect.
 
-  The size can be specified in megabytes (\ :literal:`M`\ ), kilobytes (\ :literal:`K`\ ), records (\ :literal:`REC`\ ), cylinders (\ :literal:`CYL`\ ), or tracks (\ :literal:`TRK`\ ).
+  The size can be specified in megabytes (\ :literal:`m`\ ), kilobytes (\ :literal:`k`\ ), records (\ :literal:`rec`\ ), cylinders (\ :literal:`cyl`\ ), or tracks (\ :literal:`trk`\ ).
 
 
   | **required**: False
   | **type**: str
-  | **default**: M
-  | **choices**: M, K, REC, CYL, TRK
+  | **default**: m
+  | **choices**: m, k, rec, cyl, trk
 
 
      
@@ -162,7 +162,7 @@ Examples
        region_data_sets:
          template: "REGIONS.ABCD0001.<< data_set_name >>"
        space_primary: 50
-       space_type: "M"
+       space_type: "m"
        state: "initial"
 
    - name: Retain the existing state of a local request queue data set defined by the template

@@ -62,6 +62,7 @@ class _DataSetActionPlugin(ActionBase):
 
 def _process_module_args(module_args, _templar, ds_name, task_vars, cics_data_sets_required):
     _process_region_data_set_args(module_args, _templar, ds_name, task_vars)
+    _process_data_set_unit_args(module_args)
     _remove_region_data_set_args(module_args, ds_name)
 
     if cics_data_sets_required:
@@ -121,6 +122,12 @@ def _process_region_data_set_args(module_args, _templar, ds_name, task_vars):
         else:
             raise KeyError("No template or data set override found for {0}".format(ds_name))
     return _validate_data_set_length(module_args["region_data_sets"][ds_name]["dsn"])
+
+
+def _process_data_set_unit_args(module_args):
+    space_type = module_args.get("space_type")
+    if space_type:
+        module_args["space_type"] = space_type.lower()
 
 
 def _validate_list_of_data_set_lengths(data_set_list):

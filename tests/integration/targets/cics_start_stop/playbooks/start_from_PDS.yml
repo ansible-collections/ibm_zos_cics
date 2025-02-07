@@ -16,7 +16,7 @@
           dsn: "{{ region_data_set_path }}.LIB(DFHSTART)"
       space_primary: 5
       space_secondary: 2
-      space_type: "M"
+      space_type: "m"
 
   tasks:
     - name: Normal Start Stop

@@ -36,17 +36,17 @@ options:
         and the value for the secondary space is specified with O(space_secondary).
       - This option takes effect only when the CSD is being created.
         If the CSD already exists, the option has no effect.
-      - The size can be specified in megabytes (V(M)), kilobytes (V(K)),
-        records (V(REC)), cylinders (V(CYL)), or tracks (V(TRK)).
+      - The size can be specified in megabytes (V(m)), kilobytes (V(k)),
+        records (V(rec)), cylinders (V(cyl)), or tracks (V(trk)).
     required: false
     type: str
     choices:
-      - M
-      - K
-      - REC
-      - CYL
-      - TRK
-    default: M
+      - m
+      - k
+      - rec
+      - cyl
+      - trk
+    default: m
   volumes:
     description:
       - The volume(s) where the data set is created. Use a string to define a singular volume or a list of strings for multiple volumes.
@@ -111,18 +111,18 @@ options:
   input_location:
     description:
       - The type of location from which to load the DFHCSDUP script.
-      - Specify V(DATA_SET) to load from a PDS, PDSE, or sequential data set.
-      - Specify V(USS) to load from a file on UNIX System Services (USS).
-      - Specify V(LOCAL) to load from a file local to the Ansible control node.
-      - Specify V(INLINE) to allow a script to be passed directly through the O(input_content) parameter.
+      - Specify V(data_set) to load from a PDS, PDSE, or sequential data set.
+      - Specify V(uss) to load from a file on UNIX System Services (USS).
+      - Specify V(local) to load from a file local to the Ansible control node.
+      - Specify V(inline) to allow a script to be passed directly through the O(input_content) parameter.
     choices:
-      - "DATA_SET"
-      - "USS"
-      - "LOCAL"
-      - "INLINE"
+      - "data_set"
+      - "uss"
+      - "local"
+      - "inline"
     type: str
     required: false
-    default: "DATA_SET"
+    default: "data_set"
   input_src:
     description:
       - The path to the source file that contains the DFHCSDUP script to submit.
