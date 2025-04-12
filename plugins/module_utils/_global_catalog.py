@@ -10,9 +10,11 @@ __metaclass__ = type
 
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd, MVSCmdResponse
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import OutputDefinition, DatasetDefinition, DDStatement, InputDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException, _execution
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import MVS_CMD_RETRY_ATTEMPTS
+
+from zoautil_py import datasets
 
 
 def _get_value_from_line(line):  # type: (list[str]) -> str | None
@@ -24,18 +26,6 @@ def _get_value_from_line(line):  # type: (list[str]) -> str | None
 
 def _get_filtered_list(elements, target):  # type: (list[str],str) -> list[str]
     return list(filter(lambda x: target in x, elements))
-
-
-def _get_rmutl_dds(
-        location,
-        sdfhload,
-        cmd):  # type: (str, str, str) -> list[DDStatement]
-    return [
-        DDStatement('steplib', DatasetDefinition(sdfhload)),
-        DDStatement('dfhgcd', DatasetDefinition(location)),
-        DDStatement('sysin', InputDefinition(content=cmd)),
-        DDStatement('sysprint', StdoutDefinition()),
-    ]
 
 
 def _get_reason_code(stdout_lines_arr):  # type: (list[str]) -> str | None
@@ -77,13 +67,13 @@ def _run_dfhrmutl(
     executions = []
 
     for x in range(MVS_CMD_RETRY_ATTEMPTS):
-        dfhrmutl_response = _execute_dfhrmutl(location, sdfhload, cmd)
+        dfhrmutl_response, stdout = _execute_dfhrmutl(location, sdfhload, cmd)
         execution_entry = _execution(
             name="DFHRMUTL - {0} - Run {1}".format(
                 "Get current catalog" if cmd == "" else "Updating autostart override",
                 x + 1),
             rc=dfhrmutl_response.rc,
-            stdout=dfhrmutl_response.stdout,
+            stdout=dfhrmutl_response.stdout + "\n\nFROM DATASET: \n" + stdout,
             stderr=dfhrmutl_response.stderr
         )
         executions.append(execution_entry)
@@ -119,12 +109,25 @@ def _run_dfhrmutl(
     return executions, _get_catalog_records(dfhrmutl_response.stdout)
 
 
-def _execute_dfhrmutl(location, sdfhload, cmd=""):   # type: (str, str, str) -> MVSCmdResponse
-    return MVSCmd.execute(
+def _execute_dfhrmutl(location, sdfhload, cmd=""):   # type: (str, str, str) -> tuple[MVSCmdResponse, str]
+    sysprint = OutputDefinition(record_length=133)
+
+    dds = [
+        DDStatement('steplib', DatasetDefinition(sdfhload)),
+        DDStatement('dfhgcd', DatasetDefinition(location)),
+        DDStatement('sysin', InputDefinition(content=cmd)),
+        DDStatement('sysprint', sysprint)
+    ]
+
+    response = MVSCmd.execute(
         pgm="DFHRMUTL",
-        dds=_get_rmutl_dds(location=location, sdfhload=sdfhload, cmd=cmd),
+        dds=dds,
         verbose=True,
         debug=False)
+    
+    sysout = datasets.read(sysprint.name)
+
+    return (response, sysout)
 
 
 def _get_idcams_cmd_gcd(dataset):   # type: (dict) -> dict
