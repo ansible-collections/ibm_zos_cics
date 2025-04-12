@@ -8,6 +8,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
+import re
 
 REGION_DS_KEYS = ["dfhgcd", "dfhlcd", "dfhintra", "dfhlrq", "dfhtemp", "dfhauxt", "dfhbuxt", "dfhdmpa", "dfhdmpb", "dfhcsd", "dfhstart"]
 CICS_DS_KEYS = ["sdfhload", "sdfhauth", "sdfhlic"]
@@ -33,9 +34,7 @@ class _DataSetActionPlugin(ActionBase):
         try:
             self._process_module_args(
                 self.module_args,
-                self._templar,
                 ds_name,
-                task_vars,
                 cics_data_sets_required,
             )
         except (KeyError, ValueError) as e:
@@ -56,17 +55,17 @@ class _DataSetActionPlugin(ActionBase):
 
         return return_structure
 
-    def _process_module_args(self, module_args, _templar, ds_name, task_vars, cics_data_sets_required):
-        _process_module_args(module_args, _templar, ds_name, task_vars, cics_data_sets_required)
+    def _process_module_args(self, module_args, ds_name, cics_data_sets_required):
+        _process_module_args(module_args, ds_name, cics_data_sets_required)
 
 
-def _process_module_args(module_args, _templar, ds_name, task_vars, cics_data_sets_required):
-    _process_region_data_set_args(module_args, _templar, ds_name, task_vars)
+def _process_module_args(module_args, ds_name, cics_data_sets_required):
+    _process_region_data_set_args(module_args, ds_name)
     _process_data_set_unit_args(module_args)
     _remove_region_data_set_args(module_args, ds_name)
 
     if cics_data_sets_required:
-        _process_libraries_args(module_args, _templar, task_vars, "cics_data_sets", "sdfhload")
+        _process_libraries_args(module_args, "cics_data_sets", "sdfhload")
         _remove_cics_data_set_args(module_args, "sdfhload")
     else:
         if module_args.get("cics_data_sets"):
@@ -102,7 +101,7 @@ def _remove_cics_data_set_args(module_args, ds_name):
             del module_args["cics_data_sets"][cics_key]
 
 
-def _process_region_data_set_args(module_args, _templar, ds_name, task_vars):
+def _process_region_data_set_args(module_args, ds_name):
     if not module_args.get("region_data_sets"):
         raise KeyError("Required argument region_data_sets not found")
 
@@ -111,8 +110,6 @@ def _process_region_data_set_args(module_args, _templar, ds_name, task_vars):
             module_args["region_data_sets"].update({
                 ds_name: {
                     "dsn": _template_dsn(
-                        _templar=_templar,
-                        task_vars=task_vars,
                         var_name="data_set_name",
                         replace_val=ds_name.upper(),
                         template=module_args["region_data_sets"]["template"],
@@ -140,12 +137,10 @@ def _validate_data_set_length(data_set):
         raise ValueError("Data set: {0} is longer than 44 characters.".format(data_set))
 
 
-def _process_libraries_args(module_args, _templar, task_vars, lib_type, lib_ds_name):
+def _process_libraries_args(module_args, lib_type, lib_ds_name):
     if not _check_library_override(module_args, lib_type, lib_ds_name):
         if _check_template(module_args, lib_type):
             module_args[lib_type][lib_ds_name] = _template_dsn(
-                _templar=_templar,
-                task_vars=task_vars,
                 var_name="lib_name",
                 replace_val=lib_ds_name.upper(),
                 template=module_args[lib_type]["template"],
@@ -155,14 +150,8 @@ def _process_libraries_args(module_args, _templar, task_vars, lib_type, lib_ds_n
     return _validate_data_set_length(module_args[lib_type][lib_ds_name])
 
 
-def _template_dsn(_templar, task_vars, var_name, replace_val, template):
-    cpy = task_vars.copy()
-    cpy.update({var_name: replace_val})
-    return _templar.copy_with_new_env(
-        variable_start_string="<<",
-        variable_end_string=">>",
-        available_variables=cpy,
-    ).do_template(template, overrides=dict(variable_start_string="<<", variable_end_string=">>"))
+def _template_dsn(var_name, replace_val, template):
+    return re.sub(f"<<\\s*{var_name}\\s*>>", replace_val, template)
 
 
 def _check_template(module_args, arg_dict):
