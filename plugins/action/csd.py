@@ -19,8 +19,8 @@ class ActionModule(_DataSetActionPlugin):
             task_vars=task_vars,
         )
 
-    def _process_module_args(self, module_args, _templar, ds_name, task_vars, cics_data_sets_required):
-        super(ActionModule, self)._process_module_args(module_args, _templar, ds_name, task_vars, cics_data_sets_required)
+    def _process_module_args(self, module_args, ds_name, cics_data_sets_required):
+        super(ActionModule, self)._process_module_args(module_args, ds_name, cics_data_sets_required)
         if module_args.get(INPUT_LOCATION):
             module_args[INPUT_LOCATION] = module_args[INPUT_LOCATION].lower()
             if module_args[INPUT_LOCATION] == LOCAL and module_args.get(INPUT_SOURCE):
