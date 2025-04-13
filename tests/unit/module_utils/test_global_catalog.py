@@ -202,307 +202,297 @@ def test_get_records_autocold_emergency():
     assert resp == ("AUTOCOLD", "EMERGENCY")
 
 
-# def test_run_rmutl_with_cmd():
-#     executions = [
-#         _execution(
-#             name=RMUTL_update_run_name(1),
-#             rc=0,
-#             stdout="",
-#             stderr="",
-#         )
-#     ]
-#     global_catalog.MVSCmd.execute = MagicMock(
-#         return_value=MVSCmdResponse(rc=0, stdout="", stderr="")
-#     )
-#     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
-#     result = global_catalog._run_dfhrmutl(
-#         location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
-#     )
+def test_run_rmutl_with_cmd():
+    executions = [
+        _execution(
+            name=RMUTL_update_run_name(1),
+            rc=0,
+            stdout="",
+            stderr="",
+        )
+    ]
+    global_catalog._execute_dfhrmutl = MagicMock(
+        return_value=MVSCmdResponse(rc=0, stdout="", stderr="")
+    )
+    result = global_catalog._run_dfhrmutl(
+        location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
+    )
 
-#     assert result == executions
-
-
-# def test_run_rmutl_with_cmd_and_failure():
-#     executions = [
-#         _execution(
-#             name=RMUTL_update_run_name(1),
-#             rc=16,
-#             stdout=" ABC \n REASON: X'A8'",
-#             stderr="",
-#         ),
-#         _execution(
-#             name=RMUTL_update_run_name(2),
-#             rc=0,
-#             stdout="",
-#             stderr="",
-#         ),
-#     ]
-#     global_catalog.MVSCmd.execute = MagicMock(
-#         side_effect=[
-#             MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
-#             MVSCmdResponse(rc=0, stdout="", stderr=""),
-#         ]
-#     )
-#     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
-#     result = global_catalog._run_dfhrmutl(
-#         location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
-#     )
-
-#     assert result == executions
+    assert result == executions
 
 
-# def test_run_rmutl_no_cmd():
-#     rmutl_response = MVSCmdResponse(
-#         rc=0,
-#         stdout=RMUTL_stdout("AUTOASIS", "EMERGENCY"),
-#         stderr="",
-#     )
+def test_run_rmutl_with_cmd_and_failure():
+    executions = [
+        _execution(
+            name=RMUTL_update_run_name(1),
+            rc=16,
+            stdout=" ABC \n REASON: X'A8'",
+            stderr="",
+        ),
+        _execution(
+            name=RMUTL_update_run_name(2),
+            rc=0,
+            stdout="",
+            stderr="",
+        ),
+    ]
+    global_catalog._execute_dfhrmutl = MagicMock(
+        side_effect=[
+            MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
+            MVSCmdResponse(rc=0, stdout="", stderr=""),
+        ]
+    )
+    result = global_catalog._run_dfhrmutl(
+        location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
+    )
 
-#     expected_executions = [
-#         _execution(
-#             name=RMUTL_get_run_name(1),
-#             rc=rmutl_response.rc,
-#             stdout=rmutl_response.stdout,
-#             stderr=rmutl_response.stderr,
-#         )
-#     ]
-#     expected_details = ("AUTOASIS", "EMERGENCY")
-#     global_catalog.MVSCmd.execute = MagicMock(return_value=rmutl_response)
-#     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
-#     actual_executions, actual_details = global_catalog._run_dfhrmutl(
-#         location="DATA.SET", sdfhload="SDFH.LOAD"
-#     )
-
-#     assert actual_executions == expected_executions
-#     assert actual_details == expected_details
-
-
-# def test_run_rmutl_no_cmd_with_failure():
-#     rmutl_response = MVSCmdResponse(
-#         rc=0,
-#         stdout=RMUTL_stdout("AUTOASIS", "EMERGENCY"),
-#         stderr="",
-#     )
-
-#     expected_executions = [
-#         _execution(
-#             name=RMUTL_get_run_name(1),
-#             rc=16,
-#             stdout=" ABC \n REASON: X'A8'",
-#             stderr="",
-#         ),
-#         _execution(
-#             name=RMUTL_get_run_name(2),
-#             rc=rmutl_response.rc,
-#             stdout=rmutl_response.stdout,
-#             stderr=rmutl_response.stderr,
-#         ),
-#     ]
-#     expected_details = ("AUTOASIS", "EMERGENCY")
-#     global_catalog.MVSCmd.execute = MagicMock(
-#         side_effect=[
-#             MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
-#             rmutl_response,
-#         ]
-#     )
-#     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
-#     actual_executions, actual_details = global_catalog._run_dfhrmutl(
-#         location="DATA.SET", sdfhload="SDFH.LOAD"
-#     )
-
-#     assert actual_executions == expected_executions
-#     assert actual_details == expected_details
+    assert result == executions
 
 
-# def test_run_rmutl_no_cmd_many_failures():
-#     rmutl_response = MVSCmdResponse(
-#         rc=0,
-#         stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"),
-#         stderr="",
-#     )
+def test_run_rmutl_no_cmd():
+    rmutl_response = MVSCmdResponse(
+        rc=0,
+        stdout=RMUTL_stdout("AUTOASIS", "EMERGENCY"),
+        stderr="",
+    )
 
-#     expected_executions = [
-#         _execution(
-#             name=RMUTL_get_run_name(1),
-#             rc=16,
-#             stdout=" ABC \n REASON: X'A8'",
-#             stderr="",
-#         ),
-#         _execution(
-#             name=RMUTL_get_run_name(2),
-#             rc=16,
-#             stdout="\n\n\n REASON: X'A8'",
-#             stderr="",
-#         ),
-#         _execution(
-#             name=RMUTL_get_run_name(3),
-#             rc=16,
-#             stdout="REASON:X'A8'",
-#             stderr="",
-#         ),
-#         _execution(
-#             name=RMUTL_get_run_name(4),
-#             rc=16,
-#             stdout="\n REASON:X'A8'",
-#             stderr="",
-#         ),
-#         _execution(
-#             name=RMUTL_get_run_name(5),
-#             rc=16,
-#             stdout=" ABC \n REASON:   X 'A8'",
-#             stderr="",
-#         ),
-#         _execution(
-#             name=RMUTL_get_run_name(6),
-#             rc=rmutl_response.rc,
-#             stdout=rmutl_response.stdout,
-#             stderr=rmutl_response.stderr,
-#         ),
-#     ]
-#     expected_details = ("AUTOINIT", "UNKNOWN")
-#     global_catalog.MVSCmd.execute = MagicMock(
-#         side_effect=[
-#             MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
-#             MVSCmdResponse(rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
-#             MVSCmdResponse(rc=16, stdout="REASON:X'A8'", stderr=""),
-#             MVSCmdResponse(rc=16, stdout="\n REASON:X'A8'", stderr=""),
-#             MVSCmdResponse(rc=16, stdout=" ABC \n REASON:   X 'A8'", stderr=""),
-#             rmutl_response,
-#         ]
-#     )
-#     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
-#     actual_executions, actual_details = global_catalog._run_dfhrmutl(
-#         location="DATA.SET", sdfhload="SDFH.LOAD"
-#     )
+    expected_executions = [
+        _execution(
+            name=RMUTL_get_run_name(1),
+            rc=rmutl_response.rc,
+            stdout=rmutl_response.stdout,
+            stderr=rmutl_response.stderr,
+        )
+    ]
+    expected_details = ("AUTOASIS", "EMERGENCY")
+    global_catalog._execute_dfhrmutl = MagicMock(return_value=rmutl_response)
+    actual_executions, actual_details = global_catalog._run_dfhrmutl(
+        location="DATA.SET", sdfhload="SDFH.LOAD"
+    )
 
-#     assert actual_executions == expected_executions
-#     assert actual_details == expected_details
+    assert actual_executions == expected_executions
+    assert actual_details == expected_details
 
 
-# def test_run_rmutl_rc16_error():
-#     global_catalog.MVSCmd.execute = MagicMock(
-#         return_value=MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'12'", stderr="")
-#     )
-#     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
+def test_run_rmutl_no_cmd_with_failure():
+    rmutl_response = MVSCmdResponse(
+        rc=0,
+        stdout=RMUTL_stdout("AUTOASIS", "EMERGENCY"),
+        stderr="",
+    )
 
-#     expected_executions = [
-#         _execution(
-#             name=RMUTL_update_run_name(1),
-#             rc=16,
-#             stdout=" ABC \n REASON: X'12'",
-#             stderr=""
-#         )
-#     ]
+    expected_executions = [
+        _execution(
+            name=RMUTL_get_run_name(1),
+            rc=16,
+            stdout=" ABC \n REASON: X'A8'",
+            stderr="",
+        ),
+        _execution(
+            name=RMUTL_get_run_name(2),
+            rc=rmutl_response.rc,
+            stdout=rmutl_response.stdout,
+            stderr=rmutl_response.stderr,
+        ),
+    ]
+    expected_details = ("AUTOASIS", "EMERGENCY")
+    global_catalog._execute_dfhrmutl = MagicMock(
+        side_effect=[
+            MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
+            rmutl_response,
+        ]
+    )
+    actual_executions, actual_details = global_catalog._run_dfhrmutl(
+        location="DATA.SET", sdfhload="SDFH.LOAD"
+    )
 
-#     error_raised = False
-#     try:
-#         global_catalog._run_dfhrmutl(
-#             location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
-#         )
-#     except MVSExecutionException as e:
-#         error_raised = True
-#         assert e.message == "DFHRMUTL failed with RC 16 - REASON:X'12'"
-#         assert e.executions == expected_executions
-
-#     assert error_raised is True
-
-
-# def test_run_rmutl_many_rc16_error():
-#     global_catalog.MVSCmd.execute = MagicMock(
-#         side_effect=[
-#             MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
-#             MVSCmdResponse(rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
-#             MVSCmdResponse(rc=16, stdout="REASON:X'B2'", stderr=""),
-#         ]
-#     )
-#     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
-
-#     expected_executions = [
-#         _execution(name=RMUTL_update_run_name(1), rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
-#         _execution(name=RMUTL_update_run_name(2), rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
-#         _execution(name=RMUTL_update_run_name(3), rc=16, stdout="REASON:X'B2'", stderr=""),
-#     ]
-
-#     error_raised = False
-#     try:
-#         global_catalog._run_dfhrmutl(
-#             location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
-#         )
-#     except MVSExecutionException as e:
-#         error_raised = True
-#         assert e.message == "DFHRMUTL failed with RC 16 - REASON:X'B2'"
-#         assert e.executions == expected_executions
-
-#     assert error_raised is True
+    assert actual_executions == expected_executions
+    assert actual_details == expected_details
 
 
-# def test_run_rmutl_many_rc_error():
-#     global_catalog.MVSCmd.execute = MagicMock(
-#         side_effect=[
-#             MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
-#             MVSCmdResponse(rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
-#             MVSCmdResponse(rc=15, stdout="REASON:", stderr=""),
-#         ]
-#     )
-#     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
+def test_run_rmutl_no_cmd_many_failures():
+    rmutl_response = MVSCmdResponse(
+        rc=0,
+        stdout=RMUTL_stdout("AUTOINIT", "UNKNOWN"),
+        stderr="",
+    )
 
-#     expected_executions = [
-#         _execution(name=RMUTL_update_run_name(1), rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
-#         _execution(name=RMUTL_update_run_name(2), rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
-#         _execution(name=RMUTL_update_run_name(3), rc=15, stdout="REASON:", stderr="")
-#     ]
+    expected_executions = [
+        _execution(
+            name=RMUTL_get_run_name(1),
+            rc=16,
+            stdout=" ABC \n REASON: X'A8'",
+            stderr="",
+        ),
+        _execution(
+            name=RMUTL_get_run_name(2),
+            rc=16,
+            stdout="\n\n\n REASON: X'A8'",
+            stderr="",
+        ),
+        _execution(
+            name=RMUTL_get_run_name(3),
+            rc=16,
+            stdout="REASON:X'A8'",
+            stderr="",
+        ),
+        _execution(
+            name=RMUTL_get_run_name(4),
+            rc=16,
+            stdout="\n REASON:X'A8'",
+            stderr="",
+        ),
+        _execution(
+            name=RMUTL_get_run_name(5),
+            rc=16,
+            stdout=" ABC \n REASON:   X 'A8'",
+            stderr="",
+        ),
+        _execution(
+            name=RMUTL_get_run_name(6),
+            rc=rmutl_response.rc,
+            stdout=rmutl_response.stdout,
+            stderr=rmutl_response.stderr,
+        ),
+    ]
+    expected_details = ("AUTOINIT", "UNKNOWN")
+    global_catalog._execute_dfhrmutl = MagicMock(
+        side_effect=[
+            MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
+            MVSCmdResponse(rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
+            MVSCmdResponse(rc=16, stdout="REASON:X'A8'", stderr=""),
+            MVSCmdResponse(rc=16, stdout="\n REASON:X'A8'", stderr=""),
+            MVSCmdResponse(rc=16, stdout=" ABC \n REASON:   X 'A8'", stderr=""),
+            rmutl_response,
+        ]
+    )
+    actual_executions, actual_details = global_catalog._run_dfhrmutl(
+        location="DATA.SET", sdfhload="SDFH.LOAD"
+    )
 
-#     error_raised = False
-#     try:
-#         global_catalog._run_dfhrmutl(
-#             location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
-#         )
-#     except MVSExecutionException as e:
-#         error_raised = True
-#         assert e.message == "DFHRMUTL failed with RC 15 but no reason code was found"
-#         assert e.executions == expected_executions
-
-#     assert error_raised is True
+    assert actual_executions == expected_executions
+    assert actual_details == expected_details
 
 
-# def test_run_rmutl_rc_not_0():
-#     global_catalog.MVSCmd.execute = MagicMock(
-#         return_value=MVSCmdResponse(rc=123, stdout="", stderr="")
-#     )
-#     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
+def test_run_rmutl_rc16_error():
+    global_catalog._execute_dfhrmutl = MagicMock(
+        return_value=MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'12'", stderr="")
+    )
 
-#     expected_executions = [_execution(name=RMUTL_update_run_name(1), rc=123, stdout="", stderr="")]
+    expected_executions = [
+        _execution(
+            name=RMUTL_update_run_name(1),
+            rc=16,
+            stdout=" ABC \n REASON: X'12'",
+            stderr=""
+        )
+    ]
 
-#     error_raised = False
-#     try:
-#         global_catalog._run_dfhrmutl(
-#             location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
-#         )
-#     except MVSExecutionException as e:
-#         error_raised = True
-#         assert e.message == "DFHRMUTL failed with RC 123 but no reason code was found"
-#         assert e.executions == expected_executions
+    error_raised = False
+    try:
+        global_catalog._run_dfhrmutl(
+            location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
+        )
+    except MVSExecutionException as e:
+        error_raised = True
+        assert e.message == "DFHRMUTL failed with RC 16 - REASON:X'12'"
+        assert e.executions == expected_executions
 
-#     assert error_raised is True
+    assert error_raised is True
 
 
-# def test_run_rmutl_failed_while_running_mvscmd():
-#     global_catalog.MVSCmd.execute = MagicMock(
-#         return_value=MVSCmdResponse(
-#             rc=123,
-#             stdout=global_catalog.DFHRMUTL_PROGRAM_HEADER,
-#             stderr=global_catalog.SUBPROCESS_EXIT_MESSAGE
-#         )
-#     )
-#     global_catalog._get_rmutl_dds = MagicMock(return_value=[])
+def test_run_rmutl_many_rc16_error():
+    global_catalog._execute_dfhrmutl = MagicMock(
+        side_effect=[
+            MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
+            MVSCmdResponse(rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
+            MVSCmdResponse(rc=16, stdout="REASON:X'B2'", stderr=""),
+        ]
+    )
 
-#     expected_executions = [
-#         _execution(
-#             name=RMUTL_update_run_name(1),
-#             rc=0, stdout=global_catalog.DFHRMUTL_PROGRAM_HEADER,
-#             stderr=global_catalog.SUBPROCESS_EXIT_MESSAGE
-#         )
-#     ]
+    expected_executions = [
+        _execution(name=RMUTL_update_run_name(1), rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
+        _execution(name=RMUTL_update_run_name(2), rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
+        _execution(name=RMUTL_update_run_name(3), rc=16, stdout="REASON:X'B2'", stderr=""),
+    ]
 
-#     actual_executions = global_catalog._run_dfhrmutl(location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI")
-#     assert actual_executions == expected_executions
+    error_raised = False
+    try:
+        global_catalog._run_dfhrmutl(
+            location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
+        )
+    except MVSExecutionException as e:
+        error_raised = True
+        assert e.message == "DFHRMUTL failed with RC 16 - REASON:X'B2'"
+        assert e.executions == expected_executions
+
+    assert error_raised is True
+
+
+def test_run_rmutl_many_rc_error():
+    global_catalog._execute_dfhrmutl = MagicMock(
+        side_effect=[
+            MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
+            MVSCmdResponse(rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
+            MVSCmdResponse(rc=15, stdout="REASON:", stderr=""),
+        ]
+    )
+
+    expected_executions = [
+        _execution(name=RMUTL_update_run_name(1), rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
+        _execution(name=RMUTL_update_run_name(2), rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
+        _execution(name=RMUTL_update_run_name(3), rc=15, stdout="REASON:", stderr="")
+    ]
+
+    error_raised = False
+    try:
+        global_catalog._run_dfhrmutl(
+            location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
+        )
+    except MVSExecutionException as e:
+        error_raised = True
+        assert e.message == "DFHRMUTL failed with RC 15 but no reason code was found"
+        assert e.executions == expected_executions
+
+    assert error_raised is True
+
+
+def test_run_rmutl_rc_not_0():
+    global_catalog._execute_dfhrmutl = MagicMock(
+        return_value=MVSCmdResponse(rc=123, stdout="", stderr="")
+    )
+
+    expected_executions = [_execution(name=RMUTL_update_run_name(1), rc=123, stdout="", stderr="")]
+
+    error_raised = False
+    try:
+        global_catalog._run_dfhrmutl(
+            location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
+        )
+    except MVSExecutionException as e:
+        error_raised = True
+        assert e.message == "DFHRMUTL failed with RC 123 but no reason code was found"
+        assert e.executions == expected_executions
+
+    assert error_raised is True
+
+
+def test_run_rmutl_failed_while_running_mvscmd():
+    global_catalog._execute_dfhrmutl = MagicMock(
+        return_value=MVSCmdResponse(
+            rc=123,
+            stdout=global_catalog.DFHRMUTL_PROGRAM_HEADER,
+            stderr=global_catalog.SUBPROCESS_EXIT_MESSAGE
+        )
+    )
+
+    expected_executions = [
+        _execution(
+            name=RMUTL_update_run_name(1),
+            rc=0, stdout=global_catalog.DFHRMUTL_PROGRAM_HEADER,
+            stderr=global_catalog.SUBPROCESS_EXIT_MESSAGE
+        )
+    ]
+
+    actual_executions = global_catalog._run_dfhrmutl(location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI")
+    assert actual_executions == expected_executions
