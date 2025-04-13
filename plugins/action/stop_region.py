@@ -240,12 +240,12 @@ class ActionModule(ActionBase):
             task_vars=self.task_vars,
         )
 
-        x = str(type(query_response))
+        x = str(query_response.keys())
 
         self.executions.append({
             NAME: "ZOS Job Query - {0}".format(job_id),
             RC: 0 if query_response.get("message", "-") == "" and isinstance(query_response.get("jobs", {}), list) else 1,
-            RETURN: x + "\n" + query_response
+            RETURN: x
         })
         return query_response
 
