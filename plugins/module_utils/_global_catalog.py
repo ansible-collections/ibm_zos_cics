@@ -67,13 +67,13 @@ def _run_dfhrmutl(
     executions = []
 
     for x in range(MVS_CMD_RETRY_ATTEMPTS):
-        dfhrmutl_response, stdout = _execute_dfhrmutl(location, sdfhload, cmd)
+        dfhrmutl_response = _execute_dfhrmutl(location, sdfhload, cmd)
         execution_entry = _execution(
             name="DFHRMUTL - {0} - Run {1}".format(
                 "Get current catalog" if cmd == "" else "Updating autostart override",
                 x + 1),
             rc=dfhrmutl_response.rc,
-            stdout=dfhrmutl_response.stdout + "\n\nFROM DATASET: \n" + stdout,
+            stdout=dfhrmutl_response.stdout,
             stderr=dfhrmutl_response.stderr
         )
         executions.append(execution_entry)
@@ -109,7 +109,7 @@ def _run_dfhrmutl(
     return executions, _get_catalog_records(dfhrmutl_response.stdout)
 
 
-def _execute_dfhrmutl(location, sdfhload, cmd=""):   # type: (str, str, str) -> tuple[MVSCmdResponse, str]
+def _execute_dfhrmutl(location, sdfhload, cmd=""):   # type: (str, str, str) -> MVSCmdResponse
     sysprint = OutputDefinition(record_length=133)
 
     dds = [
@@ -125,9 +125,11 @@ def _execute_dfhrmutl(location, sdfhload, cmd=""):   # type: (str, str, str) -> 
         verbose=True,
         debug=False)
     
-    sysout = datasets.read(sysprint.name)
+    response.stdout = datasets.read(sysprint.name)
 
-    return (response, sysout)
+    datasets.delete(sysprint.name)
+
+    return response
 
 
 def _get_idcams_cmd_gcd(dataset):   # type: (dict) -> dict
