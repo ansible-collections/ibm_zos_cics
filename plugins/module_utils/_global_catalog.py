@@ -133,7 +133,7 @@ def _execute_dfhrmutl(location, sdfhload, cmd=""):   # type: (str, str, str) -> 
         dds=dds,
         verbose=True,
         debug=False)
-    
+
     response.stdout = datasets.read(sysprint.name)
 
     datasets.delete(sysprint.name)
