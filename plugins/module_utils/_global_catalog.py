@@ -8,13 +8,22 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+import traceback
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd, MVSCmdResponse
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import OutputDefinition, DatasetDefinition, DDStatement, InputDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException, _execution
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import MVS_CMD_RETRY_ATTEMPTS
 
-from zoautil_py import datasets
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.import_handler import (
+    ZOAUImportError
+)
+
+try:
+    from zoautil_py import datasets
+except Exception:
+    # Use ibm_zos_core's approach to handling zoautil_py imports so sanity tests pass
+    datasets = ZOAUImportError(traceback.format_exc())
 
 
 def _get_value_from_line(line):  # type: (list[str]) -> str | None
