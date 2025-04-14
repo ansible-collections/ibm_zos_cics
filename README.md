@@ -68,9 +68,9 @@ collections:
 ```
 
 
-To install a specific version of the collection or upgrade an existing installation to a specific version, for example installing 2.1.0, use the following syntax:
+To install a specific version of the collection or upgrade an existing installation to a specific version, for example installing 2.1.1, use the following syntax:
 ```sh
-ansible-galaxy collection install ibm.ibm_zos_cics:2.1.0
+ansible-galaxy collection install ibm.ibm_zos_cics:2.1.1
 ```
 
 

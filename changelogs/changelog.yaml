@@ -181,3 +181,16 @@ releases:
       name: transaction_dump
       namespace: ''
     release_date: '2024-06-12'
+  2.1.1:
+    changes:
+      minor_changes:
+      - requirements.txt - Slacken requirement constraints in requirements.txt to
+        represent compatible versions (https://github.com/ansible-collections/ibm_zos_cics/pull/160)
+      security_fixes:
+      - requirements.txt - Bump minimum version of urllib3 to 1.26.19 to address CVE-2024-37891
+        (https://github.com/ansible-collections/ibm_zos_cics/pull/161)
+      release_summary: Bug fixes and security fixes
+    fragments:
+    - 160-slacken-requirements-constraints.yaml
+    - 161-CVE-2024-37891.yaml
+    release_date: '2025-04-14'
