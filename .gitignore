@@ -2,6 +2,7 @@
 docs/build/
 .idea
 .vscode/settings.json
+.ansible
 __pycache__
 venv*
 .venv
