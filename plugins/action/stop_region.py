@@ -18,6 +18,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.modules.stop_region import (
 )
 from ansible.errors import AnsibleActionFail
 from datetime import datetime, timedelta
+from pprint import pformat
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -240,7 +241,7 @@ class ActionModule(ActionBase):
             task_vars=self.task_vars,
         )
 
-        x = str(query_response.keys())
+        x = pformat(query_response)
 
         self.executions.append({
             NAME: "ZOS Job Query - {0}".format(job_id),
