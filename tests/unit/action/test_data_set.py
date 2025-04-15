@@ -6,17 +6,9 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-from ansible.parsing.dataloader import DataLoader
-from ansible.template import Templar
 from ansible_collections.ibm.ibm_zos_cics.plugins.plugin_utils._module_action_plugin import (
     _process_module_args
 )
-
-
-def get_templar(module_args):
-    loader = DataLoader()
-    templar = Templar(loader=loader, variables=module_args)
-    return templar
 
 
 def test_data_set_with_template():
@@ -27,10 +19,8 @@ def test_data_set_with_template():
         "space_type": "m",
         "state": "initial"
     }
-    templar = get_templar(args_with_template)
-    task_vars = args_with_template
 
-    _process_module_args(args_with_template, templar, "dfhlrq", task_vars, False)
+    _process_module_args(args_with_template, "dfhlrq", False)
 
     assert args_with_template == {
         "region_data_sets": {
@@ -51,10 +41,8 @@ def test_data_set_with_override():
         "space_type": "m",
         "state": "initial"
     }
-    templar = get_templar(args_with_override)
-    task_vars = args_with_override
 
-    _process_module_args(args_with_override, templar, "dfhlrq", task_vars, False)
+    _process_module_args(args_with_override, "dfhlrq", False)
 
     assert args_with_override == {
         "region_data_sets": {
@@ -73,11 +61,9 @@ def test_data_set_with_override_but_no_dsn_key():
         "space_type": "m",
         "state": "initial"
     }
-    templar = get_templar(args_with_override)
-    task_vars = args_with_override
 
     try:
-        _process_module_args(args_with_override, templar, "dfhlrq", task_vars, False)
+        _process_module_args(args_with_override, "dfhlrq", False)
     except KeyError as e:
         assert e.args[0] == "No template or data set override found for dfhlrq"
     else:
@@ -91,11 +77,9 @@ def test_data_set_with_override_but_no_dsn_value():
         "space_type": "m",
         "state": "initial"
     }
-    templar = get_templar(args_with_override)
-    task_vars = args_with_override
 
     try:
-        _process_module_args(args_with_override, templar, "dfhlrq", task_vars, False)
+        _process_module_args(args_with_override, "dfhlrq", False)
     except KeyError as e:
         assert e.args[0] == "No template or data set override found for dfhlrq"
     else:
@@ -109,11 +93,9 @@ def test_data_set_without_override_or_template():
         "space_type": "m",
         "state": "initial"
     }
-    templar = get_templar(args_with_garbage)
-    task_vars = args_with_garbage
 
     try:
-        _process_module_args(args_with_garbage, templar, "dfhlrq", task_vars, False)
+        _process_module_args(args_with_garbage, "dfhlrq", False)
     except KeyError as e:
         assert e.args[0] == "No template or data set override found for dfhlrq"
     else:
@@ -128,10 +110,8 @@ def test_data_set_with_unnecessary_cics_data_sets_arg():
         "space_type": "m",
         "state": "initial"
     }
-    templar = get_templar(args_with_template)
-    task_vars = args_with_template
 
-    _process_module_args(args_with_template, templar, "dfhlrq", task_vars, False)
+    _process_module_args(args_with_template, "dfhlrq", False)
 
     assert args_with_template == {
         "region_data_sets": {
@@ -152,10 +132,8 @@ def test_data_set_with_le_data_sets_arg():
         "space_type": "m",
         "state": "initial"
     }
-    templar = get_templar(args_with_template)
-    task_vars = args_with_template
 
-    _process_module_args(args_with_template, templar, "dfhlrq", task_vars, False)
+    _process_module_args(args_with_template, "dfhlrq", False)
 
     assert args_with_template == {
         "region_data_sets": {
@@ -176,10 +154,8 @@ def test_data_set_with_cpsm_data_sets_arg():
         "space_type": "m",
         "state": "initial"
     }
-    templar = get_templar(args_with_template)
-    task_vars = args_with_template
 
-    _process_module_args(args_with_template, templar, "dfhlrq", task_vars, False)
+    _process_module_args(args_with_template, "dfhlrq", False)
 
     assert args_with_template == {
         "region_data_sets": {
@@ -200,10 +176,8 @@ def test_data_set_with_required_cics_data_sets_templated():
         "space_type": "m",
         "state": "initial"
     }
-    templar = get_templar(args_with_template)
-    task_vars = args_with_template
 
-    _process_module_args(args_with_template, templar, "dfhgcd", task_vars, True)
+    _process_module_args(args_with_template, "dfhgcd", True)
 
     assert args_with_template == {
         "region_data_sets": {

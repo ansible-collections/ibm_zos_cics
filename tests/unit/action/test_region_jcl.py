@@ -9,14 +9,6 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.region_jcl import DSN
 from ansible_collections.ibm.ibm_zos_cics.plugins.action.region_jcl import _process_module_args
-from ansible.parsing.dataloader import DataLoader
-from ansible.template import Templar
-
-
-def get_templar(module_args):
-    loader = DataLoader()
-    templar = Templar(loader=loader, variables=module_args)
-    return templar
 
 
 def test_process_args_with_only_template():
@@ -25,9 +17,7 @@ def test_process_args_with_only_template():
         "cics_data_sets": {"template": "TEST.CICS.<< lib_name >>"},
         "le_data_sets": {"template": "TEST.LE.<< lib_name >>"}
     }
-    templar = get_templar(module_args)
-    task_vars = module_args
-    _process_module_args(module_args, templar, task_vars)
+    _process_module_args(module_args)
     assert module_args == {
         "region_data_sets": {
             'dfhauxt': {DSN: "TEST.CICSPY1.RDEV.DFHAUXT"},
@@ -78,9 +68,7 @@ def test_process_args_with_some_overrides():
             "sceerun": "TEST.LE.RUN"
         }
     }
-    templar = get_templar(module_args)
-    task_vars = module_args
-    _process_module_args(module_args, templar, task_vars)
+    _process_module_args(module_args)
     assert module_args == {
         "region_data_sets": {
             'dfhauxt': {DSN: "TEST.CICSPY1.RDEV.TRACE1"},
@@ -142,9 +130,7 @@ def test_process_args_with_only_overrides():
             "sceerun2": "TEST.LE.RUN2",
         },
     }
-    templar = get_templar(module_args)
-    task_vars = module_args
-    _process_module_args(module_args, templar, task_vars)
+    _process_module_args(module_args)
     assert module_args == {
         "region_data_sets": {
             'dfhauxt': {DSN: "TEST.CICSPY1.RDEV.TRACE1"},
@@ -191,10 +177,8 @@ def test_process_args_with_missing_overrides_no_template():
             "sceecics": "TEST.LE.CICS",
         },
     }
-    templar = get_templar(module_args)
-    task_vars = module_args
     try:
-        _process_module_args(module_args, templar, task_vars)
+        _process_module_args(module_args)
     except KeyError as e:
         assert e.args[0] == "No template or library override found for sdfhauth"
     else:
@@ -214,10 +198,8 @@ def test_process_args_with_one_missing_override_no_template():
             "sceerun2": "TEST.LE.RUN2",
         }
     }
-    templar = get_templar(module_args)
-    task_vars = module_args
     try:
-        _process_module_args(module_args, templar, task_vars)
+        _process_module_args(module_args)
     except KeyError as e:
         assert e.args[0] == "No template or library override found for sceerun"
     else:
@@ -233,10 +215,8 @@ def test_process_args_with_missing_region_data_sets():
             "template": "TEST.LE.<< lib_name >>"
         }
     }
-    templar = get_templar(module_args)
-    task_vars = module_args
     try:
-        _process_module_args(module_args, templar, task_vars)
+        _process_module_args(module_args)
     except KeyError as e:
         assert e.args[0] == "Required argument region_data_sets not found"
     else:
@@ -265,10 +245,8 @@ def test_process_args_with_missing_dsn_key():
             "template": "TEST.LE.<< lib_name >>"
         }
     }
-    templar = get_templar(module_args)
-    task_vars = module_args
     try:
-        _process_module_args(module_args, templar, task_vars)
+        _process_module_args(module_args)
     except KeyError as e:
         assert e.args[0] == "No template or data set override found for dfhgcd"
     else:
@@ -297,10 +275,8 @@ def test_process_args_with_missing_dsn_value():
             "template": "TEST.LE.<< lib_name >>"
         }
     }
-    templar = get_templar(module_args)
-    task_vars = module_args
     try:
-        _process_module_args(module_args, templar, task_vars)
+        _process_module_args(module_args)
     except KeyError as e:
         assert e.args[0] == "No template or data set override found for dfhgcd"
     else:
@@ -314,9 +290,7 @@ def test_process_args_with_only_template_and_optional_cpsm_arg():
         "le_data_sets": {"template": "TEST.LE.<< lib_name >>"},
         "cpsm_data_sets": {"template": "TEST.CPSM.<< lib_name >>"}
     }
-    templar = get_templar(module_args)
-    task_vars = module_args
-    _process_module_args(module_args, templar, task_vars)
+    _process_module_args(module_args)
     assert module_args == {
         "region_data_sets": {
             'dfhauxt': {DSN: "TEST.CICSPY1.RDEV.DFHAUXT"},
@@ -368,9 +342,7 @@ def test_process_args_with_optional_cpsm_arg_and_overrides():
             "seyuload": "TEST.SEYULOAD"
         }
     }
-    templar = get_templar(module_args)
-    task_vars = module_args
-    _process_module_args(module_args, templar, task_vars)
+    _process_module_args(module_args)
     assert module_args == {
         "region_data_sets": {
             'dfhauxt': {DSN: "TEST.CICSPY1.RDEV.DFHAUXT"},

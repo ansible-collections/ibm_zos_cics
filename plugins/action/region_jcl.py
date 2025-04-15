@@ -37,7 +37,7 @@ class ActionModule(ActionBase):
         }
 
         try:
-            _process_module_args(self.module_args, self._templar, task_vars)
+            _process_module_args(self.module_args)
         except (KeyError, ValueError) as e:
             return_structure.update({
                 "failed": True,
@@ -55,26 +55,26 @@ class ActionModule(ActionBase):
         return return_structure
 
 
-def _process_module_args(module_args, _templar, task_vars):
+def _process_module_args(module_args):
     for library_key in LIBRARY_KEYS:
         _set_top_libraries_key(module_args, library_key)
         _validate_list_of_data_set_lengths(module_args[library_key]["top_data_sets"])
         _validate_list_of_data_set_lengths(module_args[library_key].get("data_sets", []))
 
     for cics_lib in CICS_DS_KEYS:
-        _process_libraries_args(module_args, _templar, task_vars, "cics_data_sets", cics_lib)
+        _process_libraries_args(module_args, "cics_data_sets", cics_lib)
 
     for region_ds in REGION_DS_KEYS:
-        _process_region_data_set_args(module_args, _templar, region_ds, task_vars)
+        _process_region_data_set_args(module_args, region_ds)
     # Template field in region_data_sets needs to be removed before module execution
     if module_args["region_data_sets"].get("template"):
         del module_args["region_data_sets"]["template"]
 
     for le_lib in LE_DS_KEYS:
-        _process_libraries_args(module_args, _templar, task_vars, "le_data_sets", le_lib)
+        _process_libraries_args(module_args, "le_data_sets", le_lib)
 
     # Optional argument
     if module_args.get("cpsm_data_sets"):
         for cpsm_lib in CPSM_DS_KEYS:
-            _process_libraries_args(module_args, _templar, task_vars, "cpsm_data_sets", cpsm_lib)
+            _process_libraries_args(module_args, "cpsm_data_sets", cpsm_lib)
     _process_data_set_unit_args(module_args)
