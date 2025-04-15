@@ -135,7 +135,7 @@ environment_vars:
     * Update the CSD data with a CSDUP script which also alters the TCPIP service
     * Create CICS startup JCL data set
     * Submit the CICS startup JCL data set as a job using zoau's jsub task
- * Use case name: Install a bundle in a CICS region
+* Use case name: Install a bundle in a CICS region
   * Actors:
     * Application Developer
   * Description:
@@ -145,7 +145,7 @@ environment_vars:
     * Disable and discard existing CICS bundle
     * Install bundle definition into the target region
     * Wait for bundle to reach enabled status
- * Use case name: Deploy a program to a CICS region
+* Use case name: Deploy a program to a CICS region
   * Actors:
     * Application Developer
   * Description:
