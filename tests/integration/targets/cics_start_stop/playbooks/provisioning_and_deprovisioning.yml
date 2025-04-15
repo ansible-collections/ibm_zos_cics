@@ -19,63 +19,66 @@
   tasks:
     - name: Normal Start Stop
       block:
-      - name: Initial normal
-        block:
-        - name: Create data sets
-          ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
-          vars:
-            data_set_state: initial
+        - name: Initial normal
+          block:
+            - name: Create data sets
+              ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
+              vars:
+                data_set_state: initial
 
-        - name: Start CICS
-          ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
+            - name: Start CICS
+              ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
 
-        - name: Stop CICS Region
-          ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
-          vars:
-            mode: normal
+            - name: Stop CICS Region
+              ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
+              vars:
+                mode: normal
 
-        always:
-          - name: Delete job
-            ansible.builtin.command:
-              cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
-            ignore_errors: true
+          always:
+            - name: Delete job
+              ansible.builtin.command:
+                cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
+              failed_when: false
+              changed_when: true
 
-      - name: Warm Immediate
-        block:
-        - name: Warm CICS data sets
-          ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
-          vars:
-            data_set_state: warm
+        - name: Warm Immediate
+          block:
+            - name: Warm CICS data sets
+              ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
+              vars:
+                data_set_state: warm
 
-        - name: Start CICS
-          ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
+            - name: Start CICS
+              ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
 
-        - name: Stop CICS Region
-          ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
-          vars:
-            mode: immediate
+            - name: Stop CICS Region
+              ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
+              vars:
+                mode: immediate
 
-        always:
-          - name: Delete job
-            ansible.builtin.command:
-              cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
-            ignore_errors: true
+          always:
+            - name: Delete job
+              ansible.builtin.command:
+                cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
+              failed_when: false
+              changed_when: true
 
-      - name: Normal Cancel
-        block:
-        - name: Start CICS
-          ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
+        - name: Normal Cancel
+          block:
+            - name: Start CICS
+              ansible.builtin.import_tasks: ../repeatable_tasks/start_cics.yml
 
-        - name: Stop CICS Region
-          ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
-          vars:
-            mode: cancel
+            - name: Stop CICS Region
+              ansible.builtin.import_tasks: ../repeatable_tasks/stop_region.yml
+              vars:
+                mode: cancel
 
-        always:
-          - name: Delete job
-            ansible.builtin.command:
-              cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
-            ignore_errors: true
+          always:
+            - name: Delete job
+              ansible.builtin.command:
+                cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
+              failed_when: false
+              changed_when: true
 
       always:
         - name: Delete data sets

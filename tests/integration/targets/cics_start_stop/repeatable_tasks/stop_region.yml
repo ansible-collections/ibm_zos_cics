@@ -22,7 +22,8 @@
       timeout: 300
 
     - name: Set stop_output
-      ansible.builtin.set_fact: stop_output="{{ stop_result }}"
+      ansible.builtin.set_fact:
+        stop_output: "{{ stop_result }}"
       when: "'skip_reason' not in stop_result"
 
     - name: Issue shutdown command (with job_name)
@@ -36,7 +37,8 @@
       timeout: 300
 
     - name: Set stop_output
-      ansible.builtin.set_fact: stop_output="{{ stop_result }}"
+      ansible.builtin.set_fact:
+        stop_output: "{{ stop_result }}"
       when: stop_result.changed
 
     - name: Issue shutdown command (with job_id and job_name)
@@ -51,7 +53,8 @@
       timeout: 300
 
     - name: Set stop_output
-      ansible.builtin.set_fact: stop_output="{{ stop_result }}"
+      ansible.builtin.set_fact:
+        stop_output: l"{{ stop_result }}"
       when: stop_result.changed
 
   always:
