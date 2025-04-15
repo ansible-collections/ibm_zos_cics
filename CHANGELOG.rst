@@ -1,9 +1,26 @@
-==============================
-ibm.ibm_zos_cics Release Notes
-==============================
+================================
+ibm.ibm\_zos\_cics Release Notes
+================================
 
 .. contents:: Topics
 
+v2.1.1
+======
+
+Release Summary
+---------------
+
+Bug fixes and security fixes
+
+Minor Changes
+-------------
+
+- requirements.txt - Slacken requirement constraints in requirements.txt to represent compatible versions (https://github.com/ansible-collections/ibm_zos_cics/pull/160)
+
+Security Fixes
+--------------
+
+- requirements.txt - Bump minimum version of urllib3 to 1.26.19 to address CVE-2024-37891 (https://github.com/ansible-collections/ibm_zos_cics/pull/161)
 
 v2.1.0
 ======
