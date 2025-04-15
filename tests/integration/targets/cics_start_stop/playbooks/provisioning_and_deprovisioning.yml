@@ -38,7 +38,8 @@
             - name: Delete job
               ansible.builtin.command:
                 cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
-              ignore_errors: true
+              failed_when: false
+              changed_when: true
 
         - name: Warm Immediate
           block:
@@ -76,7 +77,8 @@
             - name: Delete job
               ansible.builtin.command:
                 cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
-              ignore_errors: true
+              failed_when: false
+              changed_when: true
 
       always:
         - name: Delete data sets
