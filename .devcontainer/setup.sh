@@ -18,6 +18,7 @@ echo -e "[defaults]\nstdout_callback=community.general.yaml\nCOLLECTIONS_PATHS=/
 
 pip install -r /workspace/collections/ansible_collections/ibm/ibm_zos_cics/dev-requirements.txt
 pip install -r /workspace/collections/ansible_collections/ibm/ibm_zos_cics/doc-requirements.txt
+pip install -r /workspace/collections/ansible_collections/ibm/ibm_zos_cics/lint-requirements.txt
 
 mkdir -p /commandhistory
 touch /commandhistory/.zsh_history

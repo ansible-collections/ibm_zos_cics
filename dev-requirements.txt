@@ -13,6 +13,9 @@ shellcheck-py==0.9.0.5
 rstcheck==6.1.2
 yamllint==1.34.0
 voluptuous==0.13.1
+<<<<<<< Updated upstream
 ansible-lint==25.1.3
+=======
+>>>>>>> Stashed changes
 pycodestyle==2.10.0
 bandit==1.7.8
