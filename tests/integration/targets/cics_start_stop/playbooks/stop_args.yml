@@ -97,7 +97,8 @@
         - name: Delete job
           ansible.builtin.command:
             cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
-          ignore_errors: true
+          failed_when: false
+          changed_when: true
 
     - name: Stop job no timeout
       block:
@@ -177,7 +178,8 @@
         - name: Delete job
           ansible.builtin.command:
             cmd: "jcan C {{ start_region_applid }} {{ start_result.stdout }}"
-          ignore_errors: true
+          failed_when: false
+          changed_when: true
 
     - name: Stop job already stopped
       block:
@@ -230,7 +232,8 @@
             job_id: "NONJOB"
             job_name: "{{ start_region_applid }}"
           register: stop_result
-          ignore_errors: true
+          failed_when: false
+          changed_when: true
         - name: Assert CICS stop did not fail
           ansible.builtin.assert:
             that:
@@ -242,7 +245,8 @@
         - name: Delete job
           ansible.builtin.command:
             cmd: "jcan P {{ start_region_applid }} {{ start_result.stdout }}"
-          ignore_errors: true
+          failed_when: false
+          changed_when: true
         - name: Delete data sets
           ansible.builtin.import_tasks: ../repeatable_tasks/data_sets.yml
           vars:
