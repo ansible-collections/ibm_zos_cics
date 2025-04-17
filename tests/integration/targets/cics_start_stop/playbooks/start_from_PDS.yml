@@ -27,7 +27,7 @@
           ibm.ibm_zos_core.zos_data_set:
             name: "{{ region_data_set_path }}.LIB"
             state: present
-            type: PDS
+            type: pds
           register: result
           retries: 3
           until: result is not failed

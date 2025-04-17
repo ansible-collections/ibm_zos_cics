@@ -76,8 +76,8 @@
             content: "DEFINE PROGRAM(TESTPRG1) GROUP(TESTGRP1)"
             dest: "{{ script_data_set_path }}"
             dest_data_set:
-              type: "SEQ"
-              record_format: "FB"
+              type: seq
+              record_format: fb
           register: result
           retries: 3
           until: result is not failed

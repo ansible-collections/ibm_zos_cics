@@ -11,7 +11,7 @@ fi
 
 python3 -m pip install --user ansible-core==2.16
 
-ansible-galaxy collection install ibm.ibm_zos_core:==1.9.1 -p /workspace/collections
+ansible-galaxy collection install ibm.ibm_zos_core:==1.10.0 -p /workspace/collections
 ansible-galaxy collection install community.general -p /workspace/collections
 
 echo -e "[defaults]\nstdout_callback=community.general.yaml\nCOLLECTIONS_PATHS=/workspace/collections" > ~/.ansible.cfg
