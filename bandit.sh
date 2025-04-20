@@ -1,0 +1,1 @@
+bandit -r . -b .bandit.baseline
