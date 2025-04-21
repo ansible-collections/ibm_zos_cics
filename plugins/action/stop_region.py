@@ -48,10 +48,6 @@ TSO_STATUS_ID_COMMAND = "STATUS {0}({1})"
 class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         self._setup(tmp, task_vars)
-        self._execute_stop_module()
-
-        if self.failed:
-            return self.get_result()
 
         self._parse_module_params()
 
@@ -116,52 +112,32 @@ class ActionModule(ActionBase):
             EXECUTIONS: self.executions,
         }
 
-    def _execute_stop_module(self):
-        stop_module_output = self._execute_module(
-            module_name=STOP_MODULE_NAME,
-            module_args=self.module_args,
-            task_vars=self.task_vars,
-            tmp=self.tmp,
-        )
-        self.failed = stop_module_output.get(FAILED, self.failed)
-        self.msg = stop_module_output.get(MSG, self.msg)
-
     def _parse_module_params(self):
         self.job_name = self.module_args.get(JOB_NAME)
         self.job_id = self.module_args.get(JOB_ID)
         self.stop_mode = self.module_args.get(MODE)
         self.sdtran = self.module_args.get(SDTRAN)
+
+        if self.sdtran and len(self.sdtran) > 4:
+            raise AnsibleActionFail(
+                "Value: {0}, is invalid. SDTRAN value must be  1-4 characters.".format(self.sdtran)
+            )
+            
         self.no_sdtran = self.module_args.get(NO_SDTRAN)
         self.timeout = self.module_args.get(TIMEOUT, TIMEOUT_DEFAULT)
         self.job_status = EXECUTING
 
     def _get_job_data(self):
         if self.job_id and self.job_name:
-            self.job_status = self._get_job_status()
+            self.job_status = self._set_job_status_by_name_and_id()
         elif self.job_name:
-            running_jobs = self._get_running_jobs()
-
-            if len(running_jobs) == 0:
-                self.job_status = "MISSING"
-                return
-            if len(running_jobs) > 1:
-                self.job_status = "MULTIPLE"
-                raise AnsibleActionFail(
-                    "Cannot ambiguate between multiple running jobs with the same name ({0}). Use `job_id` as a parameter to specify the correct job.".format(
-                        self.job_name))
-
-            self.job_id = running_jobs[0][JOB_ID]
-            self.job_status = running_jobs[0][STATUS]
-
+            self._set_job_status_and_id_by_name()
         elif self.job_id:
-            self.job_name = self._get_job_name_from_id()
-            self.job_status = self._get_job_status()
+            # This is the failing test case - we only have a job ID and no name
+            # We get the job name so we can run the status command.  However, do we actually need to, if we have the 
+            self._set_job_status_and_name_by_id()
 
-    def _get_job_name_from_id(self):
-        job_query_response = self.execute_zos_job_query(self.job_id)
-        return _get_job_name_from_query(job_query_response, self.job_id)
-
-    def _get_job_status(self):
+    def _set_job_status_by_name_and_id(self):
         tso_status_response = self.execute_zos_tso_cmd(
             TSO_STATUS_ID_COMMAND.format(self.job_name, self.job_id)
         )
@@ -175,6 +151,44 @@ class ActionModule(ActionBase):
             raise AnsibleActionFail(
                 "No jobs found with name {0} and ID {1}".format(self.job_name, self.job_id))
         return job_status
+    
+    def _set_job_status_and_id_by_name(self):
+        # If we have a name but no ID, we use a TSO command to get the job ID
+        running_jobs = self._get_running_jobs()
+
+        if len(running_jobs) == 0:
+            # In the event that the job ID is missing, we're still not exposed to the ZOAU 'bug' as we have not used zos_job_query
+            self.job_status = "MISSING"
+            return
+        if len(running_jobs) > 1:
+            self.job_status = "MULTIPLE"
+            raise AnsibleActionFail(
+                "Cannot disambiguate between multiple running jobs with the same name ({0}). Use `job_id` as a parameter to specify the correct job.".format(
+                    self.job_name))
+
+        self.job_id = running_jobs[0][JOB_ID]
+        self.job_status = running_jobs[0][STATUS]
+
+    def _set_job_status_and_name_by_id(self): 
+        # We're going to execute this via the stop_region module, to massage the response format into something sensible
+        stop_module_output = self._execute_module(
+            module_name=STOP_MODULE_NAME,
+            module_args={JOB_ID: self.job_id},
+            task_vars=self.task_vars,
+        )
+
+        self.failed = stop_module_output.get(FAILED, self.failed)
+        self.msg = stop_module_output.get(MSG, self.msg)
+
+        if stop_module_output.get("failed"):
+            raise AnsibleActionFail(
+                message=stop_module_output.get("msg", "Unknown failure getting job name and status from ID"),
+                result=stop_module_output
+            )
+
+        self.job_name = stop_module_output["job_name"]
+        self.job_status = stop_module_output["job_status"]
+    
 
     def _get_running_jobs(self):
         tso_query_response = self.execute_zos_tso_cmd(
@@ -233,22 +247,6 @@ class ActionModule(ActionBase):
             module_args={"commands": command},
             task_vars=self.task_vars,
         )
-
-    def execute_zos_job_query(self, job_id):
-        query_response = self._execute_module(
-            module_name="ibm.ibm_zos_core.zos_job_query",
-            module_args={JOB_ID: job_id},
-            task_vars=self.task_vars,
-        )
-
-        x = pformat(query_response)
-
-        self.executions.append({
-            NAME: "ZOS Job Query - {0}".format(job_id),
-            RC: 0 if query_response.get("message", "-") == "" and isinstance(query_response.get("jobs", {}), list) else 1,
-            RETURN: x
-        })
-        return query_response
 
     def execute_zos_operator_cmd(self, command):
         operator_response = self._execute_module(
@@ -353,29 +351,6 @@ def _get_job_info_from_status(tso_query_response, job_name):
             STATUS: job.split(")")[1].strip(),
         })
     return jobs
-
-
-def _get_job_name_from_query(job_query_response, job_id):
-    if job_query_response.get(FAILED):
-        raise AnsibleActionFail(
-            "Job query failed - {0}".format(
-                job_query_response.get("message", "(No failure message provided by zos_job_query)")))
-
-    jobs = job_query_response.get("jobs", [])
-
-    if len(jobs) == 0:
-        raise AnsibleActionFail("No jobs found with id {0}".format(job_id))
-    elif (
-        len(jobs) == 1
-        and jobs[0].get(JOB_NAME, "") == "*"
-        and jobs[0].get("ret_code", {}).get("msg", "") == "JOB NOT FOUND"
-    ):
-        raise AnsibleActionFail("No jobs found with id {0}".format(job_id))
-    elif len(jobs) > 1:
-        raise AnsibleActionFail(
-            "Multiple jobs found with ID {0}".format(job_id))
-
-    return jobs[0].get(JOB_NAME)
 
 
 def _get_job_status_name_id(tso_status_command_response, job_name, job_id):
