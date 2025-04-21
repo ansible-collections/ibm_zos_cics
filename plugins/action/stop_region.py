@@ -115,6 +115,11 @@ class ActionModule(ActionBase):
     def _parse_module_params(self):
         self.job_name = self.module_args.get(JOB_NAME)
         self.job_id = self.module_args.get(JOB_ID)
+
+        if not self.job_id and not self.job_name:
+            raise AnsibleActionFail("At least one of {0} or {1} must be specified".format(
+                JOB_ID, JOB_NAME))
+        
         self.stop_mode = self.module_args.get(MODE)
         self.sdtran = self.module_args.get(SDTRAN)
 
