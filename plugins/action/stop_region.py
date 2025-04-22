@@ -182,13 +182,15 @@ class ActionModule(ActionBase):
             task_vars=self.task_vars,
         )
 
-        self.failed = stop_module_output.get(FAILED, self.failed)
-        self.msg = stop_module_output.get(MSG, self.msg)
+        self.executions.append({
+            NAME: "Get job name and status for job ID {0}".format(self.job_id),
+            RC: 1 if stop_module_output.get("failed") else 0,
+            RETURN: stop_module_output,
+        })
 
         if stop_module_output.get("failed"):
             raise AnsibleActionFail(
-                message=stop_module_output.get("msg", "Unknown failure getting job name and status from ID"),
-                result=stop_module_output
+                message=stop_module_output.get("msg", "Failure getting job name and status from ID")
             )
 
         self.job_name = stop_module_output["job_name"]

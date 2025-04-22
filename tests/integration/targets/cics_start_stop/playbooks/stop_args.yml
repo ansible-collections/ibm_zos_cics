@@ -38,7 +38,7 @@
             that:
               - stop_result.failed is true
               - stop_result.changed is false
-              - stop_result.executions | length == 0
+              - stop_result.executions is not defined
               - stop_result.msg == "one of the following is required: job_id, job_name"
 
         - name: Stop CICS using job name

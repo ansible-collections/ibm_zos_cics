@@ -241,8 +241,22 @@ msg:
   type: str
 '''
 
+import traceback
+
 from ansible.module_utils.basic import AnsibleModule
+
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.job import job_status
+
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.import_handler import (
+    ZOAUImportError
+)
+
+try:
+    from zoautil_py.exceptions import JobFetchException
+except Exception:
+    # Use ibm_zos_core's approach to handling zoautil_py imports so sanity tests pass
+    datasets = ZOAUImportError(traceback.format_exc())
+
 
 CANCEL = 'cancel'
 IMMEDIATE = 'immediate'
@@ -273,32 +287,45 @@ class AnsibleStopCICSModule(object):
         # if there is no job found with that ID (ZOAU throws an exception)
         job_id = self._module.params.get(JOB_ID)
 
-        jobs_raw: list[dict] = job_status(job_id=job_id)
-        if not jobs_raw:
-            self._module.fail_json("No jobs found with id {0}".format(job_id))
+        try:
+          jobs_raw: list[dict] = job_status(job_id=job_id)
+          if not jobs_raw:
+              self._module.fail_json("No jobs found with id {0}".format(job_id))
 
-        if len(jobs_raw) > 1:
-            self._module.fail_json("Multiple jobs found with ID {0}".format(job_id))
+          if len(jobs_raw) > 1:
+              self._module.fail_json("Multiple jobs found with ID {0}".format(job_id))
 
-        for job in jobs_raw:
-            job_name = job.get("job_name")
-            if not job_name:
-                self._module.fail_json("Couldn't determine job name for job ID {0}".format(job_id))
+          for job in jobs_raw:
+              job_name = job.get("job_name")
+              if not job_name:
+                  self._module.fail_json("Couldn't determine job name for job ID {0}".format(job_id))
 
-            ret_code = job.get("ret_code")
-            if not ret_code:
-                self._module.fail_json("Couldn't determine status for job ID {0} with name {1}".format(job_id, job_name))
-            
-            status = ret_code.get("msg")
-            if not status:
-                self._module.fail_json("Couldn't determine status for job ID {0} with name {1}".format(job_id, job_name))
-            
-            self._module.exit_json(
-                changed=False,
-                failed=False,
-                job_name=job["job_name"],
-                job_status="EXECUTING" if "AC" in status else "NOT_EXECUTING"
-            )
+              ret_code = job.get("ret_code")
+              if not ret_code:
+                  self._module.fail_json("Couldn't determine status for job ID {0} with name {1}".format(job_id, job_name))
+              
+              status = ret_code.get("msg")
+              if not status:
+                  self._module.fail_json("Couldn't determine status for job ID {0} with name {1}".format(job_id, job_name))
+              
+              self._module.exit_json(
+                  changed=False,
+                  failed=False,
+                  job_name=job["job_name"],
+                  job_status="EXECUTING" if "AC" in status else "NOT_EXECUTING"
+              )
+        except JobFetchException as e:
+            response = e.response
+
+            # ZOAU 1.3 returns an error with this message if there's no job with the expected ID
+            if "BGYSC3503E Failed to retrieve job list." in response.stderr_response:
+                # In this case, we'll clean up the error, so the user gets a clearer response
+                self._module.fail_json(
+                    "No jobs found with id {0}".format(job_id)
+                )
+            else:
+                # Otherwise something unexpected happened
+                raise e
 
     def init_argument_spec(self):
         return {
