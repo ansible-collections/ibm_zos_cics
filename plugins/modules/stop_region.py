@@ -288,32 +288,32 @@ class AnsibleStopCICSModule(object):
         job_id = self._module.params.get(JOB_ID)
 
         try:
-          jobs_raw: list[dict] = job_status(job_id=job_id)
-          if not jobs_raw:
-              self._module.fail_json("No jobs found with id {0}".format(job_id))
+            jobs_raw: list[dict] = job_status(job_id=job_id)
+            if not jobs_raw:
+                self._module.fail_json("No jobs found with id {0}".format(job_id))
 
-          if len(jobs_raw) > 1:
-              self._module.fail_json("Multiple jobs found with ID {0}".format(job_id))
+            if len(jobs_raw) > 1:
+                self._module.fail_json("Multiple jobs found with ID {0}".format(job_id))
 
-          for job in jobs_raw:
-              job_name = job.get("job_name")
-              if not job_name:
-                  self._module.fail_json("Couldn't determine job name for job ID {0}".format(job_id))
+            for job in jobs_raw:
+                job_name = job.get("job_name")
+                if not job_name:
+                    self._module.fail_json("Couldn't determine job name for job ID {0}".format(job_id))
 
-              ret_code = job.get("ret_code")
-              if not ret_code:
-                  self._module.fail_json("Couldn't determine status for job ID {0} with name {1}".format(job_id, job_name))
-              
-              status = ret_code.get("msg")
-              if not status:
-                  self._module.fail_json("Couldn't determine status for job ID {0} with name {1}".format(job_id, job_name))
-              
-              self._module.exit_json(
-                  changed=False,
-                  failed=False,
-                  job_name=job["job_name"],
-                  job_status="EXECUTING" if "AC" in status else "NOT_EXECUTING"
-              )
+                ret_code = job.get("ret_code")
+                if not ret_code:
+                    self._module.fail_json("Couldn't determine status for job ID {0} with name {1}".format(job_id, job_name))
+
+                status = ret_code.get("msg")
+                if not status:
+                    self._module.fail_json("Couldn't determine status for job ID {0} with name {1}".format(job_id, job_name))
+
+                self._module.exit_json(
+                    changed=False,
+                    failed=False,
+                    job_name=job["job_name"],
+                    job_status="EXECUTING" if "AC" in status else "NOT_EXECUTING"
+                )
         except JobFetchException as e:
             response = e.response
 

@@ -119,7 +119,7 @@ class ActionModule(ActionBase):
         if not self.job_id and not self.job_name:
             raise AnsibleActionFail("At least one of {0} or {1} must be specified".format(
                 JOB_ID, JOB_NAME))
-        
+
         self.stop_mode = self.module_args.get(MODE)
         self.sdtran = self.module_args.get(SDTRAN)
 
@@ -127,7 +127,7 @@ class ActionModule(ActionBase):
             raise AnsibleActionFail(
                 "Value: {0}, is invalid. SDTRAN value must be  1-4 characters.".format(self.sdtran)
             )
-            
+
         self.no_sdtran = self.module_args.get(NO_SDTRAN)
         self.timeout = self.module_args.get(TIMEOUT, TIMEOUT_DEFAULT)
         self.job_status = EXECUTING
@@ -139,7 +139,7 @@ class ActionModule(ActionBase):
             self._set_job_status_and_id_by_name()
         elif self.job_id:
             # This is the failing test case - we only have a job ID and no name
-            # We get the job name so we can run the status command.  However, do we actually need to, if we have the 
+            # We get the job name so we can run the status command.  However, do we actually need to, if we have the
             self._set_job_status_and_name_by_id()
 
     def _set_job_status_by_name_and_id(self):
@@ -156,7 +156,7 @@ class ActionModule(ActionBase):
             raise AnsibleActionFail(
                 "No jobs found with name {0} and ID {1}".format(self.job_name, self.job_id))
         return job_status
-    
+
     def _set_job_status_and_id_by_name(self):
         # If we have a name but no ID, we use a TSO command to get the job ID
         running_jobs = self._get_running_jobs()
@@ -174,7 +174,7 @@ class ActionModule(ActionBase):
         self.job_id = running_jobs[0][JOB_ID]
         self.job_status = running_jobs[0][STATUS]
 
-    def _set_job_status_and_name_by_id(self): 
+    def _set_job_status_and_name_by_id(self):
         # We're going to execute this via the stop_region module, to massage the response format into something sensible
         stop_module_output = self._execute_module(
             module_name=STOP_MODULE_NAME,
@@ -195,7 +195,6 @@ class ActionModule(ActionBase):
 
         self.job_name = stop_module_output["job_name"]
         self.job_status = stop_module_output["job_status"]
-    
 
     def _get_running_jobs(self):
         tso_query_response = self.execute_zos_tso_cmd(
