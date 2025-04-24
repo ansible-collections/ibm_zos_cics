@@ -44,11 +44,20 @@ TSO_STATUS_COMMAND = "STATUS {0}"
 TSO_STATUS_ID_COMMAND = "STATUS {0}({1})"
 
 
-class ActionModule(ActionBase):
+class StopActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         self._setup(tmp, task_vars)
 
-        self._parse_module_params()
+        self.job_id, self.job_name, self.stop_mode, self.sdtran, self.no_sdtran, self.timeout = validate_module_params(
+            self.module_args.get(JOB_NAME),
+            self.module_args.get(JOB_ID),
+            self.module_args.get(MODE),
+            self.module_args.get(SDTRAN),
+            self.module_args.get(NO_SDTRAN),
+            self.module_args.get(TIMEOUT, TIMEOUT_DEFAULT)
+        )
+
+        self.job_status = EXECUTING
 
         try:
             self._get_job_data()
@@ -92,7 +101,7 @@ class ActionModule(ActionBase):
         get_console_errors(shutdown_output)
 
     def _setup(self, tmp, task_vars):
-        super(ActionModule, self).run(tmp, task_vars)
+        super(StopActionModule, self).run(tmp, task_vars)
         self.task_vars = task_vars
         self.tmp = tmp
         self.module_args = self._task.args.copy()
@@ -110,26 +119,6 @@ class ActionModule(ActionBase):
             MSG: msg if msg else self.msg,
             EXECUTIONS: self.executions,
         }
-
-    def _parse_module_params(self):
-        self.job_name = self.module_args.get(JOB_NAME)
-        self.job_id = self.module_args.get(JOB_ID)
-
-        if not self.job_id and not self.job_name:
-            raise AnsibleActionFail("At least one of {0} or {1} must be specified".format(
-                JOB_ID, JOB_NAME))
-
-        self.stop_mode = self.module_args.get(MODE)
-        self.sdtran = self.module_args.get(SDTRAN)
-
-        if self.sdtran and len(self.sdtran) > 4:
-            raise AnsibleActionFail(
-                "Value: {0}, is invalid. SDTRAN value must be  1-4 characters.".format(self.sdtran)
-            )
-
-        self.no_sdtran = self.module_args.get(NO_SDTRAN)
-        self.timeout = self.module_args.get(TIMEOUT, TIMEOUT_DEFAULT)
-        self.job_status = EXECUTING
 
     def _get_job_data(self):
         if self.job_id and self.job_name:
@@ -289,6 +278,18 @@ class ActionModule(ActionBase):
             RETURN: cancel_response,
         })
         return cancel_response
+
+def validate_module_params(job_name, job_id, stop_mode, sdtran, no_sdtran, timeout):
+    if not job_id and not job_name:
+        raise AnsibleActionFail("At least one of {0} or {1} must be specified".format(
+            JOB_ID, JOB_NAME))
+
+    if sdtran and len(sdtran) > 4:
+        raise AnsibleActionFail(
+            "Value: {0}, is invalid. SDTRAN value must be  1-4 characters.".format(sdtran)
+        )
+    
+    return (job_name, job_id, stop_mode, sdtran, no_sdtran, timeout)
 
 
 def get_datetime_now():

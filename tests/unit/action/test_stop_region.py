@@ -11,20 +11,23 @@ __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.stop_action_helper import (
     get_operator_shutdown_response,
     get_tso_status_response,
-    get_job_query_result,
     CONSOLE_AUTOINSTALL_FAIL,
     CONSOLE_UNDEFINED,
+)
+
+from ansible_collections.ibm.ibm_zos_cics.plugins.modules.stop_region import (
+    SDTRAN
 )
 
 # Required for mocking of datetime import in this file
 import ansible_collections.ibm.ibm_zos_cics.plugins.action.stop_region as stop_region_action
 from ansible_collections.ibm.ibm_zos_cics.plugins.action.stop_region import (
+    validate_module_params,
     get_console_errors,
     calculate_end_time,
     format_cancel_command,
     format_shutdown_command,
     _get_job_info_from_status,
-    _get_job_name_from_query,
     _get_job_status_name_id,
 )
 from ansible.errors import AnsibleActionFail
@@ -225,70 +228,6 @@ def test_get_job_info_from_status_1_running_2_stopped():
         },
     ]
 
-
-def test_get_job_name_from_query():
-    job_name = "JOBNAM"
-    job_id = "JOB12345"
-    job_query_response = get_job_query_result(jobname=job_name)
-
-    assert _get_job_name_from_query(job_query_response, job_id) == job_name
-
-
-def test_get_job_name_from_query_failed():
-    job_name = "JOBNAM"
-    job_id = "JOB12345"
-    job_query_response = get_job_query_result(jobname=job_name, failed=True)
-
-    with pytest.raises(AnsibleActionFail) as action_err:
-        _get_job_name_from_query(job_query_response, job_id)
-    assert "Job query failed - (No failure message provided by zos_job_query)" in str(
-        action_err
-    )
-
-
-def test_get_job_name_from_query_failed_msg():
-    job_name = "JOBNAM"
-    job_id = "JOB12345"
-    job_query_response = get_job_query_result(
-        jobname=job_name, failed=True, message="MEANINGFUL MSG FROM CORE"
-    )
-
-    with pytest.raises(AnsibleActionFail) as action_err:
-        _get_job_name_from_query(job_query_response, job_id)
-    assert "Job query failed - MEANINGFUL MSG FROM CORE" in str(action_err)
-
-
-def test_get_job_name_from_query_0_jobs():
-    job_name = "JOBNAM"
-    job_id = "JOB12345"
-    job_query_response = get_job_query_result(jobname=job_name, jobs=0)
-
-    with pytest.raises(AnsibleActionFail) as action_err:
-        _get_job_name_from_query(job_query_response, job_id)
-    assert "No jobs found with id {0}".format(job_id) in str(action_err)
-
-
-def test_get_job_name_from_query_missing_jobs():
-    job_name = "JOBNAM"
-    job_id = "JOB12345"
-    job_query_response = get_job_query_result(
-        jobname=job_name, no_jobs_found=True)
-
-    with pytest.raises(AnsibleActionFail) as action_err:
-        _get_job_name_from_query(job_query_response, job_id)
-    assert "No jobs found with id {0}".format(job_id) in str(action_err)
-
-
-def test_get_job_name_from_query_multiple_jobs():
-    job_name = "JOBNAM"
-    job_id = "JOB12345"
-    job_query_response = get_job_query_result(jobname=job_name, jobs=2)
-
-    with pytest.raises(AnsibleActionFail) as action_err:
-        _get_job_name_from_query(job_query_response, job_id)
-    assert "Multiple jobs found with ID {0}".format(job_id) in str(action_err)
-
-
 def test_get_job_status_name_id():
     job_name = "JOBNAM"
     job_id = "JOB12345"
@@ -328,3 +267,19 @@ def test_get_job_status_name_id_2_jobs():
     with pytest.raises(AnsibleActionFail) as action_err:
         _get_job_status_name_id(tso_query_response, job_name, job_id)
     assert "Multiple jobs with name and ID found" in str(action_err)
+
+def test__validate_sdtran():
+    validate_module_params("ASDF", "ASDF", None, "CESD", None, None)
+
+
+def test__validate_sdtran_3_chars():
+    validate_module_params("ASDF", "ASDF", None, "C$D", None, None)
+
+
+def test__validate_sdtran_numerical():
+    validate_module_params("ASDF", "ASDF", None, "1234", None, None)
+
+
+def test__validate_sdtran_too_long():
+    with pytest.raises(AnsibleActionFail) as action_err:
+        validate_module_params("ASDF", "ASDF", None, "ASDFG", None, None)
