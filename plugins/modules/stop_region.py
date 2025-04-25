@@ -297,20 +297,22 @@ class AnsibleStopCICSModule(object):
 
         job = jobs_raw[0]
 
+        no_name_msg = "Couldn't determine job name for job ID {0}".format(job_id)
         if not job.get("job_id") == job_id:
-            self._module.fail_json("Couldn't determine job name for job ID {0}".format(job_id))
+            self._module.fail_json(no_name_msg)
 
         job_name = job.get("job_name")
         if not job_name:
-            self._module.fail_json("Couldn't determine job name for job ID {0}".format(job_id))
+            self._module.fail_json(no_name_msg)
 
+        no_status_msg = "Couldn't determine status for job ID {0} with name {1}".format(job_id, job_name)
         ret_code = job.get("ret_code")
         if not ret_code:
-            self._module.fail_json("Couldn't determine status for job ID {0} with name {1}".format(job_id, job_name))
+            self._module.fail_json(no_status_msg)
 
         status = ret_code.get("msg")
         if not status:
-            self._module.fail_json("Couldn't determine status for job ID {0} with name {1}".format(job_id, job_name))
+            self._module.fail_json(no_status_msg)
 
         self._module.exit_json(
             changed=False,
