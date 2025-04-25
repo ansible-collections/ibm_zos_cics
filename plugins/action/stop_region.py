@@ -143,7 +143,7 @@ class ActionModule(ActionBase):
         if job_status == "COMBINATION INVALID":
             raise AnsibleActionFail(
                 "No jobs found with name {0} and ID {1}".format(self.job_name, self.job_id))
-        
+
         self.job_status = job_status
 
     def _set_job_status_and_id_by_name(self):
