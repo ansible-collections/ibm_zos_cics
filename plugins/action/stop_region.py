@@ -44,7 +44,7 @@ TSO_STATUS_COMMAND = "STATUS {0}"
 TSO_STATUS_ID_COMMAND = "STATUS {0}({1})"
 
 
-class StopActionModule(ActionBase):
+class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         self._setup(tmp, task_vars)
 
@@ -101,7 +101,7 @@ class StopActionModule(ActionBase):
         get_console_errors(shutdown_output)
 
     def _setup(self, tmp, task_vars):
-        super(StopActionModule, self).run(tmp, task_vars)
+        super(ActionModule, self).run(tmp, task_vars)
         self.task_vars = task_vars
         self.tmp = tmp
         self.module_args = self._task.args.copy()
