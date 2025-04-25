@@ -279,6 +279,7 @@ class StopActionModule(ActionBase):
         })
         return cancel_response
 
+
 def validate_module_params(job_name, job_id, stop_mode, sdtran, no_sdtran, timeout):
     if not job_id and not job_name:
         raise AnsibleActionFail("At least one of {0} or {1} must be specified".format(
@@ -288,7 +289,7 @@ def validate_module_params(job_name, job_id, stop_mode, sdtran, no_sdtran, timeo
         raise AnsibleActionFail(
             "Value: {0}, is invalid. SDTRAN value must be  1-4 characters.".format(sdtran)
         )
-    
+
     return (job_name, job_id, stop_mode, sdtran, no_sdtran, timeout)
 
 

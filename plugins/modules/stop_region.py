@@ -350,10 +350,11 @@ class AnsibleStopCICSModule(object):
                 'default': TIMEOUT_DEFAULT,
             }
         }
-            
-def get_jobs_wrapper(job_id): # type: (str) -> list[dict]
+
+
+def get_jobs_wrapper(job_id):  # type: (str) -> list[dict]
     try:
-      return job_status(job_id=job_id)
+        return job_status(job_id=job_id)
     except JobFetchException as e:
         response = e.response
 
@@ -364,6 +365,7 @@ def get_jobs_wrapper(job_id): # type: (str) -> list[dict]
         else:
             # Otherwise something unexpected happened
             raise e
+
 
 def main():
     if __name__ == '__main__':

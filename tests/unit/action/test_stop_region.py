@@ -15,10 +15,6 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.stop_action_helper 
     CONSOLE_UNDEFINED,
 )
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.modules.stop_region import (
-    SDTRAN
-)
-
 # Required for mocking of datetime import in this file
 import ansible_collections.ibm.ibm_zos_cics.plugins.action.stop_region as stop_region_action
 from ansible_collections.ibm.ibm_zos_cics.plugins.action.stop_region import (
@@ -228,6 +224,7 @@ def test_get_job_info_from_status_1_running_2_stopped():
         },
     ]
 
+
 def test_get_job_status_name_id():
     job_name = "JOBNAM"
     job_id = "JOB12345"
@@ -267,6 +264,7 @@ def test_get_job_status_name_id_2_jobs():
     with pytest.raises(AnsibleActionFail) as action_err:
         _get_job_status_name_id(tso_query_response, job_name, job_id)
     assert "Multiple jobs with name and ID found" in str(action_err)
+
 
 def test__validate_sdtran():
     validate_module_params("ASDF", "ASDF", None, "CESD", None, None)
