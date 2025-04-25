@@ -48,7 +48,7 @@ class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         self._setup(tmp, task_vars)
 
-        self.job_id, self.job_name, self.stop_mode, self.sdtran, self.no_sdtran, self.timeout = validate_module_params(
+        self.job_name, self.job_id, self.stop_mode, self.sdtran, self.no_sdtran, self.timeout = validate_module_params(
             self.module_args.get(JOB_NAME),
             self.module_args.get(JOB_ID),
             self.module_args.get(MODE),
@@ -122,13 +122,13 @@ class ActionModule(ActionBase):
 
     def _get_job_data(self):
         if self.job_id and self.job_name:
-            self.job_status = self._set_job_status_by_name_and_id()
+            self._set_job_status_by_name_and_id()
         elif self.job_name:
             self._set_job_status_and_id_by_name()
         elif self.job_id:
-            # This is the failing test case - we only have a job ID and no name
-            # We get the job name so we can run the status command.  However, do we actually need to, if we have the
             self._set_job_status_and_name_by_id()
+        else:
+            raise Exception("Neither job_name nor job_id was set.  This shouldn't happen according to the argument spec")
 
     def _set_job_status_by_name_and_id(self):
         tso_status_response = self.execute_zos_tso_cmd(
@@ -143,7 +143,8 @@ class ActionModule(ActionBase):
         if job_status == "COMBINATION INVALID":
             raise AnsibleActionFail(
                 "No jobs found with name {0} and ID {1}".format(self.job_name, self.job_id))
-        return job_status
+        
+        self.job_status = job_status
 
     def _set_job_status_and_id_by_name(self):
         # If we have a name but no ID, we use a TSO command to get the job ID
