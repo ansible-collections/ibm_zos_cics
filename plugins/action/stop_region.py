@@ -122,15 +122,15 @@ class ActionModule(ActionBase):
 
     def _get_job_data(self):
         if self.job_id and self.job_name:
-            self._set_job_status_by_name_and_id()
+            self.job_status = self.self._get_job_status_by_name_and_id()
         elif self.job_name:
-            self._set_job_status_and_id_by_name()
+            self.job_id, self.job_status = self._get_job_id_and_status_by_name()
         elif self.job_id:
-            self._set_job_status_and_name_by_id()
+            self.job_name, self.job_status = self._get_job_name_and_status_by_id()
         else:
             raise Exception("Neither job_name nor job_id was set.  This shouldn't happen according to the argument spec")
 
-    def _set_job_status_by_name_and_id(self):
+    def _get_job_status_by_name_and_id(self):  # type: () -> str
         tso_status_response = self.execute_zos_tso_cmd(
             TSO_STATUS_ID_COMMAND.format(self.job_name, self.job_id)
         )
@@ -144,9 +144,9 @@ class ActionModule(ActionBase):
             raise AnsibleActionFail(
                 "No jobs found with name {0} and ID {1}".format(self.job_name, self.job_id))
 
-        self.job_status = job_status
+        return job_status
 
-    def _set_job_status_and_id_by_name(self):
+    def _get_job_id_and_status_by_name(self):  # type: () -> (str, str)
         # If we have a name but no ID, we use a TSO command to get the job ID
         running_jobs = self._get_running_jobs()
 
@@ -160,10 +160,9 @@ class ActionModule(ActionBase):
                 "Cannot disambiguate between multiple running jobs with the same name ({0}). Use `job_id` as a parameter to specify the correct job.".format(
                     self.job_name))
 
-        self.job_id = running_jobs[0][JOB_ID]
-        self.job_status = running_jobs[0][STATUS]
+        return (running_jobs[0][JOB_ID], running_jobs[0][STATUS])
 
-    def _set_job_status_and_name_by_id(self):
+    def _get_job_name_and_status_by_id(self):  # type: () -> (str, str)
         # We're going to execute this via the stop_region module, to massage the response format into something sensible
         stop_module_output = self._execute_module(
             module_name=STOP_MODULE_NAME,
@@ -182,8 +181,7 @@ class ActionModule(ActionBase):
                 message=stop_module_output.get("msg", "Failure getting job name and status from ID")
             )
 
-        self.job_name = stop_module_output["job_name"]
-        self.job_status = stop_module_output["job_status"]
+        return (stop_module_output["job_name"], stop_module_output["job_status"])
 
     def _get_running_jobs(self):
         tso_query_response = self.execute_zos_tso_cmd(

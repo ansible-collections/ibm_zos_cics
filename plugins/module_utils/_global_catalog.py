@@ -20,10 +20,11 @@ from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.import_handler im
 )
 
 try:
-    from zoautil_py import datasets
+    from zoautil_py import datasets, exceptions
 except Exception:
     # Use ibm_zos_core's approach to handling zoautil_py imports so sanity tests pass
     datasets = ZOAUImportError(traceback.format_exc())
+    exceptions = ZOAUImportError(traceback.format_exc())
 
 
 def _get_value_from_line(line):  # type: (list[str]) -> str | None
@@ -134,9 +135,16 @@ def _execute_dfhrmutl(location, sdfhload, cmd=""):   # type: (str, str, str) -> 
         verbose=True,
         debug=False)
 
-    response.stdout = datasets.read(sysprint.name)
-
-    datasets.delete(sysprint.name)
+    try:
+        response.stdout = datasets.read(sysprint.name)
+        datasets.delete(sysprint.name)
+    except exceptions.ZOAUException as e:
+        raise MVSExecutionException(
+            msg="Unable to read SYSPRINT dataset {0}".format(sysprint.name),
+            rc=e.response.rc,
+            stdout=e.response.stdout_response,
+            stderr=e.response.stderr_response
+        )
 
     return response
 
