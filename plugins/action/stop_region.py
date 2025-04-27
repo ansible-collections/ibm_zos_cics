@@ -153,7 +153,7 @@ class ActionModule(ActionBase):
         if len(running_jobs) == 0:
             # In the event that the job ID is missing, we're still not exposed to the ZOAU 'bug' as we have not used zos_job_query
             self.job_status = "MISSING"
-            return
+            return "", ""
         if len(running_jobs) > 1:
             self.job_status = "MULTIPLE"
             raise AnsibleActionFail(
