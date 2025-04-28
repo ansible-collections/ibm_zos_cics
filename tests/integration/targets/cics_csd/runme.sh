@@ -6,4 +6,4 @@ set -eux
 
 export ANSIBLE_INVENTORY="$ANSIBLE_COLLECTIONS_PATH/ansible_collections/ibm/ibm_zos_cics/tests/integration/inventory_zos.yml"
 
-ansible-playbook playbooks/csdup_script.yml
+ansible-playbook playbooks/csdup_script.yml -vvv
