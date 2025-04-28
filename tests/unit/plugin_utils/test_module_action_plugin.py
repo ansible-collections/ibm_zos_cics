@@ -6,8 +6,6 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-from ansible.parsing.dataloader import DataLoader
-from ansible.template import Templar
 from ansible_collections.ibm.ibm_zos_cics.plugins.plugin_utils._module_action_plugin import (
     _check_library_override,
     _check_region_override,
