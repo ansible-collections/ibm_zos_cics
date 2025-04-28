@@ -153,7 +153,7 @@ class ActionModule(ActionBase):
         if len(running_jobs) == 0:
             # In the event that the job ID is missing, we're still not exposed to the ZOAU 'bug' as we have not used zos_job_query
             return (None, "MISSING")
-            
+
         if len(running_jobs) > 1:
             raise AnsibleActionFail(
                 "Cannot disambiguate between multiple running jobs with the same name ({0}). Use `job_id` as a parameter to specify the correct job.".format(
