@@ -122,7 +122,7 @@ class ActionModule(ActionBase):
 
     def _get_job_data(self):
         if self.job_id and self.job_name:
-            self.job_status = self.self._get_job_status_by_name_and_id()
+            self.job_status = self._get_job_status_by_name_and_id()
         elif self.job_name:
             self.job_id, self.job_status = self._get_job_id_and_status_by_name()
         elif self.job_id:
