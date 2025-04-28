@@ -196,10 +196,10 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import 
     WARM,
     DataSet
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import _read_data_set_content, _write_jcl_to_data_set
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import _read_data_set_content
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._jcl_helper import (
-    JCLHelper, DLM, DD_INSTREAM, CONTENT, END_INSTREAM, JOB_CARD, EXECS, JOB_NAME, DDS, NAME
+    JCLHelper, DLM, DD_INSTREAM, CONTENT, END_INSTREAM, JOB_CARD, EXECS, JOB_NAME, DDS, NAME, _write_jcl_to_data_set
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import _run_listds

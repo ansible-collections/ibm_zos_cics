@@ -9,13 +9,10 @@ from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 import re
-import tempfile
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.ansible_module import AnsibleModuleHelper
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import _execution, MVSExecutionException
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DDStatement, StdoutDefinition, DatasetDefinition, StdinDefinition
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.job import job_output
-from zoautil_py import datasets
 
 MVS_CMD_RETRY_ATTEMPTS = 10
 
@@ -292,31 +289,3 @@ def _read_data_set_content(data_set_name):
             "RC {0} when reading content from data set {1}".format(
                 rc, data_set_name), executions)
     return executions, stdout
-
-def _write_jcl_to_data_set(jcl, data_set_name):
-    """Writes generated JCL content to the specified data set
-    """
-    executions = []
-
-    try:
-        rc = datasets.write(data_set_name, jcl)
-        # If rc != 0, ZOAU raises an exception
-        executions.append(
-            _execution(
-                name="Copy JCL contents to data set",
-                rc=rc,
-                stdout="",
-                stderr=""
-            )
-        )
-    except DatasetWriteException as e:
-        raise MVSExecutionException("Failed to copy JCL content to data set", [
-            _execution(
-                name="Copy JCL contents to data set",
-                rc=e.response.rc,
-                stdout=e.response.stdout_response,
-                stderr=e.response.stderr_response
-            )
-        ])
-
-    return executions
