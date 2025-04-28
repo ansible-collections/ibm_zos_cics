@@ -298,16 +298,25 @@ def _write_jcl_to_data_set(jcl, data_set_name):
     """
     executions = []
 
-    response = datasets._write(data_set_name, jcl)
-
-    executions.append(
-        _execution(
-            name="Copy JCL contents to data set",
-            rc=response.rc,
-            stdout=response.stdout_response,
-            stderr=response.stderr_response
+    try:
+        rc = datasets.write(data_set_name, jcl)
+        # If rc != 0, ZOAU raises an exception
+        executions.append(
+            _execution(
+                name="Copy JCL contents to data set",
+                rc=rc,
+                stdout="",
+                stderr=""
+            )
         )
-    )
-    if response.rc != 0:
-        raise MVSExecutionException("Failed to copy JCL content to data set", executions)
+    except DatasetWriteException as e:
+        raise MVSExecutionException("Failed to copy JCL content to data set", [
+            _execution(
+                name="Copy JCL contents to data set",
+                rc=e.response.rc,
+                stdout=e.response.stdout_response,
+                stderr=e.response.stderr_response
+            )
+        ])
+
     return executions
