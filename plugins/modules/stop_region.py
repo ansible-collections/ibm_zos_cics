@@ -304,7 +304,7 @@ class AnsibleStopCICSModule(object):
         job_name = job.get("job_name")
         if not job_name:
             self._module.fail_json(no_name_msg)
-
+ 
         no_status_msg = "Couldn't determine status for job ID {0} with name {1}".format(job_id, job_name)
         ret_code = job.get("ret_code")
         if not ret_code:
