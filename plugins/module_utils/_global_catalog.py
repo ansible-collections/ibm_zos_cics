@@ -8,11 +8,23 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+import traceback
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd, MVSCmdResponse
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement, InputDefinition
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import OutputDefinition, DatasetDefinition, DDStatement, InputDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException, _execution
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import MVS_CMD_RETRY_ATTEMPTS
+
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.import_handler import (
+    ZOAUImportError
+)
+
+try:
+    from zoautil_py import datasets, exceptions
+except Exception:
+    # Use ibm_zos_core's approach to handling zoautil_py imports so sanity tests pass
+    datasets = ZOAUImportError(traceback.format_exc())
+    exceptions = ZOAUImportError(traceback.format_exc())
 
 
 def _get_value_from_line(line):  # type: (list[str]) -> str | None
@@ -24,18 +36,6 @@ def _get_value_from_line(line):  # type: (list[str]) -> str | None
 
 def _get_filtered_list(elements, target):  # type: (list[str],str) -> list[str]
     return list(filter(lambda x: target in x, elements))
-
-
-def _get_rmutl_dds(
-        location,
-        sdfhload,
-        cmd):  # type: (str, str, str) -> list[DDStatement]
-    return [
-        DDStatement('steplib', DatasetDefinition(sdfhload)),
-        DDStatement('dfhgcd', DatasetDefinition(location)),
-        DDStatement('sysin', InputDefinition(content=cmd)),
-        DDStatement('sysprint', StdoutDefinition()),
-    ]
 
 
 def _get_reason_code(stdout_lines_arr):  # type: (list[str]) -> str | None
@@ -120,11 +120,33 @@ def _run_dfhrmutl(
 
 
 def _execute_dfhrmutl(location, sdfhload, cmd=""):   # type: (str, str, str) -> MVSCmdResponse
-    return MVSCmd.execute(
+    sysprint = OutputDefinition(record_length=133)
+
+    dds = [
+        DDStatement('steplib', DatasetDefinition(sdfhload)),
+        DDStatement('dfhgcd', DatasetDefinition(location)),
+        DDStatement('sysin', InputDefinition(content=cmd)),
+        DDStatement('sysprint', sysprint)
+    ]
+
+    response = MVSCmd.execute(
         pgm="DFHRMUTL",
-        dds=_get_rmutl_dds(location=location, sdfhload=sdfhload, cmd=cmd),
+        dds=dds,
         verbose=True,
         debug=False)
+
+    try:
+        response.stdout = datasets.read(sysprint.name)
+        datasets.delete(sysprint.name)
+    except exceptions.ZOAUException as e:
+        raise MVSExecutionException(
+            msg="Unable to read SYSPRINT dataset {0}".format(sysprint.name),
+            rc=e.response.rc,
+            stdout=e.response.stdout_response,
+            stderr=e.response.stderr_response
+        )
+
+    return response
 
 
 def _get_idcams_cmd_gcd(dataset):   # type: (dict) -> dict

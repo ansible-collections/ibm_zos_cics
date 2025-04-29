@@ -241,7 +241,22 @@ msg:
   type: str
 '''
 
+import traceback
+
 from ansible.module_utils.basic import AnsibleModule
+
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.job import job_status
+
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.import_handler import (
+    ZOAUImportError
+)
+
+try:
+    from zoautil_py.exceptions import JobFetchException
+except Exception:
+    # Use ibm_zos_core's approach to handling zoautil_py imports so sanity tests pass
+    datasets = ZOAUImportError(traceback.format_exc())
+
 
 CANCEL = 'cancel'
 IMMEDIATE = 'immediate'
@@ -267,32 +282,44 @@ class AnsibleStopCICSModule(object):
         self.msg = ""
 
     def main(self):
-        if self._module.params.get(SDTRAN):
-            self._validate_sdtran(self._module.params[SDTRAN])
-        if not self._module.params.get(JOB_ID) and not self._module.params.get(JOB_NAME):
-            self._fail("At least one of {0} or {1} must be specified".format(
-                JOB_ID, JOB_NAME))
-        self.result = self.get_result()
-        self._module.exit_json(**self.result)
+        # At this point, this module only gets executed with JOB_ID
+        # This is as a wrapper to jls via ibm_zos_core job to clean-up the output
+        # if there is no job found with that ID (ZOAU throws an exception)
+        job_id = self._module.params.get(JOB_ID)
 
-    def _validate_sdtran(self, transaction):  # type: (str) -> None
-        if len(transaction) > 4:
-            self._fail(
-                "Value: {0}, is invalid. SDTRAN value must be  1-4 characters.".format(transaction))
+        jobs_raw: list[dict] = get_jobs_wrapper(job_id)
 
-    def _fail(self, msg):  # type: (str) -> None
-        self.failed = True
-        self.msg = msg
-        self.result = self.get_result()
-        self._module.fail_json(**self.result)
+        if not jobs_raw:
+            self._module.fail_json("No jobs found with id {0}".format(job_id))
 
-    def get_result(self):  # type: () -> dict
-        return {
-            "changed": False,
-            "failed": self.failed,
-            "executions": [],
-            "msg": self.msg
-        }
+        if len(jobs_raw) > 1:
+            self._module.fail_json("Multiple jobs found with ID {0}".format(job_id))
+
+        job = jobs_raw[0]
+
+        no_name_msg = "Couldn't determine job name for job ID {0}".format(job_id)
+        if not job.get("job_id") == job_id:
+            self._module.fail_json(no_name_msg)
+
+        job_name = job.get("job_name")
+        if not job_name:
+            self._module.fail_json(no_name_msg)
+
+        no_status_msg = "Couldn't determine status for job ID {0} with name {1}".format(job_id, job_name)
+        ret_code = job.get("ret_code")
+        if not ret_code:
+            self._module.fail_json(no_status_msg)
+
+        status = ret_code.get("msg")
+        if not status:
+            self._module.fail_json(no_status_msg)
+
+        self._module.exit_json(
+            changed=False,
+            failed=False,
+            job_name=job["job_name"],
+            job_status="EXECUTING" if "AC" in status else "NOT_EXECUTING"
+        )
 
     def init_argument_spec(self):
         return {
@@ -325,6 +352,21 @@ class AnsibleStopCICSModule(object):
                 'default': TIMEOUT_DEFAULT,
             }
         }
+
+
+def get_jobs_wrapper(job_id):  # type: (str) -> list[dict]
+    try:
+        return job_status(job_id=job_id)
+    except JobFetchException as e:
+        response = e.response
+
+        # ZOAU 1.3 returns an error with this message if there's no job with the expected ID
+        if "BGYSC3503E Failed to retrieve job list." in response.stderr_response:
+            # In this case, we'll clean up the error, so the user gets a clearer response
+            return []
+        else:
+            # Otherwise something unexpected happened
+            raise e
 
 
 def main():

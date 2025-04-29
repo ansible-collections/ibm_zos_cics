@@ -211,10 +211,9 @@ def test_run_rmutl_with_cmd():
             stderr="",
         )
     ]
-    global_catalog.MVSCmd.execute = MagicMock(
+    global_catalog._execute_dfhrmutl = MagicMock(
         return_value=MVSCmdResponse(rc=0, stdout="", stderr="")
     )
-    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
     result = global_catalog._run_dfhrmutl(
         location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
     )
@@ -237,13 +236,12 @@ def test_run_rmutl_with_cmd_and_failure():
             stderr="",
         ),
     ]
-    global_catalog.MVSCmd.execute = MagicMock(
+    global_catalog._execute_dfhrmutl = MagicMock(
         side_effect=[
             MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
             MVSCmdResponse(rc=0, stdout="", stderr=""),
         ]
     )
-    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
     result = global_catalog._run_dfhrmutl(
         location="DATA.SET", sdfhload="SDFH.LOAD", cmd="HI"
     )
@@ -267,8 +265,7 @@ def test_run_rmutl_no_cmd():
         )
     ]
     expected_details = ("AUTOASIS", "EMERGENCY")
-    global_catalog.MVSCmd.execute = MagicMock(return_value=rmutl_response)
-    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
+    global_catalog._execute_dfhrmutl = MagicMock(return_value=rmutl_response)
     actual_executions, actual_details = global_catalog._run_dfhrmutl(
         location="DATA.SET", sdfhload="SDFH.LOAD"
     )
@@ -299,13 +296,12 @@ def test_run_rmutl_no_cmd_with_failure():
         ),
     ]
     expected_details = ("AUTOASIS", "EMERGENCY")
-    global_catalog.MVSCmd.execute = MagicMock(
+    global_catalog._execute_dfhrmutl = MagicMock(
         side_effect=[
             MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
             rmutl_response,
         ]
     )
-    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
     actual_executions, actual_details = global_catalog._run_dfhrmutl(
         location="DATA.SET", sdfhload="SDFH.LOAD"
     )
@@ -360,7 +356,7 @@ def test_run_rmutl_no_cmd_many_failures():
         ),
     ]
     expected_details = ("AUTOINIT", "UNKNOWN")
-    global_catalog.MVSCmd.execute = MagicMock(
+    global_catalog._execute_dfhrmutl = MagicMock(
         side_effect=[
             MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
             MVSCmdResponse(rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
@@ -370,7 +366,6 @@ def test_run_rmutl_no_cmd_many_failures():
             rmutl_response,
         ]
     )
-    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
     actual_executions, actual_details = global_catalog._run_dfhrmutl(
         location="DATA.SET", sdfhload="SDFH.LOAD"
     )
@@ -380,10 +375,9 @@ def test_run_rmutl_no_cmd_many_failures():
 
 
 def test_run_rmutl_rc16_error():
-    global_catalog.MVSCmd.execute = MagicMock(
+    global_catalog._execute_dfhrmutl = MagicMock(
         return_value=MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'12'", stderr="")
     )
-    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
 
     expected_executions = [
         _execution(
@@ -408,14 +402,13 @@ def test_run_rmutl_rc16_error():
 
 
 def test_run_rmutl_many_rc16_error():
-    global_catalog.MVSCmd.execute = MagicMock(
+    global_catalog._execute_dfhrmutl = MagicMock(
         side_effect=[
             MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
             MVSCmdResponse(rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
             MVSCmdResponse(rc=16, stdout="REASON:X'B2'", stderr=""),
         ]
     )
-    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
 
     expected_executions = [
         _execution(name=RMUTL_update_run_name(1), rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
@@ -437,14 +430,13 @@ def test_run_rmutl_many_rc16_error():
 
 
 def test_run_rmutl_many_rc_error():
-    global_catalog.MVSCmd.execute = MagicMock(
+    global_catalog._execute_dfhrmutl = MagicMock(
         side_effect=[
             MVSCmdResponse(rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
             MVSCmdResponse(rc=16, stdout="\n\n\n REASON: X'A8'", stderr=""),
             MVSCmdResponse(rc=15, stdout="REASON:", stderr=""),
         ]
     )
-    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
 
     expected_executions = [
         _execution(name=RMUTL_update_run_name(1), rc=16, stdout=" ABC \n REASON: X'A8'", stderr=""),
@@ -466,10 +458,9 @@ def test_run_rmutl_many_rc_error():
 
 
 def test_run_rmutl_rc_not_0():
-    global_catalog.MVSCmd.execute = MagicMock(
+    global_catalog._execute_dfhrmutl = MagicMock(
         return_value=MVSCmdResponse(rc=123, stdout="", stderr="")
     )
-    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
 
     expected_executions = [_execution(name=RMUTL_update_run_name(1), rc=123, stdout="", stderr="")]
 
@@ -487,14 +478,13 @@ def test_run_rmutl_rc_not_0():
 
 
 def test_run_rmutl_failed_while_running_mvscmd():
-    global_catalog.MVSCmd.execute = MagicMock(
+    global_catalog._execute_dfhrmutl = MagicMock(
         return_value=MVSCmdResponse(
             rc=123,
             stdout=global_catalog.DFHRMUTL_PROGRAM_HEADER,
             stderr=global_catalog.SUBPROCESS_EXIT_MESSAGE
         )
     )
-    global_catalog._get_rmutl_dds = MagicMock(return_value=[])
 
     expected_executions = [
         _execution(

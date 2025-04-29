@@ -58,6 +58,8 @@
     - name: Log output of stop
       ansible.builtin.debug:
         msg: "{{ stop_output }}"
+      when: stop_output is defined
+
     - name: Remove data set to indicate console is not in use
       ibm.ibm_zos_core.zos_data_set:
         name: "{{ ansible_user }}.AN{{ build_number }}.STOPCICS.LOCK"

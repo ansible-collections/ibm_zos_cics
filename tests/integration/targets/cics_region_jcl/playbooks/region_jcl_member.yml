@@ -69,7 +69,7 @@
           ibm.ibm_zos_core.zos_data_set:
             name: "{{ base_data_set_path }}"
             state: present
-            type: PDS
+            type: pds
           register: result
           retries: 3
           until: result is not failed
