@@ -61,7 +61,7 @@ def test__remove_cics_data_set_args():
 def test__process_region_data_set_args_with_template():
     args_with_template = {"region_data_sets": {"template": "data.set.template.<< data_set_name >>"}}
 
-    _process_region_data_set_args(args_with_override, "dfhgcd")
+    _process_region_data_set_args(args_with_template, "dfhgcd")
 
     assert "dfhgcd" in list(args_with_template["region_data_sets"].keys())
     assert args_with_template["region_data_sets"]["dfhgcd"] == {"dsn": "data.set.template.DFHGCD"}
