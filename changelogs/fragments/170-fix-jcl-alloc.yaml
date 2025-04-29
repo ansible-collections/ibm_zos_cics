@@ -1,0 +1,2 @@
+bugfixes:
+  - region_jcl - Use ZOAU API to write JCL to a data set, so that sequential data sets are allocated properly.  The resulting data set can now be submitted from ISPF. (https://github.com/ansible-collections/ibm_zos_cics/pull/170).
