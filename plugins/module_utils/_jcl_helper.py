@@ -9,23 +9,6 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 import re
-import traceback
-
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.import_handler import (
-    ZOAUImportError
-)
-
-try:
-    from zoautil_py import datasets, exceptions
-except Exception:
-    # Use ibm_zos_core's approach to handling zoautil_py imports so sanity tests pass
-    datasets = ZOAUImportError(traceback.format_exc())
-    exceptions = ZOAUImportError(traceback.format_exc())
-
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import (
-    MVSExecutionException,
-    _execution,
-)
 
 ACCOUNTING_INFORMATION = 'accounting_information'
 CONTENT = 'content'
@@ -392,32 +375,3 @@ class JCLHelper:
             value = value.replace("'", "''")
 
         return "'{0}'".format(value)
-
-
-def _write_jcl_to_data_set(jcl, data_set_name):
-    """Writes generated JCL content to the specified data set
-    """
-    executions = []
-
-    try:
-        rc = datasets.write(data_set_name, jcl)
-        # If rc != 0, ZOAU raises an exception
-        executions.append(
-            _execution(
-                name="Copy JCL contents to data set",
-                rc=rc,
-                stdout="",
-                stderr=""
-            )
-        )
-    except exceptions.DatasetWriteException as e:
-        raise MVSExecutionException("Failed to copy JCL content to data set", [
-            _execution(
-                name="Copy JCL contents to data set",
-                rc=e.response.rc,
-                stdout=e.response.stdout_response,
-                stderr=e.response.stderr_response
-            )
-        ])
-
-    return executions
