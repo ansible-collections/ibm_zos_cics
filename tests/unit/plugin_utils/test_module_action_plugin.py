@@ -6,8 +6,6 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-from ansible.parsing.dataloader import DataLoader
-from ansible.template import Templar
 from ansible_collections.ibm.ibm_zos_cics.plugins.plugin_utils._module_action_plugin import (
     _check_library_override,
     _check_region_override,
@@ -21,12 +19,6 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.plugin_utils._module_action_pl
     _check_template,
     _set_top_libraries_key
 )
-
-
-def get_templar(module_args):
-    loader = DataLoader()
-    templar = Templar(loader=loader, variables=module_args)
-    return templar
 
 
 def test__check_region_override():
@@ -68,10 +60,8 @@ def test__remove_cics_data_set_args():
 
 def test__process_region_data_set_args_with_template():
     args_with_template = {"region_data_sets": {"template": "data.set.template.<< data_set_name >>"}}
-    templar = get_templar(args_with_template)
-    task_vars = args_with_template
 
-    _process_region_data_set_args(args_with_template, templar, "dfhgcd", task_vars)
+    _process_region_data_set_args(args_with_override, "dfhgcd")
 
     assert "dfhgcd" in list(args_with_template["region_data_sets"].keys())
     assert args_with_template["region_data_sets"]["dfhgcd"] == {"dsn": "data.set.template.DFHGCD"}
@@ -79,21 +69,17 @@ def test__process_region_data_set_args_with_template():
 
 def test__process_region_data_set_args_without_template():
     args_with_override = {"region_data_sets": {"dfhgcd": {"dsn": "data.set.template.global"}}}
-    templar = get_templar(args_with_override)
-    task_vars = args_with_override
 
-    _process_region_data_set_args(args_with_override, templar, "dfhgcd", task_vars)
+    _process_region_data_set_args(args_with_override, "dfhgcd")
 
     assert args_with_override["region_data_sets"]["dfhgcd"]["dsn"] == "data.set.template.global"
 
 
 def test__process_region_data_set_args_without_template_or_override():
     args_with_garbage = {"region_data_sets": {"garbage": "more.garbage"}}
-    templar = get_templar(args_with_garbage)
-    task_vars = args_with_garbage
 
     try:
-        _process_region_data_set_args(args_with_garbage, templar, "dfhgcd", task_vars)
+        _process_region_data_set_args(args_with_garbage, "dfhgcd")
     except KeyError as e:
         assert e.args[0] == "No template or data set override found for dfhgcd"
     else:
@@ -160,10 +146,8 @@ def test__validate_list_of_data_set_lengths_one_too_long():
 
 def test__process_libraries_args_with_template():
     args_with_template = {"cics_data_sets": {"template": "data.set.template.<< lib_name >>"}}
-    templar = get_templar(args_with_template)
-    task_vars = args_with_template
 
-    _process_libraries_args(args_with_template, templar, task_vars, "cics_data_sets", "sdfhload")
+    _process_libraries_args(args_with_template, "cics_data_sets", "sdfhload")
 
     assert "sdfhload" in list(args_with_template["cics_data_sets"].keys())
     assert args_with_template["cics_data_sets"]["sdfhload"] == "data.set.template.SDFHLOAD"
@@ -171,11 +155,9 @@ def test__process_libraries_args_with_template():
 
 def test__process_libraries_args_with_too_long_cics_data_set():
     args_with_template = {"cics_data_sets": {"template": "data.set.template.too.long.for.jcl.rules.<< lib_name >>"}}
-    templar = get_templar(args_with_template)
-    task_vars = args_with_template
 
     try:
-        _process_libraries_args(args_with_template, templar, task_vars, "cics_data_sets", "sdfhload")
+        _process_libraries_args(args_with_template, "cics_data_sets", "sdfhload")
     except ValueError as e:
         assert e.args[0] == "Data set: data.set.template.too.long.for.jcl.rules.SDFHLOAD is longer than 44 characters."
     else:
@@ -185,11 +167,9 @@ def test__process_libraries_args_with_too_long_cics_data_set():
 
 def test__process_libraries_args_with_too_long_le_data_set():
     args_with_template = {"le_data_sets": {"template": "data.set.template.too.long.for.jcl.rules.<< lib_name >>"}}
-    templar = get_templar(args_with_template)
-    task_vars = args_with_template
 
     try:
-        _process_libraries_args(args_with_template, templar, task_vars, "le_data_sets", "sceecics")
+        _process_libraries_args(args_with_template, "le_data_sets", "sceecics")
     except ValueError as e:
         assert e.args[0] == "Data set: data.set.template.too.long.for.jcl.rules.SCEECICS is longer than 44 characters."
     else:
@@ -199,21 +179,17 @@ def test__process_libraries_args_with_too_long_le_data_set():
 
 def test__process_libraries_args_without_template():
     args_with_override = {"cics_data_sets": {"sdfhload": "data.set.template.load"}}
-    templar = get_templar(args_with_override)
-    task_vars = args_with_override
 
-    _process_libraries_args(args_with_override, templar, task_vars, "cics_data_sets", "sdfhload")
+    _process_libraries_args(args_with_override, "cics_data_sets", "sdfhload")
 
     assert args_with_override["cics_data_sets"]["sdfhload"] == "data.set.template.load"
 
 
 def test__process_libraries_args_without_template_or_override():
     args_with_garbage = {"cics_data_sets": {"garbage": "more.garbage"}}
-    templar = get_templar(args_with_garbage)
-    task_vars = args_with_garbage
 
     try:
-        _process_libraries_args(args_with_garbage, templar, task_vars, "cics_data_sets", "sdfhload")
+        _process_libraries_args(args_with_garbage, "cics_data_sets", "sdfhload")
     except KeyError as e:
         assert e.args[0] == "No template or library override found for sdfhload"
     else:
