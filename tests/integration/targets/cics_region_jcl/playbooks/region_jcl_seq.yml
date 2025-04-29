@@ -1,0 +1,74 @@
+# (c) Copyright IBM Corp. 2024
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+---
+- name: Test lifecycle of sequential data set for region_jcl module
+
+  hosts: "all"
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+  vars:
+    base_data_set_name: SEQJCL
+    data_set_path: "{{ region_data_set_path }}.{{ base_data_set_name }}"
+
+  module_defaults:
+    ibm.ibm_zos_cics.region_jcl:
+      region_data_sets:
+        template: "{{ region_data_set_path }}.<< data_set_name >>"
+        dfhstart:
+          dsn: "{{ data_set_path }}"
+      cics_data_sets:
+        template: "{{ cics_install_path }}.<< lib_name >>"
+        sdfhlic: "{{ cics_install_path }}.LIC.SDFHLIC"
+      le_data_sets:
+        template: "{{ le_path }}.<< lib_name >>"
+      applid: "{{ start_region_applid }}"
+
+  tasks:
+    # #############################################################################
+    # ############################## Initial Cleanup ##############################
+    # #############################################################################
+
+    - name: Delete base data set {{ base_data_set_path }}
+      ibm.ibm_zos_core.zos_data_set:
+        name: "{{ base_data_set_path }}"
+        state: absent
+      register: result
+      retries: 3
+      until: result is not failed
+
+    # #############################################################################
+    # ############################## Module Testing ###############################
+    # #############################################################################
+
+    - name: Wrap test in block so cleanup always runs
+      block:
+        - name: Run region_jcl module with initial state for exisitng PDS
+          ibm.ibm_zos_cics.region_jcl:
+            state: initial
+          register: result
+
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ result }}"
+
+        - name: Assert {{ data_set_path }} created
+          ansible.builtin.assert:
+            that:
+              - result.failed == false
+              - result.changed == true
+              - result.start_state.exists == false
+              - result.end_state.exists == true
+              - result.msg == ""
+
+        # #############################################################################
+        # ################################## Cleanup ##################################
+        # #############################################################################
+
+      always:
+        - name: Delete base data set {{ base_data_set_path }}
+          ibm.ibm_zos_core.zos_data_set:
+            name: "{{ base_data_set_path }}"
+            state: absent
+          register: result
+          retries: 3
+          until: result is not failed

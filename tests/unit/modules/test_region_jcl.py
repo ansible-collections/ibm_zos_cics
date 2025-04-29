@@ -1072,7 +1072,14 @@ def test_initial_state():
         )
     )
 
-    _data_set_utils._execute_command = MagicMock(return_value=(0, "", ""))
+    region_jcl_module._write_jcl_to_data_set = MagicMock(return_value=[
+        _execution(
+            name="Copy JCL contents to data set",
+            rc=0,
+            stdout="",
+            stderr=""
+        )
+    ])
 
     region_jcl_module.main()
     expected_result = dict(
@@ -1138,7 +1145,14 @@ def test_initial_state_pre_existing():
         )
     )
 
-    _data_set_utils._execute_command = MagicMock(return_value=(0, "", ""))
+    region_jcl_module._write_jcl_to_data_set = MagicMock(return_value=[
+        _execution(
+            name="Copy JCL contents to data set",
+            rc=0,
+            stdout="",
+            stderr=""
+        )
+    ])
 
     region_jcl_module.main()
     expected_result = dict(
@@ -1430,7 +1444,14 @@ def test_initial_state_member():
         ]
     )
 
-    _data_set_utils._execute_command = MagicMock(return_value=(0, "", ""))
+    region_jcl_module._write_jcl_to_data_set = MagicMock(return_value=[
+        _execution(
+            name="Copy JCL contents to data set",
+            rc=0,
+            stdout="",
+            stderr=""
+        )
+    ])
 
     region_jcl_module.main()
     expected_result = dict(
@@ -1550,7 +1571,14 @@ def test_initial_state_pre_existing_member():
         return_value=MVSCmdResponse(0, IDCAMS_delete(MEMBER_DS_NAME), "")
     )
 
-    _data_set_utils._execute_command = MagicMock(return_value=(0, "", ""))
+    region_jcl_module._write_jcl_to_data_set = MagicMock(return_value=[
+        _execution(
+            name="Copy JCL contents to data set",
+            rc=0,
+            stdout="",
+            stderr=""
+        )
+    ])
 
     region_jcl_module.main()
     expected_result = dict(
