@@ -16,8 +16,8 @@ description:
     Z Open Automation Utilities (ZOAU). You can choose the shutdown mode from NORMAL, IMMEDIATE, or CANCEL.
   - The O(job_id), O(job_name), or both can be used to shut down a CICS region. If mulitple jobs are running with the same name, the O(job_id) is required.
   - During a NORMAL or IMMEDIATE shutdown, a shutdown assist transaction should run to enable CICS to shut down in a controlled manner.
-    By default, the shutdown assist transaction specified in the SDTRAN system initialization parameter is used. If this is not set, 
-    the CICS-supplied shutdown assist transaction, CESD, is used instead. The task runs until the region has successfully shut down, 
+    By default, the shutdown assist transaction specified in the SDTRAN system initialization parameter is used. If this is not set,
+    the CICS-supplied shutdown assist transaction, CESD, is used instead. The task runs until the region has successfully shut down,
     or until the shutdown fails.
   - You must have a console installed in the CICS region so that the stop_region module can communicate with CICS. To define a console,
     you must install a terminal with the CONSNAME attribute set to your TSO user ID. For detailed instructions, see
@@ -61,7 +61,8 @@ options:
   sdtran:
     description:
       - The 4-character identifier of the shutdown assist transaction.
-      - If neither SDTRAN nor NOSDTRAN is specified, the value specified in the SDTRAN SIT parameter is used; or if this has not been set, the CICS-supplied shutdown assist transaction, CESD, is used instead.
+      - If neither SDTRAN nor NOSDTRAN is specified, the value specified in the SDTRAN SIT parameter is used; or if this has not been set, the
+        CICS-supplied shutdown assist transaction, CESD, is used instead.
     type: str
     required: false
   no_sdtran:
