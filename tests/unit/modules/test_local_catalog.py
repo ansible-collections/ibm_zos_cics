@@ -3,7 +3,7 @@
 # (c) Copyright IBM Corp. 2023,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _data_set_utils as data_set_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _data_set, _data_set_utils as data_set_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _local_catalog as local_catalog_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _icetool as icetool
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import _execution
@@ -58,6 +58,8 @@ def initialise_module(**kwargs):
     initial_args = default_arg_parms
     initial_args.update(kwargs)
     set_module_args(initial_args)
+    # Mock the ZOAU API check
+    _data_set._check_zoau_version = MagicMock(return_value=None)
     lcd_module = local_catalog.AnsibleLocalCatalogModule()
     # Mock Ansible module fail and exits, this prevents sys.exit being called but retains an accurate results
     lcd_module._module.fail_json = MagicMock(return_value=None)

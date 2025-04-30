@@ -248,10 +248,8 @@ import traceback
 from ansible.module_utils.basic import AnsibleModule
 
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.job import job_status
-
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.import_handler import (
-    ZOAUImportError
-)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._zoau_version_checker import _check_zoau_version
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.import_handler import ZOAUImportError
 
 try:
     from zoautil_py.exceptions import JobFetchException
@@ -284,6 +282,10 @@ class AnsibleStopCICSModule(object):
         self.msg = ""
 
     def main(self):
+        try:
+            _check_zoau_version()
+        except ImportError as e:
+            self._module.fail_json(e.msg)
         # At this point, this module only gets executed with JOB_ID
         # This is as a wrapper to jls via ibm_zos_core job to clean-up the output
         # if there is no job found with that ID (ZOAU throws an exception)
