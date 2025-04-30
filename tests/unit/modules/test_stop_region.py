@@ -50,6 +50,8 @@ def initialise_module(monkeypatch, **kwargs):
     set_module_args(initial_args)
 
     stop_module = stop_region.AnsibleStopCICSModule()
+    # Mock the ZOAU API check
+    stop_region._check_zoau_version = MagicMock(return_value=None)
 
     # Monkeypatch module exits, so we can assert the correct one
     monkeypatch.setattr(stop_module._module, "fail_json", fail_json)

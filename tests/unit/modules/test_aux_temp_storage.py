@@ -3,7 +3,7 @@
 # (c) Copyright IBM Corp. 2023,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _data_set_utils as data_set_utils, _icetool as icetool
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _data_set, _data_set_utils as data_set_utils, _icetool as icetool
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import _execution
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import (
     PYTHON_LANGUAGE_FEATURES_MESSAGE,
@@ -46,6 +46,8 @@ def initialise_module(**kwargs):
     initial_args = default_arg_parms
     initial_args.update(kwargs)
     set_module_args(initial_args)
+    # Mock the ZOAU API check
+    _data_set._check_zoau_version = MagicMock(return_value=None)
     temp_module = aux_temp_storage.AnsibleAuxiliaryTempModule()
     temp_module._module.fail_json = MagicMock(return_value=None)
     temp_module._module.exit_json = MagicMock(return_value=None)

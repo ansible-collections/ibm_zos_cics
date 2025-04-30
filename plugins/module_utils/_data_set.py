@@ -7,6 +7,8 @@
 
 from __future__ import (absolute_import, division, print_function)
 
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._zoau_version_checker import _check_zoau_version
+
 
 __metaclass__ = type
 
@@ -72,6 +74,10 @@ class DataSet():
         )
         self.process_volume_arg()
         self.validate_parameters()
+        try:
+            _check_zoau_version()
+        except ImportError as e:
+            self._fail(e.msg)
 
     def get_result(self):  # type: () -> dict
         return {

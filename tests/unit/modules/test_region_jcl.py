@@ -7,7 +7,7 @@ import json
 from _pytest.monkeypatch import MonkeyPatch
 from ansible.module_utils.common.text.converters import to_bytes
 from ansible.module_utils import basic
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _data_set_utils
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _data_set, _data_set_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import _execution
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.region_jcl import (
     AnsibleRegionJCLModule as StartCICSModule, DFHSIP, PGM, DISP, DSN, SHR
@@ -59,11 +59,17 @@ def set_module_args(args):
     basic._ANSIBLE_ARGS = to_bytes(args)
 
 
+def get_start_cics_module():
+    # Mock the ZOAU API check
+    _data_set._check_zoau_version = MagicMock(return_value=None)
+    return StartCICSModule()
+
+
 def setup_and_update_parms(args):
     parms = default_arg_parms
     parms.update(args)
     set_module_args(parms)
-    dfhsip = StartCICSModule()
+    dfhsip = get_start_cics_module()
     dfhsip._remove_none_values_from_dict(dfhsip._module.params)
     return dfhsip
 
@@ -142,7 +148,7 @@ def test_add_block_of_libraries_empty_top_data_sets():
 
 def test_add_block_of_libraries_dict_is_none():
     set_module_args(default_arg_parms)
-    dfhsip = StartCICSModule()
+    dfhsip = get_start_cics_module()
     dfhsip._module.params.pop("steplib")
     dfhsip._add_block_of_libraries("steplib")
     assert dfhsip.dds == []
@@ -150,14 +156,14 @@ def test_add_block_of_libraries_dict_is_none():
 
 def test_get_delimiter_when_dlm_not_needed():
     set_module_args(default_arg_parms)
-    dfhsip = StartCICSModule()
+    dfhsip = get_start_cics_module()
     dlm = dfhsip._get_delimiter(["value1=one", "value2=two", "value3=three"])
     assert dlm is None
 
 
 def test_get_delimiter():
     set_module_args(default_arg_parms)
-    dfhsip = StartCICSModule()
+    dfhsip = get_start_cics_module()
     dlm = dfhsip._get_delimiter(["value1=one", "value2=two/*", "value3=three"])
     assert dlm == "@@"
 
@@ -222,7 +228,7 @@ def test_find_unused_character_with_preferred_chars_used():
 def test_validate_content():
     prepare_for_exit()
     set_module_args(default_arg_parms)
-    module = StartCICSModule()
+    module = get_start_cics_module()
     content = ["LISTCAT ENTRIES('SOME.data_set.*')",
                "LISTCAT ENTRIES('SOME.OTHER.DS.*')"]
     module._validate_content(content)
@@ -233,7 +239,7 @@ def test_validate_content():
 def test_validate_content_with_passing_jcl():
     prepare_for_exit()
     set_module_args(default_arg_parms)
-    module = StartCICSModule()
+    module = get_start_cics_module()
     content = ["//TEST DD DISP=SHR,DSN=TEST.DATA"]
     module._validate_content(content)
     module._exit()
@@ -243,7 +249,7 @@ def test_validate_content_with_passing_jcl():
 def test_validate_content_with_invalid_content_dd_data():
     prepare_for_fail()
     set_module_args(default_arg_parms)
-    module = StartCICSModule()
+    module = get_start_cics_module()
     content = ["//TEST DD DISP=SHR,DSN=TEST.DATA", "//TEST2 DD DATA"]
     with pytest.raises(AnsibleFailJson) as exec_info:
         module._validate_content(content)
@@ -255,7 +261,7 @@ def test_validate_content_with_invalid_content_dd_data():
 def test_validate_content_with_invalid_content_DD_instream():
     prepare_for_fail()
     set_module_args(default_arg_parms)
-    module = StartCICSModule()
+    module = get_start_cics_module()
     content = ["//TEST DD DISP=SHR,DSN=TEST.DATA", "//TEST2 DD *"]
     with pytest.raises(AnsibleFailJson) as exec_info:
         module._validate_content(content)
@@ -266,7 +272,7 @@ def test_validate_content_with_invalid_content_DD_instream():
 
 def test_check_for_existing_dlm_within_content_true():
     set_module_args(default_arg_parms)
-    module = StartCICSModule()
+    module = get_start_cics_module()
     content = ["RUN PROGRAM", "/* RUNNING */"]
     end_stream_present = module._check_for_existing_dlm_within_content(
         content)
@@ -275,7 +281,7 @@ def test_check_for_existing_dlm_within_content_true():
 
 def test_check_for_existing_dlm_within_content_falce():
     set_module_args(default_arg_parms)
-    module = StartCICSModule()
+    module = get_start_cics_module()
     content = ["RUN PROGRAM", "HELLO WORLD"]
     end_stream_present = module._check_for_existing_dlm_within_content(
         content)
