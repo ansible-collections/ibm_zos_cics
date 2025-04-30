@@ -4,6 +4,30 @@ ibm.ibm\_zos\_cics Release Notes
 
 .. contents:: Topics
 
+v2.2.0
+======
+
+Release Summary
+---------------
+
+Support for  Z Open Open Automation Utilities 1.3.x and ibm_zos_core 1.10+
+
+Major Changes
+-------------
+
+- Removed support for Z Open Open Automation Utilities 1.2.x and ibm_zos_core 1.9.x (https://github.com/ansible-collections/ibm_zos_cics/pull/163).
+- Update compatibility of the collection to Z Open Automation Utilities 1.3.x and ibm_zos_core 1.10+ (https://github.com/ansible-collections/ibm_zos_cics/pull/163).
+
+Minor Changes
+-------------
+
+- Remove usage of templar, and replace with simple pattern matching (https://github.com/ansible-collections/ibm_zos_cics/pull/169).
+
+Bugfixes
+--------
+
+- region_jcl - Use ZOAU API to write JCL to a data set, so that sequential data sets are allocated properly.  The resulting data set can now be submitted from ISPF. (https://github.com/ansible-collections/ibm_zos_cics/pull/170).
+
 v2.1.1
 ======
 
