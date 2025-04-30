@@ -186,11 +186,31 @@ releases:
       minor_changes:
       - requirements.txt - Slacken requirement constraints in requirements.txt to
         represent compatible versions (https://github.com/ansible-collections/ibm_zos_cics/pull/160)
+      release_summary: Bug fixes and security fixes
       security_fixes:
       - requirements.txt - Bump minimum version of urllib3 to 1.26.19 to address CVE-2024-37891
         (https://github.com/ansible-collections/ibm_zos_cics/pull/161)
-      release_summary: Bug fixes and security fixes
     fragments:
     - 160-slacken-requirements-constraints.yaml
     - 161-CVE-2024-37891.yaml
     release_date: '2025-04-14'
+  2.2.0:
+    changes:
+      bugfixes:
+      - region_jcl - Use ZOAU API to write JCL to a data set, so that sequential data
+        sets are allocated properly.  The resulting data set can now be submitted
+        from ISPF. (https://github.com/ansible-collections/ibm_zos_cics/pull/170).
+      major_changes:
+      - Removed support for Z Open Open Automation Utilities 1.2.x and ibm_zos_core
+        1.9.x (https://github.com/ansible-collections/ibm_zos_cics/pull/163).
+      - Update compatibility of the collection to Z Open Automation Utilities 1.3.x
+        and ibm_zos_core 1.10+ (https://github.com/ansible-collections/ibm_zos_cics/pull/163).
+      minor_changes:
+      - Remove usage of templar, and replace with simple pattern matching (https://github.com/ansible-collections/ibm_zos_cics/pull/169).
+      release_summary: Support for  Z Open Open Automation Utilities 1.3.x and ibm_zos_core
+        1.10+
+    fragments:
+    - 163-zoau-13-compat.yaml
+    - 169-remove-templar.yaml
+    - 170-fix-jcl-alloc.yaml
+    release_date: '2025-04-30'

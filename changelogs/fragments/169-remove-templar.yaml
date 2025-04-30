@@ -1,2 +1,0 @@
-minor_changes:
-  - Remove usage of templar, and replace with simple pattern matching (https://github.com/ansible-collections/ibm_zos_cics/pull/169).

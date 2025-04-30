@@ -68,9 +68,9 @@ collections:
 ```
 
 
-To install a specific version of the collection or upgrade an existing installation to a specific version, for example installing 2.1.1, use the following syntax:
+To install a specific version of the collection or upgrade an existing installation to a specific version, for example installing 2.2.0, use the following syntax:
 ```sh
-ansible-galaxy collection install ibm.ibm_zos_cics:2.1.1
+ansible-galaxy collection install ibm.ibm_zos_cics:2.2.0
 ```
 
 
@@ -162,7 +162,8 @@ The collection's cumulative release notes can be reviewed [here](https://ibm.git
 
 | Version  | Status         | Release notes | Changelogs |
 |----------|----------------|---------------|------------|
-| 2.1.1  | In development | unreleased    | unreleased |
+| 2.2.0   | Released       | [Release notes](https://ibm.github.io/z_ansible_collections_doc/ibm_zos_cics/docs/source/release_notes.html#version-2-2-0)    | [Changelogs](https://github.com/ansible-collections/ibm_zos_cics/blob/v2.2.0/CHANGELOG.rst)  |
+| 2.1.1   | Released       | [Release notes](https://ibm.github.io/z_ansible_collections_doc/ibm_zos_cics/docs/source/release_notes.html#version-2-1-1)    | [Changelogs](https://github.com/ansible-collections/ibm_zos_cics/blob/v2.1.1/CHANGELOG.rst)  |
 | 2.1.0   | Released       | [Release notes](https://ibm.github.io/z_ansible_collections_doc/ibm_zos_cics/docs/source/release_notes.html#version-2-1-0)    | [Changelogs](https://github.com/ansible-collections/ibm_zos_cics/blob/v2.1.0/CHANGELOG.rst)  |
 | 2.0.x    | Released       | [Release notes](https://ibm.github.io/z_ansible_collections_doc/ibm_zos_cics/docs/source/release_notes.html#version-2-0-0)    | [Changelogs](https://github.com/ansible-collections/ibm_zos_cics/blob/v2.0.0/CHANGELOG.rst)  |
 | 1.0.x    | Released       | [Release notes](https://ibm.github.io/z_ansible_collections_doc/ibm_zos_cics/docs/source/release_notes.html#version-1-0-6)    | [Changelogs](https://github.com/ansible-collections/ibm_zos_cics/blob/v1.0.6/CHANGELOG.rst)  |
