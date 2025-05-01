@@ -80,7 +80,7 @@ requirements include installation of the following components:
 * z/OS Version 2.3 or later
 * z/OS OpenSSH
 * IBM Open Enterprise SDK for Python (previously IBM Open Enterprise Python for z/OS)
-* IBM Z Open Automation Utilities (ZOAU) 1.3 or later
+* IBM Z Open Automation Utilities (ZOAU) 1.3.0 or later
 * The z/OS shell
 
 For specific versions of these dependencies and additional information, review
