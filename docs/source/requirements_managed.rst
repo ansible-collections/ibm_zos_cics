@@ -80,11 +80,11 @@ requirements include installation of the following components:
 * z/OS Version 2.3 or later
 * z/OS OpenSSH
 * IBM Open Enterprise SDK for Python (previously IBM Open Enterprise Python for z/OS)
-* IBM Z Open Automation Utilities (ZOAU) 1.2.x
+* IBM Z Open Automation Utilities (ZOAU) 1.3.0 or later
 * The z/OS shell
 
 For specific versions of these dependencies and additional information, review
 the `IBM z/OS core managed node requirements`_ page.
 
-Note that you must have z/OS core collection 1.5.0 or later installed in the control node
+Note that you must have z/OS core collection 1.10 or later installed in the control node
 if you want to run the provisioning tasks.
