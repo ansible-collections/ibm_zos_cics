@@ -1995,6 +1995,14 @@ options:
             authorization requests to RACF.
         required: false
         type: str
+      SECURETCPIP:
+        description:
+          - The SECURETCPIP system initialization parameter specify whether TCP/IP connections managed by CICS to be secure.
+        required: false
+        type: str
+        choices:
+          - "YES"
+          - "NO"
       sit:
         description:
           - The SIT system initialization parameter specifies the suffix, if any, of the system initialization table

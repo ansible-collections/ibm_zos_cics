@@ -2004,6 +2004,11 @@ class AnsibleRegionJCLModule(DataSet):
                         'type': 'str',
                         'required': False,
                     },
+                    'SECURETCPIP': {
+                        'type': 'str',
+                        'required': False,
+                        'choices': ['NO', 'YES'],
+                    },
                     'sit': {
                         'type': 'str',
                         'required': False

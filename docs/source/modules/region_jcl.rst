@@ -2663,6 +2663,16 @@ sit_parameters
 
 
      
+  SECURETCPIP
+    The SECURETCPIP system initialization parameter specify whether TCP/IP connections managed by CICS to be secure.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: YES, NO
+
+
+     
   sit
     The SIT system initialization parameter specifies the suffix, if any, of the system initialization table that you want CICS to load at the start of initialization.
 
