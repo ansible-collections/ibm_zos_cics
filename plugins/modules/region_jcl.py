@@ -1803,6 +1803,12 @@ class AnsibleRegionJCLModule(DataSet):
                         'type': 'int',
                         'required': False,
                     },
+                    "oteltrace":{
+                    "type":"str",
+                    "required":False,
+                    "choices": ["NO", "YES"],
+                    "description":""
+                    },
                     'parmerr': {
                         'type': 'str',
                         'required': False,
@@ -2003,6 +2009,12 @@ class AnsibleRegionJCLModule(DataSet):
                     'secprfx': {
                         'type': 'str',
                         'required': False,
+                    },
+                    "securetcpip":{
+                    "type":"str",
+                    "required":False,
+                    "choices": ["NO", "YES"],
+                    "description":""
                     },
                     'sit': {
                         'type': 'str',

@@ -1679,6 +1679,14 @@ options:
           - The OPNDLIM system initialization parameter specifies the destination and close destination request limit.
         required: false
         type: int
+      oteltrace:
+        description:
+          - The OPNDLIM system initialization parameter specifies the destination and close destination request limit.
+        required: false
+        type: str
+        choices:
+          - "NO"
+          - "YES"
       parmerr:
         description:
           - The PARMERR system initialization parameter specifies what action you want to follow if CICS detects
@@ -1993,6 +2001,14 @@ options:
         description:
           - The SECPRFX system initialization parameter specifies whether CICS prefixes the resource names in any
             authorization requests to RACF.
+        required: false
+        type: str
+      securetcpip:
+        description:
+          - Enforces secure TCP/IP connections for IPCONN, TCPIPSERVICE, and client URIMAP resources.
+        choices:
+          - "YES"
+          - "NO"
         required: false
         type: str
       sit:

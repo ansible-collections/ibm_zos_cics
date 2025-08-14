@@ -2232,6 +2232,16 @@ sit_parameters
 
 
      
+  oteltrace
+    The OPNDLIM system initialization parameter specifies the destination and close destination request limit.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
   parmerr
     The PARMERR system initialization parameter specifies what action you want to follow if CICS detects incorrect system initialization parameter overrides during initialization.
 
@@ -2660,6 +2670,16 @@ sit_parameters
 
     | **required**: False
     | **type**: str
+
+
+     
+  securetcpip
+    Enforces secure TCP/IP connections for IPCONN, TCPIPSERVICE, and client URIMAP resources.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: YES, NO
 
 
      
