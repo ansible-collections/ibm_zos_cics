@@ -1614,6 +1614,16 @@ sit_parameters
 
 
      
+  fips
+    The FIPS system initialization parameter supports FIPS 140-3 standard in the future when it becomes available by System SSL for z/OS.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NOCHECK, 1403
+
+
+     
   fldsep
     The FLDSEP system initialization parameter specifies 'ON'e through four field-separator characters, each of which indicates end of field in the terminal input data.
 

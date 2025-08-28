@@ -1181,6 +1181,14 @@ options:
         choices:
           - "NO"
           - "YES"
+      fips:
+        description:
+          - The FIPS system initialization parameter supports FIPS 140-3 standard in the future when it becomes available by System SSL for z/OS.
+        required: false
+        type: str
+        choices:
+          - "NOCHECK"
+          - "1403"
       fldsep:
         description:
           - The FLDSEP system initialization parameter specifies 'ON'e through four field-separator characters, each

@@ -1508,6 +1508,11 @@ class AnsibleRegionJCLModule(DataSet):
                         'required': False,
                         'choices': ['NO', 'YES'],
                     },
+                    'fips': {
+                        'type': 'str',
+                        'required': False,
+                        'choices': ['NOCHECK', '1403'],
+                    },
                     'fldsep': {
                         'type': 'str',
                         'required': False,
