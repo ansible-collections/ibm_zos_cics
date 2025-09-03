@@ -31,6 +31,7 @@ CMCI_USER = 'cmci_user'
 CMCI_PASSWORD = 'cmci_password'
 CMCI_CERT = 'cmci_cert'
 CMCI_KEY = 'cmci_key'
+CMCI_CA = 'cmci_ca'
 CONTEXT = 'context'
 SCOPE = 'scope'
 RESOURCES = 'resources'
@@ -263,6 +264,9 @@ class AnsibleCMCIModule(object):
                 'no_log': True,
                 'fallback': (env_fallback, ['CMCI_KEY'])
             },
+            CMCI_CA: {
+                'type': 'str',
+            },
             CONTEXT: {
                 'required': True,
                 'type': 'str'
@@ -490,6 +494,8 @@ class AnsibleCMCIModule(object):
         # Try cert auth first
         cmci_cert = self._p.get(CMCI_CERT)
         cmci_key = self._p.get(CMCI_KEY)
+        if self._p.get(CMCI_CA):
+            session.ca_path = self._p.get(CMCI_CA).strip()
         if cmci_cert is not None \
                 and cmci_cert.strip() != '' \
                 and cmci_key is not None \

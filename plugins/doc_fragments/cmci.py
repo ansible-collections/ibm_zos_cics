@@ -65,6 +65,12 @@ options:
         provided.
     required: false
     type: str
+  cmci_ca:
+    description:
+      - Location of the certificate authority (CA) bundle used to update the
+        list of trusted CA's for HTTPS client authentication.
+    required: false
+    type: str
   context:
     description:
       - If CMCI is installed in a CICSPlex® SM environment, I(context) is the
