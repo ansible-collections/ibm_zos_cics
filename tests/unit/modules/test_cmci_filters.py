@@ -1258,7 +1258,7 @@ def test_invalid_complex_filter_attribute(cmci_module):  # type: (CMCITestHelper
 def test_sanitise_complex_filter_value(cmci_module):  # type: (CMCITestHelper) -> None
     records = [{'name': 'bat', 'dsname': 'STEWF.BLOP.BLIP'}]
 
-    encoded_criteria = encode_html_parameter({"CRITERIA": r"(FOO='++++++W+\') OR (jobname=\'*') AND (GOO='\'\'LAR\'\'')"})
+    encoded_criteria = encode_html_parameter([("CRITERIA", r"(FOO='++++++W+\') OR (jobname=\'*') AND (GOO='\'\'LAR\'\'')")])
 
     cmci_module.stub_records('GET', 'cicslocalfile', records, scope=SCOPE,
                              parameters=encoded_criteria)

@@ -3,26 +3,21 @@
 # (c) Copyright IBM Corp. 2020,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import (absolute_import, division, print_function)
+from http.client import HTTPResponse, RemoteDisconnected
+from typing import Any
+from urllib.error import HTTPError, URLError
 
 __metaclass__ = type
 
 from ansible.module_utils.basic import AnsibleModule, missing_required_lib, \
     env_fallback
-from typing import Optional, Dict, Any, List, Tuple
+from ansible.module_utils.urls import Request
 from collections import OrderedDict
-from sys import version_info
 import re
 import traceback
 import urllib
 
-REQUESTS_IMP_ERR = ""
 XMLTODICT_IMP_ERR = ""
-
-try:
-    import requests
-except ImportError:
-    requests = None
-    REQUESTS_IMP_ERR = traceback.format_exc()
 
 try:
     import xmltodict
@@ -50,9 +45,10 @@ INSECURE = 'insecure'
 FEEDBACK = 'feedback'
 TIMEOUT = 'timeout'
 GET_PARAMETERS = 'get_parameters'
+CONTENT_TYPE = 'content-type'
 
 
-def parameters_argument(name):  # type: (str) -> Dict[str, Any]
+def parameters_argument(name: str) -> dict[str, Any]:
     return {
         name: {
             'type': 'list',
@@ -155,7 +151,7 @@ def is_alphanumeric(value):
     return re.match('^([A-Za-z0-9]{1,100})$', value, flags=0)
 
 
-def read_node(node):  # type: (OrderedDict) -> List[OrderedDict]
+def read_node(node):  # type: (OrderedDict) -> list[OrderedDict]
     # Reads a record node that can contain multiple lists of attributes
     result = [
         OrderedDict(
@@ -166,7 +162,7 @@ def read_node(node):  # type: (OrderedDict) -> List[OrderedDict]
     return result
 
 
-def read_error_node(node):  # type: (OrderedDict) -> List[OrderedDict]
+def read_error_node(node):  # type: (OrderedDict) -> list[OrderedDict]
     # Reads an error node than can contain multiple lists of attributes that
     # themselves contain multiple lists of attributes
     result = [
@@ -181,7 +177,7 @@ def read_error_node(node):  # type: (OrderedDict) -> List[OrderedDict]
 
 
 def read_error_detail(key, value):
-    # type: (str, OrderedDict) -> Tuple[str, List[OrderedDict]]
+    # type: (str, OrderedDict) -> tuple[str, list[OrderedDict]]
     # Xmltodict parses inner error types as Dicts when there is only one item in
     # it even though it may well be a list if multiple results were returned. If
     # we find a dict here, wrap it in a list so we can account for only one
@@ -213,15 +209,12 @@ class AnsibleCMCIModule(object):
         )  # type: AnsibleModule
         self.result = dict(changed=False)  # type: dict
 
-        if not requests:
-            self._fail_tb(missing_required_lib('requests'), REQUESTS_IMP_ERR)
-
         if not xmltodict:
             self._fail_tb(missing_required_lib('encoder'), XMLTODICT_IMP_ERR)
 
         self._method = method  # type: str
         self._p = self.init_p()  # type: dict
-        self._session = self.init_session()  # type: requests.Session
+        self._session = self.init_session()  # type: Request
         self._url = self.init_url()  # type: str
 
         # full_document=False suppresses the xml prolog, which CMCI doesn't like
@@ -232,7 +225,7 @@ class AnsibleCMCIModule(object):
         request_params = self.init_request_params()
 
         if request_params:
-            self._url = _url_encode_params(self._url, requests.utils.to_key_val_list(request_params))
+            self._url = _url_encode_params(self._url, request_params)
         result_request = {
             'url': self._url,
             'method': self._method,
@@ -241,7 +234,7 @@ class AnsibleCMCIModule(object):
 
         self.result['request'] = result_request
 
-    def init_argument_spec(self):  # type: () -> Dict
+    def init_argument_spec(self):  # type: () -> dict
         return {
             CMCI_HOST: {
                 'required': True,
@@ -297,7 +290,7 @@ class AnsibleCMCIModule(object):
         }
 
     def main(self):
-        response = self._do_request()  # type: Dict
+        response = self._do_request()  # type: dict
         self.handle_response(response)
         self._module.exit_json(**self.result)
 
@@ -356,10 +349,10 @@ class AnsibleCMCIModule(object):
                     .format(name, value, message)
                 )
 
-    def init_body(self):  # type: () -> Optional[Dict]
+    def init_body(self):  # type: () -> dict | None
         return None
 
-    def handle_response(self, response_dict):  # type: (Dict) -> None
+    def handle_response(self, response_dict):  # type: (dict) -> None
         try:
             response_node = response_dict['response']
 
@@ -437,10 +430,10 @@ class AnsibleCMCIModule(object):
 
         return url
 
-    def init_request_params(self):  # type: () -> Optional[Dict[str, str]]
+    def init_request_params(self):  # type: () -> dict[str, str] | None
         return None
 
-    def get_resources_request_params(self):  # type: () -> Dict[str, str]
+    def get_resources_request_params(self):  # type: () -> dict[str, str]
         # get, delete, put will all need CRITERIA{}
         request_params = OrderedDict({})
         resources = self._p.get(RESOURCES)
@@ -491,8 +484,8 @@ class AnsibleCMCIModule(object):
                 request_params['PARAMETER'] = ' '.join(map(mapper, parameters))
         return request_params
 
-    def init_session(self):  # type: () -> requests.Session
-        session = requests.Session()
+    def init_session(self):  # type: () -> Request
+        session = Request()
 
         # Try cert auth first
         cmci_cert = self._p.get(CMCI_CERT)
@@ -506,7 +499,8 @@ class AnsibleCMCIModule(object):
                     'scheme can not be set to http '
                     'if you are using certificate auth'
                 )
-            session.cert = cmci_cert.strip(), cmci_key.strip()
+            session.client_cert = cmci_cert.strip()
+            session.client_key = cmci_key.strip()
         else:
             # If we didn't get valid cert info, try basic auth
             user = self._p.get(CMCI_USER)
@@ -515,32 +509,27 @@ class AnsibleCMCIModule(object):
                     and user.strip() != '' \
                     and passwd is not None \
                     and passwd.strip() != '':
-                session.auth = user.strip(), passwd.strip()
+                session.url_username = user.strip()
+                session.url_password = passwd.strip()
 
         return session
 
-    def _do_request(self):  # type: () -> Dict
+    def _do_request(self):  # type: () -> dict
         try:
-            response = self._session.request(
+            response: HTTPResponse = self._session.open(
                 self._method,
                 self._url,
-                verify=not self._p[INSECURE],
+                validate_certs=not self._p[INSECURE],
                 timeout=self._p[TIMEOUT],
                 data=self._body
             )
 
-            self.result['http_status_code'] = response.status_code
+            self.result['http_status_code'] = response.status
             self.result['http_status'] = response.reason \
-                if response.reason else str(response.status_code)
-
-            if response.status_code != 200:
-                self._fail(
-                    'CMCI request returned non-OK status: {0}'
-                    .format(self.result.get('http_status'))
-                )
+                if response.reason else str(response.status)
 
             # Try and parse the XML response body into a dict
-            content_type = response.headers.get('content-type')
+            content_type = response.getheader('content-type')
             # Content type header may include the encoding.
             # Just look at the first segment if so
             content_type = content_type.split(';')[0]
@@ -552,7 +541,7 @@ class AnsibleCMCIModule(object):
                 )
 
             # Missing content
-            if not response.content:
+            if not response.readable():
                 self._fail('CMCI response did not contain any data')
 
             namespaces = {
@@ -561,7 +550,7 @@ class AnsibleCMCIModule(object):
             }  # namespace information
 
             r = xmltodict.parse(
-                response.content,
+                str(response.read().decode()),
                 process_namespaces=True,
                 namespaces=namespaces,
                 # Make sure we always return a list for the resource node
@@ -572,16 +561,20 @@ class AnsibleCMCIModule(object):
             )
 
             return r
-        except requests.exceptions.RequestException as e:
+        except HTTPError as e:
+            self.result['http_status_code'] = e.code
+            self.result['http_status'] = e.reason \
+                if e.reason else str(e.code)
+            self._fail(
+                'CMCI request returned non-OK status: {0}'
+                .format(self.result.get('http_status'))
+            )
+        except (URLError, RemoteDisconnected) as e:
             cause = e
-            if isinstance(cause, requests.exceptions.ConnectionError):
-                cause = cause.args[0]
-            if isinstance(
-                    cause, requests.packages.urllib3.exceptions.MaxRetryError):
-                cause = cause.reason
-            # Can't use self._fail_tb here, because we'll end up with tb for
-            # RequestException, not the cause which invalidates our attempts to
-            # clean up the message
+            if isinstance(e, URLError):
+                cause = e.reason
+            elif isinstance(e, RemoteDisconnected):
+                cause = e.args[0]
             self._fail('Error performing CMCI request: {0}'.format(cause))
         except xmltodict.expat.ExpatError as e:
             # Content couldn't be parsed as XML
@@ -616,7 +609,7 @@ class AnsibleCMCIModule(object):
             )
 
     def _get_filter(self, list_of_filters, joiner, path):
-        #  type: (List[Dict], str, str) -> str
+        #  type: (list[dict], str, str) -> str
 
         if not isinstance(list_of_filters, list):
             self._fail(
@@ -757,34 +750,14 @@ def _append_filter_string(existing, to_append, joiner=' AND '):
         return existing + joiner + '(' + to_append + ')'
 
 
-def _url_encode_params(url, params):
-    if version_info.major <= 2:
-        # This is a workaround for python 2, where we can't specify the
-        # encoding as a parameter in urlencode. Store the quote_plus
-        # setting, then override it with quote, so that spaces will be
-        # encoded as %20 instead of +. Then set the quote_plus value
-        # back so we haven't changed the behaviour long term
-        default_quote_plus = urllib.quote_plus
-        urllib.quote_plus = urllib.quote
-        url = url + \
-            "?" + \
-            urllib.urlencode(
-                params
-            )
-        urllib.quote_plus = default_quote_plus
-    else:
-        # If running at python 3 and above
-        url = url + \
-            "?" + \
-            urllib.parse.urlencode(
-                params,
-                quote_via=urllib.parse.quote
-            )
-    return url
+def _url_encode_params(url, params: dict[str, str]):
+    return url + \
+        "?" + \
+        urllib.parse.urlencode(
+            params,
+            quote_via=urllib.parse.quote
+        )
 
 
 def _url_encode_string(url):
-    if version_info.major <= 2:
-        return urllib.quote_plus(url)
-    else:
-        return urllib.parse.quote_plus(url)
+    return urllib.parse.quote_plus(url)

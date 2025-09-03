@@ -4,15 +4,6 @@
 - name: CMCI Incorrect Scheme Integration Test
   hosts: all
   gather_facts: true
-  vars:
-    python_2_message: >-
-      Error performing CMCI request{{ ':' }} ('Connection aborted.',
-      BadStatusLine('No status line received - the server has closed the
-      connection',))
-    python_3_message: >-
-      Error performing CMCI request{{ ':' }} ('Connection aborted.',
-      RemoteDisconnected('Remote end closed connection without response'))
-    error_message: "{{ python_2_message if ansible_python.version.major == 2 else python_3_message }}"
 
   tasks:
     - name: Test https with incorrect scheme
@@ -30,11 +21,15 @@
       failed_when: false
       register: result
 
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ result }}"
+
     - name: Assert https
       ansible.builtin.assert:
         that:
           - result.failed is false
-          - result.msg == error_message
+          - '{{  "Error performing CMCI request: Remote end closed connection without response" in result.msg }}'
 
     - name: Test http with incorrect scheme
       delegate_to: localhost

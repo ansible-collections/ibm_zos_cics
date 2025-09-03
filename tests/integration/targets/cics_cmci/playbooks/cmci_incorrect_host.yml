@@ -28,4 +28,4 @@
       ansible.builtin.assert:
         that:
           - result.failed is false
-          - '{{ "Error performing CMCI request: <urllib3.connection." in result.msg }}'
+          - '{{ "Error performing CMCI request:" in result.msg }}'

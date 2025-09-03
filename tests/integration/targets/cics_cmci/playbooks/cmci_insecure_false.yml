@@ -23,6 +23,10 @@
       failed_when: false
       register: result
 
+    - name: Debug result
+      ansible.builtin.debug:
+        msg: "{{ result }}"
+
     - name: Assert
       ansible.builtin.assert:
         that:

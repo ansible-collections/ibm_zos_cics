@@ -3,17 +3,18 @@
 # (c) Copyright IBM Corp. 2020,2023
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
+from unittest.mock import Mock
+from urllib.error import HTTPError
+from ansible.module_utils.urls import Request
 
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import CONTENT_TYPE
 __metaclass__ = type
 
 from ansible.module_utils.common.text.converters import to_bytes
 from ansible.module_utils import basic
 from collections import OrderedDict
-from requests import PreparedRequest
 from typing import List, Tuple
-from sys import version_info
 import urllib
-import requests
 import json
 import pytest
 import xmltodict
@@ -27,13 +28,15 @@ PORT = '12345'
 
 
 class CMCITestHelper:
-    def __init__(self, requests_mock=None):
-        self.requests_mock = requests_mock
+    def __init__(self):
         self.expected = {}
         self.expected_list = False
 
-    def stub_request(self, *args, **kwargs):
-        self.requests_mock.request(complete_qs=True, *args, **kwargs)
+    def stub_request(self, method, url, **kwargs):
+        if kwargs['status_code'] == 401:
+            Request.open = Mock(side_effect=HTTPError(url, kwargs['status_code'], kwargs['reason'], kwargs['headers'], fp=None))
+        else:
+            Request.open = Mock(return_value=ResponseMock(method, url, **kwargs))
 
     def stub_delete(self, resource_type, success_count, *args, **kwargs):
         return self.stub_cmci(
@@ -84,8 +87,8 @@ class CMCITestHelper:
                   context=CONTEXT, scope=None, parameters='', response_dict=None,
                   headers=None, status_code=200, reason='OK',
                   record_count=None, fail_on_nodata=True, **kwargs):
-        if headers is None:
-            headers = {'CONTENT-TYPE': 'application/xml'}
+        if not headers:
+            headers = {CONTENT_TYPE: 'application/xml'}
         url = '{0}://{1}:{2}/CICSSystemManagement/{3}/{4}/{5}{6}{7}'\
             .format(scheme, host, port, resource_type, context, '//' + str(record_count) if record_count else '',
                     scope if scope else '', parameters)
@@ -151,11 +154,11 @@ class CMCITestHelper:
 
 
 @pytest.fixture
-def cmci_module(requests_mock, monkeypatch):
+def cmci_module(monkeypatch):
     monkeypatch.setattr(basic.AnsibleModule, "exit_json", exit_json)
     monkeypatch.setattr(basic.AnsibleModule, "fail_json", fail_json)
 
-    yield CMCITestHelper(requests_mock)
+    yield CMCITestHelper()
 
 
 @pytest.fixture
@@ -309,20 +312,8 @@ def create_cmci_response(*args):  # type () -> OrderedDict
     )
 
 
-def encode_html_parameter(unencoded_value):
-    if version_info.major <= 2:
-        # This is a workaround for python 2, where we can't specify the
-        # encoding as a parameter in urlencode. Store the quote_plus
-        # setting, then override it with quote, so that spaces will be
-        # encoded as %20 instead of +. Then set the quote_plus value
-        # back so we haven't changed the behaviour long term
-        default_quote_plus = urllib.quote_plus
-        urllib.quote_plus = urllib.quote
-        encoded = urllib.urlencode(requests.utils.to_key_val_list(unencoded_value))
-        urllib.quote_plus = default_quote_plus
-    else:
-        # If running at python 3 and above
-        encoded = urllib.parse.urlencode(requests.utils.to_key_val_list(unencoded_value), quote_via=urllib.parse.quote)
+def encode_html_parameter(unencoded_value: list[tuple[str, str]]):
+    encoded = urllib.parse.urlencode(unencoded_value, quote_via=urllib.parse.quote)
     return "?" + encoded
 
 
@@ -336,3 +327,29 @@ def body_matcher(expected):
 
 def od(*args):
     return OrderedDict(args)
+
+
+class ResponseMock:
+    method: str
+    url: str
+    status: int
+    reason: str
+    headers: dict
+    text: str
+
+    def __init__(self, method, url, headers, reason, status_code, text, **kwargs):
+        self.method = method
+        self.url = url
+        self.status = status_code
+        self.reason = reason
+        self.headers = headers
+        self.text = text
+
+    def readable(self) -> bool:
+        return bool(self.text)
+
+    def read(self) -> bytes:
+        return self.text.encode()
+
+    def getheader(self, name) -> str:
+        return self.headers.get(name)
