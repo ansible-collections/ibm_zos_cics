@@ -1808,11 +1808,10 @@ class AnsibleRegionJCLModule(DataSet):
                         'type': 'int',
                         'required': False,
                     },
-                    "oteltrace":{
-                    "type":"str",
-                    "required":False,
-                    "choices": ["NO", "YES"],
-                    "description":""
+                    'oteltrace' : {
+                        'type' : 'str',
+                        'required' : False,
+                        'choices': ['NO', 'YES'],
                     },
                     'parmerr': {
                         'type': 'str',
@@ -2015,11 +2014,10 @@ class AnsibleRegionJCLModule(DataSet):
                         'type': 'str',
                         'required': False,
                     },
-                    "securetcpip":{
-                    "type":"str",
-                    "required":False,
-                    "choices": ["NO", "YES"],
-                    "description":""
+                    'securetcpip' : {
+                        'type' : 'str',
+                        'required' : False,
+                        'choices' : ['NO', 'YES'],
                     },
                     'sit': {
                         'type': 'str',
