@@ -4,6 +4,14 @@ ibm.ibm\_zos\_cics Release Notes
 
 .. contents:: Topics
 
+v2.2.1
+======
+
+Release Summary
+---------------
+
+Removes dependency on Python library requests. Adds new module argument cmci_ca to all CICS CMCI modules, allowing a user to provide a certificate authority bundle for client authentication 
+
 v2.2.0
 ======
 
