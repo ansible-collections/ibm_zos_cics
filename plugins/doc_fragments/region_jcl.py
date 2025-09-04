@@ -1689,7 +1689,7 @@ options:
         type: int
       oteltrace:
         description:
-          - The OPNDLIM system initialization parameter specifies the destination and close destination request limit.
+          - The OTELTRACE system initialization parameter switches support for OpenTelemetry in CICS on or off at the CICS region level.
         required: false
         type: str
         choices:
@@ -2013,7 +2013,7 @@ options:
         type: str
       securetcpip:
         description:
-          - Enforces secure TCP/IP connections for IPCONN, TCPIPSERVICE, and client URIMAP resources.
+          - The SECURETCPIP system initialization parameter enforces secure TCP/IP connections for IPCONN, TCPIPSERVICE, and client URIMAP resources.
         choices:
           - "YES"
           - "NO"
