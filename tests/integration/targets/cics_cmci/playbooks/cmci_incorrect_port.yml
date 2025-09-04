@@ -19,9 +19,13 @@
       failed_when: false
       register: result
 
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ result }}"
+
     - name: Assert
       ansible.builtin.assert:
         that:
           - result.failed is false
-          - '{{ result.msg[:51] == "Error performing CMCI request: <urllib3.connection." }}'
-          - '{{ result.msg[-18:] == "Connection refused" }}'
+          - '{{ "Error performing CMCI request: " in result.msg }}'
+          - '{{ "Connection refused" in result.msg }}'

@@ -40,6 +40,15 @@ attributes
 
 
      
+cmci_ca
+  Location of the certificate authority (CA) bundle used to update the list of trusted CA's for HTTPS client authentication.
+
+
+  | **required**: False
+  | **type**: str
+
+
+     
 cmci_cert
   Location of the PEM-formatted certificate chain file to be used for HTTPS client authentication.
 

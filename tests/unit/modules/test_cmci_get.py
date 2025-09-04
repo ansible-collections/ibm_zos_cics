@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import CONTENT_TYPE
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_get
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
     HOST, PORT, CONTEXT, SCOPE, AnsibleFailJson,
@@ -33,7 +34,7 @@ def test_401_fails(cmci_module):  # type: (cmci_module) -> None
              '</body>'
              '</html>',
         headers={
-            'CONTENT-TYPE': 'text/html'
+            CONTENT_TYPE: 'text/html'
         })
 
     cmci_module.expect({
@@ -381,7 +382,7 @@ def test_ok_context_scope_jvmserver_header(cmci_module):  # type: (CMCITestHelpe
         scope=SCOPE,
         headers={
             # JVM server returns a content type with the charset embedded
-            'Content-Type': 'application/xml;charset=UTF-8'
+            CONTENT_TYPE: 'application/xml;charset=UTF-8'
         }
     )
 
@@ -695,7 +696,7 @@ def test_fail_on_nodata_true(cmci_module):  # type: (CMCITestHelper) -> None
 def test_sanitise_filter_value(cmci_module):  # type: (CMCITestHelper) -> None
     records = [{'applid': 'REGION1', 'cicsstaus': 'ACTIVE'}]
 
-    encoded_criteria = encode_html_parameter({"CRITERIA": r"(jobname='\'\'\'++++++W+\') OR (jobname=\'*')"})
+    encoded_criteria = encode_html_parameter([("CRITERIA", r"(jobname='\'\'\'++++++W+\') OR (jobname=\'*')")])
 
     cmci_module.stub_records(
         'GET',
