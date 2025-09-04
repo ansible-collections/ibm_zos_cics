@@ -1181,6 +1181,14 @@ options:
         choices:
           - "NO"
           - "YES"
+      fips:
+        description:
+          - The FIPS system initialization parameter supports FIPS 140-3 standard in the future when it becomes available by System SSL for z/OS.
+        required: false
+        type: str
+        choices:
+          - "NOCHECK"
+          - "1403"
       fldsep:
         description:
           - The FLDSEP system initialization parameter specifies 'ON'e through four field-separator characters, each
@@ -1679,6 +1687,14 @@ options:
           - The OPNDLIM system initialization parameter specifies the destination and close destination request limit.
         required: false
         type: int
+      oteltrace:
+        description:
+          - The OTELTRACE system initialization parameter switches support for OpenTelemetry in CICS on or off at the CICS region level.
+        required: false
+        type: str
+        choices:
+          - "NO"
+          - "YES"
       parmerr:
         description:
           - The PARMERR system initialization parameter specifies what action you want to follow if CICS detects
@@ -1993,6 +2009,14 @@ options:
         description:
           - The SECPRFX system initialization parameter specifies whether CICS prefixes the resource names in any
             authorization requests to RACF.
+        required: false
+        type: str
+      securetcpip:
+        description:
+          - The SECURETCPIP system initialization parameter enforces secure TCP/IP connections for IPCONN, TCPIPSERVICE, and client URIMAP resources.
+        choices:
+          - "YES"
+          - "NO"
         required: false
         type: str
       sit:

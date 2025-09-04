@@ -1614,6 +1614,16 @@ sit_parameters
 
 
      
+  fips
+    The FIPS system initialization parameter supports FIPS 140-3 standard in the future when it becomes available by System SSL for z/OS.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NOCHECK, 1403
+
+
+     
   fldsep
     The FLDSEP system initialization parameter specifies 'ON'e through four field-separator characters, each of which indicates end of field in the terminal input data.
 
@@ -2232,6 +2242,16 @@ sit_parameters
 
 
      
+  oteltrace
+    The OTELTRACE system initialization parameter switches support for OpenTelemetry in CICS on or off at the CICS region level.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: NO, YES
+
+
+     
   parmerr
     The PARMERR system initialization parameter specifies what action you want to follow if CICS detects incorrect system initialization parameter overrides during initialization.
 
@@ -2660,6 +2680,16 @@ sit_parameters
 
     | **required**: False
     | **type**: str
+
+
+     
+  securetcpip
+    The SECURETCPIP system initialization parameter enforces secure TCP/IP connections for IPCONN, TCPIPSERVICE, and client URIMAP resources.
+
+
+    | **required**: False
+    | **type**: str
+    | **choices**: YES, NO
 
 
      
