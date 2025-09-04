@@ -23,4 +23,4 @@
       ansible.builtin.assert:
         that:
           - result.failed is false
-          - '{{ result.msg[:58] == "Failed to import the required Python library (encoder) on " }}'
+          - '{{ "Failed to import the required Python library (xmltodict) on" in result.msg }}'

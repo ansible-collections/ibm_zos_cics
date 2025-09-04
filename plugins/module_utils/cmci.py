@@ -211,7 +211,7 @@ class AnsibleCMCIModule(object):
         self.result = dict(changed=False)  # type: dict
 
         if not xmltodict:
-            self._fail_tb(missing_required_lib('encoder'), XMLTODICT_IMP_ERR)
+            self._fail_tb(missing_required_lib('xmltodict'), XMLTODICT_IMP_ERR)
 
         self._method = method  # type: str
         self._p = self.init_p()  # type: dict
