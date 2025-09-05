@@ -214,3 +214,11 @@ releases:
     - 169-remove-templar.yaml
     - 170-fix-jcl-alloc.yaml
     release_date: '2025-04-30'
+  2.2.1:
+    changes:
+      release_summary: 'Removes dependency on Python library requests. Adds new module
+        argument cmci_ca to all CICS CMCI modules, allowing a user to provide a certificate
+        authority bundle for client authentication '
+    fragments:
+    - release.yaml
+    release_date: '2025-09-05'
