@@ -21,7 +21,7 @@ one easy-to-use platform.
 
 The **IBM z/OS CICS collection** is following the
 **Red Hat® Ansible Certified Content for IBM Z®** method of distributing
-content. Collections are developed in the open, and when content is ready
+content. Collections are developed in the open, and when content is readydjnskj
 for use it is released to
 [Ansible Galaxy](https://galaxy.ansible.com/search?keywords=zos_&order_by=-relevance&deprecated=false&type=collection&page=1)
 for community adoption. Once contributors review community usage, feedback,
