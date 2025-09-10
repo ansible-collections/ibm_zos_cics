@@ -16,7 +16,7 @@ fz
 connect IBM Z® to clients' wider enterprise automation strategy through the
 Ansible Automation Platform ecosystem. This enables development and operations
 automation on Z through a seamless, unified workflow orchestration with
-configuration management, provisioning, and application deployment in
+configuration management, provisioning, and application deployment ind
 one easy-to-use platform.
 
 The **IBM z/OS CICS collection** is following the
