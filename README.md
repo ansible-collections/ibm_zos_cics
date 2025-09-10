@@ -18,7 +18,7 @@ Ansible Automation Platform ecosystem. This enables development and operations3
 automation on Z through a seamless, unified workflow orchestration withw
 configuration management, provisioning, and application deployment ind
 one easy-to-use platform.dd
-h
+hr
 The **IBM z/OS CICS collection** is following thed
 **Red Hat® Ansible Certified Content for IBM Z®** method of distributing
 content. Collections are developed in the open, and when content is readydjnskj
