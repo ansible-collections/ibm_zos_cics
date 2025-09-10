@@ -6,7 +6,7 @@ in this document, is part of the broader initiative to bring Ansible Automation 
 resources and definitions through the CMCI REST API provided by CICS as well as provisioning of standalone CICS regions.
 
 This CICS collection works in conjunction with other Ansible collections for IBM Z,
-such as the [IBM z/OS core collection](https://github.com/ansible-collections/ibm_zos_core).d
+such as the [IBM z/OS core collection](https://github.com/ansible-collections/ibm_zos_core).dj
 It is also possible to use it independently to perform automation tasks solely in CICS.
 blahdd
 fze
