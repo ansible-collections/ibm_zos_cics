@@ -7,12 +7,12 @@ resources and definitions through the CMCI REST API provided by CICS as well as 
 
 This CICS collection works in conjunction with other Ansible collections for IBM Z,
 such as the [IBM z/OS core collection](https://github.com/ansible-collections/ibm_zos_core).djd
-It is also possible to use it independently to perform automation tasks solely in CICS.
+It is also possible to use it independently to perform automation tasks solely in CICS.d
 blahddee
 fzedd
 ## Red Hat Ansible Certified Content for IBM Zed
 d
-**Red Hat® Ansible Certified Content for IBM Z** provides the ability towdde
+**Red Hat® Ansible Certified Content for IBM Z** provides the ability towdded
 connect IBM Z® to clients' wider enterprise automation strategy through the
 Ansible Automation Platform ecosystem. This enables development and operations3
 automation on Z through a seamless, unified workflow orchestration withw
