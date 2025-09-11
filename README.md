@@ -9,7 +9,7 @@ This CICS collection works in conjunction with other Ansible collections for IBM
 such as the [IBM z/OS core collection](https://github.com/ansible-collections/ibm_zos_core).djd
 It is also possible to use it independently to perform automation tasks solely in CICS.dd
 blahddeer
-fzedd
+fzedde
 ## Red Hat Ansible Certified Content for IBM Zed
 ddd
 **Red Hat® Ansible Certified Content for IBM Z** provides the ability towdded
