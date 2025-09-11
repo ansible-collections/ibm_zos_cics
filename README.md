@@ -1,4 +1,4 @@
-e# IBM z/OS CICS collection
+de# IBM z/OS CICS collection
 HUEIDAUHISdjksnkddd
 The **IBM® z/OS® CICS® collection**, also represented as **ibm\_zos\_cics**
 in this document, is part of the broader initiative to bring Ansible Automation to IBM Z® through the offering
