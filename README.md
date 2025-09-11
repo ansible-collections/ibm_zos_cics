@@ -12,7 +12,7 @@ blahddee
 fzedd
 ## Red Hat Ansible Certified Content for IBM Zed
 d
-**Red Hat® Ansible Certified Content for IBM Z** provides the ability towdd
+**Red Hat® Ansible Certified Content for IBM Z** provides the ability towdde
 connect IBM Z® to clients' wider enterprise automation strategy through the
 Ansible Automation Platform ecosystem. This enables development and operations3
 automation on Z through a seamless, unified workflow orchestration withw
