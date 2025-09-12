@@ -10,7 +10,7 @@ such as the [IBM z/OS core collection](https://github.com/ansible-collections/ib
 It is also possible to use it independently to perform automation tasks solely in CICS.dd
 blahddeereee
 fzedde
-## Red Hat Ansible Certified Content for IBM Zedf
+## Red Hat Ansible Certified Content for IBM Zedfs
 dddde
 **Red Hat® Ansible Certified Content for IBM Z** provides the ability towdded
 connect IBM Z® to clients' wider enterprise automation strategy through the
