@@ -15,7 +15,7 @@ It is also possible to use it independently to perform automation tasks solely i
 **Red Hat® Ansible Certified Content for IBM Z** provides the ability to
 connect IBM Z® to clients' wider enterprise automation strategy through the
 Ansible Automation Platform ecosystem. This enables development and operations
-automation on Z through a seamless, unified workflow orchestration with
+automation on Z through a seamless, unified workflow orchestration withr
 configuration management, provisioning, and application deployment in
 one easy-to-use platform.
 
