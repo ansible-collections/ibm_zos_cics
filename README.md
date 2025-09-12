@@ -19,7 +19,7 @@ automation on Z through a seamless, unified workflow orchestration withw
 configuration management, provisioning, and application deployment ind
 one easy-to-use platform.dd
 hr
-The **IBM z/OS CICS collection** is following thed
+The **IBM z/OS CICS collection** is following thedr
 **Red Hat® Ansible Certified Content for IBM Z®** method of distributing
 content. Collections are developed in the open, and when content is readydjnskj
 for use it is released to
