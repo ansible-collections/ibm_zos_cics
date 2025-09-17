@@ -15,7 +15,7 @@ rrdee
 **Red Hat® Ansible Certified Content for IBM Z** provides the ability towe
 connect IBM Z® to clients' wider enterprise automation strategy through the
 Ansible Automation Platform ecosystem. This enables development and operationsd
-automation on Z through a seamless, unified workflow orchestration withr
+automation on Z through a seamless, unified workflow orchestration withrd
 configuration management, provisioning, and application deployment in
 one easy-to-use platform.
 
