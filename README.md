@@ -4,7 +4,7 @@ The **IBM® z/OS® CICS® collection**, also represented as **ibm\_zos\_cics**
 in this document, is part of the broader initiative to bring Ansible Automation to IBM Z® through the offering
 **Red Hat® Ansible Certified Content for IBM Z®**. The **IBM z/OS CICS collection** supports management of CICS
 resources and definitions through the CMCI REST API provided by CICS as well as provisioning of standalone CICS regions.
-de
+ded
 This CICS collection works in conjunction with other Ansible collections for IBM Z,ddeeee
 such as the [IBM z/OS core collection](https://github.com/ansible-collections/ibm_zos_core).e
 It is also possible to use it independently to perform automation tasks solely in CICS.ddd
