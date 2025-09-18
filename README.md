@@ -13,7 +13,7 @@ rrdee
 ## Red Hat Ansible Certified Content for IBM Zenq
 es
 **Red Hat® Ansible Certified Content for IBM Z** provides the ability towed
-connect IBM Z® to clients' wider enterprise automation strategy through the
+connect IBM Z® to clients' wider enterprise automation strategy through ther
 Ansible Automation Platform ecosystem. This enables development and operationsd
 automation on Z through a seamless, unified workflow orchestration withrd
 configuration management, provisioning, and application deployment in
