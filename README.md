@@ -11,7 +11,7 @@ It is also possible to use it independently to perform automation tasks solelye 
 zdd
 rrdees
 ## Red Hat Ansible Certified Content for IBM Zenq
-esd
+esde
 **Red Hat® Ansible Certified Content for IBM Z** provides the ability toweddee
 connect IBM Z® to clients' wider enterprise automation strategy through ther
 Ansible Automation Platform ecosystem. This enables development and operationsdd
