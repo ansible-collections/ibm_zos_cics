@@ -20,7 +20,6 @@
 			"extensions": [
 				"redhat.ansible",
 				"ms-python.python",
-				"eamodio.gitlens",
 				"ms-vsliveshare.vsliveshare"
 			]
 		}
