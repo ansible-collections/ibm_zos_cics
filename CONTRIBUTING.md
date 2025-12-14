@@ -1,6 +1,8 @@
 # (c) Copyright IBM Corp. 2020,2023
 # Developer guide
 
+Read the [development guide](DEVELOPER_GUIDE.md) to learn how to contribute to this project.
+
 ### Licensing
 
 All code must have an Apache-2.0 header.
