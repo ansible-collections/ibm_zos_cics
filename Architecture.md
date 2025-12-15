@@ -77,7 +77,7 @@ The [`module_utils`](plugins/module_utils/) directory contains shared code used 
 - [`cmci.py`](plugins/module_utils/cmci.py) - Base class for all CMCI modules
   - Handles HTTP communication with CMCI REST API
   - Manages authentication (basic and certificate)
-  - Parses XML responses using xmltodict
+  - Parses XML responses using Python's built-in xml ElementTree
   - Provides filter and parameter handling
   - Validates CMCI responses and error handling
 
