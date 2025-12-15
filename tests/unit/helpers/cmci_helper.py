@@ -1,25 +1,30 @@
 # -*- coding: utf-8 -*-
 
-# (c) Copyright IBM Corp. 2020,2023
+# (c) Copyright IBM Corp. 2020,2025
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
+
 from unittest.mock import Mock
 from urllib.error import HTTPError
-from ansible.module_utils.urls import Request
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import CONTENT_TYPE
+from ansible.module_utils.urls import Request
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._xml_utils import (
+    parse_xml, unparse_xml)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import \
+    CONTENT_TYPE
+
 __metaclass__ = type
 
-from ansible.module_utils.common.text.converters import to_bytes
-from ansible.module_utils import basic
+import difflib
+import json
+import pprint
+import urllib
 from collections import OrderedDict
 from typing import List, Tuple
-import urllib
-import json
+
 import pytest
-import xmltodict
-import difflib
-import pprint
+from ansible.module_utils import basic
+from ansible.module_utils.common.text.converters import to_bytes
 
 CONTEXT = 'CICSEX56'
 SCOPE = 'IYCWEMW2'
@@ -96,7 +101,7 @@ class CMCITestHelper:
         return self.stub_request(
             method,
             url,
-            text=xmltodict.unparse(response_dict) if response_dict else None,
+            text=unparse_xml(response_dict) if response_dict else None,
             headers=headers,
             status_code=status_code,
             reason=reason,
@@ -319,7 +324,7 @@ def encode_html_parameter(unencoded_value: list[tuple[str, str]]):
 
 def body_matcher(expected):
     def match(request):  # type: (PreparedRequest) -> Dict
-        actual = xmltodict.parse(request.body)
+        actual = parse_xml(request.body)
         return expected == actual
 
     return match
