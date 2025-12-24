@@ -1,29 +1,25 @@
 # -*- coding: utf-8 -*-
 
-# (c) Copyright IBM Corp. 2020,2024
+# (c) Copyright IBM Corp. 2020,2025
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 from http.client import HTTPResponse, RemoteDisconnected
 from typing import Any
 from urllib.error import HTTPError, URLError
 
 __metaclass__ = type
 
-from ansible.module_utils.basic import AnsibleModule, missing_required_lib, \
-    env_fallback
-from ansible.module_utils.urls import Request
-from collections import OrderedDict
 import re
 import traceback
 import urllib
+import xml.etree.ElementTree as ET
+from collections import OrderedDict
 
-XMLTODICT_IMP_ERR = ""
-
-try:
-    import xmltodict
-except ImportError:
-    xmltodict = None
-    XMLTODICT_IMP_ERR = traceback.format_exc()
+from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils.urls import Request
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._xml_utils import (
+    parse_xml, unparse_xml)
 
 CMCI_HOST = 'cmci_host'
 CMCI_PORT = 'cmci_port'
@@ -152,10 +148,10 @@ def is_alphanumeric(value):
     return re.match('^([A-Za-z0-9]{1,100})$', value, flags=0)
 
 
-def read_node(node):  # type: (OrderedDict) -> list[OrderedDict]
+def read_node(node):  # type: (OrderedDict) -> list[dict]
     # Reads a record node that can contain multiple lists of attributes
     result = [
-        OrderedDict(
+        dict(
             [get_attribute(k, v)
              for k, v in n.items()]
         ) for n in node
@@ -163,11 +159,11 @@ def read_node(node):  # type: (OrderedDict) -> list[OrderedDict]
     return result
 
 
-def read_error_node(node):  # type: (OrderedDict) -> list[OrderedDict]
+def read_error_node(node):  # type: (OrderedDict) -> list[dict]
     # Reads an error node than can contain multiple lists of attributes that
     # themselves contain multiple lists of attributes
     result = [
-        OrderedDict(
+        dict(
             # Feedback nodes can contain error types with further information
             [get_attribute(k, v) if k[0] == '@'
              else read_error_detail(k, v)
@@ -178,7 +174,7 @@ def read_error_node(node):  # type: (OrderedDict) -> list[OrderedDict]
 
 
 def read_error_detail(key, value):
-    # type: (str, OrderedDict) -> tuple[str, list[OrderedDict]]
+    # type: (str, OrderedDict) -> tuple[str, list[dict]]
     # Xmltodict parses inner error types as Dicts when there is only one item in
     # it even though it may well be a list if multiple results were returned. If
     # we find a dict here, wrap it in a list so we can account for only one
@@ -187,7 +183,7 @@ def read_error_detail(key, value):
         value = [value]
     return key, \
         [
-            OrderedDict(
+            dict(
                 [(k[1:], v) for k, v in error.items()]
             ) for error in value
         ]
@@ -210,17 +206,13 @@ class AnsibleCMCIModule(object):
         )  # type: AnsibleModule
         self.result = dict(changed=False)  # type: dict
 
-        if not xmltodict:
-            self._fail_tb(missing_required_lib('xmltodict'), XMLTODICT_IMP_ERR)
-
         self._method = method  # type: str
         self._p = self.init_p()  # type: dict
         self._session = self.init_session()  # type: Request
         self._url = self.init_url()  # type: str
 
-        # full_document=False suppresses the xml prolog, which CMCI doesn't like
         body_dict = self.init_body()
-        self._body = xmltodict.unparse(self.init_body(), full_document=False)\
+        self._body = unparse_xml(self.init_body())\
             if body_dict else None  # type: str
 
         request_params = self.init_request_params()
@@ -555,9 +547,8 @@ class AnsibleCMCIModule(object):
                 'http://www.w3.org/2001/XMLSchema-instance': None
             }  # namespace information
 
-            r = xmltodict.parse(
+            r = parse_xml(
                 str(response.read().decode()),
-                process_namespaces=True,
                 namespaces=namespaces,
                 # Make sure we always return a list for the resource node
                 force_list=(
@@ -582,7 +573,7 @@ class AnsibleCMCIModule(object):
             elif isinstance(e, RemoteDisconnected):
                 cause = e.args[0]
             self._fail('Error performing CMCI request: {0}'.format(cause))
-        except xmltodict.expat.ExpatError as e:
+        except ET.ParseError as e:
             # Content couldn't be parsed as XML
             self._fail_tb(
                 'CMCI response XML document could not be successfully parsed: '
