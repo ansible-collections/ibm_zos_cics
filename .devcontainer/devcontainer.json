@@ -10,10 +10,8 @@
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace/collections/ansible_collections/ibm/ibm_zos_cics,type=bind",
 	"workspaceFolder": "/workspace/collections",
     "postAttachCommand": "bash /workspace/collections/ansible_collections/ibm/ibm_zos_cics/.devcontainer/setup.sh",
-	"initializeCommand": "eval \"$(ssh-agent -s)\" > /dev/null && grep -slR \"PRIVATE\" ~/.ssh | xargs ssh-add",
 	"mounts" : [
-		"source=vscode-shell-history,target=/commandhistory,type=volume",
-		"source=${localEnv:HOME}/.ssh,target=/root/.ssh-local,type=bind,consistency=cached"
+		"source=vscode-shell-history,target=/commandhistory,type=volume"
 	],
 	"customizations": {
 		"vscode": {
@@ -21,7 +19,16 @@
 				"redhat.ansible",
 				"ms-python.python",
 				"ms-vsliveshare.vsliveshare"
-			]
+			],
+			"settings": {
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "terminal.integrated.profiles.linux": {
+					"zsh": {
+						"path": "/bin/zsh"
+					}
+				},
+				"terminal.integrated.cwd": "/workspace/collections/ansible_collections/ibm/ibm_zos_cics/"
+            }
 		}
 	}
 }
