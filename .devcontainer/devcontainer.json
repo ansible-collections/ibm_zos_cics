@@ -1,6 +1,6 @@
 {
 	"name": "ibm_zos_cics Devcontainer",
-	"image": "mcr.microsoft.com/devcontainers/python:1-3.12-bullseye",
+	"image": "mcr.microsoft.com/devcontainers/python:3.12-trixie",
 	"features": {
 		"ghcr.io/devcontainers/features/git:1": {},
 		"ghcr.io/devcontainers/features/common-utils:2": {}
@@ -9,9 +9,9 @@
 	"remoteUser": "root",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace/collections/ansible_collections/ibm/ibm_zos_cics,type=bind",
 	"workspaceFolder": "/workspace/collections",
-    "postAttachCommand": "bash /workspace/collections/ansible_collections/ibm/ibm_zos_cics/.devcontainer/setup.sh",
+	"postAttachCommand": "bash /workspace/collections/ansible_collections/ibm/ibm_zos_cics/.devcontainer/setup.sh",
 	"initializeCommand": "eval \"$(ssh-agent -s)\" > /dev/null && grep -slR \"PRIVATE\" ~/.ssh | xargs ssh-add",
-	"mounts" : [
+	"mounts": [
 		"source=vscode-shell-history,target=/commandhistory,type=volume",
 		"source=${localEnv:HOME}/.ssh,target=/root/.ssh-local,type=bind,consistency=cached"
 	],
