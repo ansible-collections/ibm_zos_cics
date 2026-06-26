@@ -8,7 +8,7 @@ import pytest
 import sys
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import MEGABYTES
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._dd_statement import DatasetDefinition
 __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._aux_trace import _build_seq_data_set_definition_aux_trace
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.aux_trace import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT

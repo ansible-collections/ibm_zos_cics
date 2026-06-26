@@ -27,7 +27,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     get_sample_generated_JCL,
     get_sample_generated_JCL_args
 )
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSCmdResponse
 import pytest
 import sys
 
@@ -1072,10 +1072,8 @@ def test_initial_state():
         ]
     )
 
-    _data_set_utils._execute_iefbr14 = MagicMock(
-        return_value=MVSCmdResponse(
-            rc=0, stdout="", stderr=IEFBR14_create_stderr(DS_NAME, "DFHSTART")
-        )
+    _data_set_utils._execute_subprocess = MagicMock(
+        return_value=(0, "", IEFBR14_create_stderr(DS_NAME, "DFHSTART"))
     )
 
     region_jcl_module._write_jcl_to_data_set = MagicMock(return_value=[
@@ -1145,10 +1143,8 @@ def test_initial_state_pre_existing():
     _data_set_utils._execute_idcams = MagicMock(
         return_value=MVSCmdResponse(0, IDCAMS_delete(DS_NAME), "")
     )
-    _data_set_utils._execute_iefbr14 = MagicMock(
-        return_value=MVSCmdResponse(
-            rc=0, stdout="", stderr=IEFBR14_create_stderr(DS_NAME, "DFHSTART")
-        )
+    _data_set_utils._execute_subprocess = MagicMock(
+        return_value=(0, "", IEFBR14_create_stderr(DS_NAME, "DFHSTART"))
     )
 
     region_jcl_module._write_jcl_to_data_set = MagicMock(return_value=[
@@ -1223,7 +1219,7 @@ def test_warm_state_match():
     _data_set_utils._execute_listds = MagicMock(
         return_value=MVSCmdResponse(0, LISTDS_data_set(DS_NAME, "PS"), "")
     )
-    _data_set_utils._execute_command = MagicMock(return_value=(0, get_sample_generated_JCL(), ""))
+    _data_set_utils._execute_subprocess = MagicMock(return_value=(0, get_sample_generated_JCL(), ""))
 
     region_jcl_module.main()
     expected_result = dict(
@@ -1306,7 +1302,7 @@ def test_warm_state_non_match():
     _data_set_utils._execute_listds = MagicMock(
         return_value=MVSCmdResponse(0, LISTDS_data_set(DS_NAME, "PS"), "")
     )
-    _data_set_utils._execute_command = MagicMock(return_value=(0, "NON MATHCING JCL", ""))
+    _data_set_utils._execute_subprocess = MagicMock(return_value=(0, "NON MATHCING JCL", ""))
 
     expected_result = dict(
         executions=[
@@ -1669,7 +1665,7 @@ def test_warm_state_match_member():
             MVSCmdResponse(0, LISTSDS_member_data_set(BASE_DS, MEMBER_NAME), "")
         ]
     )
-    _data_set_utils._execute_command = MagicMock(return_value=(0, get_sample_generated_JCL(), ""))
+    _data_set_utils._execute_subprocess = MagicMock(return_value=(0, get_sample_generated_JCL(), ""))
 
     region_jcl_module.main()
     expected_result = dict(
@@ -1830,7 +1826,7 @@ def test_warm_state_non_match_member():
             MVSCmdResponse(0, LISTSDS_member_data_set(BASE_DS, MEMBER_NAME), "")
         ]
     )
-    _data_set_utils._execute_command = MagicMock(return_value=(0, "NON MATHCING JCL", ""))
+    _data_set_utils._execute_subprocess = MagicMock(return_value=(0, "NON MATHCING JCL", ""))
 
     expected_result = dict(
         executions=[

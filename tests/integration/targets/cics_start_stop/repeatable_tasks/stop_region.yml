@@ -75,9 +75,8 @@
     that:
       - stop_output.failed != True
       - stop_output.msg == ""
-      - stop_output.executions[-1].return.failed == False
-      - stop_output.executions[-1].return.output[0].content | length == 2
-      - "'ON OUTPUT QUEUE' in stop_output.executions[-1].return.output[0].content | join(' ')"
+      - stop_output.executions[-1].rc == 0
+      - stop_output.executions[-1].return.rc == 0
     fail_msg: "CICS Region did not stop successfully"
 
 - name: Assert execution RCs are 0

@@ -5,24 +5,24 @@
 
 # FOR INTERNAL USE IN THE COLLECTION ONLY.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._zoau_version_checker import _check_zoau_version
-
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._zoau_version_checker import \
+    _check_zoau_version
 
 __metaclass__ = type
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._arg_parser import \
+    BetterArgParser
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import (
-    _build_idcams_define_cmd,
-    _run_idcams,
-    _run_listds,
-    _run_iefbr14
-)
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._icetool import _run_icetool
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
+    _build_idcams_define_cmd, _run_idcams, _run_iefbr14, _run_listds)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._dd_statement import \
+    DatasetDefinition
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._icetool import \
+    _run_icetool
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import \
+    MVSExecutionException
 
 SDFHLOAD = "sdfhload"
 STATE = "state"
