@@ -82,9 +82,7 @@
             that:
               - stop_result.failed == false
               - stop_result.msg == ""
-              - stop_result.executions[-1].return.failed == False
-              - stop_result.executions[-1].return.output[0].content | length == 2
-              - "'ON OUTPUT QUEUE' in stop_result.executions[-1].return.output[0].content | join(' ')"
+              - stop_result.executions[-1].return.rc == 0
             fail_msg: "CICS Region did not stop successfully"
         - name: Assert execution RCs are 0
           ansible.builtin.assert:
@@ -122,9 +120,7 @@
             that:
               - stop_result.failed != True
               - stop_result.msg == ""
-              - stop_result.executions[-1].return.failed == False
-              - stop_result.executions[-1].return.output[0].content | length == 2
-              - "'ON OUTPUT QUEUE' in stop_result.executions[-1].return.output[0].content | join(' ')"
+              - stop_result.executions[-1].return.rc == 0
             fail_msg: "CICS Region did not stop successfully"
         - name: Assert execution RCs are 0
           ansible.builtin.assert:

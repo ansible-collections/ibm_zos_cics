@@ -17,8 +17,8 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     LISTDS_member_doesnt_exist,
     LISTDS_run_name
 )
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._dd_statement import DatasetDefinition
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSCmdResponse
 __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _data_set_utils as data_set_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException, _execution
@@ -496,7 +496,7 @@ def test__run_iefbr14():
     rc = 0
     stdout = "stdout"
     stderr = "stderr"
-    data_set_utils.MVSCmd.execute = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
+    data_set_utils._execute_subprocess = MagicMock(return_value=(rc, stdout, stderr))
 
     definition = DatasetDefinition(
         dataset_name="DFHTEST",
@@ -530,7 +530,7 @@ def test__run_iefbr14_bad_rc():
     rc = 99
     stdout = "stdout"
     stderr = "stderr"
-    data_set_utils.MVSCmd.execute = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
+    data_set_utils._execute_subprocess = MagicMock(return_value=(rc, stdout, stderr))
 
     definition = DatasetDefinition(
         dataset_name="DFHTEST",
@@ -565,11 +565,13 @@ def test__run_iefbr14_bad_rc():
         assert False
 
 
+@pytest.mark.skipif(sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE)
 def test__run_iefbr14_no_response():
+    # dtouch produces no output on success — RC 0 with empty stdout/stderr is valid
     rc = 0
     stdout = ""
     stderr = ""
-    data_set_utils.MVSCmd.execute = MagicMock(return_value=MVSCmdResponse(rc, stdout, stderr))
+    data_set_utils._execute_subprocess = MagicMock(return_value=(rc, stdout, stderr))
 
     definition = DatasetDefinition(
         dataset_name="DFHTEST",
@@ -585,29 +587,18 @@ def test__run_iefbr14_no_response():
         type="SEQ"
     )
 
-    expected_executions = [
-        _execution(name=IEFBR14_get_run_name(1), rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name=IEFBR14_get_run_name(2), rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name=IEFBR14_get_run_name(3), rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name=IEFBR14_get_run_name(4), rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name=IEFBR14_get_run_name(5), rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name=IEFBR14_get_run_name(6), rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name=IEFBR14_get_run_name(7), rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name=IEFBR14_get_run_name(8), rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name=IEFBR14_get_run_name(9), rc=rc, stdout=stdout, stderr=stderr),
-        _execution(name=IEFBR14_get_run_name(10), rc=rc, stdout=stdout, stderr=stderr)
-    ]
+    result_executions = data_set_utils._run_iefbr14(
+        ddname="DFHIEFT",
+        definition=definition
+    )
 
-    try:
-        data_set_utils._run_iefbr14(
-            ddname="DFHIEFT",
-            definition=definition
-        )
-    except MVSExecutionException as e:
-        assert e.message == "IEFBR14 Command output not recognised"
-        assert e.executions == expected_executions
-    else:
-        assert False
+    assert len(result_executions) == 1
+    assert result_executions[0] == {
+        "name": IEFBR14_get_run_name(1),
+        "rc": rc,
+        "stdout": stdout,
+        "stderr": stderr,
+    }
 
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason=PYTHON_LANGUAGE_FEATURES_MESSAGE)
@@ -623,7 +614,7 @@ def test__read_data_set_content():
     stderr = "stderr"
 
     data_set_name = "TEST.DATA.SET"
-    data_set_utils._execute_command = MagicMock(return_value=(rc, stdout, stderr))
+    data_set_utils._execute_subprocess = MagicMock(return_value=(rc, stdout, stderr))
     result_executions, result_data_set_content = data_set_utils._read_data_set_content(data_set_name)
 
     assert result_data_set_content == stdout
@@ -641,7 +632,7 @@ def test__read_data_set_content_bad_rc():
     stderr = "stderr"
 
     data_set_name = "TEST.DATA.SET"
-    data_set_utils._execute_command = MagicMock(return_value=(rc, stdout, stderr))
+    data_set_utils._execute_subprocess = MagicMock(return_value=(rc, stdout, stderr))
 
     expected_executions = [{
         "name": "Read data set {0}".format(data_set_name),

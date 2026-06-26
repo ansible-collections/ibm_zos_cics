@@ -5,17 +5,21 @@
 
 # FOR INTERNAL USE IN THE COLLECTION ONLY.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
+
 import re
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.ansible_module import AnsibleModuleHelper
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import _execution, MVSExecutionException
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DDStatement, StdoutDefinition, DatasetDefinition, StdinDefinition
+
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._dd_statement import (
+    DatasetDefinition, DDStatement, StdinDefinition, StdoutDefinition)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._mvscmd_builder import \
+    build_mvscmd_command
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import (
+    MVSCmdResponse, MVSExecutionException, _cleanup_temp_items,
+    _execute_subprocess, _execution)
 
 MVS_CMD_RETRY_ATTEMPTS = 10
-
 
 DSORG = {
     "PS": "Sequential",
@@ -79,12 +83,21 @@ def _get_idcams_dds(cmd):
 
 
 def _execute_idcams(cmd):
-    return MVSCmd.execute_authorized(
-        pgm="IDCAMS",
-        dds=_get_idcams_dds(cmd),
+    """Execute IDCAMS using mvscmdauth."""
+    command, temp_datasets = build_mvscmd_command(
+        "IDCAMS",
+        _get_idcams_dds(cmd),
+        authorized=True,
         verbose=True,
         debug=False
     )
+
+    rc, stdout, stderr = _execute_subprocess(command)
+
+    # Cleanup temp items (datasets and Unix files)
+    _cleanup_temp_items(temp_datasets)
+
+    return MVSCmdResponse(rc, stdout, stderr)
 
 
 def _get_listds_dds(cmd):
@@ -95,12 +108,21 @@ def _get_listds_dds(cmd):
 
 
 def _execute_listds(cmd):
-    return MVSCmd.execute_authorized(
-        pgm="IKJEFT01",
-        dds=_get_listds_dds(cmd),
+    """Execute LISTDS using mvscmdauth with IKJEFT01."""
+    command, temp_datasets = build_mvscmd_command(
+        "IKJEFT01",
+        _get_listds_dds(cmd),
+        authorized=True,
         verbose=True,
         debug=False
     )
+
+    rc, stdout, stderr = _execute_subprocess(command)
+
+    # Cleanup temp items (datasets and Unix files)
+    _cleanup_temp_items(temp_datasets)
+
+    return MVSCmdResponse(rc, stdout, stderr)
 
 
 def _get_dataset_size_unit(unit_symbol):  # type: (str) -> str
@@ -190,7 +212,7 @@ def _get_data_set_type(listds_stdout):
 
 
 def _run_listds(location):  # type: (str) -> tuple[list[_execution], bool, str]
-    cmd = " LISTDS '{0}'".format(location)
+    cmd = "LISTDS '{0}'".format(location)
     executions = []
 
     for x in range(MVS_CMD_RETRY_ATTEMPTS):
@@ -228,56 +250,50 @@ def _run_listds(location):  # type: (str) -> tuple[list[_execution], bool, str]
 
 
 def _run_iefbr14(ddname, definition):  # type: (str, DatasetDefinition) -> list[dict[str, str| int]]
-
+    """Allocate a sequential dataset using dtouch (replaces IEFBR14 via mvscmd)."""
     executions = []
+    rc, stdout, stderr = _execute_subprocess(
+        _build_dtouch_command(definition)
+    )
+    executions.append(
+        _execution(
+            name="IEFBR14 - {0} - Run 1".format(ddname),
+            rc=rc,
+            stdout=stdout,
+            stderr=stderr))
 
-    for x in range(MVS_CMD_RETRY_ATTEMPTS):
-        iefbr14_response = _execute_iefbr14(ddname, definition)
-        executions.append(
-            _execution(
-                name="IEFBR14 - {0} - Run {1}".format(
-                    ddname,
-                    x + 1),
-                rc=iefbr14_response.rc,
-                stdout=iefbr14_response.stdout,
-                stderr=iefbr14_response.stderr))
-        if iefbr14_response.stdout != "" or iefbr14_response.stderr != "":
-            break
-
-    if iefbr14_response.stdout == "" and iefbr14_response.stderr == "":
-        raise MVSExecutionException("IEFBR14 Command output not recognised", executions)
-
-    if iefbr14_response.rc != 0:
+    if rc != 0:
         raise MVSExecutionException(
-            "RC {0} when creating sequential data set".format(
-                iefbr14_response.rc), executions)
+            "RC {0} when creating sequential data set".format(rc), executions)
 
     return executions
 
 
-def _get_iefbr14_dds(ddname, definition):  # type: (str, DatasetDefinition) -> list[DDStatement]
-    return [DDStatement(ddname, definition)]
-
-
-def _execute_iefbr14(ddname, definition):
-    return MVSCmd.execute(
-        pgm="IEFBR14",
-        dds=_get_iefbr14_dds(ddname, definition),
-        verbose=True,
-        debug=False
-    )
-
-
-def _execute_command(command):
-    module = AnsibleModuleHelper(argument_spec={})
-    return module.run_command(command)
+def _build_dtouch_command(definition):  # type: (DatasetDefinition) -> str
+    """Build a dtouch command from a DatasetDefinition."""
+    cmd = "dtouch -tseq"
+    if definition.record_format:
+        cmd += " -r{0}".format(definition.record_format.lower())
+    if definition.record_length:
+        cmd += " -l{0}".format(definition.record_length)
+    if definition.block_size:
+        cmd += " -B{0}".format(definition.block_size)
+    if definition.primary and definition.primary_unit:
+        cmd += " -s{0}{1}".format(definition.primary, definition.primary_unit.upper())
+    if definition.secondary and definition.secondary_unit:
+        cmd += " -e{0}{1}".format(definition.secondary, definition.secondary_unit.upper())
+    if definition.volumes:
+        vol = definition.volumes[0] if isinstance(definition.volumes, list) else definition.volumes
+        cmd += " -V{0}".format(vol)
+    cmd += " '{0}'".format(definition.dataset_name)
+    return cmd
 
 
 def _read_data_set_content(data_set_name):
     executions = []
     command = "dcat '{0}'".format(data_set_name)
 
-    rc, stdout, stderr = _execute_command(command)
+    rc, stdout, stderr = _execute_subprocess(command)
     executions.append(
         _execution(
             name="Read data set {0}".format(data_set_name),

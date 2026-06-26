@@ -22,7 +22,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.modules import td_intrapartiti
 import pytest
 import sys
 
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSCmdResponse
 
 try:
     from unittest.mock import MagicMock

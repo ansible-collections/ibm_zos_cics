@@ -9,21 +9,14 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._dd_statement import (
+    DataDefinition, DatasetDefinition, DDStatement, StdinDefinition,
+    StdoutDefinition)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._mvscmd_builder import \
+    build_mvscmd_command
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import (
-    MVSExecutionException,
-    _execution,
-)
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import (
-    DataDefinition,
-    DatasetDefinition,
-    DDStatement,
-    StdinDefinition,
-    StdoutDefinition,
-)
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import (
-    MVSCmd,
-    MVSCmdResponse,
-)
+    MVSCmdResponse, MVSExecutionException, _cleanup_temp_items,
+    _execute_subprocess, _execution)
 
 
 def _get_csdup_dds(data_set, data_definition):  # type: (dict, DataDefinition) -> list[DDStatement]
@@ -56,11 +49,18 @@ def _run_dfhcsdup(data_set, data_definition):  # type: (dict, DataDefinition) ->
 
 
 def _execute_dfhcsdup(data_set, data_definition):  # type: (dict, DataDefinition) -> MVSCmdResponse
-    return MVSCmd.execute(
-        pgm="DFHCSDUP",
-        dds=_get_csdup_dds(data_set, data_definition),
+    """Execute DFHCSDUP using mvscmd."""
+    command, temp_datasets = build_mvscmd_command(
+        "DFHCSDUP",
+        _get_csdup_dds(data_set, data_definition),
+        authorized=False,
         verbose=True,
-        debug=False)
+        debug=False
+    )
+
+    rc, stdout, stderr = _execute_subprocess(command)
+    _cleanup_temp_items(temp_datasets)
+    return MVSCmdResponse(rc, stdout, stderr)
 
 
 def _get_csdup_initilize_cmd():  # type: () -> DataDefinition

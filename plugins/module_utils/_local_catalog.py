@@ -5,14 +5,19 @@
 
 # FOR INTERNAL USE IN THE COLLECTION ONLY.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
-
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import StdoutDefinition, DatasetDefinition, DDStatement
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import MVS_CMD_RETRY_ATTEMPTS
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException, _execution
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import \
+    MVS_CMD_RETRY_ATTEMPTS
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._dd_statement import (
+    DatasetDefinition, DDStatement, StdoutDefinition)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._mvscmd_builder import \
+    build_mvscmd_command
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import (
+    MVSCmdResponse, MVSExecutionException, _cleanup_temp_items,
+    _execute_subprocess, _execution)
 
 
 def _get_ccmutl_dds(catalog):   # type: (dict) -> list[DDStatement]
@@ -53,11 +58,20 @@ def _run_dfhccutl(starting_catalog):  # type: (dict) -> list
 
 
 def _execute_dfhccutl(starting_catalog):
-    return MVSCmd.execute(
-        pgm="DFHCCUTL",
-        dds=_get_ccmutl_dds(catalog=starting_catalog),
+    """Execute DFHCCUTL using mvscmd."""
+    command, temp_datasets = build_mvscmd_command(
+        "DFHCCUTL",
+        _get_ccmutl_dds(catalog=starting_catalog),
+        authorized=False,
         verbose=True,
-        debug=False)
+        debug=False
+    )
+
+    rc, stdout, stderr = _execute_subprocess(command)
+
+    _cleanup_temp_items(temp_datasets)
+
+    return MVSCmdResponse(rc, stdout, stderr)
 
 
 def _get_idcams_cmd_lcd(data_set):  # type: (dict) -> dict
