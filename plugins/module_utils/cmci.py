@@ -2,24 +2,22 @@
 
 # (c) Copyright IBM Corp. 2020,2025
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
-from __future__ import absolute_import, division, print_function
-
+from __future__ import (absolute_import, division, print_function)
 from http.client import HTTPResponse, RemoteDisconnected
 from typing import Any
 from urllib.error import HTTPError, URLError
 
 __metaclass__ = type
 
-import re
-import traceback
-import urllib
-import xml.etree.ElementTree as ET
-from collections import OrderedDict
-
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils.urls import Request
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._xml_utils import (
     parse_xml, unparse_xml)
+from collections import OrderedDict
+from xml.etree.ElementTree import ParseError
+import re
+import traceback
+import urllib
 
 CMCI_HOST = 'cmci_host'
 CMCI_PORT = 'cmci_port'
@@ -148,10 +146,10 @@ def is_alphanumeric(value):
     return re.match('^([A-Za-z0-9]{1,100})$', value, flags=0)
 
 
-def read_node(node):  # type: (OrderedDict) -> list[dict]
+def read_node(node):  # type: (OrderedDict) -> list[OrderedDict]
     # Reads a record node that can contain multiple lists of attributes
     result = [
-        dict(
+        OrderedDict(
             [get_attribute(k, v)
              for k, v in n.items()]
         ) for n in node
@@ -159,11 +157,11 @@ def read_node(node):  # type: (OrderedDict) -> list[dict]
     return result
 
 
-def read_error_node(node):  # type: (OrderedDict) -> list[dict]
+def read_error_node(node):  # type: (OrderedDict) -> list[OrderedDict]
     # Reads an error node than can contain multiple lists of attributes that
     # themselves contain multiple lists of attributes
     result = [
-        dict(
+        OrderedDict(
             # Feedback nodes can contain error types with further information
             [get_attribute(k, v) if k[0] == '@'
              else read_error_detail(k, v)
@@ -174,16 +172,16 @@ def read_error_node(node):  # type: (OrderedDict) -> list[dict]
 
 
 def read_error_detail(key, value):
-    # type: (str, OrderedDict) -> tuple[str, list[dict]]
-    # Xmltodict parses inner error types as Dicts when there is only one item in
-    # it even though it may well be a list if multiple results were returned. If
-    # we find a dict here, wrap it in a list so we can account for only one
-    # result or many being returned
+    # type: (str, OrderedDict) -> tuple[str, list[OrderedDict]]
+    # parse_xml returns a dict, not a list, when an error type has only one
+    # item, even though it may well be a list if multiple results were
+    # returned. If we find a dict here, wrap it in a list so we can account for
+    # only one result or many being returned
     if not isinstance(value, list):
         value = [value]
     return key, \
         [
-            dict(
+            OrderedDict(
                 [(k[1:], v) for k, v in error.items()]
             ) for error in value
         ]
@@ -212,8 +210,7 @@ class AnsibleCMCIModule(object):
         self._url = self.init_url()  # type: str
 
         body_dict = self.init_body()
-        self._body = unparse_xml(self.init_body())\
-            if body_dict else None  # type: str
+        self._body = unparse_xml(body_dict) if body_dict else None  # type: str
 
         request_params = self.init_request_params()
 
@@ -542,14 +539,14 @@ class AnsibleCMCIModule(object):
             if not response.readable():
                 self._fail('CMCI response did not contain any data')
 
-            namespaces = {
-                'http://www.ibm.com/xmlns/prod/CICS/smw2int': None,
-                'http://www.w3.org/2001/XMLSchema-instance': None
-            }  # namespace information
+            namespaces = (
+                'http://www.ibm.com/xmlns/prod/CICS/smw2int',
+                'http://www.w3.org/2001/XMLSchema-instance'
+            )  # namespaces to strip from tag and attribute names
 
             r = parse_xml(
                 str(response.read().decode()),
-                namespaces=namespaces,
+                strip_namespaces=namespaces,
                 # Make sure we always return a list for the resource node
                 force_list=(
                     self._p.get(TYPE).lower(),
@@ -573,7 +570,7 @@ class AnsibleCMCIModule(object):
             elif isinstance(e, RemoteDisconnected):
                 cause = e.args[0]
             self._fail('Error performing CMCI request: {0}'.format(cause))
-        except ET.ParseError as e:
+        except ParseError as e:
             # Content couldn't be parsed as XML
             self._fail_tb(
                 'CMCI response XML document could not be successfully parsed: '

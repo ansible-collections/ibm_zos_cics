@@ -28,7 +28,6 @@ The requirements of the managed node are as follows:
 * Python module dependencies:
 
   * `requests`_
-  * `xmltodict`_
 
   If you delegate the tasks to run on your localhost, the Python module dependencies
   need to be installed on your localhost instead.
@@ -37,7 +36,7 @@ The requirements of the managed node are as follows:
 
   .. code-block:: sh
 
-     pip install requests xmltodict
+     pip install requests
 
   You can also install them using the playbook. For example, this `CICS
   sample playbook`_ shows how you can ensure that the prerequisites are installed before the module is executed.
@@ -45,8 +44,6 @@ The requirements of the managed node are as follows:
 .. _requests:
    https://pypi.org/project/requests/
 
-.. _xmltodict:
-   https://pypi.org/project/xmltodict/
 .. _CICS sample playbook:
    https://github.com/IBM/z_ansible_collections_samples/tree/main/zos_subsystems/cics/cmci/reporting
 
