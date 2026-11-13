@@ -10,6 +10,7 @@ Welcome to the IBM z/OS CICS Ansible Collection! This guide will help you set up
 1. [Development Workflow](#development-workflow)
 1. [Testing](#testing)
 1. [Code Quality](#code-quality)
+1. [Continuous Integration](#continuous-integration)
 1. [Contributing Guidelines](#contributing-guidelines)
 1. [Troubleshooting](#troubleshooting)
 
@@ -384,6 +385,25 @@ Security vulnerability scanner:
 ```bash
 bandit -r plugins/
 ```
+
+## Continuous Integration
+
+GitHub Actions workflows in [`.github/workflows/`](.github/workflows/) run the following checks as separate jobs. They run on pushes to `main`, on pull requests targeting `main`, and can be started manually from the **Actions** tab (`workflow_dispatch`).
+
+| Workflow | File | What it runs | Local equivalent |
+|---|---|---|---|
+| Bandit | [`bandit.yml`](.github/workflows/bandit.yml) | Bandit static security scan using [`.bandit`](.bandit) and [`.bandit.baseline`](.bandit.baseline) | `./bandit.sh` |
+| Detect secrets | [`detect-secrets.yml`](.github/workflows/detect-secrets.yml) | `detect-secrets-hook` from the [IBM detect-secrets fork](https://github.com/IBM/detect-secrets) on all tracked files against [`.secrets.baseline`](.secrets.baseline) | `git ls-files -z \| xargs -0 detect-secrets-hook --baseline .secrets.baseline` |
+| Ansible lint | [`ansible-lint.yml`](.github/workflows/ansible-lint.yml) | `ansible-lint plugins meta` on the shipped collection code (tests are not linted) using [`.ansible-lint`](.ansible-lint) | `ansible-lint plugins meta` |
+| Ansible sanity | [`ansible-sanity.yml`](.github/workflows/ansible-sanity.yml) | `ansible-test sanity` on Python 3.12 with ansible-core 2.16, 2.17 and 2.18 | `ansible-test sanity --python 3.12` |
+| Ansible unit tests | [`ansible-units.yml`](.github/workflows/ansible-units.yml) | `ansible-test units` on Python 3.12 with ansible-core 2.16, 2.17 and 2.18 | `ansible-test units --python 3.12` |
+
+The repository also has a CodeQL analysis workflow ([`codeql-analysis.yml`](.github/workflows/codeql-analysis.yml)).
+
+Notes:
+- The lint, sanity and unit test workflows check the repository out to `ansible_collections/ibm/ibm_zos_cics` and install the `ibm.ibm_zos_core` collection, which `ansible-test` requires.
+- Findings accepted as known are recorded in the Bandit and detect-secrets baseline files. Update the relevant baseline when you intentionally accept a new finding.
+- Sanity test exclusions live in `tests/sanity/ignore-<ansible-core version>.txt`.
 
 ## Contributing Guidelines
 
