@@ -77,7 +77,7 @@ The [`module_utils`](plugins/module_utils/) directory contains shared code used 
 - [`cmci.py`](plugins/module_utils/cmci.py) - Base class for all CMCI modules
   - Handles HTTP communication with CMCI REST API
   - Manages authentication (basic and certificate)
-  - Parses XML responses using xmltodict
+  - Parses XML responses using Python's built-in xml ElementTree
   - Provides filter and parameter handling
   - Validates CMCI responses and error handling
 
@@ -158,7 +158,7 @@ flowchart TD
     D --> E[CMCI REST API]
     E --> F[CICS Region /<br/>CICSPlex SM]
     F --> G[XML Response]
-    G --> H[Parse with xmltodict]
+    G --> H[Parse with xml ElementTree]
     H --> I[Return structured data to user]
 ```
 
@@ -253,10 +253,7 @@ This provides transparency and debugging capability.
    - Provides Python APIs for z/OS operations
    - Minimum version checked at runtime
 
-2. **xmltodict** - Required for CMCI modules
-   - Parses XML responses from CMCI REST API
-
-3. **ibm.ibm_zos_core** - Ansible collection dependency. Required for provisioning modules
+2. **ibm.ibm_zos_core** - Ansible collection dependency. Required for provisioning modules
    - Provides core z/OS functionality
    - Used for data set operations, job management, TSO commands
 

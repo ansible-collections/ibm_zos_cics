@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# (c) Copyright IBM Corp. 2020,2024
+# (c) Copyright IBM Corp. 2020,2025
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import (absolute_import, division, print_function)
 from http.client import HTTPResponse, RemoteDisconnected
@@ -9,21 +9,15 @@ from urllib.error import HTTPError, URLError
 
 __metaclass__ = type
 
-from ansible.module_utils.basic import AnsibleModule, missing_required_lib, \
-    env_fallback
+from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils.urls import Request
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._xml_utils import (
+    parse_xml, unparse_xml)
 from collections import OrderedDict
+from xml.etree.ElementTree import ParseError
 import re
 import traceback
 import urllib
-
-XMLTODICT_IMP_ERR = ""
-
-try:
-    import xmltodict
-except ImportError:
-    xmltodict = None
-    XMLTODICT_IMP_ERR = traceback.format_exc()
 
 CMCI_HOST = 'cmci_host'
 CMCI_PORT = 'cmci_port'
@@ -179,10 +173,10 @@ def read_error_node(node):  # type: (OrderedDict) -> list[OrderedDict]
 
 def read_error_detail(key, value):
     # type: (str, OrderedDict) -> tuple[str, list[OrderedDict]]
-    # Xmltodict parses inner error types as Dicts when there is only one item in
-    # it even though it may well be a list if multiple results were returned. If
-    # we find a dict here, wrap it in a list so we can account for only one
-    # result or many being returned
+    # parse_xml returns a dict, not a list, when an error type has only one
+    # item, even though it may well be a list if multiple results were
+    # returned. If we find a dict here, wrap it in a list so we can account for
+    # only one result or many being returned
     if not isinstance(value, list):
         value = [value]
     return key, \
@@ -210,18 +204,13 @@ class AnsibleCMCIModule(object):
         )  # type: AnsibleModule
         self.result = dict(changed=False)  # type: dict
 
-        if not xmltodict:
-            self._fail_tb(missing_required_lib('xmltodict'), XMLTODICT_IMP_ERR)
-
         self._method = method  # type: str
         self._p = self.init_p()  # type: dict
         self._session = self.init_session()  # type: Request
         self._url = self.init_url()  # type: str
 
-        # full_document=False suppresses the xml prolog, which CMCI doesn't like
         body_dict = self.init_body()
-        self._body = xmltodict.unparse(self.init_body(), full_document=False)\
-            if body_dict else None  # type: str
+        self._body = unparse_xml(body_dict) if body_dict else None  # type: str
 
         request_params = self.init_request_params()
 
@@ -550,15 +539,14 @@ class AnsibleCMCIModule(object):
             if not response.readable():
                 self._fail('CMCI response did not contain any data')
 
-            namespaces = {
-                'http://www.ibm.com/xmlns/prod/CICS/smw2int': None,
-                'http://www.w3.org/2001/XMLSchema-instance': None
-            }  # namespace information
+            namespaces = (
+                'http://www.ibm.com/xmlns/prod/CICS/smw2int',
+                'http://www.w3.org/2001/XMLSchema-instance'
+            )  # namespaces to strip from tag and attribute names
 
-            r = xmltodict.parse(
+            r = parse_xml(
                 str(response.read().decode()),
-                process_namespaces=True,
-                namespaces=namespaces,
+                strip_namespaces=namespaces,
                 # Make sure we always return a list for the resource node
                 force_list=(
                     self._p.get(TYPE).lower(),
@@ -582,7 +570,7 @@ class AnsibleCMCIModule(object):
             elif isinstance(e, RemoteDisconnected):
                 cause = e.args[0]
             self._fail('Error performing CMCI request: {0}'.format(cause))
-        except xmltodict.expat.ExpatError as e:
+        except ParseError as e:
             # Content couldn't be parsed as XML
             self._fail_tb(
                 'CMCI response XML document could not be successfully parsed: '
