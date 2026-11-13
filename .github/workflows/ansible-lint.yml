@@ -30,7 +30,7 @@ jobs:
         run: python -m pip install ansible-core ansible-lint
 
       - name: Install collection dependencies outside the workspace
-        run: ansible-galaxy collection install ibm.ibm_zos_core -p "${{ runner.temp }}/collections"
+        run: ansible-galaxy collection install "ibm.ibm_zos_core:>=1.0.0,<2.0.0" -p "${{ runner.temp }}/collections"
 
       - name: Run ansible-lint
         working-directory: ansible_collections/ibm/ibm_zos_cics
