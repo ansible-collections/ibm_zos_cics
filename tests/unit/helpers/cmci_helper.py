@@ -3,28 +3,23 @@
 # (c) Copyright IBM Corp. 2020,2025
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 from __future__ import absolute_import, division, print_function
-
 from unittest.mock import Mock
 from urllib.error import HTTPError
-
 from ansible.module_utils.urls import Request
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._xml_utils import (
-    parse_xml, unparse_xml)
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import \
-    CONTENT_TYPE
 
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._xml_utils import parse_xml, unparse_xml
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import CONTENT_TYPE
 __metaclass__ = type
 
-import difflib
-import json
-import pprint
-import urllib
+from ansible.module_utils.common.text.converters import to_bytes
+from ansible.module_utils import basic
 from collections import OrderedDict
 from typing import List, Tuple
-
+import urllib
+import json
 import pytest
-from ansible.module_utils import basic
-from ansible.module_utils.common.text.converters import to_bytes
+import difflib
+import pprint
 
 CONTEXT = 'CICSEX56'
 SCOPE = 'IYCWEMW2'
