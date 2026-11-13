@@ -17,7 +17,7 @@ description:
 author: Kiera Bennett (@KieraBennett)
 version_added: 2.1.0
 seealso:
-  - module: stop_cics
+  - module: ibm.ibm_zos_cics.stop_region
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.region_jcl.documentation
 """

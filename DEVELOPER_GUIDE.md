@@ -23,8 +23,8 @@ Welcome to the IBM z/OS CICS Ansible Collection! This guide will help you set up
 - **SSH keys** configured for z/OS access (if testing against real systems)
 
 ### For Manual Setup
-- **Python 3.9+** (Python 3.12 recommended)
-- **Ansible Core 2.15+** (2.16 recommended)
+- **Python 3.12+** (see [Supported Python and ansible-core versions](#supported-python-and-ansible-core-versions))
+- **Ansible Core 2.16+** (2.16 recommended)
 - **Git** for version control
 - **pip** for Python package management
 
@@ -238,8 +238,8 @@ ansible-test units
 # Run specific unit test
 ansible-test units cmci_get
 
-# Run unit tests with Python 3.9
-ansible-test units --python 3.9
+# Run unit tests with a specific Python version
+ansible-test units --python 3.12
 
 ```
 
@@ -298,9 +298,8 @@ ansible-test units -v
 ansible-test units cmci_get
 
 # Run unit tests for specific Python version
-ansible-test units --python 3.9
-ansible-test units --python 3.10
-ansible-test units --python 3.11
+ansible-test units --python 3.12
+ansible-test units --python 3.13
 
 
 # Run with coverage
@@ -345,7 +344,7 @@ ansible-test sanity --test pep8
 ansible-test sanity --test yamllint
 
 # Run sanity tests for specific Python version
-ansible-test sanity --python 3.9
+ansible-test sanity --python 3.12
 
 # List available sanity tests
 ansible-test sanity --list-tests
@@ -395,15 +394,39 @@ GitHub Actions workflows in [`.github/workflows/`](.github/workflows/) run the f
 | Bandit | [`bandit.yml`](.github/workflows/bandit.yml) | Bandit static security scan using [`.bandit`](.bandit) and [`.bandit.baseline`](.bandit.baseline) | `./bandit.sh` |
 | Detect secrets | [`detect-secrets.yml`](.github/workflows/detect-secrets.yml) | `detect-secrets-hook` from the [IBM detect-secrets fork](https://github.com/IBM/detect-secrets) on all tracked files against [`.secrets.baseline`](.secrets.baseline) | `git ls-files -z \| xargs -0 detect-secrets-hook --baseline .secrets.baseline` |
 | Ansible lint | [`ansible-lint.yml`](.github/workflows/ansible-lint.yml) | `ansible-lint plugins meta` on the shipped collection code (tests are not linted) using [`.ansible-lint`](.ansible-lint) | `ansible-lint plugins meta` |
-| Ansible sanity | [`ansible-sanity.yml`](.github/workflows/ansible-sanity.yml) | `ansible-test sanity` on Python 3.12 with ansible-core 2.16, 2.17 and 2.18 | `ansible-test sanity --python 3.12` |
-| Ansible unit tests | [`ansible-units.yml`](.github/workflows/ansible-units.yml) | `ansible-test units` on Python 3.12 with ansible-core 2.16, 2.17 and 2.18 | `ansible-test units --python 3.12` |
+| Ansible sanity | [`ansible-sanity.yml`](.github/workflows/ansible-sanity.yml) | `ansible-test sanity` across the ansible-core and Python matrix below | `ansible-test sanity --python 3.12` |
+| Ansible unit tests | [`ansible-units.yml`](.github/workflows/ansible-units.yml) | `ansible-test units` across the ansible-core and Python matrix below | `ansible-test units --python 3.12` |
+| Weekly smoke test | [`weekly-smoke.yml`](.github/workflows/weekly-smoke.yml) | Sanity, unit tests and ansible-lint against the latest ansible-core on Python 3.13 and 3.14, with `ibm.ibm_zos_core` 1.x and latest. Runs every Monday at 06:00 UTC and on demand | `ansible-test sanity --python 3.13` |
 
 The repository also has a CodeQL analysis workflow ([`codeql-analysis.yml`](.github/workflows/codeql-analysis.yml)).
 
 Notes:
 - The lint, sanity and unit test workflows check the repository out to `ansible_collections/ibm/ibm_zos_cics` and install the `ibm.ibm_zos_core` collection, which `ansible-test` requires.
 - Findings accepted as known are recorded in the Bandit and detect-secrets baseline files. Update the relevant baseline when you intentionally accept a new finding.
-- Sanity test exclusions live in `tests/sanity/ignore-<ansible-core version>.txt`.
+- Sanity test exclusions live in `tests/sanity/ignore-<ansible-core version>.txt`. Each ansible-core version in the matrix needs a matching ignore file (2.14 to 2.22 are present).
+
+### CI matrix and Python support
+
+The sanity and unit test workflows use an explicit `include` matrix that pairs each ansible-core version with the Python versions it is tested on. The job name shows both versions, and `ansible-test` is run with `--python ${{ matrix.python-version }}`.
+
+| ansible-core | Python versions |
+|---|---|
+| 2.16 | 3.12 |
+| 2.17 | 3.12 |
+| 2.18 | 3.12, 3.13 |
+| 2.19 | 3.12, 3.13 |
+| 2.20 | 3.12, 3.14 |
+| 2.21 | 3.12, 3.14 |
+| 2.22 | 3.13, 3.14 |
+
+When a new ansible-core release is added to the matrix, add a `tests/sanity/ignore-<version>.txt` file and pair it with the lowest and highest Python versions that release supports on the controller, subject to the Python 3.12 minimum below.
+
+The weekly smoke test installs the newest ansible-core on every run, so it detects breakage from new ansible-core releases between changes to the collection.
+
+### Supported Python and ansible-core versions
+
+- **Minimum Python version:** 3.12
+- **Minimum ansible-core version:** 2.16 (see `requires_ansible` in [`meta/runtime.yml`](meta/runtime.yml))
 
 ## Contributing Guidelines
 

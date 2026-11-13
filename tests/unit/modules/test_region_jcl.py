@@ -2,10 +2,7 @@
 
 # (c) Copyright IBM Corp. 2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
-import json
-
 from _pytest.monkeypatch import MonkeyPatch
-from ansible.module_utils.common.text.converters import to_bytes
 from ansible.module_utils import basic
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _data_set, _data_set_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import _execution
@@ -55,8 +52,7 @@ default_arg_parms = {
 
 def set_module_args(args):
     """prepare arguments so that they will be picked up during module creation"""
-    args = json.dumps({'ANSIBLE_MODULE_ARGS': args})
-    basic._ANSIBLE_ARGS = to_bytes(args)
+    basic._load_params = lambda: args
 
 
 def get_start_cics_module():
