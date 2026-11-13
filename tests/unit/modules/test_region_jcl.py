@@ -57,6 +57,8 @@ def set_module_args(args):
     """prepare arguments so that they will be picked up during module creation"""
     args = json.dumps({'ANSIBLE_MODULE_ARGS': args})
     basic._ANSIBLE_ARGS = to_bytes(args)
+    # Required by ansible-core 2.19+, which no longer accepts args without a serialization profile
+    basic._ANSIBLE_PROFILE = "legacy"
 
 
 def get_start_cics_module():

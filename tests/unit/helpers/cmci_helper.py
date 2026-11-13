@@ -12,6 +12,7 @@ __metaclass__ = type
 
 from ansible.module_utils.common.text.converters import to_bytes
 from ansible.module_utils import basic
+from ansible.release import __version__ as ANSIBLE_CORE_VERSION
 from collections import OrderedDict
 from typing import List, Tuple
 import urllib
@@ -25,6 +26,13 @@ CONTEXT = 'CICSEX56'
 SCOPE = 'IYCWEMW2'
 HOST = 'example.com'
 PORT = '12345'
+
+
+def arg_spec_str_type(expected_type):
+    """How ansible-core names the str type in argument spec errors: "str" from 2.19, "<class 'str'>" before"""
+    if tuple(int(v) for v in ANSIBLE_CORE_VERSION.split('.')[:2]) >= (2, 19):
+        return 'str'
+    return "<%s 'str'>" % expected_type
 
 
 class CMCITestHelper:
@@ -173,6 +181,8 @@ def set_module_args(args):
     """prepare arguments so that they will be picked up during module creation"""
     args = json.dumps({'ANSIBLE_MODULE_ARGS': args})
     basic._ANSIBLE_ARGS = to_bytes(args)
+    # Required by ansible-core 2.19+, which no longer accepts args without a serialization profile
+    basic._ANSIBLE_PROFILE = "legacy"
 
 
 class AnsibleExitJson(Exception):

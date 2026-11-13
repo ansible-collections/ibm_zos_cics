@@ -8,7 +8,7 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_get
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
-    HOST, PORT, CONTEXT, SCOPE, CMCITestHelper, cmci_module, encode_html_parameter
+    HOST, PORT, CONTEXT, SCOPE, CMCITestHelper, arg_spec_str_type, cmci_module, encode_html_parameter
 )
 
 import sys
@@ -744,9 +744,9 @@ def test_and_string_invalid(cmci_module):
     # type: (CMCITestHelper) -> None
     cmci_module.expect({
         'msg': "Elements value for option 'and' found in 'resources -> "
-               "complex_filter' is of type <%s 'str'> and we were unable to "
+               "complex_filter' is of type %s and we were unable to "
                "convert to dict: dictionary requested, could not parse JSON or"
-               " key=value" % expected_type,
+               " key=value" % arg_spec_str_type(expected_type),
         'failed': True
     })
 
@@ -768,9 +768,9 @@ def test_and_list_of_strings_invalid(cmci_module):
     # type: (CMCITestHelper) -> None
     cmci_module.expect({
         'msg': "Elements value for option 'and' found in 'resources -> "
-               "complex_filter' is of type <%s 'str'> and we were unable to "
+               "complex_filter' is of type %s and we were unable to "
                "convert to dict: dictionary requested, could not parse JSON or "
-               "key=value" % expected_type,
+               "key=value" % arg_spec_str_type(expected_type),
         'failed': True
     })
 

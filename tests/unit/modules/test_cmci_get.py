@@ -10,7 +10,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import CONTE
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_get
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
     HOST, PORT, CONTEXT, SCOPE, AnsibleFailJson,
-    set_module_args, exit_json, fail_json, cmci_module, CMCITestHelper, encode_html_parameter
+    set_module_args, exit_json, fail_json, cmci_module, CMCITestHelper, encode_html_parameter, arg_spec_str_type
 )
 from ansible.module_utils import basic
 
@@ -120,7 +120,7 @@ def test_invalid_port_type(monkeypatch):
     # The text after "convert to int:" changed in ansible-core 2.18.
     assert exc_info.value.args[0]['failed'] is True
     assert exc_info.value.args[0]['msg'].startswith(
-        "argument 'cmci_port' is of type <" + expected_type + " 'str'> and we were unable to convert to int:"
+        "argument 'cmci_port' is of type " + arg_spec_str_type(expected_type) + " and we were unable to convert to int:"
     )
 
 

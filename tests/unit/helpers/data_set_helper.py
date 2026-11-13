@@ -24,6 +24,8 @@ default_data_set = {
 
 def set_module_args(args):
     basic._ANSIBLE_ARGS = to_bytes(json.dumps({'ANSIBLE_MODULE_ARGS': args}))
+    # Required by ansible-core 2.19+, which no longer accepts args without a serialization profile
+    basic._ANSIBLE_PROFILE = "legacy"
 
 
 def LISTDS_run_name(run):
