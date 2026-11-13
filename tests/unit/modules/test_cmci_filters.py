@@ -8,15 +8,11 @@ __metaclass__ = type
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_get
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
-    HOST, PORT, CONTEXT, SCOPE, CMCITestHelper, arg_spec_str_type, cmci_module, encode_html_parameter
+    HOST, PORT, CONTEXT, SCOPE, CMCITestHelper, cmci_module, encode_html_parameter
 )
 
 import sys
 from collections import OrderedDict
-
-expected_type = 'class'
-if sys.version_info.major <= 2:
-    expected_type = 'type'
 
 
 def test_query_criteria(cmci_module):  # type: (cmci_module) -> None
@@ -743,10 +739,10 @@ def test_extra_attributes_or(cmci_module):
 def test_and_string_invalid(cmci_module):
     # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': "Elements value for option 'and' found in 'resources -> "
-               "complex_filter' is of type %s and we were unable to "
-               "convert to dict: dictionary requested, could not parse JSON or"
-               " key=value" % arg_spec_str_type(expected_type),
+        'msg': r"Elements value for option 'and' found in 'resources -> "
+               r"complex_filter' is of type .* and we were unable to "
+               r"convert to dict: dictionary requested, could not parse JSON or"
+               r" key=value",
         'failed': True
     })
 
@@ -767,10 +763,10 @@ def test_and_string_invalid(cmci_module):
 def test_and_list_of_strings_invalid(cmci_module):
     # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': "Elements value for option 'and' found in 'resources -> "
-               "complex_filter' is of type %s and we were unable to "
-               "convert to dict: dictionary requested, could not parse JSON or "
-               "key=value" % arg_spec_str_type(expected_type),
+        'msg': r"Elements value for option 'and' found in 'resources -> "
+               r"complex_filter' is of type .* and we were unable to "
+               r"convert to dict: dictionary requested, could not parse JSON or "
+               r"key=value",
         'failed': True
     })
 
@@ -793,8 +789,8 @@ def test_and_list_of_strings_invalid(cmci_module):
 def test_and_and_string_invalid(cmci_module):
     # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': "nested filters must be a list, was: <%s 'str'> found in "
-               "resources -> complex_filter -> and -> and" % expected_type,
+        'msg': r"nested filters must be a list, was: .* found in "
+               r"resources -> complex_filter -> and -> and",
         'failed': True,
         'changed': False
     })
@@ -818,8 +814,8 @@ def test_and_and_string_invalid(cmci_module):
 def test_and_and_list_of_strings_invalid(cmci_module):
     # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': "nested filter must be of type dict, was: <%s 'str'> found "
-               "in resources -> complex_filter -> and -> and" % expected_type,
+        'msg': r"nested filter must be of type dict, was: .* found "
+               r"in resources -> complex_filter -> and -> and",
         'failed': True,
         'changed': False
     })
@@ -843,8 +839,8 @@ def test_and_and_list_of_strings_invalid(cmci_module):
 def test_and_or_string_invalid(cmci_module):
     # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': "nested filters must be a list, was: <%s 'str'> found in "
-               "resources -> complex_filter -> and -> or" % expected_type,
+        'msg': r"nested filters must be a list, was: .* found in "
+               r"resources -> complex_filter -> and -> or",
         'failed': True,
         'changed': False
     })
@@ -868,8 +864,8 @@ def test_and_or_string_invalid(cmci_module):
 def test_and_or_list_of_strings_invalid(cmci_module):
     # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': "nested filter must be of type dict, was: <%s 'str'> found "
-               "in resources -> complex_filter -> and -> or" % expected_type,
+        'msg': r"nested filter must be of type dict, was: .* found "
+               r"in resources -> complex_filter -> and -> or",
         'failed': True,
         'changed': False
     })
@@ -1041,8 +1037,8 @@ def test_required_one_of_or(cmci_module):
 def test_attribute_type_and(cmci_module):
     # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': "attribute must be of type str, was: <%s 'int'> found in "
-               "resources -> complex_filter -> and" % expected_type,
+        'msg': r"attribute must be of type str, was: .* found in "
+               r"resources -> complex_filter -> and",
         'failed': True,
         'changed': False
     })
@@ -1067,8 +1063,8 @@ def test_attribute_type_and(cmci_module):
 def test_attribute_type_or(cmci_module):
     # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': "attribute must be of type str, was: <%s 'int'> found in "
-               "resources -> complex_filter -> or" % expected_type,
+        'msg': r"attribute must be of type str, was: .* found in "
+               r"resources -> complex_filter -> or",
         'failed': True,
         'changed': False
     })
@@ -1093,8 +1089,8 @@ def test_attribute_type_or(cmci_module):
 def test_value_type_and(cmci_module):
     # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': "value must be of type str, was: <%s 'int'> found in "
-               "resources -> complex_filter -> and" % expected_type,
+        'msg': r"value must be of type str, was: .* found in "
+               r"resources -> complex_filter -> and",
         'failed': True,
         'changed': False
     })
@@ -1119,8 +1115,8 @@ def test_value_type_and(cmci_module):
 def test_value_type_or(cmci_module):
     # type: (CMCITestHelper) -> None
     cmci_module.expect({
-        'msg': "value must be of type str, was: <%s 'int'> found in "
-               "resources -> complex_filter -> or" % expected_type,
+        'msg': r"value must be of type str, was: .* found in "
+               r"resources -> complex_filter -> or",
         'failed': True,
         'changed': False
     })

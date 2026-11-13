@@ -2,9 +2,7 @@
 
 # (c) Copyright IBM Corp. 2023,2024
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
-import json
 from textwrap import dedent
-from ansible.module_utils.common.text.converters import to_bytes
 from ansible.module_utils import basic
 
 PYTHON_LANGUAGE_FEATURES_MESSAGE = "Requires python 3 language features"
@@ -23,9 +21,8 @@ default_data_set = {
 
 
 def set_module_args(args):
-    basic._ANSIBLE_ARGS = to_bytes(json.dumps({'ANSIBLE_MODULE_ARGS': args}))
-    # Required by ansible-core 2.19+, which no longer accepts args without a serialization profile
-    basic._ANSIBLE_PROFILE = "legacy"
+    """prepare arguments so that they will be picked up during module creation"""
+    basic._load_params = lambda: args
 
 
 def LISTDS_run_name(run):

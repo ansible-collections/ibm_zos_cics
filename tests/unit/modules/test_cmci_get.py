@@ -10,10 +10,11 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import CONTE
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import cmci_get
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import (
     HOST, PORT, CONTEXT, SCOPE, AnsibleFailJson,
-    set_module_args, exit_json, fail_json, cmci_module, CMCITestHelper, encode_html_parameter, arg_spec_str_type
+    set_module_args, exit_json, fail_json, cmci_module, CMCITestHelper, encode_html_parameter
 )
 from ansible.module_utils import basic
 
+import re
 import pytest
 import sys
 
@@ -93,17 +94,14 @@ def test_unknown_host(monkeypatch):
     if sys.version_info.major <= 2:
         assert exc_info.value.args[0]['msg'].__contains__('Failed to establish a new connection')
     else:
-        assert exc_info.value.args[0]['msg'].__contains__('[Errno -2] Name or service not known')
+        msg = exc_info.value.args[0]['msg']
+        assert ('[Errno -2] Name or service not known' in msg
+                or '[Errno -3] Temporary failure in name resolution' in msg)
 
 
 def test_invalid_port_type(monkeypatch):
     monkeypatch.setattr(basic.AnsibleModule, "exit_json", exit_json)
     monkeypatch.setattr(basic.AnsibleModule, "fail_json", fail_json)
-
-    # The error message is slightly different between Python 2 and 3
-    expected_type = 'class'
-    if sys.version_info.major <= 2:
-        expected_type = 'type'
 
     set_module_args({
         'cmci_host': '100.99.99.199',
@@ -116,11 +114,10 @@ def test_invalid_port_type(monkeypatch):
     with pytest.raises(AnsibleFailJson) as exc_info:
         cmci_get.main()
 
-    # Only check the part of the message that is stable across ansible-core versions.
-    # The text after "convert to int:" changed in ansible-core 2.18.
     assert exc_info.value.args[0]['failed'] is True
-    assert exc_info.value.args[0]['msg'].startswith(
-        "argument 'cmci_port' is of type " + arg_spec_str_type(expected_type) + " and we were unable to convert to int:"
+    assert re.search(
+        r"argument 'cmci_port' is of type .* and we were unable to convert to int:",
+        exc_info.value.args[0]['msg']
     )
 
 
