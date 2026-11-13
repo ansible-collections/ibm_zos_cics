@@ -96,25 +96,32 @@ def test_unknown_host(monkeypatch):
         assert exc_info.value.args[0]['msg'].__contains__('[Errno -2] Name or service not known')
 
 
-def test_invalid_port_type(cmci_module):  # type: (CMCITestHelper) -> None
+def test_invalid_port_type(monkeypatch):
+    monkeypatch.setattr(basic.AnsibleModule, "exit_json", exit_json)
+    monkeypatch.setattr(basic.AnsibleModule, "fail_json", fail_json)
+
     # The error message is slightly different between Python 2 and 3
     expected_type = 'class'
     if sys.version_info.major <= 2:
         expected_type = 'type'
 
-    cmci_module.expect({
-        'msg': "argument 'cmci_port' is of type <" + expected_type + " 'str'> and we were unable to "
-               "convert to int: <" + expected_type + " 'str'> cannot be converted to an int",
-        'failed': True
-    })
-
-    cmci_module.run(cmci_get, {
+    set_module_args({
         'cmci_host': '100.99.99.199',
         'cmci_port': '^%^080',
         'context': 'iyk3z0r9',
         'scope': 'iyk3z0r8',
         'type': 'cicslocalfile'
     })
+
+    with pytest.raises(AnsibleFailJson) as exc_info:
+        cmci_get.main()
+
+    # Only check the part of the message that is stable across ansible-core versions.
+    # The text after "convert to int:" changed in ansible-core 2.18.
+    assert exc_info.value.args[0]['failed'] is True
+    assert exc_info.value.args[0]['msg'].startswith(
+        "argument 'cmci_port' is of type <" + expected_type + " 'str'> and we were unable to convert to int:"
+    )
 
 
 def test_valid_port_string(cmci_module):  # type: (CMCITestHelper) -> None
