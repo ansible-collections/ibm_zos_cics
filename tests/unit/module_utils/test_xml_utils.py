@@ -7,7 +7,7 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-from typing import OrderedDict
+from collections import OrderedDict
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._xml_utils import (
     parse_xml, unparse_xml)
