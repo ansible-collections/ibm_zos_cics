@@ -394,7 +394,7 @@ GitHub Actions workflows in [`.github/workflows/`](.github/workflows/) run the f
 |---|---|---|---|
 | Bandit | [`bandit.yml`](.github/workflows/bandit.yml) | Bandit static security scan using [`.bandit`](.bandit) and [`.bandit.baseline`](.bandit.baseline) | `./bandit.sh` |
 | Detect secrets | [`detect-secrets.yml`](.github/workflows/detect-secrets.yml) | `detect-secrets-hook` from the [IBM detect-secrets fork](https://github.com/IBM/detect-secrets) on all tracked files against [`.secrets.baseline`](.secrets.baseline) | `git ls-files -z \| xargs -0 detect-secrets-hook --baseline .secrets.baseline` |
-| Ansible lint | [`ansible-lint.yml`](.github/workflows/ansible-lint.yml) | `ansible-lint` using [`.ansible-lint`](.ansible-lint) | `ansible-lint` |
+| Ansible lint | [`ansible-lint.yml`](.github/workflows/ansible-lint.yml) | `ansible-lint plugins meta` on the shipped collection code (tests are not linted) using [`.ansible-lint`](.ansible-lint) | `ansible-lint plugins meta` |
 | Ansible sanity | [`ansible-sanity.yml`](.github/workflows/ansible-sanity.yml) | `ansible-test sanity` on Python 3.12 with ansible-core 2.16, 2.17 and 2.18 | `ansible-test sanity --python 3.12` |
 | Ansible unit tests | [`ansible-units.yml`](.github/workflows/ansible-units.yml) | `ansible-test units` on Python 3.12 with ansible-core 2.16, 2.17 and 2.18 | `ansible-test units --python 3.12` |
 
