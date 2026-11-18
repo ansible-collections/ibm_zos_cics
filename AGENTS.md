@@ -8,7 +8,8 @@ The repo is an Ansible collection and must live at `.../ansible_collections/ibm/
 
 - All unit tests: `ansible-test units --python 3.12`
 - Single unit test file: `ansible-test units --python 3.12 tests/unit/modules/test_csd.py`
-- Sanity (pylint/pep8/validate-modules/etc.): `ansible-test sanity --test validate-modules` (or `pylint`, `pep8`, `yamllint`)
+- Sanity (pylint/pep8/validate-modules/etc.): `ansible-test sanity --python 3.12 --test validate-modules` (or `pylint`, `pep8`, `yamllint`); append file paths to limit scope
+- Reproduce a CI failure: `gh pr checks`, then `gh run view <run-id> --log-failed`
 - Lint: `ansible-lint`, `yamllint -c yamllint.yaml .`, `./bandit.sh` (uses `.bandit.baseline`; tests excluded)
 - Integration tests (`tests/integration/targets/cics_*`) need a real z/OS + CICS; copy `tests/integration/template.inventory_zos.yml` to `inventory_zos.yml`.
 - Docs: `cd docs && python ansible-doc-extractor-collections.py && make html`

@@ -21,7 +21,6 @@ from urllib.error import URLError
 import re
 import pytest
 import socket
-import sys
 
 
 def test_401_fails(cmci_module):  # type: (cmci_module) -> None
