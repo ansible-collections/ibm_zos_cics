@@ -384,7 +384,7 @@ Security vulnerability scanner:
 ```bash
 ./bandit.sh
 ```
-This runs `bandit -r . -b .bandit.baseline`, so only findings not in `.bandit.baseline` are reported.
+This runs `bandit -r . -b .bandit.baseline`, so only findings not in `.bandit.baseline` are reported.[]
 
 ## Continuous Integration
 
