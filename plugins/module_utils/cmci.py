@@ -9,12 +9,13 @@ from urllib.error import HTTPError, URLError
 
 __metaclass__ = type
 
-from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils.basic import (
+    AnsibleModule, env_fallback, missing_required_lib)
 from ansible.module_utils.urls import Request
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._xml_utils import (
-    parse_xml, unparse_xml)
+    DEFUSEDXML_IMPORT_ERROR, HAS_DEFUSEDXML, ParseError, parse_xml,
+    unparse_xml)
 from collections import OrderedDict
-from defusedxml.ElementTree import ParseError
 import re
 import traceback
 import urllib
@@ -202,6 +203,13 @@ class AnsibleCMCIModule(object):
                 (CMCI_CERT, CMCI_KEY)
             ]
         )  # type: AnsibleModule
+
+        if not HAS_DEFUSEDXML:
+            self._module.fail_json(
+                msg=missing_required_lib('defusedxml'),
+                exception=DEFUSEDXML_IMPORT_ERROR
+            )
+
         self.result = dict(changed=False)  # type: dict
 
         self._method = method  # type: str

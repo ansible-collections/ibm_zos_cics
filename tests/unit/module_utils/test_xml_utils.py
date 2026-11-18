@@ -8,11 +8,10 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from collections import OrderedDict
-from defusedxml.ElementTree import ParseError
 
 import pytest
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._xml_utils import (
-    parse_xml, unparse_xml)
+    ParseError, parse_xml, unparse_xml)
 
 
 def get_test_xml_data():

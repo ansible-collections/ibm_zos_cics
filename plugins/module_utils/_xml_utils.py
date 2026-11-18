@@ -7,12 +7,22 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+import traceback
 # Used to build and serialize, never to parse, parsing uses defusedxml.
-import xml.etree.ElementTree as ET 
+import xml.etree.ElementTree as ET
 from collections import OrderedDict
 from typing import Any, Iterable, Optional
 
-import defusedxml.ElementTree as DET
+try:
+    import defusedxml.ElementTree as DET
+except ImportError:
+    HAS_DEFUSEDXML = False
+    DEFUSEDXML_IMPORT_ERROR = traceback.format_exc()
+else:
+    HAS_DEFUSEDXML = True
+    DEFUSEDXML_IMPORT_ERROR = None
+
+ParseError = ET.ParseError
 
 
 def parse_xml(xml_string, strip_namespaces=None, force_list=None):
