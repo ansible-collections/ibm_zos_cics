@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from collections import OrderedDict
-from xml.etree.ElementTree import ParseError
+from defusedxml.ElementTree import ParseError
 
 import pytest
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._xml_utils import (

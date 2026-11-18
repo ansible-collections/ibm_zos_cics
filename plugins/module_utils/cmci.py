@@ -14,7 +14,7 @@ from ansible.module_utils.urls import Request
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._xml_utils import (
     parse_xml, unparse_xml)
 from collections import OrderedDict
-from xml.etree.ElementTree import ParseError
+from defusedxml.ElementTree import ParseError
 import re
 import traceback
 import urllib

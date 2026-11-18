@@ -7,9 +7,12 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-import xml.etree.ElementTree as ET
+# Used to build and serialize, never to parse, parsing uses defusedxml.
+import xml.etree.ElementTree as ET 
 from collections import OrderedDict
 from typing import Any, Iterable, Optional
+
+import defusedxml.ElementTree as DET
 
 
 def parse_xml(xml_string, strip_namespaces=None, force_list=None):
@@ -24,10 +27,13 @@ def parse_xml(xml_string, strip_namespaces=None, force_list=None):
     force_list: tag names that always produce a list, even for a single child.
 
     Raises xml.etree.ElementTree.ParseError if the document is empty or is not
-    valid XML.
+    valid XML, and a defusedxml.DefusedXmlException if it contains forbidden
+    constructs such as entity declarations.
     """
-    # An XML declaration is only valid at the very start of the document
-    root = ET.fromstring(xml_string.strip())
+    # An XML declaration is only valid at the very start of the document.
+    # defusedxml is used for parsing to protect against XML entity attacks;
+    # the standard library is only used to build and serialize elements.
+    root = DET.fromstring(xml_string.strip())
 
     return _element_to_dict(
         root,

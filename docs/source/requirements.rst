@@ -20,12 +20,15 @@ The following software must be installed on the control node:
 * `Ansible version`_ 2.15 or later
 * `Python`_ 3.9 or later
 * z/OS core collection 1.10 or later, if you want to use the provisioning tasks provided by the **IBM® z/OS® CICS® collection**
+* `defusedxml`_ 0.7.1 or later, if you want to use the CMCI tasks provided by the **IBM® z/OS® CICS® collection**
 
 
 .. _Ansible version:
    https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html
 .. _Python:
    https://www.python.org/downloads/release/latest
+.. _defusedxml:
+   https://pypi.org/project/defusedxml/
 .. _OpenSSH:
    https://www.openssh.com/
 .. _CMCI REST API:
