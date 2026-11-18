@@ -67,6 +67,8 @@ build_ignore:
   - .travis
   - .github
   - .ansible-lint
+  - AGENTS.md
+  - .bob
   - .travis.yml
   - .whitesource
   - ibm-ibm_zos_cics-*.tar.gz
@@ -76,3 +78,9 @@ build_ignore:
   - .secrets.baseline
   - Architecture.md
   - DEVELOPER_GUIDE.md
+  - bandit.sh
+  - .bandit
+  - .bandit.baseline
+  - .ansible-lint-ignore
+  - .gitattributes
+  - .ansible

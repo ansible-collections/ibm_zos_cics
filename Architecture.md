@@ -199,7 +199,7 @@ DataSet (base)
     ├── AnsibleAuxiliaryTempModule
     ├── AnsibleAuxiliaryTraceModule
     ├── AnsibleLocalRequestQueueModule
-    ├── AnsibleTDIntraModule
+    ├── AnsibleTDIntrapartitionModule
     └── AnsibleTransactionDumpModule
 ```
 
@@ -357,8 +357,8 @@ Located in [`tests/unit/`](tests/unit/):
 
 ## Version Compatibility
 
-- **Ansible**: Requires >= 2.15.0
-- **Python**: Compatible with Python 3.6+
+- **Ansible**: Requires >= 2.16.0
+- **Python**: Requires Python 3.9+
 - **CICS**: Supports CICS TS 5.6 and later
 - **z/OS**: Tested on z/OS 2.4 and later
 - **ZOAU**: Version checked at runtime
