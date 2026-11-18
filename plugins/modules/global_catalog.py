@@ -24,7 +24,7 @@ description:
 author: Andrew Twydell (@AndrewTwydell)
 version_added: 2.1.0
 seealso:
-  - module: local_catalog
+  - module: ibm.ibm_zos_cics.local_catalog
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.global_catalog
 '''

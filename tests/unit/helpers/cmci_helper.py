@@ -10,16 +10,15 @@ from ansible.module_utils.urls import Request
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils.cmci import CONTENT_TYPE
 __metaclass__ = type
 
-from ansible.module_utils.common.text.converters import to_bytes
 from ansible.module_utils import basic
 from collections import OrderedDict
 from typing import List, Tuple
 import urllib
-import json
 import pytest
 import xmltodict
 import difflib
 import pprint
+import re
 
 CONTEXT = 'CICSEX56'
 SCOPE = 'IYCWEMW2'
@@ -142,8 +141,27 @@ class CMCITestHelper:
             if result not in self.expected_output_options:
                 self.assert_error(result)
         else:
-            if self.expected != result:
+            if not self._matches(self.expected, result):
                 self.assert_error(result)
+
+    def _matches(self, expected, result):
+        """Compare expected against result. For 'msg', use substring matching so
+        tests stay tolerant of how ansible-core renders type names across versions
+        (e.g. ``str`` vs ``<class 'str'>``).  If the expected msg contains ``.*``
+        it is treated as a regex pattern instead."""
+        for key, exp_val in expected.items():
+            actual_val = result.get(key)
+            if key == 'msg':
+                if '.*' in exp_val:
+                    if not re.search(exp_val, str(actual_val)):
+                        return False
+                else:
+                    if exp_val not in str(actual_val):
+                        return False
+            else:
+                if exp_val != actual_val:
+                    return False
+        return True
 
     def assert_error(self, result):
         standard_msg = '%s != %s' % (repr(self.expected), repr(result))
@@ -171,8 +189,7 @@ def cmci_module_http(monkeypatch):
 
 def set_module_args(args):
     """prepare arguments so that they will be picked up during module creation"""
-    args = json.dumps({'ANSIBLE_MODULE_ARGS': args})
-    basic._ANSIBLE_ARGS = to_bytes(args)
+    basic._load_params = lambda: args
 
 
 class AnsibleExitJson(Exception):

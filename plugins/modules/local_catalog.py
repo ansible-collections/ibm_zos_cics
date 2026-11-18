@@ -23,7 +23,7 @@ description:
 author: Enam Khan (@enam-khan)
 version_added: 2.1.0
 seealso:
-  - module: global_catalog
+  - module: ibm.ibm_zos_cics.global_catalog
 extends_documentation_fragment:
   - ibm.ibm_zos_cics.local_catalog
 '''
