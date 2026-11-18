@@ -23,8 +23,8 @@ Welcome to the IBM z/OS CICS Ansible Collection! This guide will help you set up
 - **SSH keys** configured for z/OS access (if testing against real systems)
 
 ### For Manual Setup
-- **Python 3.12+** (see [Supported Python and ansible-core versions](#supported-python-and-ansible-core-versions))
-- **Ansible Core 2.16+** (2.16 recommended)
+- **Python 3.9+** (Python 3.12 recommended)
+- **Ansible Core 2.16+**
 - **Git** for version control
 - **pip** for Python package management
 
@@ -93,7 +93,7 @@ pwd
 The dev container ([`.devcontainer/devcontainer.json`](.devcontainer/devcontainer.json)) provides:
 
 **Base Image:**
-- Python 3.12 on Debian Bullseye
+- Python 3.12 on Debian Trixie
 - Git and common utilities
 
 **Installed Tools:**
@@ -236,7 +236,7 @@ ansible-test sanity --test validate-modules
 ansible-test units
 
 # Run specific unit test
-ansible-test units cmci_get
+ansible-test units tests/unit/modules/test_cmci_get.py
 
 # Run unit tests with a specific Python version
 ansible-test units --python 3.12
@@ -295,7 +295,7 @@ ansible-test units
 ansible-test units -v
 
 # Run specific unit test module
-ansible-test units cmci_get
+ansible-test units tests/unit/modules/test_cmci_get.py
 
 # Run unit tests for specific Python version
 ansible-test units --python 3.12
@@ -382,8 +382,9 @@ ansible-test sanity --test pep8
 Security vulnerability scanner:
 
 ```bash
-bandit -r plugins/
+./bandit.sh
 ```
+This runs `bandit -r . -b .bandit.baseline`, so only findings not in `.bandit.baseline` are reported.[]
 
 ## Continuous Integration
 

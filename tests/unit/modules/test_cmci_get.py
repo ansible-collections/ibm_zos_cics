@@ -13,10 +13,14 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.cmci_helper import 
     set_module_args, exit_json, fail_json, cmci_module, CMCITestHelper, encode_html_parameter
 )
 from ansible.module_utils import basic
+from ansible.module_utils.urls import Request
+
+from unittest.mock import Mock
+from urllib.error import URLError
 
 import re
 import pytest
-import sys
+import socket
 
 
 def test_401_fails(cmci_module):  # type: (cmci_module) -> None
@@ -80,9 +84,14 @@ def test_invalid_host(cmci_module):  # type: (CMCITestHelper) -> None
 def test_unknown_host(monkeypatch):
     monkeypatch.setattr(basic.AnsibleModule, "exit_json", exit_json)
     monkeypatch.setattr(basic.AnsibleModule, "fail_json", fail_json)
+    # Stub the request so the test doesn't depend on the resolver of the machine it runs on
+    monkeypatch.setattr(
+        Request, "open",
+        Mock(side_effect=URLError(socket.gaierror(-2, "Name or service not known")))
+    )
 
     set_module_args({
-        'cmci_host': 'invalid.hursley.ibm.com',
+        'cmci_host': 'unknown-host.invalid',
         'cmci_port': '12345',
         'context': 'CICPY012',
         'type': 'CICSDefinitionBundle'
@@ -91,12 +100,8 @@ def test_unknown_host(monkeypatch):
     with pytest.raises(AnsibleFailJson) as exc_info:
         cmci_get.main()
 
-    if sys.version_info.major <= 2:
-        assert exc_info.value.args[0]['msg'].__contains__('Failed to establish a new connection')
-    else:
-        msg = exc_info.value.args[0]['msg']
-        assert ('[Errno -2] Name or service not known' in msg
-                or '[Errno -3] Temporary failure in name resolution' in msg)
+    assert exc_info.value.args[0]['msg'] == \
+        'Error performing CMCI request: [Errno -2] Name or service not known'
 
 
 def test_invalid_port_type(monkeypatch):
