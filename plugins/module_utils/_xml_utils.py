@@ -8,8 +8,8 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import traceback
-# Used to build and serialize, never to parse, parsing uses defusedxml.
-import xml.etree.ElementTree as ET
+# Only used to build and serialize XML, never to parse it. Parsing uses defusedxml.
+import xml.etree.ElementTree as ET  # nosec B405
 from collections import OrderedDict
 from typing import Any, Iterable, Optional
 
