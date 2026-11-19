@@ -403,6 +403,8 @@ The repository also has a CodeQL analysis workflow ([`codeql-analysis.yml`](.git
 
 Notes:
 - The lint, sanity and unit test workflows check the repository out to `ansible_collections/ibm/ibm_zos_cics` and install the `ibm.ibm_zos_core` collection, which `ansible-test` requires.
+- The unit test workflows install their Python packages by hand and do not read `requirements.txt`. When you add a runtime dependency (for example `defusedxml`), add it to the `pip install` step in `ansible-units.yml` and `weekly-smoke.yml` too.
+- `ansible-test sanity` runs the `import` test in a bare virtualenv that does not install `requirements.txt`. Third-party imports in `plugins/` must be wrapped in `try`/`except ImportError`, as `_xml_utils.py` does for `defusedxml`.
 - Findings accepted as known are recorded in the Bandit and detect-secrets baseline files. Update the relevant baseline when you intentionally accept a new finding.
 - Sanity test exclusions live in `tests/sanity/ignore-<ansible-core version>.txt`. Each ansible-core version in the matrix needs a matching ignore file (2.14 to 2.22 are present).
 

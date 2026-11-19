@@ -4,7 +4,7 @@ This file provides guidance to agents when working with code in this repository.
 
 ## Commands
 
-The repo is an Ansible collection and must live at `.../ansible_collections/ibm/ibm_zos_cics` (already true here); `ansible-test` only works from that path. Dependencies: `pip install -r dev-requirements.txt`; `ibm.ibm_zos_core` and `community.general` collections must be installed.
+The repo is an Ansible collection and must live at `.../ansible_collections/ibm/ibm_zos_cics` (already true here); `ansible-test` only works from that path. Dependencies: `pip install -r dev-requirements.txt` (includes `requirements.txt`, which holds the runtime dependency `defusedxml`); `ibm.ibm_zos_core` and `community.general` collections must be installed.
 
 - All unit tests: `ansible-test units --python 3.12`
 - Single unit test file: `ansible-test units --python 3.12 tests/unit/modules/test_csd.py`
@@ -18,7 +18,7 @@ The repo is an Ansible collection and must live at `.../ansible_collections/ibm/
 ## Architecture (non-obvious bits)
 
 - Two unrelated module families:
-  - `cmci_*` modules (`plugins/module_utils/cmci.py`, class `AnsibleCMCIModule`) are REST/XML (needs `xmltodict`), no action plugins.
+  - `cmci_*` modules (`plugins/module_utils/cmci.py`, class `AnsibleCMCIModule`) are REST/XML, no action plugins. XML goes through `_xml_utils.py` (`parse_xml`/`unparse_xml`): parse with `defusedxml` only, and use stdlib `xml.etree.ElementTree` just to build/serialize (it carries `# nosec B405`). Never parse with `xml.etree`. `defusedxml` is a runtime dependency in `requirements.txt` and its import is guarded (`HAS_DEFUSEDXML`) so sanity's import test passes without it.
   - Provisioning modules (`csd`, `*_catalog`, `aux_*`, `td_intrapartition`, `transaction_dump`, `local_request_queue`, `region_jcl`, `stop_region`) run on z/OS via ZOAU and `ibm.ibm_zos_core`.
 - Each provisioning module has FOUR coupled files: `plugins/modules/X.py`, `plugins/action/X.py`, `plugins/doc_fragments/X.py` (parameter docs live here, not in the module's `DOCUMENTATION`), `plugins/module_utils/_X.py`. Adding a module also requires: adding to `action_groups` in `meta/runtime.yml`, an entry in `tests/sanity/ignore-2.*.txt` for `validate-modules:missing-gplv3-license` (code is Apache-2.0), and unit tests.
 - Action plugins run on the controller (expand `<< data_set_name >>` templates, read local files) and extend `_DataSetActionPlugin` via `plugin_utils/_module_action_plugin.py`; the module then runs on the managed node. Don't put controller-only logic in the module.

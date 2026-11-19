@@ -1,0 +1,2 @@
+minor_changes:
+  - Replace the xmltodict dependency in the CMCI modules with Python's built-in xml.etree.ElementTree for building XML and defusedxml for parsing it (https://github.com/ansible-collections/ibm_zos_cics/pull/190).

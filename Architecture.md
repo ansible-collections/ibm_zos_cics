@@ -77,9 +77,15 @@ The [`module_utils`](plugins/module_utils/) directory contains shared code used 
 - [`cmci.py`](plugins/module_utils/cmci.py) - Base class for all CMCI modules
   - Handles HTTP communication with CMCI REST API
   - Manages authentication (basic and certificate)
-  - Parses XML responses using xmltodict
+  - Parses XML responses with `parse_xml` and builds request bodies with `unparse_xml` (see `_xml_utils.py` below)
   - Provides filter and parameter handling
   - Validates CMCI responses and error handling
+
+- [`_xml_utils.py`](plugins/module_utils/_xml_utils.py) - XML conversion helpers for the CMCI modules
+  - `parse_xml` converts a CMCI XML response to an `OrderedDict`, using the `xmltodict` layout (`@` attribute prefix, `#text`, repeated children as lists)
+  - `unparse_xml` converts the same structure back to an XML request body, without an XML declaration
+  - Parsing uses `defusedxml` to protect against XML entity attacks. The standard library `xml.etree.ElementTree` is only used to build and serialize elements, never to parse
+  - The `defusedxml` import is guarded (`HAS_DEFUSEDXML`), so `AnsibleCMCIModule` can fail with a clear missing-library message
 
 - [`_data_set.py`](plugins/module_utils/_data_set.py) - Base class for data set modules
   - Common data set operations (create, delete, initialize)
@@ -158,7 +164,7 @@ flowchart TD
     D --> E[CMCI REST API]
     E --> F[CICS Region /<br/>CICSPlex SM]
     F --> G[XML Response]
-    G --> H[Parse with xmltodict]
+    G --> H[Parse with defusedxml<br/>_xml_utils.py]
     H --> I[Return structured data to user]
 ```
 
@@ -253,12 +259,13 @@ This provides transparency and debugging capability.
    - Provides Python APIs for z/OS operations
    - Minimum version checked at runtime
 
-2. **xmltodict** - Required for CMCI modules
-   - Parses XML responses from CMCI REST API
-
-3. **ibm.ibm_zos_core** - Ansible collection dependency. Required for provisioning modules
+2. **ibm.ibm_zos_core** - Ansible collection dependency. Required for provisioning modules
    - Provides core z/OS functionality
    - Used for data set operations, job management, TSO commands
+
+3. **defusedxml** - Python package, required on the control node for the CMCI modules
+   - Parses CMCI XML responses safely
+   - Listed in `requirements.txt`, which the dev, doc and execution environment installs also use
 
 ### z/OS Requirements
 
@@ -281,6 +288,7 @@ This provides transparency and debugging capability.
 - CMCI response codes are validated against expected values
 - Feedback records provide detailed error information
 - XML parsing errors are handled gracefully
+- A missing `defusedxml` package is reported with a clear message instead of a traceback
 
 ### Provisioning Modules
 
