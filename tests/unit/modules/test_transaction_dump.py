@@ -19,7 +19,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.modules import transaction_dum
 import pytest
 import sys
 
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSCmdResponse
 
 try:
     from unittest.mock import MagicMock
@@ -73,10 +73,8 @@ def test_create_an_intial_transaction_dump():
             MVSCmdResponse(0, LISTDS_data_set(NAMEA, "PS"), ""),
         ]
     )
-    data_set_utils._execute_iefbr14 = MagicMock(
-        return_value=MVSCmdResponse(
-            rc=0, stdout="", stderr=IEFBR14_create_stderr(NAMEA, "DFHDMPA")
-        )
+    data_set_utils._execute_subprocess = MagicMock(
+        return_value=(0, "", IEFBR14_create_stderr(NAMEA, "DFHDMPA"))
     )
 
     transaction_dump_module.main()
@@ -222,10 +220,8 @@ def test_create_an_intial_destination_b_transaction_dump():
             MVSCmdResponse(0, LISTDS_data_set(NAMEB, "PS"), ""),
         ]
     )
-    data_set_utils._execute_iefbr14 = MagicMock(
-        return_value=MVSCmdResponse(
-            rc=0, stdout="", stderr=IEFBR14_create_stderr(NAMEB, "DFHDMPB")
-        )
+    data_set_utils._execute_subprocess = MagicMock(
+        return_value=(0, "", IEFBR14_create_stderr(NAMEB, "DFHDMPB"))
     )
 
     transaction_dump_module.main()

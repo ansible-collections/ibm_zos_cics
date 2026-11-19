@@ -50,7 +50,7 @@ options:
       - Specify the type of shutdown to be executed on the CICS region.
       - Specify C(normal) to perform a normal shutdown. This instructs the stop_region module to issue a CEMT PERFORM SHUTDOWN command.
       - Specify C(immediate) to perform an immediate shutdown. This instructs the stop_region module to issue a CEMT PERFORM SHUTDOWN IMMEDIATE command.
-      - Specify C(cancel) to cancel the CICS region. This instructs the stop_region module to use ZOAU's C(jobs.cancel) utility to process the request.
+      - Specify C(cancel) to cancel the CICS region. This instructs the stop_region module to use the ZOAU C(jcan) utility to cancel the job.
     type: str
     required: false
     default: normal
@@ -131,131 +131,38 @@ executions:
       type: int
       returned: always
     return:
-      description: The standard output returned by the program execution.
+      description: The raw output from the shell command execution.
       type: dict
       returned: always
       contains:
-        changed:
-          description: True if the state was changed, otherwise False.
-          returned: always
-          type: bool
-        failed:
-          description: True if the module failed, otherwise False.
-          returned: always
-          type: bool
-        jobs:
-          description: The output information for a list of jobs matching the specified criteria.
-          type: list
-          returned: on zos_job_query module execution
-          elements: dict
-          contains:
-            job_id:
-              description: Unique job identifier assigned to the job by JES.
-              type: str
-            job_name:
-              description: The name of the batch job.
-              type: str
-            owner:
-              description: The owner who ran the job.
-              type: str
-            ret_code:
-              description:
-                Return code output collected from the job log.
-              type: dict
-              contains:
-                msg:
-                  description:
-                    Return code or abend resulting from the job submission.
-                  type: str
-                msg_code:
-                  description:
-                    Return code extracted from the `msg` so that it can be evaluated.
-                    For example, ABEND(S0C4) yields "S0C4".
-                  type: str
-                msg_txt:
-                  description:
-                    Returns additional information related to the job.
-                  type: str
-                code:
-                  description:
-                    Return code converted to an integer value (when possible).
-                  type: int
-                steps:
-                  description:
-                    Series of JCL steps that were executed and their return codes.
-                  type: list
-                  elements: dict
-                  contains:
-                    step_name:
-                      description:
-                        Name of the step shown as "was executed" in the DD section.
-                      type: str
-                    step_cc:
-                      description:
-                        The CC returned for this step in the DD section.
-                      type: int
-        message:
-          description: Message returned on failure.
-          returned: on zos_job_query module execution
-          type: str
-        content:
-          description: The resulting text from the command submitted.
-          returned: on zos_operator module execution
-          type: list
-        cmd:
-          description: The operator command that has been executed
-          returned: on zos_operator module execution
-          type: str
         rc:
-          description: The return code from the operator command
-          returned: on zos_operator module execution
+          description: The return code from the shell command.
           type: int
-        max_rc:
-          description: The maximum return code from the TSO status command
-          returned: on zos_tso_command module execution
-          type: int
-        output:
-          description: The output from the TSO command.
-          returned: on zos_tso_command module execution
-          type: list
-          elements: dict
-          contains:
-            command:
-              description: The executed TSO command.
-              returned: always
-              type: str
-            rc:
-              description: The return code from the executed TSO command.
-              returned: always
-              type: int
-            content:
-              description: The response resulting from the execution of the TSO command.
-              returned: always
-              type: list
-            lines:
-              description: The line number of the content.
-              returned: always
-              type: int
-
+          returned: always
+        stdout:
+          description: Standard output from the shell command.
+          type: str
+          returned: always
+        stderr:
+          description: Standard error from the shell command.
+          type: str
+          returned: always
+        cmd:
+          description: The shell command that was executed.
+          type: str
+          returned: always
 msg:
   description: A string containing an error message if applicable.
   returned: always
   type: str
 '''
 
-import traceback
+import json
+import subprocess
 
 from ansible.module_utils.basic import AnsibleModule
 
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.job import job_status
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._zoau_version_checker import _check_zoau_version
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.import_handler import ZOAUImportError
-
-try:
-    from zoautil_py.exceptions import JobFetchException
-except Exception:
-    # Use ibm_zos_core's approach to handling zoautil_py imports so sanity tests pass
-    datasets = ZOAUImportError(traceback.format_exc())
 
 
 CANCEL = 'cancel'
@@ -286,9 +193,9 @@ class AnsibleStopCICSModule(object):
             _check_zoau_version()
         except ImportError as e:
             self._module.fail_json(e.msg)
-        # At this point, this module only gets executed with JOB_ID
-        # This is as a wrapper to jls via ibm_zos_core job to clean-up the output
-        # if there is no job found with that ID (ZOAU throws an exception)
+        # At this point, this module only gets executed with JOB_ID.
+        # It wraps jls -j to normalise the output and surface a clean failure
+        # when no job is found (jls exits non-zero with BGYSC3503E in that case).
         job_id = self._module.params.get(JOB_ID)
 
         jobs_raw: list[dict] = get_jobs_wrapper(job_id)
@@ -302,27 +209,24 @@ class AnsibleStopCICSModule(object):
         job = jobs_raw[0]
 
         no_name_msg = "Couldn't determine job name for job ID {0}".format(job_id)
-        if not job.get("job_id") == job_id:
+        if job.get("id") != job_id:
             self._module.fail_json(no_name_msg)
 
-        job_name = job.get("job_name")
+        job_name = job.get("name")
         if not job_name:
             self._module.fail_json(no_name_msg)
 
-        no_status_msg = "Couldn't determine status for job ID {0} with name {1}".format(job_id, job_name)
-        ret_code = job.get("ret_code")
-        if not ret_code:
-            self._module.fail_json(no_status_msg)
-
-        status = ret_code.get("msg")
+        status = job.get("status", "")
         if not status:
-            self._module.fail_json(no_status_msg)
+            self._module.fail_json(
+                "Couldn't determine status for job ID {0} with name {1}".format(job_id, job_name)
+            )
 
         self._module.exit_json(
             changed=False,
             failed=False,
-            job_name=job["job_name"],
-            job_status="EXECUTING" if "AC" in status else "NOT_EXECUTING"
+            job_name=job_name,
+            job_status="EXECUTING" if status == "AC" else "NOT_EXECUTING"
         )
 
     def init_argument_spec(self):
@@ -358,24 +262,45 @@ class AnsibleStopCICSModule(object):
         }
 
 
-def get_jobs_wrapper(job_id):  # type: (str) -> list[dict]
+def _parse_jls_response(jls_response):
+    # type: (dict) -> list[dict]
+    """Parse jls JSON output dict (must have a 'stdout' key). Returns list of job dicts."""
+    stdout = jls_response.get("stdout", "")
+    if not stdout.strip():
+        return []
     try:
-        return job_status(job_id=job_id)
-    except JobFetchException as e:
-        response = e.response
+        data = json.loads(stdout)
+    except (json.JSONDecodeError, ValueError):
+        return []
+    return list(data.get("data", {}).values())
 
-        # ZOAU 1.3 returns an error with this message if there's no job with the expected ID
-        if "BGYSC3503E Failed to retrieve job list." in response.stderr_response:
-            # In this case, we'll clean up the error, so the user gets a clearer response
+
+def get_jobs_wrapper(job_id):  # type: (str) -> list[dict]
+    """Query job status by ID using jls -j. Returns list of job dicts."""
+    result = subprocess.run(
+        "jls -j '{0}'".format(job_id),
+        shell=True,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False
+    )
+
+    # RC 4 with BGYSC3503E means no job found — treat as empty list
+    if result.returncode != 0:
+        if "BGYSC3503E" in result.stderr:
             return []
-        else:
-            # Otherwise something unexpected happened
-            raise e
+        raise Exception("jls failed (RC {0}): {1}".format(result.returncode, result.stderr))
+
+    try:
+        jobs = _parse_jls_response({"stdout": result.stdout})
+    except Exception:
+        raise Exception("jls returned unexpected output: {0}".format(result.stdout))
+    return jobs
 
 
 def main():
-    if __name__ == '__main__':
-        AnsibleStopCICSModule().main()
+    AnsibleStopCICSModule().main()
 
 
 if __name__ == '__main__':

@@ -241,7 +241,7 @@ def test_get_job_status_name_id_no_output():
     job_id = "JOB12345"
     with pytest.raises(AnsibleActionFail) as action_err:
         _get_job_status_name_id({}, job_name, job_id)
-    assert "Output not received for TSO STATUS command" in str(action_err)
+    assert "Output not received for job status command" in str(action_err)
 
 
 def test_get_job_status_name_id_0_jobs():

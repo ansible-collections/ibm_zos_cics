@@ -15,6 +15,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.modules.stop_region import (
     JOB_NAME,
     TIMEOUT,
     TIMEOUT_DEFAULT,
+    _parse_jls_response,
 )
 from ansible.errors import AnsibleActionFail
 from datetime import datetime, timedelta
@@ -40,8 +41,8 @@ RUNNING_ATTEMPTING_TO_STOP = "CICS is running, attempting to stop CICS."
 SHUTDOWN_SUCCESS = "CICS has been shutdown."
 SDTRAN_COMMAND = "{0} SDTRAN({1})"
 NO_SDTRAN_COMMAND = "{0} NOSDTRAN"
-TSO_STATUS_COMMAND = "STATUS {0}"
-TSO_STATUS_ID_COMMAND = "STATUS {0}({1})"
+JLS_NAME_COMMAND = "jls -j '/*/{0}'"
+JLS_ID_COMMAND = "jls -j '{0}'"
 
 
 class ActionModule(ActionBase):
@@ -90,7 +91,7 @@ class ActionModule(ActionBase):
     def _cancel_region(self):
         run_command_result = self.execute_cancel_shell_cmd(
             self.job_name, self.job_id)
-        if not run_command_result.get(CHANGED) or run_command_result.get(RC) != 0:
+        if run_command_result.get(RC) != 0:
             raise AnsibleActionFail("Error running job cancel command")
 
     def _perform_shutdown(self):
@@ -131,27 +132,18 @@ class ActionModule(ActionBase):
             raise Exception("Neither job_name nor job_id was set.  This shouldn't happen according to the argument spec")
 
     def _get_job_status_by_name_and_id(self):  # type: () -> str
-        tso_status_response = self.execute_zos_tso_cmd(
-            TSO_STATUS_ID_COMMAND.format(self.job_name, self.job_id)
-        )
+        jls_response = self.execute_jls_cmd(job_name=self.job_name)
         self._add_status_execution("{0}({1})".format(
-            self.job_name, self.job_id), tso_status_response)
-        job_status = _get_job_status_name_id(
-            tso_status_response, self.job_name, self.job_id
+            self.job_name, self.job_id), jls_response)
+        return _get_job_status_name_id(
+            jls_response, self.job_name, self.job_id
         )
-
-        if job_status == "COMBINATION INVALID":
-            raise AnsibleActionFail(
-                "No jobs found with name {0} and ID {1}".format(self.job_name, self.job_id))
-
-        return job_status
 
     def _get_job_id_and_status_by_name(self):  # type: () -> (str, str)
         # If we have a name but no ID, we use a TSO command to get the job ID
         running_jobs = self._get_running_jobs()
 
         if len(running_jobs) == 0:
-            # In the event that the job ID is missing, we're still not exposed to the ZOAU 'bug' as we have not used zos_job_query
             return (None, "MISSING")
 
         if len(running_jobs) > 1:
@@ -183,11 +175,9 @@ class ActionModule(ActionBase):
         return (stop_module_output["job_name"], stop_module_output["job_status"])
 
     def _get_running_jobs(self):
-        tso_query_response = self.execute_zos_tso_cmd(
-            TSO_STATUS_COMMAND.format(self.job_name)
-        )
-        self._add_status_execution(self.job_name, tso_query_response)
-        jobs = _get_job_info_from_status(tso_query_response, self.job_name)
+        jls_response = self.execute_jls_cmd(job_name=self.job_name)
+        self._add_status_execution(self.job_name, jls_response)
+        jobs = _get_job_info_from_status(jls_response, self.job_name)
         if len(jobs) == 0:
             raise AnsibleActionFail(
                 "Job with name {0} not found".format(self.job_name))
@@ -201,7 +191,7 @@ class ActionModule(ActionBase):
     def _add_status_execution(self, job, result):
         self.executions.append({
             NAME: CHECK_CICS_STATUS.format(job),
-            RC: result.get("max_rc"),
+            RC: result.get("rc"),
             RETURN: result,
         })
 
@@ -209,7 +199,6 @@ class ActionModule(ActionBase):
         end_time = calculate_end_time(
             self.timeout) if self.timeout > 0 else None
 
-        self.executions.append({})
         status = EXECUTING
         while status == EXECUTING and (
             get_datetime_now() < end_time if end_time else True
@@ -217,15 +206,12 @@ class ActionModule(ActionBase):
             self.logger.debug(ACTIVE_AND_WAITING)
             time.sleep(15)
 
-            tso_cmd_response = self.execute_zos_tso_cmd(
-                TSO_STATUS_ID_COMMAND.format(self.job_name, self.job_id)
-            )
+            jls_response = self.execute_jls_cmd(job_name=self.job_name)
 
-            self.executions.pop()
-            self._add_status_execution(self.job_id, tso_cmd_response)
+            self._add_status_execution(self.job_id, jls_response)
 
             status = _get_job_status_name_id(
-                tso_cmd_response, self.job_name, self.job_id
+                jls_response, self.job_name, self.job_id
             )
 
         if status == EXECUTING:
@@ -233,43 +219,49 @@ class ActionModule(ActionBase):
                 "Timeout reached before region successfully stopped")
         self.logger.debug(SHUTDOWN_SUCCESS)
 
-    def execute_zos_tso_cmd(self, command):
-        return self._execute_module(
-            module_name="ibm.ibm_zos_core.zos_tso_command",
-            module_args={"commands": command},
-            task_vars=self.task_vars,
-        )
+    def _execute_remote_cmd(self, command):
+        """Run a shell command on the remote z/OS host via the command action plugin."""
+        saved_args = self._task.args
+        try:
+            self._task.args = {
+                "_uses_shell": True,
+                "_raw_params": command,
+            }
+            command_action = self._shared_loader_obj.action_loader.get(
+                "ansible.legacy.command",
+                task=self._task,
+                connection=self._connection,
+                play_context=self._play_context,
+                loader=self._loader,
+                templar=self._templar,
+                shared_loader_obj=self._shared_loader_obj,
+            )
+            return command_action.run(task_vars=self.task_vars)
+        finally:
+            self._task.args = saved_args
+
+    def execute_jls_cmd(self, job_name=None, job_id=None):
+        """Query job status using jls -j on the remote z/OS host."""
+        if job_name:
+            jls_cmd = JLS_NAME_COMMAND.format(job_name)
+        else:
+            jls_cmd = JLS_ID_COMMAND.format(job_id)
+        return self._execute_remote_cmd(jls_cmd)
 
     def execute_zos_operator_cmd(self, command):
-        operator_response = self._execute_module(
-            module_name="ibm.ibm_zos_core.zos_operator",
-            module_args={"cmd": command},
-            task_vars=self.task_vars,
-        )
+        """Execute operator command using opercmd -j."""
+        result = self._execute_remote_cmd("opercmd -j \"{0}\"".format(command))
         self.executions.append({
-            NAME: "ZOS Operator Command - {0}".format(command),
-            RC: operator_response.get("rc"),
-            RETURN: operator_response,
+            NAME: "Operator Command - {0}".format(command),
+            RC: result.get("rc"),
+            RETURN: result,
         })
-        return operator_response
+        return result
 
     def execute_cancel_shell_cmd(self, job_name, job_id):
-        # This is borrowed from the Ansible command/shell action plugins
-        # It's how they run commands from an action plugin on a remote
-        self._task.args = {
-            "_uses_shell": True,
-            "_raw_params": "jcan C {0} {1}".format(job_name, job_id),
-        }
-        command_action = self._shared_loader_obj.action_loader.get(
-            "ansible.legacy.command",
-            task=self._task,
-            connection=self._connection,
-            play_context=self._play_context,
-            loader=self._loader,
-            templar=self._templar,
-            shared_loader_obj=self._shared_loader_obj,
+        cancel_response = self._execute_remote_cmd(
+            "jcan C {0} {1}".format(job_name, job_id)
         )
-        cancel_response = command_action.run(task_vars=self.task_vars)
         self.executions.append({
             NAME: "Cancel command - {0}({1})".format(job_name, job_id),
             RC: cancel_response.get("rc"),
@@ -320,7 +312,7 @@ def format_shutdown_command(job_name, stop_mode, sdtran=None, no_sdtran=None):
 
 def get_console_errors(shutdown_result):
     shutdown_stdout = (
-        "".join(shutdown_result.get("content", []))
+        shutdown_result.get("stdout", "")
         .replace(" ", "")
         .replace("\n", "")
         .upper()
@@ -338,38 +330,35 @@ def get_console_errors(shutdown_result):
         )
 
 
-def _get_job_info_from_status(tso_query_response, job_name):
-    tso_response_content = tso_query_response["output"][0].get("content")
-    pattern = r"{0}".format(job_name)
-    job_strings = [
-        line for line in tso_response_content if re.search(pattern, line)]
-    jobs = []
-    for job in job_strings:
-        if (
-            "JOB {0} NOT FOUND".format(job_name) in job.upper()
-            or "STATUS {0}".format(job_name) in job.upper()
-        ):
-            continue
-        jobs.append({
-            JOB_NAME: job_name,
-            JOB_ID: job.split("(")[1].split(")")[0],
-            STATUS: job.split(")")[1].strip(),
-        })
-    return jobs
+def _get_job_info_from_status(jls_response, job_name):
+    """Parse jls response for jobs matching job_name. Returns list of {job_name, job_id, status}."""
+    jobs = _parse_jls_response(jls_response)
+    result = []
+    for job in jobs:
+        if job.get("name", "").upper() == job_name.upper():
+            status = "EXECUTING" if job.get("status") == "AC" else job.get("status", "")
+            result.append({
+                JOB_NAME: job.get("name"),
+                JOB_ID: job.get("id"),
+                STATUS: status,
+            })
+    return result
 
 
-def _get_job_status_name_id(tso_status_command_response, job_name, job_id):
-    if len(tso_status_command_response.get("output", [])) != 1:
-        raise AnsibleActionFail("Output not received for TSO STATUS command")
-
-    tso_response_content = tso_status_command_response["output"][0].get(
-        "content")
-    pattern = r"{0}\({1}\)".format(job_name, job_id)
-    jobs = [line for line in tso_response_content if re.search(pattern, line)]
-    if len(jobs) == 0:
+def _get_job_status_name_id(jls_response, job_name, job_id):
+    """Parse jls response for a specific job_name + job_id. Returns status string."""
+    if not jls_response:
+        raise AnsibleActionFail("Output not received for job status command")
+    jobs = _parse_jls_response(jls_response)
+    matches = [
+        j for j in jobs
+        if j.get("name", "").upper() == job_name.upper()
+        and j.get("id", "").upper() == job_id.upper()
+    ]
+    if len(matches) == 0:
         raise AnsibleActionFail(
-            "No jobs found with name {0} and ID {1}".format(job_name, job_id)
-        )
-    if len(jobs) > 1:
+            "No jobs found with name {0} and ID {1}".format(job_name, job_id))
+    if len(matches) > 1:
         raise AnsibleActionFail("Multiple jobs with name and ID found")
-    return jobs[0].split(")")[1].strip()
+    job = matches[0]
+    return "EXECUTING" if job.get("status") == "AC" else job.get("status", "")

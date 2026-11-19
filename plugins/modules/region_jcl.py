@@ -185,9 +185,14 @@ RETURN = r"""
 
 import string
 import math
-import traceback
+import subprocess
 
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.data_set import is_member
+
+def is_member(ds_name):
+    """Replace zos_core's is_member: a dataset name containing '(' is a PDS member."""
+    return "(" in ds_name
+
+
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import (
     MEGABYTES,
     REGION_DATA_SETS,
@@ -198,30 +203,15 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import 
     WARM,
     DataSet
 )
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import _read_data_set_content
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import (
+    _read_data_set_content, _run_listds)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._dd_statement import DatasetDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._jcl_helper import (
     JCLHelper, DLM, DD_INSTREAM, CONTENT, END_INSTREAM, JOB_CARD, EXECS, JOB_NAME, DDS, NAME
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import (
     MVSExecutionException,
     _execution
-)
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import _run_listds
-
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.import_handler import (
-    ZOAUImportError
-)
-
-try:
-    from zoautil_py import datasets, exceptions
-except Exception:
-    # Use ibm_zos_core's approach to handling zoautil_py imports so sanity tests pass
-    datasets = ZOAUImportError(traceback.format_exc())
-    exceptions = ZOAUImportError(traceback.format_exc())
-
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import (
-    MVSExecutionException,
 )
 
 
@@ -697,26 +687,25 @@ class AnsibleRegionJCLModule(DataSet):
         """
         executions = []
 
-        try:
-            rc = datasets.write(data_set_name, jcl)
-            # If rc != 0, ZOAU raises an exception
-            executions.append(
-                _execution(
-                    name="Copy JCL contents to data set",
-                    rc=rc,
-                    stdout="",
-                    stderr=""
-                )
+        escaped = jcl.replace("'", "'\\''")
+        result = subprocess.run(
+            "decho '{0}' '{1}'".format(escaped, data_set_name),
+            shell=True,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False
+        )
+        executions.append(
+            _execution(
+                name="Copy JCL contents to data set",
+                rc=result.returncode,
+                stdout=result.stdout,
+                stderr=result.stderr
             )
-        except exceptions.DatasetWriteException as e:
-            raise MVSExecutionException("Failed to copy JCL content to data set", [
-                _execution(
-                    name="Copy JCL contents to data set",
-                    rc=e.response.rc,
-                    stdout=e.response.stdout_response,
-                    stderr=e.response.stderr_response
-                )
-            ])
+        )
+        if result.returncode != 0:
+            raise MVSExecutionException("Failed to copy JCL content to data set", executions)
 
         return executions
 

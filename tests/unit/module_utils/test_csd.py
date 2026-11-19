@@ -16,7 +16,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules.csd import SPACE_PRIMARY_DEFAULT, SPACE_SECONDARY_DEFAULT
 
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSCmdResponse
 
 __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _csd as csd

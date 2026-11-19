@@ -66,11 +66,9 @@ def test_get_job_name_from_query(monkeypatch):
 
     stop_region.get_jobs_wrapper = MagicMock(
         return_value=[{
-            "job_name": job_name,
-            "job_id": DEFAULT_JOB_ID,
-            "ret_code": {
-                "msg": "AC"
-            }
+            "name": job_name,
+            "id": DEFAULT_JOB_ID,
+            "status": "AC"
         }]
     )
 
@@ -91,11 +89,9 @@ def test_get_job_name_from_query_not_executing(monkeypatch):
 
     stop_region.get_jobs_wrapper = MagicMock(
         return_value=[{
-            "job_name": job_name,
-            "job_id": DEFAULT_JOB_ID,
-            "ret_code": {
-                "msg": "CC"
-            }
+            "name": job_name,
+            "id": DEFAULT_JOB_ID,
+            "status": "CC"
         }]
     )
 
@@ -132,8 +128,8 @@ def test_get_job_name_from_query_no_ret_code(monkeypatch):
 
     stop_region.get_jobs_wrapper = MagicMock(
         return_value=[{
-            "job_name": job_name,
-            "job_id": DEFAULT_JOB_ID
+            "name": job_name,
+            "id": DEFAULT_JOB_ID
         }]
     )
 
@@ -153,11 +149,9 @@ def test_get_job_name_from_query_wrong_job_id(monkeypatch):
 
     stop_region.get_jobs_wrapper = MagicMock(
         return_value=[{
-            "job_name": job_name,
-            "job_id": "ASDF",
-            "ret_code": {
-                "msg": "CC"
-            }
+            "name": job_name,
+            "id": "ASDF",
+            "status": "CC"
         }]
     )
 
@@ -177,10 +171,8 @@ def test_get_job_name_from_query_wrong_no_job_name(monkeypatch):
 
     stop_region.get_jobs_wrapper = MagicMock(
         return_value=[{
-            "job_id": DEFAULT_JOB_ID,
-            "ret_code": {
-                "msg": "CC"
-            }
+            "id": DEFAULT_JOB_ID,
+            "status": "CC"
         }]
     )
 
@@ -200,9 +192,9 @@ def test_get_job_name_from_query_wrong_no_msg(monkeypatch):
 
     stop_region.get_jobs_wrapper = MagicMock(
         return_value=[{
-            "job_name": job_name,
-            "job_id": DEFAULT_JOB_ID,
-            "ret_code": {}
+            "name": job_name,
+            "id": DEFAULT_JOB_ID,
+            "status": ""
         }]
     )
 

@@ -3,37 +3,53 @@
 # (c) Copyright IBM Corp. 2025
 # Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
-import traceback
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.import_handler import ZOAUImportError
-
-try:
-    from zoautil_py import ZOAU_API_VERSION
-except Exception:
-    # Use ibm_zos_core's approach to handling zoautil_py imports so sanity tests pass
-    ZOAU_API_VERSION = ZOAUImportError(traceback.format_exc())
-
+import re
+import subprocess
 
 CURRENT_MINIMUM_LEVEL = "1.3.0.0"
 
-IMPORT_ERROR_MESSAGE = f"Incompatible ZOAU API version found. Minimum supported version is v{CURRENT_MINIMUM_LEVEL}."
+IMPORT_ERROR_MESSAGE = "Incompatible ZOAU version found. Minimum supported version is v{0}.".format(CURRENT_MINIMUM_LEVEL)
+
+
+def _get_zoau_version():
+    # type: () -> str | None
+    """Return the raw output of zoaversion, or None if the command is unavailable."""
+    try:
+        result = subprocess.run(
+            ["zoaversion"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except Exception:
+        pass
+    return None
 
 
 def _check_zoau_version():
-    if isinstance(ZOAU_API_VERSION, str):
-        zoau_version = list(map(int, ZOAU_API_VERSION.split('.')))
-        min_version = list(map(int, CURRENT_MINIMUM_LEVEL.split('.')))
-        if not _zoau_version_greater_than_min(zoau_version, min_version):
-            raise ImportError(f"{IMPORT_ERROR_MESSAGE} Version found is {ZOAU_API_VERSION}")
-    else:
+    raw = _get_zoau_version()
+    if not raw:
+        raise ImportError(IMPORT_ERROR_MESSAGE)
+    try:
+        _check_zoau_version_str(raw)
+    except RuntimeError:
         raise ImportError(IMPORT_ERROR_MESSAGE)
 
 
-def _zoau_version_greater_than_min(zoau_version, min_version):  # type: (list[int],list[int]) -> bool
-    for i in range(4):
-        if zoau_version[i] > min_version[i]:
-            return True
-        elif min_version[i] > zoau_version[i]:
-            return False
+def _check_zoau_version_str(zoau_version):
+    # type: (str) -> None
+    zoau_version_parsed = re.search(r'\d+(?:\.\d+)+', zoau_version)
+    if zoau_version_parsed is not None:
+        zoau_version = zoau_version_parsed.group()
 
-    # Version is equal to minimum
-    return True
+    zoau_version_split = [int(x) for x in zoau_version.split('.')]
+    min_zoau_version_split = [int(x) for x in CURRENT_MINIMUM_LEVEL.split('.')]
+
+    if zoau_version_split < min_zoau_version_split:
+        raise RuntimeError(
+            "ZOAU version {0} does not meet the minimum requirement. "
+            "Please upgrade to {1} or newer.".format(zoau_version, CURRENT_MINIMUM_LEVEL)
+        )

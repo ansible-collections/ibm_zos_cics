@@ -26,7 +26,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import global_catalog
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _icetool as icetool
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSCmdResponse
 import pytest
 import sys
 

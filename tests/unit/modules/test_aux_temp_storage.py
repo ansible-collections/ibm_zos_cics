@@ -19,7 +19,7 @@ from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper imp
     set_module_args
 )
 from ansible_collections.ibm.ibm_zos_cics.plugins.modules import aux_temp_storage
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSCmdResponse
 import pytest
 import sys
 

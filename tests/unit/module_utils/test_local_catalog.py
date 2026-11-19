@@ -8,7 +8,7 @@ from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set import 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException, _execution
 from ansible_collections.ibm.ibm_zos_cics.tests.unit.helpers.data_set_helper import PYTHON_LANGUAGE_FEATURES_MESSAGE, CCUTL_name, CCUTL_stderr
 
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmdResponse
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSCmdResponse
 __metaclass__ = type
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _local_catalog as local_catalog_utils
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils import _data_set_utils as data_set_utils

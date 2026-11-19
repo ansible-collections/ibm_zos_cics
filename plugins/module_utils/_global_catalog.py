@@ -5,26 +5,19 @@
 
 # FOR INTERNAL USE IN THE COLLECTION ONLY.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
-import traceback
-
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.zos_mvs_raw import MVSCmd, MVSCmdResponse
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import OutputDefinition, DatasetDefinition, DDStatement, InputDefinition
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException, _execution
-from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import MVS_CMD_RETRY_ATTEMPTS
-
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.import_handler import (
-    ZOAUImportError
-)
-
-try:
-    from zoautil_py import datasets, exceptions
-except Exception:
-    # Use ibm_zos_core's approach to handling zoautil_py imports so sanity tests pass
-    datasets = ZOAUImportError(traceback.format_exc())
-    exceptions = ZOAUImportError(traceback.format_exc())
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import \
+    MVS_CMD_RETRY_ATTEMPTS
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._dd_statement import (
+    DatasetDefinition, DDStatement, InputDefinition, StdoutDefinition)
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._mvscmd_builder import \
+    build_mvscmd_command
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import (
+    MVSCmdResponse, MVSExecutionException, _cleanup_temp_items,
+    _execute_subprocess, _execution)
 
 
 def _get_value_from_line(line):  # type: (list[str]) -> str | None
@@ -120,33 +113,27 @@ def _run_dfhrmutl(
 
 
 def _execute_dfhrmutl(location, sdfhload, cmd=""):   # type: (str, str, str) -> MVSCmdResponse
-    sysprint = OutputDefinition(record_length=133)
-
+    """Execute DFHRMUTL using mvscmd."""
     dds = [
         DDStatement('steplib', DatasetDefinition(sdfhload)),
         DDStatement('dfhgcd', DatasetDefinition(location)),
         DDStatement('sysin', InputDefinition(content=cmd)),
-        DDStatement('sysprint', sysprint)
+        DDStatement('sysprint', StdoutDefinition()),
     ]
 
-    response = MVSCmd.execute(
-        pgm="DFHRMUTL",
-        dds=dds,
+    command, temp_datasets = build_mvscmd_command(
+        "DFHRMUTL",
+        dds,
+        authorized=False,
         verbose=True,
-        debug=False)
+        debug=False
+    )
 
-    try:
-        response.stdout = datasets.read(sysprint.name)
-        datasets.delete(sysprint.name)
-    except exceptions.ZOAUException as e:
-        raise MVSExecutionException(
-            msg="Unable to read SYSPRINT dataset {0}".format(sysprint.name),
-            rc=e.response.rc,
-            stdout=e.response.stdout_response,
-            stderr=e.response.stderr_response
-        )
+    rc, stdout, stderr = _execute_subprocess(command)
 
-    return response
+    _cleanup_temp_items(temp_datasets)
+
+    return MVSCmdResponse(rc, stdout, stderr)
 
 
 def _get_idcams_cmd_gcd(dataset):   # type: (dict) -> dict

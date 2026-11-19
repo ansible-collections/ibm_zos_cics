@@ -202,7 +202,7 @@ msg:
 
 
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._response import MVSExecutionException
-from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.dd_statement import DatasetDefinition, StdinDefinition
+from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._dd_statement import DatasetDefinition, StdinDefinition
 from ansible_collections.ibm.ibm_zos_cics.plugins.module_utils._data_set_utils import (
     _build_idcams_define_cmd
 )

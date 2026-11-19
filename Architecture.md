@@ -66,7 +66,7 @@ These modules manage CICS region data sets and lifecycle:
 - Create, initialize, and manage VSAM and sequential data sets
 - Support templated data set naming conventions
 - Provide state management (absent, initial, warm)
-- Execute z/OS utilities (IDCAMS, DFHCSDUP, DFHCCUTL, etc.)
+- Execute z/OS utilities directly via ZOAU CLI tools (IDCAMS, DFHCSDUP, DFHCCUTL, etc.)
 
 ### 2. Module Utilities Layer
 
@@ -90,19 +90,32 @@ The [`module_utils`](plugins/module_utils/) directory contains shared code used 
 #### Specialized Utilities
 
 - [`_data_set_utils.py`](plugins/module_utils/_data_set_utils.py) - Data set operations
-  - IDCAMS command building and execution
-  - LISTDS operations for data set inspection
-  - IEFBR14 for sequential data set creation
+  - IDCAMS command building and execution via `mvscmdauth`
+  - LISTDS operations for data set inspection via `mvscmdauth IKJEFT01`
+  - Sequential data set allocation via `dtouch`
+  - Data set content reading via `dcat`
+
+- [`_dd_statement.py`](plugins/module_utils/_dd_statement.py) - DD statement definitions
+  - `DatasetDefinition`, `StdinDefinition`, `StdoutDefinition`, `InputDefinition`, `OutputDefinition`, `DDStatement`
+  - Represent DD allocations passed to `_mvscmd_builder` for command construction
+
+- [`_mvscmd_builder.py`](plugins/module_utils/_mvscmd_builder.py) - MVS command construction
+  - Builds `mvscmd` and `mvscmdauth` shell commands from a program name and list of `DDStatement` objects
+  - Manages temporary datasets for stdin content, cleaning them up after execution
+  - Provides `_write_to_dataset()` for writing content to a temporary MVS dataset via `dtouch`/`decho`
+
+- [`_arg_parser.py`](plugins/module_utils/_arg_parser.py) - Argument parsing
+  - `BetterArgParser` for z/OS-specific argument validation (dataset names, volume serials, members)
 
 - [`_csd.py`](plugins/module_utils/_csd.py) - CSD-specific operations
-  - DFHCSDUP command execution
+  - DFHCSDUP command execution via `mvscmd`
   - CSD initialization scripts
 
 - [`_local_catalog.py`](plugins/module_utils/_local_catalog.py) - Local catalog operations
-  - DFHCCUTL utility execution
+  - DFHCCUTL utility execution via `mvscmd`
 
 - [`_global_catalog.py`](plugins/module_utils/_global_catalog.py) - Global catalog operations
-  - DFHRMUTL utility execution
+  - DFHRMUTL utility execution via `mvscmd`
 
 - [`_jcl_helper.py`](plugins/module_utils/_jcl_helper.py) - JCL generation
   - Builds CICS startup JCL
@@ -110,14 +123,18 @@ The [`module_utils`](plugins/module_utils/) directory contains shared code used 
   - Manages SIT (System Initialization Table) parameters
 
 - [`_icetool.py`](plugins/module_utils/_icetool.py) - ICETOOL operations
-  - Record counting for VSAM data sets
+  - Record counting for VSAM data sets via `mvscmd`
 
 - [`_response.py`](plugins/module_utils/_response.py) - Response handling
-  - Execution result structures
-  - Exception handling
+  - `_execution()` — builds the standard `{name, rc, stdout, stderr}` dict appended to every module's `executions` list
+  - `MVSCmdResponse` — holds `rc`, `stdout`, `stderr` from a subprocess invocation
+  - `MVSExecutionException` — wraps failures with the accumulated executions list
+  - `_execute_subprocess()` — runs a shell command via `subprocess.run` and returns `(rc, stdout, stderr)`
+  - `_cleanup_temp_items()` — removes temporary Unix files and MVS datasets created during execution
 
 - [`_zoau_version_checker.py`](plugins/module_utils/_zoau_version_checker.py) - ZOAU validation
-  - Ensures compatible ZOAU version is installed
+  - Invokes `zoaversion` CLI at runtime to determine the installed ZOAU version
+  - Raises `ImportError` if ZOAU is absent or below the minimum supported version (1.3.0.0)
 
 ### 3. Action Plugins
 
@@ -170,9 +187,9 @@ flowchart TD
     B --> |Expand templates<br/>Validate parameters<br/>Read local files| C[Ansible Module<br/>e.g., csd<br/>Managed Node]
     C --> D[DataSet Base Class<br/>_data_set.py]
     D --> E[Specialized Module Utils<br/>e.g., _csd.py]
-    E --> F[z/OS Utilities<br/>IDCAMS, DFHCSDUP, etc.]
-    F --> G[ZOAU<br/>Z Open Automation Utilities]
-    G --> H[z/OS System]
+    E --> F[_mvscmd_builder.py<br/>Build CLI command]
+    F --> G[ZOAU CLI Tools<br/>mvscmd / mvscmdauth<br/>dtouch / dcat / decho]
+    G --> H[z/OS System<br/>IDCAMS, DFHCSDUP, etc.]
     H --> I[Return execution results to user]
 ```
 
@@ -230,35 +247,48 @@ This expands to:
 
 ### 4. Execution Tracking
 
-All modules track execution details:
+All provisioning modules return an `executions` list. Each entry is produced by `_execution()` in `_response.py` and has the same four fields regardless of which program ran:
 
 ```python
 executions = [
     {
-        "name": "Create data set",
+        "name": "IDCAMS - Creating DFHCSD data set - Run 1",
         "rc": 0,
-        "stdout": "...",
-        "stderr": ""
+        "stdout": "...",   # raw stdout from the CLI tool
+        "stderr": "..."    # raw stderr from the CLI tool
     }
 ]
 ```
 
-This provides transparency and debugging capability.
+The `stop_region` action plugin uses a different execution shape, reflecting the shell commands it issues (`jls`, `opercmd`, `jcan`):
+
+```python
+executions = [
+    {
+        "name": "Checking status of job MYJOB(JOB12345)",
+        "rc": 0,
+        "return": {        # raw result dict from the command action plugin
+            "rc": 0,
+            "stdout": "...",
+            "stderr": "...",
+            "cmd": "jls -j '/*/{job_name}'"
+        }
+    }
+]
+```
+
+Both formats provide full transparency for debugging.
 
 ## Dependencies
 
 ### External Dependencies
 
 1. **ZOAU (Z Open Automation Utilities)** - Required for provisioning modules
-   - Provides Python APIs for z/OS operations
-   - Minimum version checked at runtime
+   - CLI tools (`mvscmd`, `mvscmdauth`, `dtouch`, `dcat`, `decho`, `drm`, `jls`, `jcan`, `opercmd`, `zoaversion`) must be present on the managed node
+   - Minimum version 1.3.0.0 is verified at runtime by invoking `zoaversion`
 
 2. **xmltodict** - Required for CMCI modules
    - Parses XML responses from CMCI REST API
-
-3. **ibm.ibm_zos_core** - Ansible collection dependency. Required for provisioning modules
-   - Provides core z/OS functionality
-   - Used for data set operations, job management, TSO commands
 
 ### z/OS Requirements
 
@@ -268,7 +298,7 @@ This provides transparency and debugging capability.
 - Valid credentials or certificates
 
 **For Provisioning Modules:**
-- ZOAU installed on managed node
+- ZOAU 1.3.0.0 or later installed on the managed node
 - CICS libraries (SDFHLOAD, etc.)
 - Language Environment libraries
 - Appropriate z/OS authorizations
@@ -284,10 +314,11 @@ This provides transparency and debugging capability.
 
 ### Provisioning Modules
 
-- MVSExecutionException wraps z/OS utility failures
-- Return codes from utilities are checked
-- Execution history is preserved for debugging
-- Data set state is validated before operations
+- `MVSExecutionException` wraps z/OS utility failures, carrying the full `executions` list at the point of failure
+- Return codes from subprocess invocations are checked; non-zero RC raises an exception
+- Execution history is preserved in the module return value for debugging
+- Data set state is validated before and after operations via LISTDS
+- `_cleanup_temp_items()` ensures temporary datasets and Unix files created during command construction are always removed, even on failure
 
 ## Security Considerations
 
@@ -332,12 +363,12 @@ This provides transparency and debugging capability.
 
 ### Adding New Data Set Modules
 
-1. Extend `DataSet` base class
+1. Extend `DataSet` base class from [`_data_set.py`](plugins/module_utils/_data_set.py)
 2. Implement required methods:
    - `_get_arg_spec()` - Define parameters
-   - `create_data_set()` - Data set creation logic
+   - `create_data_set()` - Data set creation logic; use `build_vsam_data_set()` for VSAM or `build_seq_data_set()` for sequential
    - `execute_target_state()` - State-specific logic (optional)
-3. Create corresponding module_utils helper (e.g., `_new_dataset.py`)
+3. Create a corresponding module_utils helper (e.g., `_new_dataset.py`) that builds DD statements using types from `_dd_statement.py` and executes them via `_mvscmd_builder.build_mvscmd_command()`
 
 ## Testing Strategy
 
